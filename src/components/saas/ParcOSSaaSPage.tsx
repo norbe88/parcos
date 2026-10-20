@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { ShowcaseNavbar } from './showcase/ShowcaseNavbar';
 import { ShowcaseHero } from './showcase/ShowcaseHero';
+import ShowroomGarageGate from './showcase/ShowroomGarageGate';
 import { InteractiveOcrDemo } from './showcase/InteractiveOcrDemo';
 import { ThemeShowcaseDock } from './showcase/ThemeShowcaseDock';
 import { WhatsAppQuoteSimulator } from './showcase/WhatsAppQuoteSimulator';
@@ -47,8 +48,29 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
 }) => {
   const [activeLang, setActiveLang] = useState<'RO' | 'EN' | 'HU'>('RO');
 
+  // 🏷️ Actualizare dinamică document.title pentru tab-ul de browser ParcOS
+  React.useEffect(() => {
+    const prevTitle = document.title;
+    document.title = 'ParcOS — Sistem de Operare Autonom pentru Parcuri Auto & DMS Cloud';
+    
+    // Asigurăm că tema de bază rămâne obsidian_gold pe pagina de prezentare
+    document.documentElement.setAttribute('data-theme', 'obsidian_gold');
+    document.body.setAttribute('data-theme', 'obsidian_gold');
+
+    return () => {
+      document.title = prevTitle;
+    };
+  }, []);
+
   const handleLaunchDemo = () => {
     const el = document.querySelector('#demo-ocr');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleScrollToDMS = () => {
+    const el = document.querySelector('#hero') || document.querySelector('#demo-ocr') || document.querySelector('#module');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -64,6 +86,12 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans selection:bg-amber-500/20 selection:text-amber-300 overflow-x-hidden">
       
+      {/* 0. Intro Cinematic Interactiv: Ușă Garaj / Showroom Rulou Sticlă & Carbon (Creat de Argon) */}
+      <ShowroomGarageGate 
+        onExploreClick={handleScrollToDMS}
+        autoOpenDelayMs={1800}
+      />
+
       {/* 1. Sculptural Sticky Technical Navigation Bar (< 64px) */}
       <ShowcaseNavbar 
         onSwitchToDealer={onSwitchToDealer}

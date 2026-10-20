@@ -59,22 +59,22 @@ export const ShowcaseHero: React.FC<ShowcaseHeroProps> = ({
 
       {/* Eyebrow HUD Bracket Tag */}
       <div className="flex justify-center mb-6">
-        <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-zinc-900/90 border border-white/10 text-zinc-300 text-xs font-mono-telemetry tracking-wide shadow-inner shadow-black/50">
+        <div className="inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-1.5 rounded-full bg-zinc-900/90 border border-white/10 text-zinc-300 text-xs font-mono-telemetry tracking-wide shadow-inner shadow-black/50">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400" />
           <span className="text-amber-400 font-bold">[ DMS v2.4 ]</span>
-          <span className="text-zinc-400 hidden xs:inline">•</span>
-          <span className="text-zinc-300 truncate max-w-[240px] xs:max-w-none">
+          <span className="text-zinc-500">•</span>
+          <span className="text-zinc-200 font-medium">
             Sistem Autonom pentru Parcuri Auto
           </span>
-          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] text-zinc-400 px-1.5 py-0.2 bg-zinc-800 rounded border border-white/5 font-mono">
-            Netcup VPS
+          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] text-emerald-400/90 px-2 py-0.5 bg-emerald-500/10 rounded-full border border-emerald-500/20 font-mono">
+            Cloud-Native • 99.9% Uptime
           </span>
         </div>
       </div>
 
       {/* Main Sculptural Display Headline */}
       <div className="text-center max-w-5xl mx-auto">
-        <h1 className="font-display font-extrabold tracking-tight text-white text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.08] sm:leading-[1.06] text-balance">
+        <h1 className="font-sans font-extrabold tracking-[-0.03em] text-white text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.08] sm:leading-[1.06] text-balance">
           Sistemul de Operare Autonom pentru{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500 hud-glow-amber">
             Parcuri Auto Moderne

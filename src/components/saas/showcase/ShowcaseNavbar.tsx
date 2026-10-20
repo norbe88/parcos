@@ -103,7 +103,7 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
                 </span>
               </div>
               <span className="text-[9px] font-mono tracking-widest text-zinc-400 uppercase leading-tight sm:block hidden">
-                Dealership OS • Netcup VPS
+                Dealership OS • Cloud-Native
               </span>
             </div>
           </a>
