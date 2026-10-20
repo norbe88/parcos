@@ -177,6 +177,30 @@ export const DEFAULT_DEALER_PROFILES = {
         reservationTerm: 'Garanție de Rezervare/Participare'
       }
     }
+  },
+  parcos: {
+    id: 10,
+    name: 'ParcOS — Dealership Operating System',
+    slug: 'parcos',
+    domain: 'parcos.ro',
+    phone_primary: '0748 892 937',
+    phone_secondary: '0758 042 979',
+    whatsapp_number: '40748892937',
+    email: 'contact@parcos.ro',
+    address_street: 'Cluj-Napoca / Turnkey Cloud',
+    city: 'Cluj-Napoca',
+    county: 'Cluj',
+    vat_number: 'RO48482214',
+    is_active: true,
+    config: {
+      themePreset: 'obsidian_gold',
+      vatRate: 0.21,
+      bank: {
+        name: 'Banca Transilvania',
+        warrantyTerm: 'Cont de Garanție',
+        reservationTerm: 'Garanție de Rezervare/Participare'
+      }
+    }
   }
 };
 
@@ -339,18 +363,19 @@ export async function resolveTenant(req, urlObj) {
     }
   }
 
-  // 4. Fallback garantat: dealer implicit (rxm)
-  const cachedRxm = tenantConfigCache.get('slug:rxm');
-  if (cachedRxm && (Date.now() - cachedRxm.timestamp < TENANT_CACHE_TTL)) {
-    return cachedRxm.data;
+  // 4. Fallback garantat: dealer implicit configurat (DEALER_SLUG sau rxm)
+  const fallbackSlug = normalizeSlug(DEALER_SLUG) || 'rxm';
+  const cachedFallback = tenantConfigCache.get(`slug:${fallbackSlug}`);
+  if (cachedFallback && (Date.now() - cachedFallback.timestamp < TENANT_CACHE_TTL)) {
+    return cachedFallback.data;
   }
-  const rxm = await getDealerBySlug('rxm');
-  if (rxm) {
-    tenantConfigCache.set('slug:rxm', { data: rxm, timestamp: Date.now() });
-    return rxm;
+  const dbDealer = await getDealerBySlug(fallbackSlug);
+  if (dbDealer) {
+    tenantConfigCache.set(`slug:${fallbackSlug}`, { data: dbDealer, timestamp: Date.now() });
+    return dbDealer;
   }
 
-  return DEFAULT_DEALER_PROFILES.rxm;
+  return DEFAULT_DEALER_PROFILES[fallbackSlug] || DEFAULT_DEALER_PROFILES.rxm;
 }
 
 /**
