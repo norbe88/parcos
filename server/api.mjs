@@ -1222,7 +1222,7 @@ const server = http.createServer(async (req, res) => {
 
     // 🌐 Servire fișiere statice din bundle-ul de producție (dist/) pentru Coolify / Docker Unificat
     const DIST_DIR = path.resolve('dist');
-    if (fs.existsSync(DIST_DIR) && req.method === 'GET' && !pathname.startsWith('/api/')) {
+    if (fs.existsSync(DIST_DIR) && (req.method === 'GET' || req.method === 'HEAD') && !pathname.startsWith('/api/')) {
       const sanitizedPath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
       const potentialFile = path.join(DIST_DIR, sanitizedPath);
 
@@ -1253,6 +1253,7 @@ const server = http.createServer(async (req, res) => {
           'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
           'X-Content-Type-Options': 'nosniff',
         });
+        if (req.method === 'HEAD') return res.end();
         return fs.createReadStream(potentialFile).pipe(res);
       }
 
@@ -1264,6 +1265,7 @@ const server = http.createServer(async (req, res) => {
           'Cache-Control': 'no-cache',
           'X-Content-Type-Options': 'nosniff',
         });
+        if (req.method === 'HEAD') return res.end();
         return fs.createReadStream(indexHtmlPath).pipe(res);
       }
     }
