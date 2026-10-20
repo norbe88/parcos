@@ -420,21 +420,11 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
 
       {/* Footer */}
       <footer className="border-t border-zinc-800/80 py-12 px-4 sm:px-8 text-center text-xs text-zinc-500">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Car className="w-4 h-4 text-amber-400" />
-            <span className="font-bold text-zinc-300">ParcOS Dealership Platform</span>
-            <span>•</span>
-            <span>CARVANA SRL Holding</span>
-          </div>
-
-          <div className="flex items-center gap-4 text-zinc-400">
-            <span>Strict 21% TVA Deductibil</span>
-            <span>•</span>
-            <span>Cont de Garanție Banca Transilvania</span>
-            <span>•</span>
-            <span>Găzduit pe Netcup VPS</span>
-          </div>
+        <div className="max-w-6xl mx-auto flex items-center justify-center gap-2">
+          <Car className="w-4 h-4 text-amber-400" />
+          <span className="font-bold text-zinc-300">ParcOS - Your Dealership Platform</span>
+          <span>•</span>
+          <span>CARVANA SRL</span>
         </div>
       </footer>
     </div>
