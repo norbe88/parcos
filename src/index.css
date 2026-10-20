@@ -1,0 +1,474 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  max-width: 100vw;
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  max-width: 100vw;
+  overflow-x: clip;
+  background-color: #09090b;
+  color: #f4f4f5;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  touch-action: manipulation;
+  overscroll-behavior-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Safe Area Insets for Mobile Devices (iOS & Android Notch/Gesture Bar) */
+.safe-pb {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+.safe-pt {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.safe-mb {
+  margin-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+/* 🍎 iOS Safari Specifice: Prevenire Auto-Zoom la Focus pe Formulare (< 16px) & Suport WebKit */
+@media screen and (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Defilare inerțială fluidă pe iOS WebKit */
+.overflow-y-auto,
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Suport complet WebKit pentru sticlă / backdrop-blur */
+[class*="backdrop-blur"] {
+  -webkit-backdrop-filter: var(--tw-backdrop-blur);
+}
+
+/* CARVANA Holding Anti-AI Telemetry & Hairline Utilities */
+.hairline-t {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.hairline-b {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.hairline-x {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* 🖨️ STILURI TIPĂRIRE FIȘĂ AUTO (A4 STRICT 1-PAGE CLEAN PRINT) */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+  
+  html, body {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 10pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Când este deschis un modal de parbriz sau documente vânzare, ascundem complet #root */
+  body.has-window-sticker-open #root,
+  body.has-sales-docs-open #root,
+  body:has(.window-sticker-modal-container) #root,
+  body:has(.sales-docs-modal-container) #root {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Ascunde elementele UI web standard când se printează direct */
+  .no-print,
+  header,
+  footer,
+  nav,
+  button,
+  input,
+  select,
+  textarea,
+  .slider-thumb {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Când NU este deschis un modal, ascundem main și elementele showroom pentru a printa fișa tehnică */
+  body:not(.has-window-sticker-open):not(.has-sales-docs-open) main,
+  body:not(.has-window-sticker-open):not(.has-sales-docs-open) .fixed:not(.sales-docs-modal-container):not(.window-sticker-modal-container),
+  body:not(.has-window-sticker-open):not(.has-sales-docs-open) > #root > div > *:not(.printable-dossier):not(.sales-docs-modal-container):not(.window-sticker-modal-container) {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Când este deschis un modal de documente / parbriz, ascundem fișa de vehicul de fundal */
+  body.has-window-sticker-open .printable-dossier,
+  body.has-sales-docs-open .printable-dossier,
+  body:has(.sales-docs-modal-container) .printable-dossier,
+  body:has(.window-sticker-modal-container) .printable-dossier {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Permitem modalului de parbriz / documente să devină container de print paginat direct din body */
+  .sales-docs-modal-container,
+  .window-sticker-modal-container {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    inset: auto !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .sales-docs-modal-container > div,
+  .window-sticker-modal-container > div {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .sales-docs-modal-container .bg-zinc-300,
+  .window-sticker-modal-container .bg-zinc-300 {
+    background: transparent !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  .sales-docs-paper-preview,
+  .window-sticker-paper-preview {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .printable-doc {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Stil dedicat de print pentru Fișa de Parbriz cu bordură aurie */
+  .printable-window-sticker {
+    border: 3.5px solid #f59e0b !important;
+    border-radius: 16px !important;
+    padding: 18px 20px !important;
+    margin: 0 auto !important;
+    background-color: #ffffff !important;
+    color: #09090b !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .html2pdf__page-break {
+    page-break-before: always !important;
+    break-before: page !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* Afișează EXCLUSIV fișa auto pe o singură pagină A4 curată */
+  .print-only,
+  .printable-dossier {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: none !important;
+    box-shadow: none !important;
+    page-break-before: avoid !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .printable-dossier img {
+    max-height: 175px !important;
+    width: 100% !important;
+    object-fit: contain !important;
+    background-color: #f8fafc !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+}
+
+.print-only {
+  display: none;
+}
+
+.html2pdf__page-break {
+  page-break-before: always;
+  break-before: page;
+}
+
+/* 🛡️ AUTOLICIT STRICT PHOTO PROTECTION (ANTI-THEFT / ANTI-SAVE) */
+img[src*="/cars/"],
+.vehicle-photo-shield,
+[data-vehicle-photo] img {
+  -webkit-user-drag: none !important;
+  -khtml-user-drag: none !important;
+  -moz-user-drag: none !important;
+  -o-user-drag: none !important;
+  user-drag: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -ms-user-select: none !important;
+  pointer-events: none !important;
+}
+
+/* ==========================================================================
+   🎨 CARVANA DEALER OS — THEME PRESETS CASCADE (DARK LUXURY & CLEAN WHITE)
+   ========================================================================== */
+
+/* ⚪ 1. THEME PRESET: CLEAN WHITE LUXURY / NORDIC MINIMALIST */
+[data-theme="clean_white"] {
+  --theme-accent: #ffffff;
+  --theme-accent-hover: #e4e4e7;
+  --theme-accent-text: #ffffff;
+  --theme-border: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="clean_white"] .text-amber-400,
+[data-theme="clean_white"] .text-amber-300 {
+  color: #ffffff !important;
+}
+
+[data-theme="clean_white"] .bg-amber-500 {
+  background-color: #ffffff !important;
+  color: #09090b !important;
+}
+
+[data-theme="clean_white"] .bg-amber-500:hover {
+  background-color: #e4e4e7 !important;
+}
+
+[data-theme="clean_white"] .border-amber-500,
+[data-theme="clean_white"] .border-amber-500\/50,
+[data-theme="clean_white"] .border-amber-500\/40,
+[data-theme="clean_white"] .border-amber-500\/30,
+[data-theme="clean_white"] .border-amber-500\/25,
+[data-theme="clean_white"] .border-amber-500\/20 {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+[data-theme="clean_white"] .bg-amber-500\/10,
+[data-theme="clean_white"] .bg-amber-500\/15,
+[data-theme="clean_white"] .bg-amber-500\/20 {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="clean_white"] .shadow-amber-500\/20,
+[data-theme="clean_white"] .shadow-amber-500\/10 {
+  box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.12) !important;
+}
+
+/* 💎 2. THEME PRESET: MIDNIGHT SAPPHIRE / BLUE */
+[data-theme="midnight_blue"] .text-amber-400,
+[data-theme="midnight_blue"] .text-amber-300 {
+  color: #60a5fa !important;
+}
+
+[data-theme="midnight_blue"] .bg-amber-500 {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="midnight_blue"] .bg-amber-500:hover {
+  background-color: #2563eb !important;
+}
+
+[data-theme="midnight_blue"] .border-amber-500,
+[data-theme="midnight_blue"] .border-amber-500\/50,
+[data-theme="midnight_blue"] .border-amber-500\/40,
+[data-theme="midnight_blue"] .border-amber-500\/30,
+[data-theme="midnight_blue"] .border-amber-500\/25,
+[data-theme="midnight_blue"] .border-amber-500\/20 {
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+[data-theme="midnight_blue"] .bg-amber-500\/10,
+[data-theme="midnight_blue"] .bg-amber-500\/15,
+[data-theme="midnight_blue"] .bg-amber-500\/20 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  color: #93c5fd !important;
+}
+
+[data-theme="midnight_blue"] .shadow-amber-500\/20,
+[data-theme="midnight_blue"] .shadow-amber-500\/10 {
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* 🏎️ 3. THEME PRESET: CARBON CRIMSON / RED */
+[data-theme="carbon_red"] .text-amber-400,
+[data-theme="carbon_red"] .text-amber-300 {
+  color: #f87171 !important;
+}
+
+[data-theme="carbon_red"] .bg-amber-500 {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="carbon_red"] .bg-amber-500:hover {
+  background-color: #dc2626 !important;
+}
+
+[data-theme="carbon_red"] .border-amber-500,
+[data-theme="carbon_red"] .border-amber-500\/50,
+[data-theme="carbon_red"] .border-amber-500\/40,
+[data-theme="carbon_red"] .border-amber-500\/30 {
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+[data-theme="carbon_red"] .bg-amber-500\/10,
+[data-theme="carbon_red"] .bg-amber-500\/15,
+[data-theme="carbon_red"] .bg-amber-500\/20 {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  color: #fca5a5 !important;
+}
+
+/* 🌿 4. THEME PRESET: EMERALD PRESTIGE / GREEN */
+[data-theme="emerald_prestige"] .text-amber-400,
+[data-theme="emerald_prestige"] .text-amber-300 {
+  color: #34d399 !important;
+}
+
+[data-theme="emerald_prestige"] .bg-amber-500 {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="emerald_prestige"] .bg-amber-500:hover {
+  background-color: #059669 !important;
+}
+
+[data-theme="emerald_prestige"] .border-amber-500,
+[data-theme="emerald_prestige"] .border-amber-500\/50,
+[data-theme="emerald_prestige"] .border-amber-500\/40,
+[data-theme="emerald_prestige"] .border-amber-500\/30 {
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+[data-theme="emerald_prestige"] .bg-amber-500\/10,
+[data-theme="emerald_prestige"] .bg-amber-500\/15,
+[data-theme="emerald_prestige"] .bg-amber-500\/20 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #a7f3d0 !important;
+}
+
+/* 🎰 Slot Machine Shimmer Animation */
+@keyframes slotShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+.animate-slot-shimmer {
+  animation: slotShimmer 1.2s ease-in-out infinite;
+}

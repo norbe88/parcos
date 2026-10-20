@@ -1,0 +1,28 @@
+# ══════════════════════════════════════════════════════════════════
+# RXM Automobile — Micro-API Container (Coolify VPS)
+# Node 20 Alpine • Drizzle ORM • Local Disk Media Storage
+# ══════════════════════════════════════════════════════════════════
+
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# Variabile de mediu producție
+ENV NODE_ENV=production
+ENV PORT=3001
+
+# Instalare dependențe de producție
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copiere cod sursă server, helpers și scheme de date
+COPY server/ ./server/
+COPY scripts/marketScraperHelper.js ./scripts/marketScraperHelper.js
+COPY src/db/ ./src/db/
+
+# Creare director pentru stocare media dacă nu există
+RUN mkdir -p /data/rxm-showroom/cars
+
+EXPOSE 3001
+
+CMD ["node", "server/api.mjs"]

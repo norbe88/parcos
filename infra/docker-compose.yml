@@ -1,0 +1,62 @@
+services:
+  rxm-showroom:
+    image: nginx:alpine
+    container_name: rxm_showroom
+    restart: always
+    volumes:
+      - /data/rxm-showroom/rxm:/usr/share/nginx/html/rxm:ro
+      - /data/rxm-showroom/cars:/usr/share/nginx/html/rxm/cars:ro
+      - /data/rxm-showroom/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - coolify
+      - rxm-internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rxm-showroom.entrypoints=websecure,web"
+      - "traefik.http.routers.rxm-showroom.rule=(Host(`autolit.ro`) || Host(`www.autolit.ro`)) && PathPrefix(`/rxm`)"
+      - "traefik.http.routers.rxm-showroom.priority=100"
+      - "traefik.http.routers.rxm-showroom.tls=true"
+      - "traefik.http.routers.rxm-showroom.tls.certresolver=letsencrypt"
+      - "traefik.http.services.rxm-showroom.loadbalancer.server.port=80"
+    depends_on:
+      - rxm-api
+
+  rxm-postgres:
+    image: postgres:16-alpine
+    container_name: rxm_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: rxm_automobile
+      POSTGRES_USER: rxm_admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-rxm_secure_vault_2026}
+    volumes:
+      - /data/rxm-showroom/pgdata:/var/lib/postgresql/data
+      - ./init_schema.sql:/docker-entrypoint-initdb.d/init_schema.sql:ro
+    networks:
+      - rxm-internal
+
+  rxm-api:
+    build:
+      context: ..
+      dockerfile: Dockerfile.api
+    container_name: rxm_api
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgres://rxm_admin:${DB_PASSWORD:-rxm_secure_vault_2026}@rxm-postgres:5432/rxm_automobile
+      MEDIA_STORAGE_PATH: /data/rxm-showroom/cars
+      DEALER_SLUG: rxm
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+    volumes:
+      - /data/rxm-showroom/cars:/data/rxm-showroom/cars
+    networks:
+      - rxm-internal
+    depends_on:
+      - rxm-postgres
+
+networks:
+  coolify:
+    external: true
+  rxm-internal:
+    driver: bridge

@@ -1,0 +1,42 @@
+# RXM AUTO MOBILE Cluj-Napoca
+> Dealer autorizat autovehicule rulate premium și compacte, garanție 12-24 luni, finanțare rapidă cu 0% avans și numere roșii pe loc în Cluj-Napoca.
+
+## Despre RXM Automobile
+RXM AUTO MOBILE S.R.L. este un parc auto profesionist din Cluj-Napoca (mun. Cluj-Napoca, str. Colonia Hoia FN, jud. Cluj). Compania este specializată în comercializarea autovehiculelor rulate atent verificate tehnic în peste 150 de puncte, provenite din import european certificat.
+
+Fiecare vehicul este livrat cu:
+- Garanție extinsă 12-24 luni (motor și cutie de viteze)
+- Rulaj kilometric garantat contractual pe factură
+- Revizie gratuită completă efectuată la livrare (ulei + filtre)
+- Raport istoric daune / carVertical transparent
+- Eliberare numere roșii provizorii pe loc (30-90 zile)
+- Posibilitate livrare pe platformă la ușa clientului oriunde în România
+
+## Stoc Vehicule Disponibil
+- **Număr Vehicule Active:** 32 autoturisme în showroom
+- **Mărci în Stoc:** Audi, BMW, Dacia, Ford, Jeep, Mercedes-Benz, Mini, Opel, Peugeot, Renault, Seat, Skoda, Smart, Volkswagen, Volvo
+- **Plajă Prețuri:** de la 3,690 € până la 15,990 €
+- **Categorii:** SUV, Break / Combi, Berlina / Sedan, Hatchback, Compacte de oraș
+
+## Servicii Financiare & Facilități
+- **Finanțare Rate Fixe 0% Avans:** Parteneriate oficiale cu TBI Bank, Banca Transilvania (BT Direct), UniCredit Consumer Financing, CreditFix.
+- **Criterii Finanțare:** Persoane fizice (salariați cu minim 3 luni vechime, pensionari), persoane juridice (SRL / PFA), contracte de muncă în străinătate (Germania, Italia, etc.) sau persoane înregistrate în Biroul de Credit.
+- **Sistem Buy-Back:** Evaluare corectă pe loc a vechii mașini pentru a constitui avansul sau plata completă a noii mașini.
+- **Comandă Personalizată:** Aducem pe comandă orice model dorit din licitații și parcuri partenere din Germania și Olanda.
+
+## Contact Showroom & Locație Fizică
+- **Website Oficial:** https://rxmautomobile.ro
+- **Adresă Showroom:** mun. Cluj-Napoca, str. Colonia Hoia FN, jud. Cluj
+- **Telefon Vânzări & Showroom:** 0748 892 937 (Robert)
+- **Telefon Finanțare & Rate:** 0758 042 979 (Mădălina)
+- **WhatsApp Vânzări:** https://wa.me/40748892937
+- **Email:** contact@rxmautomobile.ro
+- **Program Lucru:** Luni - Vineri 10:00 - 18:00 | Sâmbătă - Duminică 10:00 - 16:00
+- **Google Maps:** https://www.google.com/maps/place/RXM+Automobile/@46.7987323,23.6716857,17z/data=!3m1!4b1!4m6!3m5!1s0x691a396c3c3458f3:0x9cec8cb127b27fff!8m2!3d46.7987287!4d23.6742606!16s%2Fg%2F11zfqg_ndk?hl=en-GB&entry=ttu&g_ep=EgoyMDI2MTAxMy4wIKXMDSoASAFQAw%3D%3D
+- **TikTok Oficial:** https://www.tiktok.com/@rxm.automobile
+
+## Resurse Detaliate pentru Agenți AI (LLMs)
+- [Catalog Complet Mașini Detaliat (llms-full.txt)](https://rxmautomobile.ro/llms-full.txt): Fișier complet cu date tehnice, prețuri și specificații pentru toate mașinile din stoc.
+- [Sitemap Oficial XML](https://rxmautomobile.ro/sitemap.xml): Index complet al tuturor URL-urilor pentru motoare de căutare.
+- [Termeni și Condiții de Garanție](https://rxmautomobile.ro/termeni-si-conditii): Politica detaliată de garanție și retur.
+- [Serviciu Livrare Națională](https://rxmautomobile.ro/livrare): Condițiile de transport și predare la domiciliu.

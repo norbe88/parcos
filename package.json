@@ -1,0 +1,47 @@
+{
+  "name": "parcos",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "prebuild": "npx tsx scripts/generate_seo_assets.ts",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "sitemap": "npx tsx scripts/generate_seo_assets.ts",
+    "seo": "npx tsx scripts/generate_seo_assets.ts",
+    "dealer:wizard": "node scripts/create_dealer_instance.cjs",
+    "start": "node server/api.mjs",
+    "api:start": "node server/api.mjs",
+    "api:dev": "node server/api.mjs"
+  },
+  "dependencies": {
+    "@types/qrcode": "^1.5.6",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.38.4",
+    "html2pdf.js": "^0.14.0",
+    "lucide-react": "^0.475.0",
+    "pdfjs-dist": "^6.4.299",
+    "postgres": "^3.4.9",
+    "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^3.0.1",
+    "tesseract.js": "^7.0.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/html2pdf.js": "^0.10.0",
+    "@types/node": "^22.13.4",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.2",
+    "sharp": "^0.35.5",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  },
+  "description": "ParcOS — Turnkey Multi-Tenant Dealership Operating System"
+}

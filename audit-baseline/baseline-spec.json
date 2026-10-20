@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "auditMetadata": {
+    "target": "carmatik.ro & dealer.carmatik.ro",
+    "auditor": "Website Baseline & State Auditor (/www, /audit-web, /baseline)",
+    "node": "Node-ZBook / Zeti",
+    "timestamp": "2026-10-18T23:35:00+03:00",
+    "authAccount": "silentx2z@gmail.com (Ion Pop)",
+    "dealerPortalUrl": "https://dealer.carmatik.ro/myaccount",
+    "publicPortalUrl": "https://carmatik.ro",
+    "b2bLandingUrl": "https://carmatik.ro/solutii-digitale-pentru-dealerii-auto"
+  },
+  "technologyStack": {
+    "backend": "Java Spring Boot (Spring MVC / Thymeleaf / JSP)",
+    "frontend": "Bootstrap 4/5, jQuery, custom vanilla JS, panels v2 asset tree",
+    "hosting": "Dedicated / VPS with Nginx reverse proxy",
+    "imageDelivery": "Direct origin static file server (`/resources/panelV2/`)",
+    "mobilePerformanceLighthouse": {
+      "performanceScoreRange": "32 - 64 / 100",
+      "lcpSeconds": "2.3s - 14.1s",
+      "payloadMB": "7.6MB - 17.2MB"
+    }
+  },
+  "modules": [
+    {
+      "id": "module-auth",
+      "name": "Dealer Authentication & Session Guard",
+      "entrypoint": "https://dealer.carmatik.ro/login",
+      "authGate": "Session cookie (JSESSIONID), Spring Security",
+      "logout": "https://dealer.carmatik.ro/logout"
+    },
+    {
+      "id": "module-dashboard",
+      "name": "Dealer Overview & KPI Dashboard",
+      "route": "/myaccount",
+      "screenshot": "audit-baseline/screenshots/01-carmatik-dashboard.png",
+      "widgets": [
+        "Total mașini active",
+        "Total dosare în lucru",
+        "Lead-uri noi necontactate",
+        "Comenzi Autovit active",
+        "Notificări expirare ITP / Asigurare / Livrare"
+      ]
+    },
+    {
+      "id": "module-ocr",
+      "name": "OCR Document Scanning Hub",
+      "route": "/myaccount/ocr",
+      "screenshot": "audit-baseline/screenshots/02-carmatik-ocr.png",
+      "mechanism": "Desktop-Mobile Realtime Streaming Pair (QR-based session transfer)",
+      "supportedDocuments": [
+        "Carte de Identitate a Vehiculului (CIV România)",
+        "Certificat de Înmatriculare (Talon Auto EU)",
+        "Carte de Identitate Persoană Fizică (CI România)"
+      ],
+      "extractedFields": [
+        "vin", "make", "model", "engineDisplacement", "enginePowerKw", "fuelType",
+        "firstRegistrationDate", "emissionClass", "color", "seats", "curbWeight",
+        "ownerName", "ownerCnpCui", "address"
+      ]
+    },
+    {
+      "id": "module-vehicle-wizard",
+      "name": "6-Step Vehicle Ingestion Wizard (Dosar Proiect)",
+      "route": "/myaccount/project/create",
+      "screenshot": "audit-baseline/screenshots/03-carmatik-vehicle-wizard.png",
+      "steps": [
+        {
+          "step": 1,
+          "name": "Dosar",
+          "types": ["Achiziție", "Consignație", "Buy-back", "Consignație internă"],
+          "fields": ["Locație vânzare", "Data intrare stoc", "Responsabil vânzări"]
+        },
+        {
+          "step": 2,
+          "name": "Mașină",
+          "fields": ["Serie șasiu (VIN)", "Marcă", "Model", "An", "Kilometraj", "Combustibil", "Transmisie", "Putere CP/KW", "Culoare", "Caroserie"]
+        },
+        {
+          "step": 3,
+          "name": "Furnizor / Proprietar",
+          "types": ["Persoană Fizică", "Persoană Juridică (România)", "Persoană Juridică (Intracomunitar)"],
+          "fields": ["Nume / Denumire", "CNP / CUI", "Adresă", "Bancă & IBAN"]
+        },
+        {
+          "step": 4,
+          "name": "Recepție & Stare Tehnică",
+          "fields": ["Proces-verbal recepție", "Anvelope", "Număr chei", "Defecte optice", "Checklist dotări"]
+        },
+        {
+          "step": 5,
+          "name": "Financiar & Preț",
+          "fields": ["Preț achiziție net", "TVA deductibil / Marjă de profit", "Costuri recondiționare / transport", "Preț vânzare brut", "Monedă (EUR / RON)"]
+        },
+        {
+          "step": 6,
+          "name": "Rezumat & Publicare",
+          "actions": ["Generare contract intrare", "Export fișă recepție", "Trimitere în stoc activ"]
+        }
+      ]
+    },
+    {
+      "id": "module-integrations",
+      "name": "Syndication & Marketplace Hub",
+      "route": "/myaccount/integrations",
+      "screenshot": "audit-baseline/screenshots/04-carmatik-integrations.png",
+      "channels": [
+        { "name": "Autovit.ro", "protocol": "API REST (Tiers Advanced/Expert)", "direction": "Bidirecțional" },
+        { "name": "OLX.ro", "protocol": "S9 / CarVertical Feed XML", "direction": "Unidirecțional (Export)" },
+        { "name": "Facebook Marketplace & Catalog", "protocol": "Meta Graph API / Product Catalog", "direction": "Export" },
+        { "name": "Instagram Shopping", "protocol": "Meta Catalog Sync", "direction": "Export" },
+        { "name": "TikTok Marketplace", "protocol": "TikTok Catalog XML Feed", "direction": "Export" },
+        { "name": "Publi24.ro", "protocol": "XML Feed", "direction": "Export" },
+        { "name": "BestAuto.ro", "protocol": "XML Feed", "direction": "Export" },
+        { "name": "Lajumate.ro", "protocol": "XML Feed", "direction": "Export" },
+        { "name": "Mogo Leasing", "protocol": "Lead API", "direction": "Bidirecțional" }
+      ]
+    },
+    {
+      "id": "module-settings",
+      "name": "System Configuration & Locations",
+      "route": "/myaccount/system",
+      "screenshot": "audit-baseline/screenshots/05-carmatik-settings.png",
+      "subroutes": [
+        "/myaccount/company/configs",
+        "/myaccount/dealer-location",
+        "/myaccount/invoice/configs",
+        "/myaccount/insurance/configs"
+      ]
+    },
+    {
+      "id": "module-leasing-simulator",
+      "name": "Financial & Credit Simulator",
+      "route": "/myaccount/documents/bank-credits/simulator",
+      "screenshot": "audit-baseline/screenshots/06-carmatik-leasing-simulator.png",
+      "formulaParameters": {
+        "clientName": "string",
+        "interestRateDefault": 0.0699,
+        "carNetPriceEur": "number",
+        "downpaymentPercentDefault": 20,
+        "dossierAnalysisPercentDefault": 2.5,
+        "adminFeePercentDefault": 0.5,
+        "residualValuePercentDefault": 1.0,
+        "logisticsCostEurDefault": 250,
+        "durationMonthsDefault": 60
+      }
+    },
+    {
+      "id": "module-etransport",
+      "name": "e-Transport ANAF Declarations & UIT",
+      "route": "/myaccount/transport_detail/see_etransport",
+      "screenshot": "audit-baseline/screenshots/07-carmatik-etransport.png",
+      "fields": ["Partener", "Articol", "Data transport", "Număr vehicul", "Declarant", "Transportator", "Cod UIT"]
+    },
+    {
+      "id": "module-crm",
+      "name": "CRM, Contacts & Pipeline",
+      "route": "/myaccount/contacts/list",
+      "screenshot": "audit-baseline/screenshots/08-carmatik-crm-contacts.png",
+      "contactTypes": ["LEAD", "CUSTOMER", "SUPPLIER", "LEASING_COMPANY", "TRANSPORTATOR"],
+      "attributes": ["Nume", "CNP/CUI", "Telefon", "Email", "Adresă", "Responsabil", "Canal de proveniență", "Alerte & Follow-up"]
+    },
+    {
+      "id": "module-social-automation",
+      "name": "Social Media Templates & Auto-posting",
+      "route": "/myaccount/facebook-configuration",
+      "screenshot": "audit-baseline/screenshots/09-carmatik-social-templates.png",
+      "capabilities": ["Dynamic Template Variables ({MARCA}, {MODEL}, {PRET}, {KM})", "Scheduled Publishing", "Page Linking"]
+    },
+    {
+      "id": "module-dossiers",
+      "name": "Dossier Lifecycle & Task Tracker",
+      "route": "/myaccount/project/see_projects",
+      "screenshot": "audit-baseline/screenshots/10-carmatik-dossiers.png",
+      "exports": ["Export Contracte Vânzare-Cumpărare", "Task-uri operaționale"]
+    },
+    {
+      "id": "module-inventory",
+      "name": "Vehicle Stock Catalog",
+      "route": "/myaccount/my-cars/make-search?createdDate=desc",
+      "screenshot": "audit-baseline/screenshots/11-carmatik-cars-list.png",
+      "vehicleStatuses": ["În stoc", "Rezervat", "Vândut", "În tranzit", "În pregătire"]
+    }
+  ]
+}

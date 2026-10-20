@@ -1,0 +1,21 @@
+{
+  "name": "RXM AUTO MOBILE",
+  "short_name": "RXM Auto",
+  "description": "Autovehicule Rulate Premium | Cluj-Napoca",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "icons": [
+    {
+      "src": "/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

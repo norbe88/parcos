@@ -1,0 +1,42 @@
+{
+  "name": "ParcOS Mail Hub — RXM Automobile",
+  "short_name": "ParcOS Mail",
+  "description": "Showroom Mail Hub, Speed-to-Lead Routing & Lead Closer pentru consilieri auto",
+  "start_url": "/?tab=mail",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Pool Showroom",
+      "short_name": "Pool",
+      "description": "Vezi lead-urile neasociate sosite în showroom",
+      "url": "/?tab=mail&folder=unassigned",
+      "icons": [{ "src": "/favicon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mesaj Nou",
+      "short_name": "Compune",
+      "description": "Compune un e-mail sau ofertă de vehicul",
+      "url": "/?tab=mail&action=compose",
+      "icons": [{ "src": "/favicon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

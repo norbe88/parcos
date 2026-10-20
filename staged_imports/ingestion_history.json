@@ -1,0 +1,59 @@
+[
+  {
+    "batchId": "BATCH-SEED-RXM-001",
+    "dealerKey": "rxm",
+    "timestamp": "2026-10-20T00:00:00.000Z",
+    "carsCount": 0,
+    "status": "COMPLETED",
+    "vehicleIds": [],
+    "notes": "Inițializare registru istoric importuri dealer RXM Automobile"
+  },
+  {
+    "batchId": "BATCH-MPI_AUTO-MVFYCLFS",
+    "dealerKey": "mpi_auto",
+    "timestamp": "2026-10-20T00:35:49.807Z",
+    "carsCount": 2,
+    "status": "COMPLETED",
+    "vehicleIds": [
+      "car_0cf18291",
+      "car_l2091823"
+    ],
+    "notes": "Import efectuat de CLI bulk_inventory_importer la 2026-10-20T00:35:49.807Z"
+  },
+  {
+    "batchId": "BATCH-AUTONORD_CLUJ-MVFYFRK8",
+    "dealerKey": "autonord_cluj",
+    "timestamp": "2026-10-20T00:38:17.725Z",
+    "carsCount": 2,
+    "status": "COMPLETED",
+    "vehicleIds": [
+      "car_0cf18291",
+      "car_l2091823"
+    ],
+    "notes": "Import efectuat de CLI bulk_inventory_importer la 2026-10-20T00:38:17.725Z"
+  },
+  {
+    "batchId": "BATCH-AUTONORD_CLUJ-MVG8PO74",
+    "dealerKey": "autonord_cluj",
+    "timestamp": "2026-10-20T05:25:56.078Z",
+    "carsCount": 2,
+    "status": "COMPLETED",
+    "vehicleIds": [
+      "car_0cf18291",
+      "car_l2091823"
+    ],
+    "notes": "Import efectuat de CLI bulk_inventory_importer la 2026-10-20T05:25:56.078Z"
+  },
+  {
+    "batchId": "BATCH-AUTONORD_CLUJ-MVG96MU1",
+    "dealerKey": "autonord_cluj",
+    "timestamp": "2026-10-20T05:39:07.469Z",
+    "carsCount": 2,
+    "status": "COMPLETED",
+    "vehicleIds": [
+      "car_0cf18291",
+      "car_l2091823"
+    ],
+    "notes": "Import efectuat de CLI bulk_inventory_importer la 2026-10-20T05:39:07.468Z"
+  }
+]

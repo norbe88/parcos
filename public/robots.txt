@@ -1,0 +1,68 @@
+# ===============================================================
+# RXM AUTO MOBILE Cluj-Napoca (https://rxmautomobile.ro/)
+# Robots & Scraping Policy - Standard AutoLicit / CARVANA SRL
+# Invariant: SEO & GEO (AI Search) Allowed 100% for Gemini, ChatGPT, Perplexity, Googlebot, Bingbot
+# Unauthenticated Bulk Data Harvesters BLOCKED
+# ===============================================================
+
+# 1. Motoare de Căutare Tradiționale & Agenți AI de Căutare Live (Allowlist SEO & GEO)
+User-agent: Googlebot
+User-agent: Googlebot-Image
+User-agent: Googlebot-News
+User-agent: GoogleOther
+User-agent: Bingbot
+User-agent: Slurp
+User-agent: DuckDuckBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: Claude-Web
+User-agent: Applebot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /sitemap.xml
+Allow: /rxm/
+Allow: /images/
+Allow: /cars/
+Allow: /assets/
+Disallow: /admin
+Disallow: /rxm/admin
+Disallow: /*?admin*
+
+# 2. Raw Training Scrapers & Bulk Harvesters (Fără Căutare Live)
+User-agent: CCBot
+User-agent: Bytespider
+User-agent: GPTBot
+User-agent: anthropic-ai
+User-agent: ClaudeBot
+User-agent: Amazonbot
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: FacebookBot
+User-agent: Diffbot
+User-agent: Omgilibot
+Disallow: /
+
+# 3. Scrapere & Utilitare Automate de Descărcare Masivă
+User-agent: Scrapy
+User-agent: curl
+User-agent: Wget
+User-agent: python-requests
+User-agent: Python-urllib
+User-agent: aiohttp
+User-agent: Go-http-client
+Disallow: /
+
+# 4. Politică Generală pentru toți ceilalți agenți web
+User-agent: *
+Disallow: /admin
+Disallow: /rxm/admin
+Disallow: /*?admin*
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+# Sitemaps & Context Agenți AI (LLMs)
+Sitemap: https://rxmautomobile.ro/sitemap.xml
+# LLM Manifest: https://rxmautomobile.ro/llms.txt

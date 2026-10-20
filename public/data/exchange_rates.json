@@ -1,0 +1,39 @@
+{
+  "bnrRate": 5.338,
+  "btRate": 5.4448,
+  "commercialMarginPct": 2,
+  "lastUpdated": "2026-10-13T14:27:01.625Z",
+  "lastUpdatedFormatted": "13.10.2026, 17:27:01 (RO Time)",
+  "source": "bnr_official",
+  "sourceLabel": "BNR Oficial via Open Exchange Rates (BNR/ECB Index)",
+  "syncedBy": "VPS Primary",
+  "status": "success",
+  "isManualOverride": false,
+  "nextScheduledSync": "Zilnic la 14:00 (BNR) & 14:01 (BT) RO Time",
+  "history": [
+    {
+      "timestamp": "2026-10-13T14:27:01.625Z",
+      "formattedDate": "13.10.2026, 17:27:01",
+      "bnrRate": 5.338,
+      "btRate": 5.4448,
+      "source": "BNR Oficial via Open Exchange Rates (BNR/ECB Index)",
+      "status": "success"
+    },
+    {
+      "timestamp": "2026-10-13T14:01:00+03:00",
+      "formattedDate": "13.10.2026, 14:01",
+      "bnrRate": 4.9785,
+      "btRate": 5.0781,
+      "source": "BNR Oficial & BT Feed (VPS Sync)",
+      "status": "success"
+    },
+    {
+      "timestamp": "2026-10-12T14:01:00+03:00",
+      "formattedDate": "12.10.2026, 14:01",
+      "bnrRate": 4.978,
+      "btRate": 5.0776,
+      "source": "BNR Oficial & BT Feed (VPS Sync)",
+      "status": "success"
+    }
+  ]
+}

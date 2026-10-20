@@ -1,0 +1,378 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "metadata": {
+    "source": "dealer.carmatik.ro",
+    "auditor": "Website Baseline & State Auditor (/www, /audit-web, /baseline)",
+    "timestamp": "2026-10-18T23:54:00+03:00",
+    "description": "Complete dictionary of all forms, input fields, select options, validation constraints, and actions reverse-engineered from Carmatik Dealer OS"
+  },
+  "forms": [
+    {
+      "id": "form-etransport-create",
+      "name": "RO e-Transport UIT Declaration Form",
+      "route": "/myaccount/transport_detail/create",
+      "action": "https://dealer.carmatik.ro/myaccount/transport_detail/save",
+      "method": "POST",
+      "screenshot": "audit-baseline/screenshots/14-carmatik-etransport-create-form.png",
+      "fields": [
+        {
+          "name": "operationTypeCode",
+          "label": "Tip operațiune",
+          "tag": "select",
+          "required": true,
+          "options": [
+            { "value": "10", "text": "Achiziţie intracomunitară" },
+            { "value": "12", "text": "Operaţiuni în sistem lohn (UE) - intrare" },
+            { "value": "14", "text": "Stocuri la dispoziţia clientului (Call-off stock) - intrare" },
+            { "value": "20", "text": "Livrare intracomunitară" },
+            { "value": "22", "text": "Operaţiuni în sistem lohn (UE) - ieşire" },
+            { "value": "24", "text": "Stocuri la dispoziţia clientului (Call-off stock) - ieşire" },
+            { "value": "30", "text": "Transport pe teritoriul naţional" },
+            { "value": "40", "text": "Import" },
+            { "value": "50", "text": "Export" },
+            { "value": "60", "text": "Tranzacţie intracomunitară - Intrare pentru depozitare/formare nou transport" },
+            { "value": "70", "text": "Tranzacţie intracomunitară - Ieşire după depozitare/formare nou transport" }
+          ]
+        },
+        { "name": "invoiceSellerConfigId", "label": "Declarant (Companie dealer)", "tag": "select", "required": true },
+        { "name": "commercialPartnerId", "label": "Partener comercial", "tag": "select", "required": true },
+        { "name": "transporterId", "label": "Transportator", "tag": "select", "required": true },
+        { "name": "deliveryDate", "label": "Data transport", "tag": "input", "type": "date", "required": true },
+        { "name": "vehicleNo", "label": "Număr vehicul (Cap tractor / Camion)", "tag": "input", "type": "text", "required": true },
+        { "name": "towNo1", "label": "Număr remorcă 1", "tag": "input", "type": "text", "required": false },
+        { "name": "towNo2", "label": "Număr remorcă 2", "tag": "input", "type": "text", "required": false },
+        {
+          "name": "loadingTypeId",
+          "label": "Tip start (Loc plecare)",
+          "tag": "select",
+          "required": true,
+          "options": [
+            { "value": "Ptf", "text": "Punct de frontieră" },
+            { "value": "CustomsOffice", "text": "Birou vamal" },
+            { "value": "Address", "text": "Loc de pe teritoriul național" }
+          ]
+        },
+        {
+          "name": "loadingPtfCode",
+          "label": "Punct trecere frontieră plecare",
+          "tag": "select",
+          "required": false,
+          "options": [
+            { "value": "1", "text": "Petea (HU)" },
+            { "value": "2", "text": "Borș (HU)" },
+            { "value": "3", "text": "Vărșand (HU)" },
+            { "value": "4", "text": "Nădlac (HU)" },
+            { "value": "37", "text": "Nădlac 2 - A1 (HU)" },
+            { "value": "38", "text": "Borș 2 - A3 (HU)" },
+            { "value": "5", "text": "Calafat (BG)" },
+            { "value": "9", "text": "Giurgiu (BG)" },
+            { "value": "35", "text": "Constanța Sud Agigea" },
+            { "value": "36", "text": "Siret (UA)" },
+            { "value": "32", "text": "Albița (MD)" }
+          ]
+        },
+        { "name": "loadingCountyCode", "label": "Județ încărcare", "tag": "select", "required": false },
+        { "name": "loadingCity", "label": "Localitate încărcare", "tag": "input", "type": "text", "required": false },
+        { "name": "loadingStreet", "label": "Stradă încărcare", "tag": "input", "type": "text", "required": false },
+        {
+          "name": "dischargeTypeId",
+          "label": "Tip final (Loc descărcare)",
+          "tag": "select",
+          "required": true,
+          "options": [
+            { "value": "Ptf", "text": "Punct de frontieră" },
+            { "value": "CustomsOffice", "text": "Birou vamal" },
+            { "value": "Address", "text": "Loc de pe teritoriul național" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "form-vehicle-wizard",
+      "name": "6-Step Vehicle Dossier & Ingestion Form",
+      "route": "/myaccount/project/create",
+      "action": "https://dealer.carmatik.ro/myaccount/project/save",
+      "method": "POST",
+      "screenshot": "audit-baseline/screenshots/03-carmatik-vehicle-wizard.png",
+      "fields": [
+        {
+          "name": "projectType",
+          "label": "Tip dosar",
+          "tag": "select",
+          "required": true,
+          "options": [
+            { "value": "ACQUISITION", "text": "Achiziție proprie" },
+            { "value": "DROPSHIP", "text": "Consignație" },
+            { "value": "BUYBACK", "text": "Buy-back" },
+            { "value": "INTERNAL_DROPSHIP", "text": "Consignație internă" }
+          ]
+        },
+        { "name": "vin", "label": "Serie Șasiu (VIN - 17 caractere)", "tag": "input", "type": "text", "required": true },
+        { "name": "make", "label": "Marcă vehicul", "tag": "select", "required": true },
+        { "name": "model", "label": "Model vehicul", "tag": "select", "required": true },
+        { "name": "kilometer", "label": "Kilometraj curent (km)", "tag": "input", "type": "text", "required": true },
+        { "name": "capacity", "label": "Capacitate cilindrică (cmc)", "tag": "input", "type": "text", "required": true },
+        { "name": "location", "label": "Locație / Showroom asociat", "tag": "select", "required": true },
+        { "name": "company", "label": "Companie vânzătoare", "tag": "select", "required": true },
+        { "name": "registrationId", "label": "Număr de înmatriculare", "tag": "input", "type": "text", "required": false },
+        { "name": "manufactureYear", "label": "Anul fabricației", "tag": "select", "required": true },
+        {
+          "name": "pollutionStandard",
+          "label": "Normă de poluare",
+          "tag": "select",
+          "required": true,
+          "options": [
+            { "value": "Euro 1", "text": "Euro 1" },
+            { "value": "Euro 2", "text": "Euro 2" },
+            { "value": "Euro 3", "text": "Euro 3" },
+            { "value": "Euro 4", "text": "Euro 4" },
+            { "value": "Euro 5", "text": "Euro 5" },
+            { "value": "Euro 5a", "text": "Euro 5a" },
+            { "value": "Euro 5b", "text": "Euro 5b" },
+            { "value": "Euro 6", "text": "Euro 6" },
+            { "value": "Euro 6b", "text": "Euro 6b" },
+            { "value": "Euro 6c", "text": "Euro 6c" },
+            { "value": "Euro 6d", "text": "Euro 6d" },
+            { "value": "Euro 6d-Temp", "text": "Euro 6d-Temp" }
+          ]
+        },
+        { "name": "engineSeries", "label": "Cod motor", "tag": "input", "type": "text", "required": false },
+        { "name": "technicalInspectionEndDate", "label": "Data expirare ITP", "tag": "input", "type": "date", "required": false },
+        { "name": "carDocumentIdentificationNumber", "label": "Serie CIV", "tag": "input", "type": "text", "required": false },
+        { "name": "weight", "label": "Greutate proprie (kg)", "tag": "input", "type": "text", "required": false },
+        { "name": "maximumAuthorizedWeight", "label": "Masă maximă autorizată (kg)", "tag": "input", "type": "text", "required": false },
+        { "name": "firstRegistrationDate", "label": "Data primei înmatriculări", "tag": "input", "type": "date", "required": false },
+        {
+          "name": "gasType",
+          "label": "Carburant",
+          "tag": "select",
+          "required": true,
+          "options": [
+            { "value": "DIESEL", "text": "Diesel" },
+            { "value": "PETROL", "text": "Benzină" },
+            { "value": "HYBRID", "text": "Hibrid" },
+            { "value": "HYBRID_PLUGIN", "text": "Hibrid Plug-in" },
+            { "value": "ELECTRICITY", "text": "Electric" },
+            { "value": "LPG", "text": "Benzină + GPL" },
+            { "value": "CNG", "text": "Benzină + CNG" },
+            { "value": "HYDROGENIUM", "text": "Hidrogen" },
+            { "value": "ETHANOL", "text": "Etanol" }
+          ]
+        },
+        { "name": "numberOfSeats", "label": "Număr de locuri", "tag": "input", "type": "text", "required": false },
+        {
+          "name": "color",
+          "label": "Culoare",
+          "tag": "select",
+          "required": true,
+          "options": [
+            { "value": "BLACK", "text": "Negru" },
+            { "value": "WHITE", "text": "Alb" },
+            { "value": "GRAY", "text": "Gri" },
+            { "value": "SILVER", "text": "Argintiu" },
+            { "value": "BLUE", "text": "Albastru" },
+            { "value": "RED", "text": "Roșu" },
+            { "value": "BROWN", "text": "Maro" },
+            { "value": "GREEN", "text": "Verde" },
+            { "value": "BEIGE", "text": "Bej" },
+            { "value": "ORANGE", "text": "Portocaliu" },
+            { "value": "YELLOW", "text": "Galben" },
+            { "value": "ANOTHER", "text": "Alte culori" }
+          ]
+        },
+        { "name": "supplier", "label": "Furnizor / Proprietar", "tag": "select", "required": true },
+        { "name": "country", "label": "Țară de achiziție (27 state UE)", "tag": "select", "required": true, "defaultValue": "RO" },
+        { "name": "purchaseCity", "label": "Oraș de achiziție", "tag": "input", "type": "text", "required": false },
+        {
+          "name": "vatType",
+          "label": "Tip regim TVA",
+          "tag": "select",
+          "required": true,
+          "options": [
+            { "value": "TVA_DEDUCTIBIL", "text": "TVA deductibil (Strict 21% în ParcOS)" },
+            { "value": "TVA_LA_MARJA", "text": "TVA la marjă de profit" },
+            { "value": "TAXARE_INVERSA", "text": "Taxare inversă (Intracomunitar)" }
+          ]
+        },
+        { "name": "vatRate", "label": "Cotă TVA (%)", "tag": "select", "defaultValue": "21" },
+        { "name": "costGross", "label": "Preț achiziție brut", "tag": "input", "type": "text", "required": true },
+        { "name": "costNet", "label": "Preț achiziție net", "tag": "input", "type": "text", "required": true },
+        { "name": "projectCurrency", "label": "Monedă", "tag": "select", "options": [{ "value": "RON", "text": "RON" }, { "value": "EUR", "text": "EUR" }] },
+        { "name": "exchangeRate", "label": "Curs valutar EUR/RON", "tag": "input", "type": "text", "required": true }
+      ]
+    },
+    {
+      "id": "form-leasing-simulator",
+      "name": "Leasing Simulation Form",
+      "route": "/myaccount/documents/bank-credits/simulator",
+      "action": "https://dealer.carmatik.ro/myaccount/documents/bank-credits/simulator",
+      "method": "POST",
+      "screenshot": "audit-baseline/screenshots/06-carmatik-leasing-simulator.png",
+      "fields": [
+        { "name": "clientName", "label": "Nume client", "tag": "input", "type": "text", "required": false },
+        { "name": "interestRate", "label": "Dobândă anuală (%)", "tag": "input", "type": "text", "defaultValue": "0.0699" },
+        { "name": "carPriceNetEur", "label": "Preț autoturism - Fără TVA (Euro)", "tag": "input", "type": "text", "required": true },
+        { "name": "downpaymentPercent", "label": "Avans (%)", "tag": "input", "type": "text", "defaultValue": "20" },
+        { "name": "dossierAnalysisPercent", "label": "Comision analiză dosar (%)", "tag": "input", "type": "text", "defaultValue": "2.5" },
+        { "name": "adminFeePercent", "label": "Comision administrare lunar (%)", "tag": "input", "type": "text", "defaultValue": "0.5" },
+        { "name": "residualValuePercent", "label": "Valoare reziduală (%)", "tag": "input", "type": "text", "defaultValue": "1" },
+        { "name": "logisticsCostEur", "label": "Costuri logistice (Euro)", "tag": "input", "type": "text", "defaultValue": "250" },
+        { "name": "months", "label": "Perioadă finanțare (Luni: 12-60)", "tag": "input", "type": "spinbutton", "defaultValue": "60" }
+      ]
+    },
+    {
+      "id": "form-loan-credit-simulator",
+      "name": "Auto Loan (Credit Persoane Fizice) Form",
+      "route": "/myaccount/documents/loan/simulator",
+      "action": "https://dealer.carmatik.ro/myaccount/documents/loan/simulator",
+      "method": "POST",
+      "screenshot": "audit-baseline/screenshots/17-carmatik-loan-credit-simulator.png",
+      "fields": [
+        { "name": "clientName", "label": "Nume client", "tag": "input", "type": "text", "required": false },
+        { "name": "interestRate", "label": "Dobândă (%)", "tag": "input", "type": "text", "defaultValue": "0.1159" },
+        { "name": "carPriceRon", "label": "Preț autoturism (RON)", "tag": "input", "type": "text", "required": true },
+        { "name": "euroExchangeRate", "label": "Curs EUR/RON", "tag": "input", "type": "text", "required": true },
+        { "name": "prePaymentPercentage", "label": "Avans (%)", "tag": "input", "type": "text", "defaultValue": "20" },
+        { "name": "fileAnalysisCommissionValue", "label": "Analiză dosar (RON)", "tag": "input", "type": "text", "defaultValue": "900" },
+        { "name": "months", "label": "Perioadă (Luni: 12-60)", "tag": "input", "type": "number", "defaultValue": "36" }
+      ]
+    },
+    {
+      "id": "form-invoice-series",
+      "name": "Fiscal & Proforma Invoice Series Definition",
+      "route": "/myaccount/invoice/series/add",
+      "action": "https://dealer.carmatik.ro/myaccount/invoice/series/save",
+      "method": "POST",
+      "screenshot": "audit-baseline/screenshots/23-carmatik-invoice-series-add.png",
+      "fields": [
+        { "name": "serie", "label": "Serie factură (ex: FCT)", "tag": "input", "type": "text", "required": true },
+        {
+          "name": "invoiceType",
+          "label": "Tip factură",
+          "tag": "select",
+          "required": true,
+          "options": [
+            { "value": "FACTURA_FISCALA", "text": "Factură fiscală" },
+            { "value": "FACTURA_PROFORMA", "text": "Factură proformă" }
+          ]
+        },
+        { "name": "nextNumber", "label": "Număr de start", "tag": "input", "type": "number", "defaultValue": "1", "required": true },
+        { "name": "displayOrder", "label": "Ordine de afișare", "tag": "input", "type": "number", "defaultValue": "1", "required": true },
+        { "name": "workingPointId", "label": "Punct de lucru", "tag": "select", "required": true },
+        { "name": "dealerLocationIds", "label": "Locații dealer asociate", "tag": "select", "multiple": true, "required": true },
+        { "name": "showWorkingPointOnInvoice", "label": "Afișează punctul de lucru pe factură", "tag": "input", "type": "checkbox", "defaultValue": "true" }
+      ]
+    },
+    {
+      "id": "form-bank-accounts",
+      "name": "Dealer Bank Accounts & IBAN Configuration",
+      "route": "/myaccount/invoice/bank-accounts/add",
+      "action": "https://dealer.carmatik.ro/myaccount/invoice/bank-accounts/save",
+      "method": "POST",
+      "screenshot": "audit-baseline/screenshots/24-carmatik-bank-account-add.png",
+      "fields": [
+        {
+          "name": "banca",
+          "label": "Bancă",
+          "tag": "select",
+          "required": true,
+          "options": [
+            { "value": "Banca Transilvania", "text": "Banca Transilvania" },
+            { "value": "BCR", "text": "BCR" },
+            { "value": "BRD - Groupe Société Générale", "text": "BRD - Groupe Société Générale" },
+            { "value": "Raiffeisen Bank", "text": "Raiffeisen Bank" },
+            { "value": "ING Bank", "text": "ING Bank" },
+            { "value": "UniCredit Bank", "text": "UniCredit Bank" },
+            { "value": "CEC Bank", "text": "CEC Bank" },
+            { "value": "Intesa Sanpaolo Bank", "text": "Intesa Sanpaolo Bank" },
+            { "value": "OTP Bank", "text": "OTP Bank" },
+            { "value": "Alpha Bank", "text": "Alpha Bank" },
+            { "value": "Garanti BBVA", "text": "Garanti BBVA" },
+            { "value": "First Bank", "text": "First Bank" },
+            { "value": "Libra Internet Bank", "text": "Libra Internet Bank" },
+            { "value": "ProCredit Bank", "text": "ProCredit Bank" },
+            { "value": "Exim Banca Românească", "text": "Exim Banca Românească" },
+            { "value": "Vista Bank", "text": "Vista Bank" },
+            { "value": "Credit Europe Bank", "text": "Credit Europe Bank" },
+            { "value": "TBI Bank", "text": "TBI Bank" },
+            { "value": "Patria Bank", "text": "Patria Bank" },
+            { "value": "Salt Bank", "text": "Salt Bank" }
+          ]
+        },
+        { "name": "cont", "label": "Cont IBAN", "tag": "input", "type": "text", "placeholder": "Ex: RO49 BTRL 1234 5678 9012 3456", "required": true },
+        { "name": "currency", "label": "Monedă cont", "tag": "select", "options": [{ "value": "RON", "text": "RON" }, { "value": "EUR", "text": "EUR" }], "required": true },
+        { "name": "inputNumber", "label": "Ordine de afișare pe factură", "tag": "input", "type": "text", "defaultValue": "1", "required": true },
+        { "name": "printString", "label": "Text adițional afișat pe factură", "tag": "input", "type": "text", "required": false },
+        { "name": "active", "label": "Cont activ", "tag": "input", "type": "checkbox", "defaultValue": "true" },
+        { "name": "defaultPrepopulate", "label": "Preselectat automat pe facturi", "tag": "input", "type": "checkbox", "defaultValue": "true" },
+        { "name": "sagaDefaultAccount", "label": "Cont implicit sincronizare SAGA", "tag": "input", "type": "hidden", "defaultValue": "false" }
+      ]
+    },
+    {
+      "id": "form-contacts-lead",
+      "name": "Contact & Lead Intake Form",
+      "route": "/myaccount/contacts/lead/add",
+      "action": "https://dealer.carmatik.ro/myaccount/contacts/lead/add",
+      "method": "POST",
+      "screenshot": "audit-baseline/screenshots/26-carmatik-add-lead-form.png",
+      "fields": [
+        {
+          "name": "personType",
+          "label": "Tip persoană",
+          "tag": "input",
+          "type": "radio",
+          "options": [
+            { "value": "PF", "text": "Persoană Fizică" },
+            { "value": "PJ", "text": "Persoană Juridică" }
+          ],
+          "defaultValue": "PF"
+        },
+        {
+          "name": "sourceType",
+          "label": "Categorie contact",
+          "tag": "input",
+          "type": "hidden",
+          "options": [
+            { "value": "LEAD", "text": "Lead (Potențial cumpărător)" },
+            { "value": "CUSTOMER", "text": "Client (Cumpărător confirmat)" },
+            { "value": "SUPPLIER", "text": "Furnizor (Vânzător mașină)" },
+            { "value": "LEASING_COMPANY", "text": "Companie de leasing" },
+            { "value": "TRANSPORTATOR", "text": "Transportator auto" }
+          ]
+        },
+        { "name": "firstName", "label": "Prenume", "tag": "input", "type": "text", "required": true },
+        { "name": "lastName", "label": "Nume", "tag": "input", "type": "text", "required": false },
+        { "name": "cnpFiscalCode", "label": "CNP (Persoană Fizică) sau CUI (Persoană Juridică)", "tag": "input", "type": "text", "required": false },
+        { "name": "idSeries", "label": "Serie CI", "tag": "input", "type": "text", "required": false },
+        { "name": "idNumber", "label": "Număr CI", "tag": "input", "type": "text", "required": false },
+        { "name": "phoneNumber", "label": "Număr de telefon", "tag": "input", "type": "text", "required": false },
+        { "name": "email", "label": "Adresă de email", "tag": "input", "type": "text", "required": false },
+        { "name": "country", "label": "Țară", "tag": "select", "defaultValue": "RO" },
+        { "name": "county", "label": "Județ", "tag": "select", "required": false },
+        { "name": "city", "label": "Localitate / Sector", "tag": "input", "type": "text", "required": false },
+        { "name": "street", "label": "Stradă", "tag": "input", "type": "text", "required": false },
+        { "name": "companyName", "label": "Denumire firmă (dacă PJ)", "tag": "input", "type": "text", "required": false },
+        { "name": "isVatPayer", "label": "Plătitor de TVA", "tag": "input", "type": "checkbox", "defaultValue": "false" },
+        { "name": "companyRegistrationNumber", "label": "Nr. Registrul Comerțului (J...)", "tag": "input", "type": "text", "required": false },
+        { "name": "bankName", "label": "Nume bancă", "tag": "input", "type": "text", "required": false },
+        { "name": "bankAccount", "label": "Cont IBAN", "tag": "input", "type": "text", "required": false }
+      ]
+    },
+    {
+      "id": "form-dealer-location",
+      "name": "Dealer Location & Showroom Point of Sale",
+      "route": "/myaccount/dealer-location/new",
+      "action": "https://dealer.carmatik.ro/myaccount/dealer-location/create",
+      "method": "POST",
+      "screenshot": "audit-baseline/screenshots/21-carmatik-location-create-form.png",
+      "fields": [
+        { "name": "companyId", "label": "Companie dealer", "tag": "select", "required": true },
+        { "name": "locationCode", "label": "Cod locație / ID parc", "tag": "input", "type": "text", "required": true },
+        { "name": "phoneNumber", "label": "Număr telefon locație", "tag": "input", "type": "text", "required": true },
+        { "name": "county", "label": "Județ", "tag": "input", "type": "text", "required": false },
+        { "name": "city", "label": "Localitate / Oraș", "tag": "input", "type": "text", "required": false },
+        { "name": "address", "label": "Adresă sediu / showroom", "tag": "input", "type": "text", "required": false }
+      ]
+    }
+  ]
+}

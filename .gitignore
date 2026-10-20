@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.staging
+.env.production
+.env.*.local
+*.pem
+*.key
+*.log
+.DS_Store
+Thumbs.db
+.scratch/
+.vscode/
+__pycache__/
+*.pyc
+public/rxm/cars/
