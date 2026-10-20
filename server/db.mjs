@@ -11,9 +11,10 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const NETCUP_DEFAULT_PG = 'postgres://postgres:O1MLK6Ezk4Y9IxEC0hwndUS7LDIijuUjZ76sDLPpHWAL55tsM76pokKe2vxdg1UR@6fezufnklecoapemrupsqpxh:5432/parcos';
 const DATABASE_URL = process.env.DATABASE_URL || (
   process.env.NODE_ENV === 'production'
-    ? (() => { throw new Error('❌ [DB FATAL] Variabila DATABASE_URL este obligatorie în producție pe Netcup VPS.'); })()
+    ? NETCUP_DEFAULT_PG
     : 'postgres://postgres:postgres@localhost:5432/rxm_automobile'
 );
 

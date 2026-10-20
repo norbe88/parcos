@@ -1280,11 +1280,15 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-initDatabase().then(() => {
-  server.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 [RXM Micro-API] Running on port ${PORT} (Dealer: ${DEALER_SLUG}) [Auth: ENABLED]`);
+initDatabase()
+  .then(() => {
+    console.log('✅ [Database] PostgreSQL inițializat cu succes.');
+  })
+  .catch((err) => {
+    console.error('⚠️ [RXM/ParcOS Micro-API] Avertisment la inițializarea bazei de date (continuăm în mod fallback):', err.message);
+  })
+  .finally(() => {
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 [RXM/ParcOS Micro-API] Running on port ${PORT} (Dealer: ${DEALER_SLUG}) [Auth: ENABLED]`);
+    });
   });
-}).catch((err) => {
-  console.error('❌ [RXM Micro-API] Fatal error la inițializarea bazei de date:', err);
-  process.exit(1);
-});
