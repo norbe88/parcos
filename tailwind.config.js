@@ -20,7 +20,7 @@ export default {
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
         serif: ['"Clash Display"', '"Plus Jakarta Sans"', 'sans-serif'],
-        display: ['"Clash Display"', '"Plus Jakarta Sans"', 'sans-serif'],
+        display: ['"Syne"', '"Clash Display"', '"Plus Jakarta Sans"', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
       zIndex: {
