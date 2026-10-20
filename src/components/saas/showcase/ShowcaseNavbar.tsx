@@ -52,7 +52,7 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
     { href: '#teme', label: 'Showroom Tematic', icon: Palette },
     { href: '#oferte-whatsapp', label: 'Oferte WhatsApp', icon: MessageSquare },
     { href: '#calculator-roi', label: 'Calculator ROI', icon: Calculator },
-    { href: '#comparatie', label: 'ParcOS vs Piață', icon: Scale },
+    { href: '#comparatie', label: 'Eficiență DMS', icon: Scale },
     { href: '#onboard', label: 'Înscriere Parc', icon: Sparkles },
   ];
 

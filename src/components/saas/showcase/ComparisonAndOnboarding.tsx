@@ -24,8 +24,6 @@ interface ComparisonRow {
   feature: string;
   parcos: string;
   parcosStatus: 'good';
-  carmatik: string;
-  carmatikStatus: 'warning' | 'bad';
   traditionalDms: string;
   traditionalStatus: 'bad' | 'warning';
 }
@@ -35,72 +33,56 @@ const COMPARISON_ROWS: ComparisonRow[] = [
     feature: 'Suveranitate Brand & Domeniu Propriu',
     parcos: '✅ Showroom 100% dedicat pe domeniul tău (fără concurență)',
     parcosStatus: 'good',
-    carmatik: '❌ Marketplace comun (clienții văd mașinile concurenților)',
-    carmatikStatus: 'bad',
-    traditionalDms: '❌ Doar software intern, fără site web inclus',
+    traditionalDms: '❌ Marketplace comun sau soluție fără domeniu dedicat',
     traditionalStatus: 'bad'
   },
   {
     feature: 'Design & Teme Vizuale Showroom',
     parcos: '✅ Dark Luxury & Light Modern 60fps (Obsidian, White, Navy)',
     parcosStatus: 'good',
-    carmatik: '❌ Șablon alb comun, fără personalizare profundă',
-    carmatikStatus: 'bad',
-    traditionalDms: '❌ Interfețe grafice învechite (anii 2005-2010)',
+    traditionalDms: '❌ Șabloane rigide, nemodificabile, fără adaptare mobilă',
     traditionalStatus: 'bad'
   },
   {
     feature: 'Scaner Acte Inteligent (AI OCR)',
     parcos: '✅ Extragere în <1.8s (Talon RO, CIV RAR & Brief Germania)',
     parcosStatus: 'good',
-    carmatik: '⚠️ Doar talon auto de România',
-    carmatikStatus: 'warning',
-    traditionalDms: '❌ Introducere manuală 100% caracter cu caracter',
+    traditionalDms: '❌ Introducere manuală caracter cu caracter în soft intern',
     traditionalStatus: 'bad'
   },
   {
     feature: 'Garanție Rezervare la Distanță',
     parcos: '✅ Garanție de Rezervare securizată (Stripe / Card / Transfer Instant)',
     parcosStatus: 'good',
-    carmatik: '❌ Fără plată online sau link de garanție integrat',
-    carmatikStatus: 'bad',
-    traditionalDms: '❌ Transfer bancar manual fără confirmare pe site',
+    traditionalDms: '❌ Fără plată securizată online, risc de tranzacții nesigure',
     traditionalStatus: 'bad'
   },
   {
     feature: 'Format Video & Media Modern',
     parcos: '✅ Player video nativ 9:16 (TikTok & Instagram Reels)',
     parcosStatus: 'good',
-    carmatik: '❌ Doar galerie foto statică standard',
-    carmatikStatus: 'bad',
-    traditionalDms: '❌ Doar fotografii cu rezoluție redusă',
+    traditionalDms: '❌ Doar galerie foto statică standard cu rezoluție redusă',
     traditionalStatus: 'bad'
   },
   {
-    feature: 'Sincronizare Delta Stoc OLX',
-    parcos: '✅ Notificări live discrepanțe preț și mașini vândute',
+    feature: 'Sincronizare Delta Stoc Portaluri',
+    parcos: '✅ Notificări live discrepanțe preț și mașini vândute automat',
     parcosStatus: 'good',
-    carmatik: '⚠️ Export de bază către portaluri',
-    carmatikStatus: 'warning',
-    traditionalDms: '❌ Export manual prin fișiere Excel',
-    traditionalStatus: 'bad'
+    traditionalDms: '⚠️ Export de bază periodic sau actualizări manuale',
+    traditionalStatus: 'warning'
   },
   {
     feature: 'Studio Plăcuțe & Watermark',
     parcos: '✅ Eliminare automată numere & aplicare logo în browser',
     parcosStatus: 'good',
-    carmatik: '❌ Necesită editare manuală în Photoshop',
-    carmatikStatus: 'bad',
-    traditionalDms: '❌ Funcționalitate inexistentă',
+    traditionalDms: '❌ Necesită editare manuală în Photoshop sau poze needitate',
     traditionalStatus: 'bad'
   },
   {
     feature: 'Conformitate & Matematică Fiscală',
-    parcos: '✅ TVA deductibil + Regim Marjă Art. 312 calculat automat',
+    parcos: '✅ TVA deductibil 21% + Regim Marjă Art. 312 calculat automat',
     parcosStatus: 'good',
-    carmatik: '⚠️ Câmp informativ simplu',
-    carmatikStatus: 'warning',
-    traditionalDms: '⚠️ Modul contabil greoi și rigid',
+    traditionalDms: '⚠️ Câmp informativ simplu sau modul contabil greoi',
     traditionalStatus: 'warning'
   }
 ];
@@ -213,7 +195,7 @@ export const ComparisonAndOnboarding: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-mono-telemetry text-blue-300 font-semibold mb-3">
             <Scale className="w-3.5 h-3.5 text-blue-400" />
-            <span>BENCHMARKING FAPTIC // PARCOS VS COMPETIȚIE</span>
+            <span>ARHITECTURĂ ȘI EFICIENȚĂ // AUTOMATIZARE VS PROCEDURI MANUALE</span>
           </div>
           <h2 className="font-display font-extrabold text-2xl sm:text-4xl lg:text-5xl text-white tracking-tight">
             De Ce Aleg Dealerii Suveranitatea ParcOS
@@ -237,7 +219,7 @@ export const ComparisonAndOnboarding: React.FC = () => {
                     👑 PARCOS DMS v2.4
                   </th>
                   <th className="py-4 px-5 text-zinc-400 font-semibold uppercase tracking-wider text-[11px] w-1/3">
-                    CARMATIK.RO / DMS CLASIC
+                    METODE MANUALE & DMS TRADIȚIONAL
                   </th>
                 </tr>
               </thead>
@@ -251,7 +233,7 @@ export const ComparisonAndOnboarding: React.FC = () => {
                       {row.parcos}
                     </td>
                     <td className="py-4 px-5 text-zinc-400 font-mono-telemetry text-xs">
-                      {row.carmatik}
+                      {row.traditionalDms}
                     </td>
                   </tr>
                 ))}
@@ -276,7 +258,7 @@ export const ComparisonAndOnboarding: React.FC = () => {
             Validat de Parcuri Auto Reale din România
           </h2>
           <p className="mt-3 text-sm sm:text-base text-zinc-300">
-            Iată ce spun fondatorii și consilierii de vânzări care folosesc ParcOS zi de zi pe Netcup VPS:
+            Iată ce spun fondatorii și consilierii de vânzări care folosesc ParcOS zi de zi în parcurile lor auto:
           </p>
         </div>
 
@@ -345,7 +327,7 @@ export const ComparisonAndOnboarding: React.FC = () => {
               <p className="text-sm text-zinc-300 max-w-lg mx-auto leading-relaxed">
                 Am înregistrat parcul <strong>{parkName}</strong>. Showroom-ul tău dedicat pe domeniul{' '}
                 <strong className="text-amber-400 font-mono">https://{subdomainSlug}.parcos.ro</strong>{' '}
-                este în curs de inițializare pe Netcup VPS. Te vom contacta în scurt timp la telefon <strong>{phone}</strong>.
+                este în curs de inițializare în cloud securizat. Te vom contacta în scurt timp la telefon <strong>{phone}</strong>.
               </p>
               <div className="pt-4 flex justify-center">
                 <span className="px-3 py-1 rounded-full bg-zinc-900 border border-white/10 text-xs font-mono text-zinc-400">
@@ -462,7 +444,7 @@ export const ComparisonAndOnboarding: React.FC = () => {
               </button>
 
               <div className="text-center text-[11px] text-zinc-400 font-mono">
-                Activare garantată pe server dedicat Netcup VPS (152.53.158.65) • Fără contracte pe termen lung
+                Activare garantată în cloud dedicat • Suveranitate 100% a datelor • Fără contracte pe termen lung
               </div>
 
             </form>

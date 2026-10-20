@@ -142,7 +142,7 @@ export const ShowcaseHero: React.FC<ShowcaseHeroProps> = ({
               </span>
               <span className="hidden md:inline text-zinc-600">|</span>
               <span className="hidden md:inline text-zinc-400">
-                HOST: Netcup VPS (152.53.158.65)
+                INFRA: Cloud-Native • High-Availability Cluster
               </span>
             </div>
 
@@ -261,7 +261,7 @@ export const ShowcaseHero: React.FC<ShowcaseHeroProps> = ({
               <span className="text-amber-400">▶</span>
               <span className="text-zinc-300 font-medium">LIVE SHOWROOM STACK:</span>
               <span className="text-zinc-400 hidden xs:inline">
-                React 18 + Vite + Netcup VPS Docker + Nginx SSL
+                React 18 + Vite + Docker Cloud Enterprise + TLS End-to-End
               </span>
             </div>
             <div className="flex items-center gap-3">

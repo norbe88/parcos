@@ -463,14 +463,14 @@ export const ShowroomDoubleDoorIntro: React.FC<ShowroomDoubleDoorIntroProps> = (
             </div>
 
             {/* Titlul cerut */}
-            <h1 className="max-w-4xl mx-auto text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
+            <h1 className="max-w-4xl mx-auto text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-[-0.03em] text-white leading-[1.15]">
               „Nu mai pierde clienți în mesaje de pe OLX.{' '}
               <span className="bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 bg-clip-text text-transparent">
                 Transformă-ți parcul într-un showroom digital autonom.”
               </span>
             </h1>
 
-            <p className="mt-3.5 max-w-2xl mx-auto text-sm sm:text-base text-slate-300 leading-relaxed">
+            <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-slate-300/90 font-normal leading-relaxed">
               De la scanarea cărții de identitate (CIV) în 1.8 secunde și emiterea automată a
               e-Facturii în SPV, până la încasarea garanției de rezervare prin Stripe direct pe WhatsApp.
             </p>

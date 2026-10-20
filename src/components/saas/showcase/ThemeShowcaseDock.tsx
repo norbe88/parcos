@@ -176,7 +176,7 @@ export const ThemeShowcaseDock: React.FC<ThemeShowcaseDockProps> = ({
           Un Singur Motor, Teme Adaptate Fiecărui Parc
         </h2>
         <p className="mt-3 text-sm sm:text-base text-zinc-300 leading-relaxed">
-          Spre deosebire de Carmatik (care listează parcul tău într-un marketplace aglomerat alături de concurenți), 
+          Spre deosebire de marketplace-urile aglomerate unde mașinile tale apar alături de concurență, 
           ParcOS îți oferă un <strong>Showroom Autonom la Cheie pe domeniul tău</strong> (`nume-parc.ro`), 
           personalizat cu identitatea ta vizuală unică.
         </p>
