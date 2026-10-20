@@ -172,6 +172,20 @@ export type DealerThemePreset =
   | 'carbon_red'        // 🏎️ Sport Crimson / Dynamic Red (Stil Audi S-Line / Cupra)
   | 'emerald_prestige'; // 🌿 British Green / Eco Luxury (Stil Aston Martin / Alpina)
 
+export interface TenantFeatures {
+  ocrCivTalon: boolean;         // Scanare automată CIV & Talon OCR v9
+  olxStockSync: boolean;        // Sincronizare automată stoc OLX / Autovit
+  tikTokStudio: boolean;        // Generator video TikTok Reel 9:16
+  autolicitPush: boolean;       // Sincronizare B2B licitații AutoLicit.ro
+  salesDocsEngine: boolean;     // Generator 1-click contracte & facturi
+  windowStickersQr: boolean;    // Fișe de parbriz printabile cu cod QR
+  financingCalculator: boolean;   // Calculator rate BT / TBI
+  whatsappLeadsBot: boolean;    // Simulator cotații & leaduri WhatsApp
+}
+
+export type TenantTier = 'starter' | 'pro' | 'enterprise';
+export type TenantStatus = 'active' | 'pending' | 'suspended' | 'demo';
+
 export interface DealerProfile {
   name: string;
   cui: string;
@@ -207,6 +221,11 @@ export interface DealerProfile {
   slug?: string;
   domain?: string;
   config?: Record<string, any>;
+  // Matrice de Features & Cote SaaS (SuperAdmin Control Plane)
+  features?: TenantFeatures;
+  tier?: TenantTier;
+  status?: TenantStatus;
+  maxVehiclesQuota?: number;
   // Integrare Social Media & Meta Graph API (Ticket 04)
   socialIntegration?: DealerSocialIntegration;
 }

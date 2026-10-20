@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Car,
   ShieldCheck,
@@ -97,7 +97,7 @@ const SHOWROOM_VEHICLES: ShowroomVehicle[] = [
   },
 ];
 
-const SESSION_STORAGE_KEY = 'parcos_gate_seen';
+const SESSION_STORAGE_KEY = 'parcos_gate_v24_seen';
 const SLAT_COUNT = 7;
 
 export const ShowroomGarageGate: React.FC<ShowroomGarageGateProps> = ({
@@ -187,7 +187,12 @@ export const ShowroomGarageGate: React.FC<ShowroomGarageGateProps> = ({
     let alreadySeen = false;
     if (!forceShowIntro) {
       try {
-        alreadySeen = sessionStorage.getItem(SESSION_STORAGE_KEY) === 'true';
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('gate') === 'true' || params.get('intro') === 'true' || params.get('replay') === 'true') {
+          alreadySeen = false;
+        } else {
+          alreadySeen = sessionStorage.getItem(SESSION_STORAGE_KEY) === 'true';
+        }
       } catch {
         alreadySeen = false;
       }

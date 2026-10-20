@@ -1,4 +1,15 @@
-import { DealerProfile } from './types';
+import { DealerProfile, TenantFeatures } from './types';
+
+export const DEFAULT_TENANT_FEATURES: TenantFeatures = {
+  ocrCivTalon: true,
+  olxStockSync: true,
+  tikTokStudio: true,
+  autolicitPush: true,
+  salesDocsEngine: true,
+  windowStickersQr: true,
+  financingCalculator: true,
+  whatsappLeadsBot: true,
+};
 
 /**
  * ============================================================================
@@ -43,6 +54,12 @@ export const SEED_DEALER: DealerProfile = {
   financingPartners: ["TBI Bank", "Banca Transilvania (BT Direct)", "UniCredit Consumer Financing", "CreditFix"],
   googleCalendarBookingUrl: "https://calendar.google.com/calendar/u/0/r",
   themePreset: "obsidian_gold",
+  slug: "rxm",
+  domain: "rxmautomobile.ro",
+  tier: "enterprise",
+  status: "active",
+  maxVehiclesQuota: 100,
+  features: { ...DEFAULT_TENANT_FEATURES },
   socialIntegration: {
     metaEnabled: false,
     facebookPageId: "61550788350781",
@@ -80,7 +97,17 @@ export const DEALER_MPI_AUTO: DealerProfile = {
   wazeUrl: "https://waze.com/ul?q=MPI+Auto+Cluj",
   openingHours: "Luni - Vineri 09:00 - 18:00 | Sâmbătă - Duminică 10:00 - 15:00",
   financingPartners: ["Banca Transilvania (BT Direct)", "TBI Bank", "UniCredit Consumer Financing", "Mogo"],
-  themePreset: "clean_white"
+  themePreset: "clean_white",
+  slug: "mpi_auto",
+  domain: "mpiauto.ro",
+  tier: "pro",
+  status: "active",
+  maxVehiclesQuota: 50,
+  features: {
+    ...DEFAULT_TENANT_FEATURES,
+    tikTokStudio: false,
+    autolicitPush: false,
+  }
 };
 
 export const DEALER_TOP_AUTO: DealerProfile = {
@@ -110,9 +137,20 @@ export const DEALER_TOP_AUTO: DealerProfile = {
   address: "B-dul Muncii nr. 18, Cluj-Napoca, jud. Cluj",
   openingHours: "Luni - Vineri 09:00 - 17:30 | Sâmbătă 10:00 - 14:00",
   financingPartners: ["Banca Transilvania (BT Direct)", "Mogo", "TBI Bank"],
-  themePreset: "midnight_blue"
+  themePreset: "midnight_blue",
+  slug: "top_auto",
+  domain: "topautotransilvania.ro",
+  tier: "starter",
+  status: "demo",
+  maxVehiclesQuota: 25,
+  features: {
+    ...DEFAULT_TENANT_FEATURES,
+    ocrCivTalon: false,
+    olxStockSync: false,
+    tikTokStudio: false,
+    autolicitPush: false,
+  }
 };
-
 
 export const DEALER_AUTONORD_CLUJ: DealerProfile = {
   name: "Auto Nord Transilvania S.R.L.",
@@ -141,7 +179,16 @@ export const DEALER_AUTONORD_CLUJ: DealerProfile = {
   address: "Cluj-Napoca, jud. Cluj",
   openingHours: "Luni - Vineri 09:00 - 18:00 | Sâmbătă 10:00 - 14:00",
   financingPartners: ["Banca Transilvania (BT Direct)", "TBI Bank", "UniCredit Consumer Financing"],
-  themePreset: "clean_white"
+  themePreset: "clean_white",
+  slug: "autonord_cluj",
+  domain: "autonordcluj.ro",
+  tier: "pro",
+  status: "active",
+  maxVehiclesQuota: 50,
+  features: {
+    ...DEFAULT_TENANT_FEATURES,
+    autolicitPush: false,
+  }
 };
 
 export const TENANT_DEALERS: Record<string, DealerProfile> = {

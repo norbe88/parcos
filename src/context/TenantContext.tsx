@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
-import { DealerProfile, SEED_DEALER, TENANT_DEALERS } from '../db/seed';
+import { DealerProfile, SEED_DEALER, TENANT_DEALERS, DEFAULT_TENANT_FEATURES } from '../db/seed';
+import { TenantFeatures, TenantTier, TenantStatus } from '../db/types';
 import { getThemeConfig, ThemeConfig } from '../utils/themePresets';
 
 export interface TenantInfo {
@@ -9,6 +10,11 @@ export interface TenantInfo {
   address: string;
   themePreset?: string;
   domain?: string;
+  slug?: string;
+  tier?: TenantTier;
+  status?: TenantStatus;
+  maxVehiclesQuota?: number;
+  features?: TenantFeatures;
 }
 
 export interface TenantContextType {
@@ -17,6 +23,10 @@ export interface TenantContextType {
   theme: ThemeConfig;
   setTenantId: (id: string) => void;
   availableTenants: TenantInfo[];
+  allTenants: Record<string, DealerProfile>;
+  updateTenantFeatures: (tenantId: string, features: Partial<TenantFeatures>) => void;
+  updateTenantStatus: (tenantId: string, status: TenantStatus) => void;
+  registerTenant: (newTenant: DealerProfile) => void;
   isPitchModeAllowed: boolean;
   vatRate: number;
   warrantyTerm: string;
@@ -59,7 +69,8 @@ export const isShowcaseEnvironment = (): boolean => {
     hostname.includes('showroom.autolit.ro') ||
     hostname.includes('showcase.autolit.ro') ||
     hostname.includes('demo.autolit.ro') ||
-    hostname.includes('autolit.ro')
+    hostname.includes('autolit.ro') ||
+    hostname.includes('parcos.ro')
   ) {
     return true;
   }
@@ -86,12 +97,27 @@ function hexToRgb(hex: string): string {
 }
 
 export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
+  // Stocare dinamică a registrului complet de tenanți pentru SuperAdmin Control Plane
+  const [tenantsMap, setTenantsMap] = useState<Record<string, DealerProfile>>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('parcos_tenants_map');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return { ...TENANT_DEALERS, ...parsed };
+        }
+      }
+    } catch {}
+    return { ...TENANT_DEALERS };
+  });
+
   // Rezolvă alias-uri scurte (ex: mpi -> mpi_auto, top -> top_auto)
   const resolveTenantKey = (rawKey: string): string => {
     const k = rawKey.toLowerCase().trim();
     if (k === 'mpi' || k === 'mpi_auto' || k === 'mpiauto') return 'mpi_auto';
     if (k === 'top' || k === 'top_auto' || k === 'topauto') return 'top_auto';
     if (k === 'rxm' || k === 'rxm_auto' || k === 'rxmautomobile') return 'rxm';
+    if (k === 'autonord' || k === 'autonord_cluj') return 'autonord_cluj';
     return k;
   };
 
@@ -117,7 +143,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       const rawQueryDealer = urlParams.get('dealer') || urlParams.get('dealer_slug') || urlParams.get('tenant');
       if (rawQueryDealer) {
         const resolved = resolveTenantKey(rawQueryDealer);
-        if (TENANT_DEALERS[resolved]) {
+        if (tenantsMap[resolved] || TENANT_DEALERS[resolved]) {
           return resolved;
         }
       }
@@ -128,7 +154,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         const rawHashDealer = hashParams.get('dealer');
         if (rawHashDealer) {
           const resolved = resolveTenantKey(rawHashDealer);
-          if (TENANT_DEALERS[resolved]) {
+          if (tenantsMap[resolved] || TENANT_DEALERS[resolved]) {
             return resolved;
           }
         }
@@ -137,12 +163,13 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       // 3. Subdomeniu (ex: mpi.carmatik.ro sau top.autolicit.ro)
       if (hostname.includes('mpi.') || hostname.includes('mpiauto')) return 'mpi_auto';
       if (hostname.includes('top.') || hostname.includes('topauto')) return 'top_auto';
+      if (hostname.includes('autonord.')) return 'autonord_cluj';
 
       // 4. LocalStorage
       const savedTenant = localStorage.getItem('rxm_tenant_id');
       if (savedTenant) {
         const resolved = resolveTenantKey(savedTenant);
-        if (TENANT_DEALERS[resolved]) {
+        if (tenantsMap[resolved] || TENANT_DEALERS[resolved]) {
           return resolved;
         }
       }
@@ -163,7 +190,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     }
 
     const resolved = resolveTenantKey(id);
-    if (TENANT_DEALERS[resolved]) {
+    if (tenantsMap[resolved] || TENANT_DEALERS[resolved]) {
       setTenantIdState(resolved);
       try {
         localStorage.setItem('rxm_tenant_id', resolved);
@@ -172,6 +199,69 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         window.history.replaceState({}, '', url.toString());
       } catch {}
     }
+  };
+
+  // Modificare granulară a feature flags per tenant (SuperAdmin Master Control)
+  const updateTenantFeatures = (tId: string, features: Partial<TenantFeatures>) => {
+    const resolved = resolveTenantKey(tId);
+    setTenantsMap(prev => {
+      const current = prev[resolved] || TENANT_DEALERS[resolved] || SEED_DEALER;
+      const updated: DealerProfile = {
+        ...current,
+        features: {
+          ...(current.features || DEFAULT_TENANT_FEATURES),
+          ...features,
+        }
+      };
+      const nextMap = { ...prev, [resolved]: updated };
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('parcos_tenants_map', JSON.stringify(nextMap));
+        }
+      } catch {}
+      return nextMap;
+    });
+  };
+
+  // Modificare stare tenant (Activ / Suspendat / Demo)
+  const updateTenantStatus = (tId: string, status: TenantStatus) => {
+    const resolved = resolveTenantKey(tId);
+    setTenantsMap(prev => {
+      const current = prev[resolved] || TENANT_DEALERS[resolved] || SEED_DEALER;
+      const updated: DealerProfile = {
+        ...current,
+        status
+      };
+      const nextMap = { ...prev, [resolved]: updated };
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('parcos_tenants_map', JSON.stringify(nextMap));
+        }
+      } catch {}
+      return nextMap;
+    });
+  };
+
+  // Înrolare tenant nou de către SuperAdmin
+  const registerTenant = (newTenant: DealerProfile) => {
+    const slug = newTenant.slug || newTenant.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const enriched: DealerProfile = {
+      ...newTenant,
+      slug,
+      tier: newTenant.tier || 'starter',
+      status: newTenant.status || 'active',
+      maxVehiclesQuota: newTenant.maxVehiclesQuota || 25,
+      features: newTenant.features || { ...DEFAULT_TENANT_FEATURES },
+    };
+    setTenantsMap(prev => {
+      const nextMap = { ...prev, [slug]: enriched };
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('parcos_tenants_map', JSON.stringify(nextMap));
+        }
+      } catch {}
+      return nextMap;
+    });
   };
 
   // Interogare backend pentru profilul dinamic al tenantului curent
@@ -208,7 +298,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
 
   const isPitchModeAllowed = useMemo(() => isShowcaseEnvironment(), []);
 
-  const baseTenant = TENANT_DEALERS[tenantId] || SEED_DEALER;
+  const baseTenant = tenantsMap[tenantId] || TENANT_DEALERS[tenantId] || SEED_DEALER;
   const tenant = useMemo(() => {
     if (!dynamicConfig) return baseTenant;
     return {
@@ -246,17 +336,28 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         name: SEED_DEALER.name,
         cui: SEED_DEALER.cui,
         address: SEED_DEALER.address,
-        themePreset: SEED_DEALER.themePreset
+        themePreset: SEED_DEALER.themePreset,
+        slug: 'rxm',
+        tier: 'enterprise',
+        status: 'active',
+        features: SEED_DEALER.features,
+        maxVehiclesQuota: SEED_DEALER.maxVehiclesQuota
       }];
     }
-    return Object.entries(TENANT_DEALERS).map(([id, d]) => ({
+    return Object.entries(tenantsMap).map(([id, d]) => ({
       id,
       name: d.name,
       cui: d.cui,
       address: d.address,
-      themePreset: d.themePreset
+      themePreset: d.themePreset,
+      slug: d.slug || id,
+      domain: d.domain,
+      tier: d.tier || 'starter',
+      status: d.status || 'active',
+      features: d.features || DEFAULT_TENANT_FEATURES,
+      maxVehiclesQuota: d.maxVehiclesQuota || 25
     }));
-  }, [isPitchModeAllowed]);
+  }, [isPitchModeAllowed, tenantsMap]);
 
   return (
     <TenantContext.Provider
@@ -266,6 +367,10 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         theme,
         setTenantId,
         availableTenants,
+        allTenants: tenantsMap,
+        updateTenantFeatures,
+        updateTenantStatus,
+        registerTenant,
         isPitchModeAllowed,
         vatRate: 0.21, // Invariant strict 21%
         warrantyTerm: 'Cont de Garanție',
@@ -287,7 +392,22 @@ export const useTenantContext = (): TenantContextType => {
       tenantId: 'rxm',
       theme: fallbackTheme,
       setTenantId: () => {},
-      availableTenants: [{ id: 'rxm', name: SEED_DEALER.name, cui: SEED_DEALER.cui, address: SEED_DEALER.address, themePreset: SEED_DEALER.themePreset }],
+      availableTenants: [{ 
+        id: 'rxm', 
+        name: SEED_DEALER.name, 
+        cui: SEED_DEALER.cui, 
+        address: SEED_DEALER.address, 
+        themePreset: SEED_DEALER.themePreset,
+        slug: 'rxm',
+        tier: 'enterprise',
+        status: 'active',
+        features: SEED_DEALER.features,
+        maxVehiclesQuota: 100
+      }],
+      allTenants: TENANT_DEALERS,
+      updateTenantFeatures: () => {},
+      updateTenantStatus: () => {},
+      registerTenant: () => {},
       isPitchModeAllowed: false,
       vatRate: 0.21,
       warrantyTerm: 'Cont de Garanție',

@@ -360,39 +360,26 @@ export default function App() {
   };
 
   // Verificare dacă ruta accesată este pagina de prezentare SaaS (parcos.ro, /saas, #saas sau ?saas)
+  // Verificare dacă ruta accesată este pagina de prezentare SaaS (ParcOS prima clasă)
   const checkIsSaasPath = () => {
-    if (typeof window === 'undefined') return false;
-    const hostname = window.location.hostname.toLowerCase();
+    if (typeof window === 'undefined') return true;
+    const search = window.location.search.toLowerCase();
     const path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();
-    const search = window.location.search.toLowerCase();
 
-    // Pe domeniul de bază parcos.ro randăm direct pagina SaaS de prezentare
-    if (
-      (hostname === 'parcos.ro' || hostname === 'www.parcos.ro' || hostname === 'parcos.local') &&
-      !hostname.startsWith('app.') &&
-      !hostname.startsWith('admin.')
-    ) {
-      return true;
+    // Doar dacă se cere explicit modul showroom permitem fallback la catalogul RXM
+    if (search.includes('mode=showroom') || search.includes('dealer=rxm') || path.includes('/showroom') || hash.includes('#showroom')) {
+      return false;
     }
-
-    return (
-      path.includes('saas') ||
-      path.includes('parcos') ||
-      hash.includes('saas') ||
-      hash.includes('parcos') ||
-      search.includes('saas') ||
-      search.includes('mode=saas') ||
-      search.includes('dealer=parcos')
-    );
+    return true;
   };
 
   const getInitialViewMode = (): 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' => {
-    if (checkIsSaasPath()) return 'saas';
     if (checkIsAdminPath()) return 'admin';
     if (checkIsTermsPath()) return 'terms';
     if (checkIsDeliveryPath()) return 'delivery';
     if (checkIsCookiesPath()) return 'cookies';
+    if (checkIsSaasPath()) return 'saas';
     return 'showroom';
   };
 
@@ -429,9 +416,7 @@ export default function App() {
   // Ascultare evenimente istoric browser (Back / Forward / HashChange)
   useEffect(() => {
     const handleUrlChange = () => {
-      if (checkIsSaasPath()) {
-        setViewMode('saas');
-      } else if (checkIsAdminPath()) {
+      if (checkIsAdminPath()) {
         setViewMode('admin');
       } else if (checkIsTermsPath()) {
         setViewMode('terms');
@@ -439,6 +424,8 @@ export default function App() {
         setViewMode('delivery');
       } else if (checkIsCookiesPath()) {
         setViewMode('cookies');
+      } else if (checkIsSaasPath()) {
+        setViewMode('saas');
       } else {
         setViewMode('showroom');
         if (window.location.hash === '#contact' || window.location.pathname.includes('contact')) {
