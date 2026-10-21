@@ -27,7 +27,7 @@ const THEME_LABELS: Record<DealerThemePreset, { label: string; badge: string; do
 
 const FEATURE_DEFINITIONS: { key: keyof TenantFeatures; label: string; desc: string; icon: any }[] = [
   { key: 'ocrCivTalon', label: 'Scanner OCR CIV & Talon', desc: 'Scanare automată acte auto din cameră / fișier PDF', icon: Zap },
-  { key: 'olxStockSync', label: 'Sincronizare Stoc OLX', desc: 'Import și reconciliere automată a parcului cu anunțurile OLX', icon: RefreshCw },
+  { key: 'olxStockSync', label: 'Sincronizare Portaluri Auto', desc: 'Import și reconciliere automată a parcului cu anunțurile externe', icon: RefreshCw },
   { key: 'tikTokStudio', label: 'TikTok Reel Studio (9:16)', desc: 'Generare automată clipuri video verticale de prezentare', icon: Film },
   { key: 'autolicitPush', label: 'AutoLicit.ro B2B Push', desc: 'Export 1-click în bursa licitațiilor auto B2B holding', icon: Share2 },
   { key: 'salesDocsEngine', label: 'Centru Acte Vânzare', desc: 'Generare instantanee contracte, facturi și procese-verbale', icon: FileText },
@@ -391,7 +391,7 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
                               <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 text-[10px] font-mono border border-amber-500/25">OCR</span>
                             )}
                             {t.features?.olxStockSync && (
-                              <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-300 text-[10px] font-mono border border-blue-500/25">OLX</span>
+                              <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-300 text-[10px] font-mono border border-blue-500/25">Portaluri</span>
                             )}
                             {t.features?.tikTokStudio && (
                               <span className="px-1.5 py-0.5 rounded bg-pink-500/10 text-pink-300 text-[10px] font-mono border border-pink-500/25">TikTok</span>

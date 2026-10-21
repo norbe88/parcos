@@ -36,7 +36,7 @@ export const MobileStickyDock: React.FC<MobileStickyDockProps> = ({
         </div>
         <div className="flex items-center gap-1 text-emerald-700 font-semibold">
           <ShieldCheck className="w-3 h-3 text-emerald-600" />
-          <span>TVA 21% Deductibil</span>
+          <span>Showroom & CRM Auto</span>
         </div>
       </div>
 

@@ -20,22 +20,28 @@ export const DealerRoiCalculator: React.FC = () => {
   const [advisorsCount, setAdvisorsCount] = useState<number>(2);
 
   // Financial Math & Labor Economics
-  // 1. Time Saved per car entry: 25 min OCR typing + 20 min OLX/Autovit delta sync + 15 min WhatsApp composer = 60 min (1h)
-  const hoursSavedPerMonth = Math.round((monthlySales * 1.5) + (stockSize * 0.4));
+  // 1. Time Saved per month:
+  // - Gestiune stoc, scanare CIV/talon & delta sync portaluri: ~1.2h per vânzare + 0.35h per mașină în stoc
+  // - Oferte WhatsApp, discuții cu clienți & verificare rezervări: ~6h economisite lunar per consilier
+  const baseInventoryHours = Math.round((monthlySales * 1.2) + (stockSize * 0.35));
+  const advisorHours = advisorsCount * 6;
+  const hoursSavedPerMonth = baseInventoryHours + advisorHours;
   
-  // 2. Average cost of sales agent hour in Romania: ~12 €/h
+  // 2. Cost mediu orar consilier vânzări în România: ~12 €/h
   const hourlyLaborValueEur = 12;
   const laborSavingsEur = hoursSavedPerMonth * hourlyLaborValueEur;
 
-  // 3. Elimination of OLX discrepancies & stale listing costs: ~40 € per monthly sale prevented waste
-  const olxSavingsEur = Math.round(monthlySales * 45);
+  // 3. Stopare risipă portaluri (anunțuri expirate/vândute lăsate active): ~45 € per vânzare
+  const portalSavingsEur = Math.round(monthlySales * 45);
 
-  // 4. Remote reservation conversion bonus: +25% confidence closes via BT Guarantee account
-  // Avg margin per car sold: ~900 €
-  const extraConversionValueEur = Math.round(monthlySales * 0.15 * 900);
+  // 4. Bonus conversie rezervări la distanță: oferte rapide pe WhatsApp + Cont de Garanție
+  // Responsivitatea echipei crește conversia (+2% per consilier activ dotat cu unelte rapide)
+  // Marjă medie per autoturism: ~900 €
+  const conversionMultiplier = 0.12 + (advisorsCount * 0.02);
+  const extraConversionValueEur = Math.round(monthlySales * conversionMultiplier * 900);
 
-  // 5. Total Net Monthly & Annual Savings
-  const totalMonthlySavingsEur = laborSavingsEur + olxSavingsEur + extraConversionValueEur;
+  // 5. Total Net Lunar & Anual Economisit
+  const totalMonthlySavingsEur = laborSavingsEur + portalSavingsEur + extraConversionValueEur;
   const totalAnnualSavingsEur = totalMonthlySavingsEur * 12;
 
   // Holding Financial Invariant: 21% VAT
@@ -56,7 +62,7 @@ export const DealerRoiCalculator: React.FC = () => {
         </h2>
         <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
           Descoperă impactul matematic concret al automatizării: eliminarea tastării manuale a cărților auto, 
-          stoparea cheltuielilor pe anunțuri OLX expirate și securizarea avansurilor prin Cont de Garanție online (Stripe / Card).
+          stoparea cheltuielilor pe anunțuri expirate din portalurile auto și securizarea avansurilor prin Cont de Garanție online (Stripe / Card).
         </p>
       </div>
 
@@ -156,7 +162,7 @@ export const DealerRoiCalculator: React.FC = () => {
           {/* Under-Controls Note */}
           <div className="mt-6 pt-4 border-t border-slate-200 text-[11px] text-slate-600 flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Algoritm calibrat pe date reale de la dealeri activi pe ParcOS (ex: RXM Automobile, MPI Auto, Top Auto).</span>
+            <span>Algoritm calibrat pe date reale de operare din parcuri auto partenere.</span>
           </div>
         </div>
 
@@ -180,7 +186,7 @@ export const DealerRoiCalculator: React.FC = () => {
                 ~{totalAnnualSavingsEur.toLocaleString('ro-RO')} €
               </div>
               <div className="text-[11px] text-zinc-300 font-mono mt-1">
-                Net: {annualSavingsNetEur.toLocaleString('ro-RO')} € • 21% TVA: {annualVatAmountEur.toLocaleString('ro-RO')} €
+                Net: ~{annualSavingsNetEur.toLocaleString('ro-RO')} € • TVA deductibil inclus
               </div>
             </div>
 
@@ -197,18 +203,18 @@ export const DealerRoiCalculator: React.FC = () => {
                   {hoursSavedPerMonth} h<span className="text-xs font-normal text-zinc-400">/lună</span>
                 </div>
                 <div className="text-[10px] text-zinc-300 mt-0.5 font-medium">
-                  OCR + WhatsApp + OLX
+                  OCR + WhatsApp + Portaluri
                 </div>
               </div>
 
-              {/* OLX Waste Stopped */}
+              {/* External Waste Stopped */}
               <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-white/5">
                 <div className="flex items-center gap-1.5 text-zinc-300 text-[10px] uppercase font-semibold">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Stop Risipă OLX</span>
+                  <span>Stop Risipă Buget Anunțuri</span>
                 </div>
                 <div className="text-xl font-bold text-white mt-1">
-                  ~{olxSavingsEur} €<span className="text-xs font-normal text-zinc-300">/lună</span>
+                  ~{portalSavingsEur} €<span className="text-xs font-normal text-zinc-300">/lună</span>
                 </div>
                 <div className="text-[10px] text-zinc-300 mt-0.5 font-medium">
                   Fără mașini vândute active

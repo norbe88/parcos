@@ -24,7 +24,7 @@ Fiecare dealer partener beneficiază de un spațiu dedicat și izolat, cu showro
 3. **Oferte WhatsApp & Cont de Garanție:**
    - Compunere instantanee a ofertelor pentru clienți în format text/PDF.
    - Opțiune integrată pentru **Garanție de Rezervare / Participare** la Banca Transilvania.
-4. **Sincronizare Delta cu Marketplace-uri (OLX & Autovit):**
+4. **Sincronizare Delta cu Marketplace-uri și Portaluri Auto:**
    - Monitorizează automat anunțurile active și semnalează discrepanțele de preț sau mașinile vândute.
 5. **Showroom Mail Hub & Lead Pool:**
    - Inbox partajat cu preluare a lead-urilor la 1-click pentru consilieri (Robert, Mădălina etc.).

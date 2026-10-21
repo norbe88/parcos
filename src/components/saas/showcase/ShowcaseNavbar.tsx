@@ -81,11 +81,13 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
             onClick={(e) => handleNavClick(e, '#hero')}
             className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg p-1 -m-1"
           >
-            {/* Sculptural Hex-Automotive Emblem */}
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 p-[1px] shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/35 transition-all">
-              <div className="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
-                <Car className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
-              </div>
+            {/* Brand New ParcOS Emblem */}
+            <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/35 border border-slate-900/10 transition-all shrink-0 bg-slate-950 flex items-center justify-center">
+              <img 
+                src="/brand/icon-64x64.png" 
+                alt="ParcOS" 
+                className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform" 
+              />
             </div>
 
             <div className="flex flex-col">

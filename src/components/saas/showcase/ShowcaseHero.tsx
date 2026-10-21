@@ -24,7 +24,7 @@ export const ShowcaseHero: React.FC<ShowcaseHeroProps> = ({
   onSwitchToDealer,
   onLaunchDemo
 }) => {
-  const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>, selector: string) => {
+  const handleScrollTo = (e: React.MouseEvent<HTMLElement>, selector: string) => {
     e.preventDefault();
     const element = document.querySelector(selector);
     if (element) {
@@ -33,7 +33,7 @@ export const ShowcaseHero: React.FC<ShowcaseHeroProps> = ({
     }
   };
 
-  const handleLaunchDemoClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleLaunchDemoClick = (e: React.MouseEvent<HTMLElement>) => {
     if (onLaunchDemo) {
       onLaunchDemo();
     } else {
@@ -56,6 +56,22 @@ export const ShowcaseHero: React.FC<ShowcaseHeroProps> = ({
         className="absolute top-12 left-1/2 -translate-x-1/2 w-[500px] sm:w-[700px] h-[280px] bg-gradient-to-b from-amber-500/10 via-amber-600/5 to-transparent blur-3xl pointer-events-none -z-10 rounded-full" 
         aria-hidden="true" 
       />
+
+      {/* Brand Hero Emblem */}
+      <div className="flex justify-center mb-5">
+        <div 
+          onClick={handleLaunchDemoClick}
+          className="relative group cursor-pointer focus:outline-none"
+          title="ParcOS Dealership Platform — Lansează Demo"
+        >
+          <div className="absolute -inset-1.5 bg-gradient-to-r from-amber-500/40 via-amber-400/20 to-sky-500/40 rounded-3xl blur-md opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
+          <img 
+            src="/brand/parcos-app-icon.webp" 
+            alt="ParcOS Emblem" 
+            className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shadow-2xl border border-white/80 object-cover group-hover:scale-105 transition-transform duration-300" 
+          />
+        </div>
+      </div>
 
       {/* Eyebrow HUD Bracket Tag */}
       <div className="flex justify-center mb-6">
@@ -86,7 +102,7 @@ export const ShowcaseHero: React.FC<ShowcaseHeroProps> = ({
         <p className="mt-5 sm:mt-7 text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed text-balance">
           Elimină haosul din administrare: scanează actele mașinilor (CIV / talon) cu AI în sub 1.8s, 
           generează oferte pe WhatsApp cu Garanție de Rezervare securizată (Stripe / card / transfer), 
-          sincronizează stocul pe OLX și lansează showroom-ul tău suveran pe domeniu propriu.
+          sincronizează stocul pe marile portaluri auto și lansează showroom-ul tău suveran pe domeniu propriu.
         </p>
 
         {/* Primary Action Buttons Bar */}
@@ -208,26 +224,26 @@ export const ShowcaseHero: React.FC<ShowcaseHeroProps> = ({
               </p>
             </div>
 
-            {/* Metric 3: Conformitate Fiscală */}
+            {/* Metric 3: Control Marjă & Fiscal */}
             <div className="p-5 sm:p-6 flex flex-col justify-between hover:bg-slate-50/50 transition-colors group">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] font-mono-telemetry tracking-wider uppercase text-slate-600 font-bold">
-                    CONFORMITATE
+                    PROFIT & CONTROL
                   </span>
                   <span className="text-[10px] font-mono-telemetry px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-900 border border-emerald-200 font-bold">
-                    ANAF READY
+                    LIVE MARGIN
                   </span>
                 </div>
                 <div className="text-2xl sm:text-3xl font-extrabold text-slate-950 font-mono-telemetry tracking-tight">
-                  TVA Deductibil
+                  Control Marjă
                 </div>
                 <div className="text-xs font-bold text-slate-900 mt-1">
-                  Calcul Automat Fiscal
+                  Costuri & Marjă per Mașină
                 </div>
               </div>
               <p className="text-[11px] text-slate-600 mt-3 leading-relaxed font-medium">
-                Calcul exact deductibil sau regim de marjă de profit conform Art. 312 Cod Fiscal.
+                Știi profitul real pe fiecare mașină: preț achiziție, pregătire și regim fiscal (TVA / Marjă Art. 312).
               </p>
             </div>
 
@@ -265,7 +281,7 @@ export const ShowcaseHero: React.FC<ShowcaseHeroProps> = ({
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-slate-600 font-medium">EXEMPLE CREATE CU PARCOS: RXM AUTOMOBILE, MPI AUTO, TOP AUTO (+35 DEALERI)</span>
+              <span className="text-slate-600 font-medium">EXEMPLE CREATE CU PARCOS: RXM AUTOMOBILE, MPI AUTO, ALD AUTOLAND (+35 DEALERI)</span>
             </div>
           </div>
 

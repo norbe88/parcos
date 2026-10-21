@@ -111,14 +111,14 @@ const THEME_PRESETS: Record<ThemePresetKey, ThemeConfig> = {
     sampleStock: [
       { brand: 'Skoda', model: 'Octavia Combi 2.0 TDI DSG', year: 2019, priceEur: 13900, km: 165000, tag: 'Garanție 12 Luni' },
       { brand: 'Ford', model: 'Focus Titanium EcoBoost', year: 2018, priceEur: 10500, km: 142000, tag: '0% Avans Rate' },
-      { brand: 'Dacia', model: 'Duster 1.5 dCi 4x4 Prestige', year: 2020, priceEur: 15400, km: 92000, tag: 'TVA Deductibil 21%' }
+      { brand: 'Dacia', model: 'Duster 1.5 dCi 4x4 Prestige', year: 2020, priceEur: 15400, km: 92000, tag: 'TVA Deductibil' }
     ]
   },
   top_auto: {
     key: 'top_auto',
-    name: 'Top Auto Transilvania (Midnight Blue)',
+    name: 'ALD Autoland (Midnight Blue)',
     tagline: 'Albastru profund metalizat pentru dealeri de flote corporate și importuri',
-    domain: 'topautotransilvania.ro',
+    domain: 'aldautoland.ro',
     badge: 'CORPORATE FLEET',
     accentColor: '#38bdf8',
     accentSecondary: '#0284c7',
@@ -132,14 +132,14 @@ const THEME_PRESETS: Record<ThemePresetKey, ThemeConfig> = {
       model: '530d xDrive M Sport Touring',
       year: 2021,
       priceEur: 38900,
-      vatType: 'TVA Deductibil 21% inclus',
+      vatType: 'TVA Deductibil inclus',
       fuel: 'Diesel Hybrid (48V)',
       hp: 286,
       km: 84000,
       tag: 'Verificare carVertical • Flotă Certificată'
     },
     sampleStock: [
-      { brand: 'Audi', model: 'A6 40 TDI S-Tronic Matrix', year: 2020, priceEur: 31900, km: 98000, tag: '21% TVA Deductibil' },
+      { brand: 'Audi', model: 'A6 40 TDI S-Tronic Matrix', year: 2020, priceEur: 31900, km: 98000, tag: 'TVA Deductibil' },
       { brand: 'Volvo', model: 'XC60 B4 AWD Inscription', year: 2021, priceEur: 35500, km: 76000, tag: 'Garanție 12 Luni' },
       { brand: 'Mercedes-Benz', model: 'C 220 d Avantgarde', year: 2020, priceEur: 27900, km: 112000, tag: 'Buy-Back Rapid' }
     ]

@@ -857,7 +857,7 @@ export const VehicleSocialPostModal: React.FC<VehicleSocialPostModalProps> = ({
                     </span>
                   </div>
                   <p className="text-[11px] text-zinc-300 leading-snug">
-                    Arde direct sigla oficială {dealer.name} în colțul dreapta-jos la rezoluție HD pentru a preveni furtul de poze pe OLX și Autovit.
+                    Arde direct sigla oficială {dealer.name} în colțul dreapta-jos la rezoluție HD pentru protecția brandului și a imaginilor pe toate portalurile auto.
                   </p>
                   <button
                     type="button"
@@ -873,7 +873,7 @@ export const VehicleSocialPostModal: React.FC<VehicleSocialPostModalProps> = ({
                     ) : (
                       <>
                         <Download className="w-4 h-4 text-white" />
-                        <span>Descarcă Poze cu Watermark-Logo (pentru OLX & Autovit)</span>
+                        <span>Descarcă Poze cu Watermark-Logo (pentru portaluri & clasificate)</span>
                       </>
                     )}
                   </button>

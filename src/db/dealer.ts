@@ -111,7 +111,7 @@ export const DEALER_MPI_AUTO: DealerProfile = {
 };
 
 export const DEALER_TOP_AUTO: DealerProfile = {
-  name: "TOP AUTO TRANSILVANIA S.R.L.",
+  name: "ALD AUTOLAND S.R.L.",
   cui: "RO41920199",
   regCom: "J12/4500/2020",
   shareCapital: "200 RON",
@@ -127,10 +127,10 @@ export const DEALER_TOP_AUTO: DealerProfile = {
   phoneFinance: "0741 876 543",
   whatsappNumber: "40740987654",
   whatsappFinance: "40741876543",
-  financeContactName: "Consilier Credite Top Auto",
-  generalContactName: "Vânzări Top Auto",
-  email: "office@topautotransilvania.ro",
-  tiktokHandle: "@topauto.transilvania",
+  financeContactName: "Consilier Credite ALD Autoland",
+  generalContactName: "Vânzări ALD Autoland",
+  email: "office@aldautoland.ro",
+  tiktokHandle: "@ald.autoland",
   tiktokUrl: "https://www.tiktok.com",
   facebookUrl: "https://www.facebook.com",
   instagramUrl: "https://www.instagram.com",
@@ -139,7 +139,7 @@ export const DEALER_TOP_AUTO: DealerProfile = {
   financingPartners: ["Banca Transilvania (BT Direct)", "Mogo", "TBI Bank"],
   themePreset: "midnight_blue",
   slug: "top_auto",
-  domain: "topautotransilvania.ro",
+  domain: "aldautoland.ro",
   tier: "starter",
   status: "demo",
   maxVehiclesQuota: 25,

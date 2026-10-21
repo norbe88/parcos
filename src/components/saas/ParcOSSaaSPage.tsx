@@ -51,12 +51,22 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
     const prevTitle = document.title;
     document.title = 'ParcOS — Sistem de Operare Autonom pentru Parcuri Auto & DMS Cloud';
     
+    // Dynamic favicon swap for ParcOS
+    const faviconLink = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
+    const prevFavicon = faviconLink ? faviconLink.href : '/favicon.ico';
+    if (faviconLink) {
+      faviconLink.href = '/brand/icon-32x32.png';
+    }
+
     // Pe pagina de prezentare ParcOS SaaS asigurăm tema luminoasă curată 'parcos_light'
     document.documentElement.setAttribute('data-theme', 'parcos_light');
     document.body.setAttribute('data-theme', 'parcos_light');
 
     return () => {
       document.title = prevTitle;
+      if (faviconLink) {
+        faviconLink.href = prevFavicon;
+      }
       document.documentElement.setAttribute('data-theme', 'obsidian_gold');
       document.body.setAttribute('data-theme', 'obsidian_gold');
     };
@@ -142,7 +152,7 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
             Toate uneltele de care are nevoie un parc modern
           </h2>
           <p className="mt-4 text-sm sm:text-base text-slate-600">
-            Fără foi volante, fără oferte scrise greoi pe telefon și fără calcule greșite de TVA.
+            Fără foi volante, fără mesaje pierdute pe WhatsApp și fără ore irosite tastând specificații de mână.
           </p>
         </div>
 
@@ -185,9 +195,9 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
               <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 mb-5">
                 <RefreshCw className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-xl text-slate-900 mb-2">Sincronizare Delta OLX</h3>
+              <h3 className="font-bold text-xl text-slate-900 mb-2">Sincronizare Multi-Canal Portaluri</h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Scanează automat anunțurile active de pe OLX și Autovit. Notifică instant agenții dacă o mașină a fost marcată vândută sau dacă prețurile diferă.
+                Scanează automat anunțurile active de pe principalele portaluri auto și platforme de profil. Notifică instant agenții dacă o mașină a fost marcată vândută sau dacă prețurile diferă.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-emerald-700 font-semibold flex items-center gap-1.5">
@@ -217,13 +227,13 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
               <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 mb-5">
                 <Zap className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-xl text-slate-900 mb-2">Onboarding Instant prin CUI ANAF</h3>
+              <h3 className="font-bold text-xl text-slate-900 mb-2">Control Stoc, Marjă & Fiscal</h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Introduci CUI-ul parcului auto, iar sistemul interoghează ANAF v9 și extrage automat denumirea legală, statutul TVA, adresa și datele fiscale.
+                Urmărești costul real de achiziție, cheltuielile de pregătire și marja de profit pe fiecare vehicul. Sistemul calculează automat regimul de marjă sau deductibil și integrează CUI ANAF v9.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-amber-700 font-semibold flex items-center gap-1.5">
-              <Check className="w-3.5 h-3.5 text-amber-600" /> Conformitate fiscală garantată
+              <Check className="w-3.5 h-3.5 text-amber-600" /> Marjă reală & conformitate ANAF
             </div>
           </div>
 
@@ -261,9 +271,9 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
 
       {/* 9. Footer */}
       <footer className="border-t border-slate-200/80 bg-white pt-12 pb-28 sm:pb-12 px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
-        <div className="max-w-6xl mx-auto flex items-center justify-center gap-2">
-          <Car className="w-4 h-4 text-amber-500" />
-          <span className="font-bold text-slate-800">ParcOS - Your Dealership Platform</span>
+        <div className="max-w-6xl mx-auto flex items-center justify-center gap-2.5">
+          <img src="/brand/icon-32x32.png" alt="ParcOS" className="w-5 h-5 rounded-md object-cover shadow-sm border border-slate-200" />
+          <span className="font-bold text-slate-800">ParcOS — Dealership Operating System</span>
           <span>•</span>
           <span>CARVANA SRL</span>
         </div>

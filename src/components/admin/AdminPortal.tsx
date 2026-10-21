@@ -25,7 +25,7 @@ import { VehicleSocialPostModal } from '../modals/VehicleSocialPostModal';
 import { StockFeedExportModal } from './StockFeedExportModal';
 import { VehicleSeedExporterModal } from './VehicleSeedExporterModal';
 import { AdminHelpModal } from './AdminHelpModal';
-import { CarmatikSidebar, AdminTabType } from './CarmatikSidebar';
+import { ParcOsSidebar, AdminTabType } from './ParcOsSidebar';
 import { WorkspaceSettingsView } from './WorkspaceSettingsView';
 import { SuperAdminOnboardingModal } from './SuperAdminOnboardingModal';
 import { SalesDocsHubView } from './SalesDocsHubView';
@@ -186,8 +186,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         </div>
       </div>
 
-      {/* Carmatik Sidebar Vertical Desktop & Drawer Mobil */}
-      <CarmatikSidebar
+      {/* ParcOS Sidebar Vertical Desktop & Drawer Mobil */}
+      <ParcOsSidebar
         activeTab={activeAdminTab}
         onTabChange={setActiveAdminTab}
         dealer={activeDealer}
@@ -318,7 +318,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         </div>
 
         {/* ========================================================================= */}
-        {/* VEDERI PANOU ADMIN CONFORM SELECTORULUI DIN CARMATIK SIDEBAR             */}
+        {/* VEDERI PANOU ADMIN CONFORM SELECTORULUI DIN PARCOS SIDEBAR             */}
         {/* ========================================================================= */}
 
         {/* 1. Operațiuni Stoc: Stoc & Inventar */}

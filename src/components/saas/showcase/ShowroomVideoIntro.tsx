@@ -49,98 +49,96 @@ interface ShowroomVehicle {
 }
 
 /**
- * Cele 4 vehicule reprezentate în showroom:
- * - Card 0: BMW X1 (Flanc Stâng / Top-Left)
- * - Card 1: Mercedes-Benz C-Class (Flanc Drept / Top-Right)
- * - Card 2: Audi A6 Matrix (Flanc Stâng / Bottom-Left)
- * - Card 3: Audi A4 Cockpit (Flanc Drept / Bottom-Right)
+ * Cele 4 vehicule reprezentate în showroom (aliniate exact cu modelele din video-ul din hală):
+ * - Card 0: Porsche Cayenne GTS Coupé (Flanc Stâng Față / Top-Left)
+ * - Card 1: Mercedes-AMG GT Coupé (Flanc Stâng Mijloc / Top-Right)
+ * - Card 2: Audi RS7 Sportback (Flanc Drept Mijloc / Bottom-Left)
+ * - Card 3: Audi R8 V10 Performance (Flanc Drept Față / Bottom-Right)
  *
- * Dispunere:
- * - Pe Desktop: 4 cadrane distincte (2x2 grid fără suprapunere).
- * - Pe Mobil: Card 3 se suprapune peste Card 1 în Slot A; Card 4 se suprapune peste Card 2 în Slot B.
- *   Ambele sloturi rămân fixe pe ecran la scroll, cu micro-selector tactil dedicat.
+ * * Toate prețurile includ TVA 21% deductibil și sunt marcate cu * pentru a indica date demonstrative (mock data).
+ * * Design Tokeni: Dark Luxury (#09090b canvas, #121215 card glass, text-white, WCAG AAA 18:1 contrast).
  */
 const VEHICLES: ShowroomVehicle[] = [
   {
-    id: 'bmw-x1-01',
-    shortName: 'BMW X1',
-    vehicleName: 'BMW X1 xDrive Sport-Line',
-    trim: 'Panoramic • 2.0d • 2015 • 179.000 km',
-    priceGross: '15.990 € (TVA 21% inclus)',
+    id: 'porsche-cayenne-01',
+    shortName: 'Porsche Cayenne',
+    vehicleName: 'Porsche Cayenne GTS Coupé',
+    trim: 'Sport Chrono • V8 4.0 Biturbo • 2023 • 38.000 km',
+    priceGross: '108.900 € (TVA inclus)*',
     statusBadge: 'În Stoc • Livrare Imediată',
     statusColor: 'sky',
     imageUrl:
-      'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80',
-    anchorX: '28%',
-    anchorY: '60%',
+      'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
+    anchorX: '20%',
+    anchorY: '74%',
     featureTitle: 'CIV Scanat cu AI (1.8s) • e-Factura SPV',
     featureSub: '19/19 câmpuri RAR extrase instant în sistem',
     Icon: Scan,
     telemetry: [
       { label: 'CIV RAR', value: '19/19 Validate' },
       { label: 'ANAF e-Factura', value: 'XML SPV' },
-      { label: 'Garanție Rezervare', value: '500 €' },
+      { label: 'Garanție Rezervare', value: '1.000 €' },
     ],
   },
   {
-    id: 'merc-c220-02',
-    shortName: 'Mercedes C-Class',
-    vehicleName: 'Mercedes-Benz C 220d AMG Line',
-    trim: 'Plafon Panoramic • Full LED • 2016 • 168.000 km',
-    priceGross: '19.490 € (TVA 21% inclus)',
+    id: 'merc-amg-gt-02',
+    shortName: 'Mercedes-AMG GT',
+    vehicleName: 'Mercedes-AMG GT Coupé V8',
+    trim: 'Night Package • Burmester • 2022 • 29.500 km',
+    priceGross: '119.500 € (TVA inclus)*',
     statusBadge: 'Rezervare Online • WhatsApp',
     statusColor: 'emerald',
     imageUrl:
       'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=800&q=80',
-    anchorX: '72%',
-    anchorY: '60%',
+    anchorX: '34%',
+    anchorY: '64%',
     featureTitle: 'Ofertă Trimisă • Plată Stripe Link',
     featureSub: 'Garanție de Rezervare confirmată prin Apple Pay (Stripe)',
     Icon: MessageSquare,
     telemetry: [
-      { label: 'Plată Stripe', value: '750 € Încasat' },
+      { label: 'Plată Stripe', value: '1.500 € Încasat' },
       { label: 'Dosar WhatsApp', value: 'PDF Auto' },
       { label: 'Status Rezervare', value: 'Blocat 48h' },
     ],
   },
   {
-    id: 'audi-a6-03',
-    shortName: 'Audi A6 Matrix',
-    vehicleName: 'Audi A6 3.0 TDI S-Line Matrix',
-    trim: 'Jante R20 • Geamuri Duble • 2017 • 142.000 km',
-    priceGross: '21.900 € (TVA 21% inclus)',
+    id: 'audi-rs7-03',
+    shortName: 'Audi RS7 Sportback',
+    vehicleName: 'Audi RS7 Sportback 4.0 TFSI',
+    trim: 'HD Matrix Laser • Ceramic • 2023 • 24.000 km',
+    priceGross: '114.900 € (TVA inclus)*',
     statusBadge: 'Verificat Tehnic • Raport RAR',
     statusColor: 'amber',
     imageUrl:
       'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&w=800&q=80',
-    anchorX: '34%',
-    anchorY: '68%',
+    anchorX: '72%',
+    anchorY: '65%',
     featureTitle: 'Contract Vânzare & Înstrăinare DRPCIV',
     featureSub: 'Fișă înstrăinare DRPCIV + Proces Verbal predare',
     Icon: FileText,
     telemetry: [
       { label: 'Contract Vânzare', value: 'PDF Auto' },
       { label: 'Înstrăinare DRPCIV', value: 'Anexa 2' },
-      { label: 'TVA Deductibil', value: '21% Reversibil' },
+      { label: 'Regim Fiscal', value: 'TVA Deductibil' },
     ],
   },
   {
-    id: 'audi-a4-04',
-    shortName: 'Audi A4 Cockpit',
-    vehicleName: 'Audi A4 2.0 TDI Virtual Cockpit',
-    trim: 'Matrix • Jante R19 • 2018 • 154.000 km',
-    priceGross: '18.750 € (TVA 21% inclus)',
+    id: 'audi-r8-04',
+    shortName: 'Audi R8 V10',
+    vehicleName: 'Audi R8 V10 Performance Quattro',
+    trim: 'Carbon Aerokit • Laser Light • 2022 • 18.200 km',
+    priceGross: '139.900 € (TVA inclus)*',
     statusBadge: 'Sincronizat Live • Multi-Canal',
     statusColor: 'emerald',
     imageUrl:
       'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=800&q=80',
-    anchorX: '66%',
-    anchorY: '68%',
-    featureTitle: 'Sincronizat pe OLX & Autovit în 0.42s',
+    anchorX: '82%',
+    anchorY: '74%',
+    featureTitle: 'Sincronizat pe marile portaluri în 0.42s',
     featureSub: 'Protecție activă împotriva dublei vânzări',
     Icon: Zap,
     telemetry: [
-      { label: 'Sincronizare', value: 'Autovit, OLX' },
+      { label: 'Sincronizare', value: 'Portaluri Auto & Clasificate' },
       { label: 'Timp Replicare', value: '0.42s' },
       { label: 'Alertă Stoc', value: 'Activă 24/7' },
     ],
@@ -155,6 +153,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const lastProgressRef = useRef<number>(0);
   const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [videoLoadError, setVideoLoadError] = useState<boolean>(false);
   const [isHeroBannerRevealed, setIsHeroBannerRevealed] = useState<boolean>(false);
@@ -163,7 +162,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
   const [manualSlotA, setManualSlotA] = useState<0 | 2 | null>(null);
   const [manualSlotB, setManualSlotB] = useState<1 | 3 | null>(null);
 
-  // Monitorizare scroll nativ prin requestAnimationFrame (60-120 FPS fluid)
+  // Monitorizare scroll nativ optimizată pentru ecrane 4K (evită re-randări sub-pixel)
   useEffect(() => {
     let ticking = false;
 
@@ -179,9 +178,16 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
           if (totalScrollable > 0) {
             const currentScroll = -rect.top;
             const progress = Math.max(0, Math.min(1, currentScroll / totalScrollable));
-            setScrollProgress(progress);
-            if (progress > 0.04 && !isHeroBannerRevealed) {
-              setIsHeroBannerRevealed(true);
+            if (
+              Math.abs(progress - lastProgressRef.current) > 0.001 ||
+              progress === 0 ||
+              progress === 1
+            ) {
+              lastProgressRef.current = progress;
+              setScrollProgress(progress);
+              if (progress > 0.04 && !isHeroBannerRevealed) {
+                setIsHeroBannerRevealed(true);
+              }
             }
           }
           ticking = false;
@@ -223,30 +229,31 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
   }, []);
 
   // =========================================================================
-  // LOGICĂ SCROLLYTELLING: CALCULE DE PRIM-PLAN ȘI CAMERA PAN
+  // LOGICĂ SCROLLYTELLING: CALCULE DE PRIM-PLAN ȘI CAMERA PAN (COMPACT 230vh)
   // =========================================================================
   const isHeroActive = scrollProgress < 0.08;
+  const isCompactHeader = !isHeroActive;
 
   let primPlanIndex = -1;
   let cameraPan = 'translate3d(0, 0, 0) scale(1)';
 
-  if (scrollProgress >= 0.08 && scrollProgress < 0.28) {
-    primPlanIndex = 0; // BMW X1 (Prim-plan)
+  if (scrollProgress >= 0.08 && scrollProgress < 0.30) {
+    primPlanIndex = 0; // Porsche Cayenne GTS (Prim-plan Flanc Stâng Față)
     cameraPan = 'translate3d(2.5vw, -1vh, 0) scale(1.04)';
-  } else if (scrollProgress >= 0.28 && scrollProgress < 0.50) {
-    primPlanIndex = 1; // Mercedes-Benz (Prim-plan)
+  } else if (scrollProgress >= 0.30 && scrollProgress < 0.53) {
+    primPlanIndex = 1; // Mercedes-AMG GT (Prim-plan Flanc Stâng Mijloc)
     cameraPan = 'translate3d(-2.5vw, -1vh, 0) scale(1.04)';
-  } else if (scrollProgress >= 0.50 && scrollProgress < 0.72) {
-    primPlanIndex = 2; // Audi A6 (Prim-plan)
+  } else if (scrollProgress >= 0.53 && scrollProgress < 0.76) {
+    primPlanIndex = 2; // Audi RS7 Sportback (Prim-plan Flanc Drept Mijloc)
     cameraPan = 'translate3d(2.5vw, 1.5vh, 0) scale(1.05)';
-  } else if (scrollProgress >= 0.72) {
-    primPlanIndex = 3; // Audi A4 (Prim-plan)
+  } else if (scrollProgress >= 0.76) {
+    primPlanIndex = 3; // Audi R8 V10 (Prim-plan Flanc Drept Față)
     cameraPan = 'translate3d(-2.5vw, 1.5vh, 0) scale(1.05)';
   }
 
-  // Calcul mașină activă în Slot A (Card 1 / Card 3) și Slot B (Card 2 / Card 4) pe mobil
-  const activeSlotACar: 0 | 2 = manualSlotA ?? (scrollProgress >= 0.50 ? 2 : 0);
-  const activeSlotBCar: 1 | 3 = manualSlotB ?? (scrollProgress >= 0.72 ? 3 : 1);
+  // Calcul mașină activă în Slot A (Card 0 / Card 2) și Slot B (Card 1 / Card 3) pe mobil
+  const activeSlotACar: 0 | 2 = manualSlotA ?? (scrollProgress >= 0.53 ? 2 : 0);
+  const activeSlotBCar: 1 | 3 = manualSlotB ?? (scrollProgress >= 0.76 ? 3 : 1);
 
   // Derulare lină către un vehicul specific
   const scrollToVehicle = (index: number) => {
@@ -257,7 +264,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
     const rect = containerRef.current.getBoundingClientRect();
     const containerTop = window.scrollY + rect.top;
     const total = rect.height - window.innerHeight;
-    const milestones = [0.18, 0.39, 0.61, 0.86];
+    const milestones = [0.16, 0.38, 0.61, 0.84];
     const targetProgress = milestones[index] ?? 0;
     window.scrollTo({
       top: containerTop + total * targetProgress,
@@ -287,6 +294,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
   }, []);
 
   // Helper pentru randarea unui card în cadranul său dedicat (Desktop sau Mobil)
+  // Contrast WCAG AAA Garantat: Carduri Dark Luxury cu text alb pur și accente aurii
   const renderVehicleQuadrantCard = (
     vehicleIndex: number,
     quadrant: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right',
@@ -295,9 +303,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
     const vehicle = VEHICLES[vehicleIndex];
     if (!vehicle) return null;
 
-    // Pe desktop verificăm pragul de scroll individual
-    // Pe mobil, afișajul e garantat de containerul slotului activ
-    const visibilityThresholds = [0.08, 0.28, 0.50, 0.72];
+    const visibilityThresholds = [0.08, 0.30, 0.53, 0.76];
     const isVisible = isMobileSlot ? true : scrollProgress >= visibilityThresholds[vehicleIndex];
     const isPrimPlan = primPlanIndex === vehicleIndex;
 
@@ -315,10 +321,12 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
           }
         }}
         style={{
+          transform: 'translateZ(0)',
+          willChange: 'transform, opacity',
           transition:
-            'transform 650ms cubic-bezier(0.16, 1, 0.3, 1), opacity 550ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 450ms ease-out, border-color 350ms ease-out',
+            'transform 550ms cubic-bezier(0.16, 1, 0.3, 1), opacity 450ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms ease-out, border-color 250ms ease-out',
         }}
-        className={`group relative rounded-2xl transition-all duration-500 cursor-pointer border shadow-lg ${
+        className={`group relative rounded-2xl cursor-pointer border shadow-2xl backdrop-blur-md ${
           isMobileSlot ? 'p-2.5 sm:p-3' : 'p-3 sm:p-3.5'
         } ${
           !isVisible
@@ -327,74 +335,75 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
               } ${isBottom ? 'translate-y-5' : '-translate-y-4'}`
             : isPrimPlan
             ? vehicle.statusColor === 'emerald'
-              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-white/95 backdrop-blur-2xl border-emerald-500 ring-2 ring-emerald-500/30 shadow-[0_20px_50px_-10px_rgba(16,185,129,0.3)] z-30'
+              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/95 border-emerald-500/90 ring-2 ring-emerald-500/30 shadow-[0_0_35px_rgba(16,185,129,0.25)] z-30'
               : vehicle.statusColor === 'sky'
-              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-white/95 backdrop-blur-2xl border-sky-500 ring-2 ring-sky-500/30 shadow-[0_20px_50px_-10px_rgba(14,165,233,0.3)] z-30'
-              : 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-white/95 backdrop-blur-2xl border-amber-500 ring-2 ring-amber-500/30 shadow-[0_20px_50px_-10px_rgba(245,158,11,0.3)] z-30'
-            : 'opacity-90 translate-x-0 translate-y-0 scale-[0.98] bg-white/90 backdrop-blur-xl border-slate-200/90 shadow-md z-20 hover:opacity-100 hover:scale-[0.99] hover:border-slate-300'
+              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/95 border-sky-500/90 ring-2 ring-sky-500/30 shadow-[0_0_35px_rgba(14,165,233,0.25)] z-30'
+              : 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/95 border-amber-500/90 ring-2 ring-amber-500/30 shadow-[0_0_35px_rgba(245,158,11,0.25)] z-30'
+            : 'opacity-90 translate-x-0 translate-y-0 scale-[0.98] bg-[#121215]/90 border-white/15 shadow-xl z-20 hover:opacity-100 hover:scale-[0.99] hover:border-white/30'
         }`}
       >
-        {/* Header Card: Status & Preț */}
-        <div className="flex items-center justify-between text-xs mb-2 pb-1 border-b border-slate-200/80">
+        {/* Header Card: Status & Preț cu indicator Mock Data * (Alb pur pe fundal Dark Luxury) */}
+        <div className="flex items-center justify-between text-xs mb-2 pb-1.5 border-b border-white/10">
           <span
             className={`flex items-center gap-1.5 font-bold ${
               isPrimPlan
                 ? vehicle.statusColor === 'emerald'
-                  ? 'text-emerald-700'
+                  ? 'text-emerald-400'
                   : vehicle.statusColor === 'sky'
-                  ? 'text-sky-700'
-                  : 'text-amber-700'
-                : 'text-slate-600'
+                  ? 'text-sky-400'
+                  : 'text-amber-400'
+                : 'text-zinc-300'
             }`}
           >
             <span
               className={`h-2 w-2 rounded-full ${
                 isPrimPlan
                   ? vehicle.statusColor === 'emerald'
-                    ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]'
+                    ? 'bg-emerald-400 animate-pulse shadow-[0_0_10px_#34d399]'
                     : vehicle.statusColor === 'sky'
-                    ? 'bg-sky-500 animate-pulse shadow-[0_0_8px_#0ea5e9]'
-                    : 'bg-amber-500 animate-pulse shadow-[0_0_8px_#f59e0b]'
-                  : 'bg-slate-400'
+                    ? 'bg-sky-400 animate-pulse shadow-[0_0_10px_#38bdf8]'
+                    : 'bg-amber-400 animate-pulse shadow-[0_0_10px_#fbbf24]'
+                  : 'bg-zinc-500'
               }`}
             />
             {vehicle.statusBadge}
           </span>
-          <span className="text-slate-950 font-black text-xs sm:text-sm">
+          <span className="text-white font-mono font-black text-xs sm:text-sm tracking-tight drop-shadow-sm">
             {vehicle.priceGross}
           </span>
         </div>
 
-        {/* Corp Card Orizontal: Fotografie + Detalii Funcționalitate */}
+        {/* Corp Card Orizontal: Fotografie Realistă + Detalii Funcționalitate */}
         <div className="flex flex-row gap-2.5 sm:gap-3 items-center">
           {/* Fotografie Mașină */}
-          <div className="relative w-20 sm:w-24 aspect-[16/10] shrink-0 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 group-hover:border-amber-500/50 transition-colors">
+          <div className="relative w-20 sm:w-24 aspect-[16/10] shrink-0 rounded-xl overflow-hidden bg-zinc-900 border border-white/15 group-hover:border-amber-400/60 transition-colors">
             <img
               src={vehicle.imageUrl}
               alt={vehicle.vehicleName}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
               loading="lazy"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           </div>
 
           {/* Informații & Titlu Funcționalitate DMS */}
           <div className="flex-1 min-w-0">
-            <div className="text-xs sm:text-sm font-extrabold text-slate-950 truncate group-hover:text-amber-600 transition-colors">
+            <div className="text-xs sm:text-sm font-extrabold text-white truncate group-hover:text-amber-400 transition-colors drop-shadow-sm">
               {vehicle.vehicleName}
             </div>
-            <div className="text-[10px] sm:text-[11px] text-slate-600 font-medium truncate mb-1">
+            <div className="text-[10px] sm:text-[11px] text-zinc-400 font-medium truncate mb-1">
               {vehicle.trim}
             </div>
 
-            <div className="p-1.5 rounded-lg bg-slate-50/90 border border-slate-200/80">
-              <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-amber-700">
+            {/* Inset Tile Întunecat de Mare Contrast pentru Funcționalitate DMS */}
+            <div className="p-1.5 rounded-lg bg-white/[0.05] border border-white/10">
+              <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-amber-300">
                 {React.createElement(vehicle.Icon, {
-                  className: 'h-3.5 w-3.5 text-amber-600 shrink-0',
+                  className: 'h-3.5 w-3.5 text-amber-400 shrink-0',
                 })}
                 <span className="truncate">{vehicle.featureTitle}</span>
               </div>
-              <div className="text-[9px] sm:text-[10px] text-slate-700 mt-0.5 truncate">
+              <div className="text-[9px] sm:text-[10px] text-zinc-300 mt-0.5 truncate leading-tight">
                 {vehicle.featureSub}
               </div>
             </div>
@@ -402,22 +411,22 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
         </div>
 
         {/* Subsol Card: Telemetrie & Link DMS */}
-        <div className="mt-2 pt-1.5 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-1">
-          <div className="flex flex-wrap gap-1 text-[9px] sm:text-[10px] font-mono text-slate-700">
+        <div className="mt-2 pt-1.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-1">
+          <div className="flex flex-wrap gap-1 text-[9px] sm:text-[10px] font-mono">
             {vehicle.telemetry.slice(0, isMobileSlot ? 2 : 3).map((t, idx) => (
               <span
                 key={idx}
-                className="px-1.5 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-800 flex items-center gap-1 shadow-2xs"
+                className="px-2 py-0.5 rounded-md bg-white/[0.06] border border-white/10 text-zinc-200 flex items-center gap-1"
               >
-                <span className="text-slate-600 font-bold text-[9px] sm:text-[10px]">{t.label}:</span>
-                <span className="font-black text-slate-950">{t.value}</span>
+                <span className="text-zinc-400 font-semibold">{t.label}:</span>
+                <span className="font-extrabold text-white">{t.value}</span>
               </span>
             ))}
           </div>
 
           <span
-            className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold ${
-              isPrimPlan ? 'text-amber-700 group-hover:text-amber-800' : 'text-slate-700 hover:text-slate-950'
+            className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold transition-colors ${
+              isPrimPlan ? 'text-amber-400 group-hover:text-amber-300' : 'text-zinc-300 hover:text-white'
             }`}
           >
             <span>{isPrimPlan ? 'Vezi în DMS' : 'Alege Vehicul'}</span>
@@ -432,11 +441,14 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
     <section
       ref={containerRef}
       aria-label="ParcOS Showroom Digital Autonom"
-      className="relative w-full bg-slate-950 text-slate-900 select-none font-sans"
-      style={{ height: '380vh' }}
+      className="relative w-full bg-[#09090b] text-white select-none font-sans"
+      style={{ height: '230vh' }}
     >
       {/* Cadrul STICKY care rămâne fixat pe ecran pe durata derulării */}
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between">
+      <div 
+        className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between"
+        style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
+      >
         
         {/* =====================================================================
             LAYER 1: CLIPUL VIDEO 4K CU EFECT DE CAMERA PAN STANGA / DREAPTA
@@ -485,7 +497,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
           )}
 
           {/* Gradient atmosferic aerisit pentru lizibilitate optimă și reflexie daylight */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-slate-950/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-slate-950/40" />
         </div>
 
         {/* =====================================================================
@@ -493,7 +505,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
            ===================================================================== */}
         <div className="pointer-events-none absolute inset-0 z-10">
           {VEHICLES.map((vehicle, index) => {
-            const visibilityThresholds = [0.08, 0.28, 0.50, 0.72];
+            const visibilityThresholds = [0.08, 0.30, 0.53, 0.76];
             const isVisibleOnScreen = scrollProgress >= visibilityThresholds[index];
             const isPrimPlan = primPlanIndex === index;
 
@@ -541,272 +553,349 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
         </div>
 
         {/* =====================================================================
-            LAYER 2: HEADER (Cardul Hero Temporizat SAU Bara HUD Compactă)
+            LAYER 2: CARDUL PRINCIPAL RESTRÂNS + SLIDER SELECTOR VEHICULE
+            - Cardul principal NU dispare la scroll, ci se micșorează elegant.
+            - Sliderul selector de vehicule apare direct sub cardul principal.
+            - Contrast maxim Dark Luxury: text-white pe suprafață sticlă #121215.
            ===================================================================== */}
-        <div className="relative z-30 pt-4 sm:pt-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-          {isHeroActive ? (
-            /* Mod 1: Hero Principal — apare doar după ~2.6s (deschiderea ușilor) */
-            <div
-              style={{
-                opacity: isHeroBannerRevealed ? 1 : 0,
-                transform: isHeroBannerRevealed ? 'translateY(0) scale(1)' : 'translateY(-24px) scale(0.96)',
-                transition:
-                  'opacity 1000ms cubic-bezier(0.16, 1, 0.3, 1), transform 1000ms cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-              className="mx-auto rounded-3xl bg-white/95 backdrop-blur-2xl border border-slate-200/90 shadow-[0_25px_60px_-15px_rgba(15,23,42,0.25)] px-5 py-4 sm:px-10 sm:py-7 text-center"
-            >
-              <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 border border-slate-200/80 px-3.5 py-1 text-xs font-semibold text-slate-700 mb-2.5">
-                <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-                <span>Showroom Digital Autonom • ParcOS Cloud DMS</span>
+        <div className="relative z-30 pt-2 sm:pt-3 px-3 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full transition-all duration-500">
+          
+          {/* CARDUL PRINCIPAL */}
+          <div
+            style={{
+              opacity: isHeroBannerRevealed ? 1 : 0,
+              transform: !isHeroBannerRevealed
+                ? 'translateY(-20px) scale(0.96)'
+                : 'translateY(0) scale(1)',
+              transition:
+                'opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1), max-width 500ms cubic-bezier(0.16, 1, 0.3, 1), padding 500ms cubic-bezier(0.16, 1, 0.3, 1)',
+              willChange: 'transform, opacity',
+            }}
+            className={`mx-auto bg-[#121215]/95 backdrop-blur-md border border-white/15 shadow-2xl overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              isCompactHeader
+                ? 'rounded-2xl px-3 py-2 sm:px-5 sm:py-2.5 max-w-4xl shadow-xl'
+                : 'rounded-3xl px-4 py-3.5 sm:px-8 sm:py-5 max-w-3xl shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] text-center'
+            }`}
+          >
+            {!isCompactHeader ? (
+              /* STAREA HERO EXTINSĂ (La începutul paginii) */
+              <div className="transition-all duration-400 ease-out">
+                <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.06] border border-white/15 px-3 py-0.5 sm:px-3.5 sm:py-1 text-[11px] sm:text-xs font-semibold text-zinc-200 mb-2 sm:mb-2.5">
+                  <Sparkles className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-amber-400" />
+                  <span>Showroom Digital Autonom • ParcOS Cloud DMS</span>
+                </div>
+
+                <h1 className="text-base sm:text-2xl md:text-3xl font-black tracking-tight text-white leading-tight">
+                  „Nu mai pierde clienți în mesageria platformelor auto.{' '}
+                  <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-emerald-400 bg-clip-text text-transparent">
+                    Transformă-ți parcul într-un showroom digital autonom.”
+                  </span>
+                </h1>
+
+                <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-2xl mx-auto">
+                  De la scanarea CIV în 1.8 secunde și e-Factura în SPV, până la contract generat
+                  și încasarea garanției de rezervare prin Stripe direct pe WhatsApp.
+                </p>
+
+                <div className="mt-3 sm:mt-3.5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+                  <button
+                    type="button"
+                    onClick={handleExploreDMS}
+                    className="group inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-black tracking-wide shadow-lg shadow-amber-500/25 transition-all duration-200 hover:scale-[1.02] cursor-pointer"
+                  >
+                    <Car className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-950" />
+                    <span>Explorează Sistemul DMS</span>
+                    <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-950 transition-transform duration-200 group-hover:translate-x-1" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleReplay}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/15 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer shadow-sm"
+                  >
+                    <RotateCcw className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-amber-400" />
+                    <span>Reia Animația</span>
+                  </button>
+                </div>
+
+                {/* Indicator discret de scroll */}
+                <div className="mt-2.5 sm:mt-3.5 flex items-center justify-center gap-1.5 text-[11px] sm:text-xs text-amber-400 font-mono font-medium animate-bounce">
+                  <span>Derulează pentru a explora mașinile din showroom</span>
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </div>
+              </div>
+            ) : (
+              /* STAREA RESTRÂNSĂ: Cardul rămâne pe ecran, micșorat și elegant */
+              <div className="flex items-center justify-between gap-3 transition-all duration-400 ease-out">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <div className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 text-[10px] sm:text-xs font-bold text-amber-300 shrink-0">
+                    <Sparkles className="h-3 w-3 text-amber-400" />
+                    <span className="hidden sm:inline">ParcOS Showroom</span>
+                    <span className="sm:hidden">ParcOS</span>
+                  </div>
+
+                  <div className="min-w-0">
+                    <div className="text-xs sm:text-sm font-black text-white truncate drop-shadow-sm">
+                      „Transformă-ți parcul într-un showroom digital autonom”
+                    </div>
+                    <div className="text-[10px] text-zinc-400 font-medium truncate hidden md:block">
+                      Scanare CIV 1.8s • e-Factura SPV • Garanție Rezervare Stripe
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleExploreDMS}
+                    className="inline-flex items-center gap-1 text-[11px] sm:text-xs text-slate-950 font-black bg-amber-500 hover:bg-amber-400 px-3 py-1.5 rounded-lg transition-colors shadow-sm cursor-pointer"
+                  >
+                    <span>Explorează DMS</span>
+                    <ArrowRight className="h-3 w-3" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleReplay}
+                    title="Reia de la început"
+                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-zinc-300 hover:text-white border border-white/15 transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* SLIDER SELECTOR SUB CARDUL PRINCIPAL (apare lin când cardul principal este restrâns) */}
+          <div
+            style={{
+              opacity: isCompactHeader ? 1 : 0,
+              transform: isCompactHeader ? 'translateY(0)' : 'translateY(-8px)',
+              maxHeight: isCompactHeader ? '60px' : '0px',
+              transition:
+                'opacity 450ms ease-out, transform 450ms ease-out, max-height 450ms ease-out',
+              willChange: 'transform, opacity',
+            }}
+            className={`mt-1.5 sm:mt-2 mx-auto max-w-4xl overflow-hidden pointer-events-auto ${
+              !isCompactHeader ? 'pointer-events-none' : ''
+            }`}
+          >
+            <div className="bg-[#121215]/95 backdrop-blur-md border border-white/15 rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-1.5 shadow-xl flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-zinc-200 shrink-0">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+                <span className="hidden sm:inline text-zinc-400">Selector Showroom:</span>
               </div>
 
-              <h1 className="text-lg sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-950 leading-tight">
-                „Nu mai pierde clienți în mesaje de pe OLX.{' '}
-                <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-emerald-600 bg-clip-text text-transparent">
-                  Transformă-ți parcul într-un showroom digital autonom.”
-                </span>
-              </h1>
-
-              <p className="mt-2 text-xs sm:text-sm md:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
-                De la scanarea CIV în 1.8 secunde și e-Factura în SPV, până la contract generat
-                și încasarea garanției de rezervare prin Stripe direct pe WhatsApp.
-              </p>
-
-              <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
-                <button
-                  type="button"
-                  onClick={handleExploreDMS}
-                  className="group inline-flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-black tracking-wide shadow-lg shadow-amber-500/25 transition-all duration-200 hover:scale-[1.02] cursor-pointer"
-                >
-                  <Car className="h-4 w-4 text-slate-950" />
-                  <span>Explorează Sistemul DMS</span>
-                  <ArrowRight className="h-4 w-4 text-slate-950 transition-transform duration-200 group-hover:translate-x-1" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleReplay}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer shadow-sm"
-                >
-                  <RotateCcw className="h-3.5 w-3.5 text-amber-600" />
-                  <span>Reia Animația</span>
-                </button>
-              </div>
-
-              {/* Indicator discret de scroll */}
-              <div className="mt-4 flex items-center justify-center gap-2 text-xs text-amber-600 font-mono font-medium animate-bounce">
-                <span>Derulează pentru a explora mașinile din showroom</span>
-                <ChevronDown className="h-4 w-4" />
-              </div>
-            </div>
-          ) : (
-            /* Mod 2: Compact Top HUD Bar la scroll */
-            <div className="mx-auto rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl px-3 py-2 sm:px-4 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-3 animate-in fade-in slide-in-from-top-4 duration-400">
-              <div className="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-slate-700 truncate">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                <span className="hidden md:inline text-slate-500">Showroom:</span>
-                <span className="text-slate-950 font-extrabold truncate">{VEHICLES[primPlanIndex]?.vehicleName}</span>
-              </div>
-
-              {/* Selector direct între cele 4 vehicule */}
-              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+              {/* Slider selector cu butoane directe către cele 4 mașini */}
+              <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5">
                 {VEHICLES.map((v, idx) => {
-                  const isCurrent = primPlanIndex === idx;
+                  const isCurrent = (primPlanIndex >= 0 ? primPlanIndex : 0) === idx;
                   return (
                     <button
                       key={v.id}
                       type="button"
                       onClick={() => scrollToVehicle(idx)}
-                      className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shrink-0 ${
                         isCurrent
-                          ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
-                          : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 border border-slate-200'
+                          ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25 font-black ring-2 ring-amber-400'
+                          : 'bg-white/[0.06] text-zinc-300 hover:text-white hover:bg-white/[0.12] border border-white/10'
                       }`}
                     >
-                      {v.shortName}
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          isCurrent ? 'bg-slate-950' : 'bg-zinc-400'
+                        }`}
+                      />
+                      <span>{v.shortName}</span>
                     </button>
                   );
                 })}
               </div>
 
-              <button
-                type="button"
-                onClick={handleExploreDMS}
-                className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-700 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg font-semibold transition-colors shrink-0"
-              >
-                <span>Sari la DMS</span>
-                <ArrowRight className="h-3 w-3" />
-              </button>
+              <span className="text-[10px] text-zinc-400 font-mono hidden lg:inline shrink-0">
+                Click pentru focalizare
+              </span>
             </div>
-          )}
+          </div>
         </div>
 
         {/* =====================================================================
             LAYER 3: RANDARE CARDURI VEHICULE
             - Desktop (lg:grid): 4 cadrane distincte în grilă 2x2 fără suprapunere.
-            - Mobil (lg:hidden): 2 sloturi suprapuse (Slot A: Card 1 + 3; Slot B: Card 2 + 4)
+            - Mobil (lg:hidden): 2 sloturi suprapuse (Slot A: Card 0 + 2; Slot B: Card 1 + 3)
               cu selector dedicat și poziționare fixă la scroll.
            ===================================================================== */}
         <div className="relative z-30 max-w-[1560px] mx-auto w-full px-3 sm:px-6 lg:px-8 pb-3 flex-1 flex flex-col justify-between">
           
           <div className="w-full flex-1 flex flex-col justify-center my-auto py-1 sm:py-2">
-            {!isHeroActive && (
-              <>
-                {/* 🖥️ VARIANTA A: DESKTOP (lg:grid) — 4 CADRANE SEPARATE */}
-                <div className="hidden lg:grid w-full grid-cols-2 gap-3.5 lg:gap-x-12 xl:gap-x-20 2xl:gap-x-28 lg:gap-y-3.5 items-center">
-                  
-                  {/* 1. Sus în Stânga: BMW X1 */}
-                  <div className="col-start-1 row-start-1 w-full">
-                    {renderVehicleQuadrantCard(0, 'top-left')}
-                  </div>
+            {/* 🖥️ VARIANTA A: DESKTOP (lg:grid) — 4 CADRANE SEPARATE */}
+            <div
+              className={`hidden lg:grid w-full grid-cols-2 gap-3.5 lg:gap-x-12 xl:gap-x-20 2xl:gap-x-28 lg:gap-y-3.5 items-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                !isCompactHeader
+                  ? 'opacity-0 translate-y-10 pointer-events-none scale-[0.97]'
+                  : 'opacity-100 translate-y-0 pointer-events-auto scale-100'
+              }`}
+            >
+              {/* 1. Sus în Stânga: Porsche Cayenne GTS Coupé */}
+              <div className="col-start-1 row-start-1 w-full">
+                {renderVehicleQuadrantCard(0, 'top-left')}
+              </div>
 
-                  {/* 2. Sus în Dreapta: Mercedes-Benz C-Class */}
-                  <div className="col-start-2 row-start-1 w-full">
-                    {renderVehicleQuadrantCard(1, 'top-right')}
-                  </div>
+              {/* 2. Sus în Dreapta: Mercedes-AMG GT Coupé */}
+              <div className="col-start-2 row-start-1 w-full">
+                {renderVehicleQuadrantCard(1, 'top-right')}
+              </div>
 
-                  {/* 3. Sub cel din stânga sus (Stânga Jos): Audi A6 Matrix */}
-                  <div className="col-start-1 row-start-2 w-full">
-                    {renderVehicleQuadrantCard(2, 'bottom-left')}
-                  </div>
+              {/* 3. Sub cel din stânga sus: Audi RS7 Sportback */}
+              <div className="col-start-1 row-start-2 w-full">
+                {renderVehicleQuadrantCard(2, 'bottom-left')}
+              </div>
 
-                  {/* 4. În Dreapta Jos: Audi A4 Virtual Cockpit */}
-                  <div className="col-start-2 row-start-2 w-full">
-                    {renderVehicleQuadrantCard(3, 'bottom-right')}
-                  </div>
+              {/* 4. În Dreapta Jos: Audi R8 V10 Performance */}
+              <div className="col-start-2 row-start-2 w-full">
+                {renderVehicleQuadrantCard(3, 'bottom-right')}
+              </div>
+            </div>
 
+            {/* 📱 VARIANTA B: MOBIL / TABLETĂ (< lg) — 2 SLOTURI SUPRAPUSE CU COMUTARE */}
+            <div
+              className={`grid lg:hidden w-full grid-cols-1 gap-2.5 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                !isCompactHeader
+                  ? 'opacity-0 translate-y-10 pointer-events-none scale-[0.97]'
+                  : 'opacity-100 translate-y-0 pointer-events-auto scale-100'
+              }`}
+            >
+              {/* SLOTUL A (Card 0: Porsche Cayenne & Card 2: Audi RS7) */}
+              <div
+                style={{
+                  transition: 'opacity 500ms ease, transform 500ms ease',
+                }}
+                className={`w-full transition-all duration-500 ${
+                  !isCompactHeader
+                    ? 'opacity-0 pointer-events-none translate-y-3'
+                    : 'opacity-100 translate-y-0'
+                }`}
+              >
+                {/* Micro-Selector Slot A pe Mobil */}
+                <div className="flex items-center justify-between mb-1 px-1">
+                  <span className="text-[10px] font-mono text-zinc-300 bg-[#121215]/95 backdrop-blur-md px-2.5 py-0.5 rounded-lg border border-white/15 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    <span className="text-zinc-400">Flanc Stâng:</span>
+                    <strong className="text-white font-black">{VEHICLES[activeSlotACar]?.shortName}</strong>
+                  </span>
+                  <div className="flex items-center gap-1 bg-[#121215]/95 backdrop-blur-md border border-white/15 p-0.5 rounded-lg shadow-sm">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setManualSlotA(0);
+                      }}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        activeSlotACar === 0
+                          ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
+                          : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      {VEHICLES[0].shortName}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setManualSlotA(2);
+                      }}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        activeSlotACar === 2
+                          ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
+                          : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      {VEHICLES[2].shortName}
+                    </button>
+                  </div>
                 </div>
 
-                {/* 📱 VARIANTA B: MOBIL / TABLETĂ (< lg) — 2 SLOTURI SUPRAPUSE CU COMUTARE */}
-                <div className="grid lg:hidden w-full grid-cols-1 gap-2.5">
-                  
-                  {/* SLOTUL A (Card 1: BMW X1 & Card 3: Audi A6 suprapuse în același loc) */}
-                  <div
-                    style={{
-                      transition: 'opacity 500ms ease, transform 500ms ease',
-                    }}
-                    className={`w-full transition-all duration-500 ${
-                      scrollProgress < 0.08
-                        ? 'opacity-0 pointer-events-none translate-y-3'
-                        : 'opacity-100 translate-y-0'
-                    }`}
-                  >
-                    {/* Micro-Selector Slot A pe Mobil */}
-                    <div className="flex items-center justify-between mb-1 px-1">
-                      <span className="text-[10px] font-mono text-slate-700 bg-white/95 backdrop-blur-md px-2.5 py-0.5 rounded-lg border border-slate-200/90 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
-                        <span>Flanc Stâng:</span>
-                        <strong className="text-slate-950 font-black">{VEHICLES[activeSlotACar]?.shortName}</strong>
-                      </span>
-                      <div className="flex items-center gap-1 bg-white/95 backdrop-blur-md border border-slate-200/90 p-0.5 rounded-lg shadow-sm">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setManualSlotA(0);
-                          }}
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
-                            activeSlotACar === 0
-                              ? 'bg-amber-500 text-slate-950 shadow-sm'
-                              : 'text-slate-600 hover:text-slate-950'
-                          }`}
-                        >
-                          BMW X1
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setManualSlotA(2);
-                          }}
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
-                            activeSlotACar === 2
-                              ? 'bg-amber-500 text-slate-950 shadow-sm'
-                              : 'text-slate-600 hover:text-slate-950'
-                          }`}
-                        >
-                          Audi A6
-                        </button>
-                      </div>
-                    </div>
+                {/* Randare Card Activ în Slotul A */}
+                {renderVehicleQuadrantCard(activeSlotACar, 'top-left', true)}
+              </div>
 
-                    {/* Randare Card Activ în Slotul A */}
-                    {renderVehicleQuadrantCard(activeSlotACar, 'top-left', true)}
+              {/* SLOTUL B (Card 1: Mercedes-AMG & Card 3: Audi R8) */}
+              <div
+                style={{
+                  transition: 'opacity 500ms ease, transform 500ms ease',
+                }}
+                className={`w-full transition-all duration-500 ${
+                  scrollProgress < 0.30
+                    ? 'opacity-0 pointer-events-none translate-y-3'
+                    : 'opacity-100 translate-y-0'
+                }`}
+              >
+                {/* Micro-Selector Slot B pe Mobil */}
+                <div className="flex items-center justify-between mb-1 px-1">
+                  <span className="text-[10px] font-mono text-zinc-300 bg-[#121215]/95 backdrop-blur-md px-2.5 py-0.5 rounded-lg border border-white/15 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-zinc-400">Flanc Drept:</span>
+                    <strong className="text-white font-black">{VEHICLES[activeSlotBCar]?.shortName}</strong>
+                  </span>
+                  <div className="flex items-center gap-1 bg-[#121215]/95 backdrop-blur-md border border-white/15 p-0.5 rounded-lg shadow-sm">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setManualSlotB(1);
+                      }}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        activeSlotBCar === 1
+                          ? 'bg-emerald-500 text-slate-950 shadow-sm font-black'
+                          : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      {VEHICLES[1].shortName}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setManualSlotB(3);
+                      }}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        activeSlotBCar === 3
+                          ? 'bg-emerald-500 text-slate-950 shadow-sm font-black'
+                          : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      {VEHICLES[3].shortName}
+                    </button>
                   </div>
-
-                  {/* SLOTUL B (Card 2: Mercedes & Card 4: Audi A4 suprapuse în același loc) */}
-                  <div
-                    style={{
-                      transition: 'opacity 500ms ease, transform 500ms ease',
-                    }}
-                    className={`w-full transition-all duration-500 ${
-                      scrollProgress < 0.28
-                        ? 'opacity-0 pointer-events-none translate-y-3'
-                        : 'opacity-100 translate-y-0'
-                    }`}
-                  >
-                    {/* Micro-Selector Slot B pe Mobil */}
-                    <div className="flex items-center justify-between mb-1 px-1">
-                      <span className="text-[10px] font-mono text-slate-700 bg-white/95 backdrop-blur-md px-2.5 py-0.5 rounded-lg border border-slate-200/90 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <span>Flanc Drept:</span>
-                        <strong className="text-slate-950 font-black">{VEHICLES[activeSlotBCar]?.shortName}</strong>
-                      </span>
-                      <div className="flex items-center gap-1 bg-white/95 backdrop-blur-md border border-slate-200/90 p-0.5 rounded-lg shadow-sm">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setManualSlotB(1);
-                          }}
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
-                            activeSlotBCar === 1
-                              ? 'bg-emerald-600 text-white shadow-sm'
-                              : 'text-slate-600 hover:text-slate-950'
-                          }`}
-                        >
-                          Mercedes
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setManualSlotB(3);
-                          }}
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
-                            activeSlotBCar === 3
-                              ? 'bg-emerald-600 text-white shadow-sm'
-                              : 'text-slate-600 hover:text-slate-950'
-                          }`}
-                        >
-                          Audi A4
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Randare Card Activ în Slotul B */}
-                    {renderVehicleQuadrantCard(activeSlotBCar, 'top-right', true)}
-                  </div>
-
                 </div>
-              </>
-            )}
+
+                {/* Randare Card Activ în Slotul B */}
+                {renderVehicleQuadrantCard(activeSlotBCar, 'top-right', true)}
+              </div>
+
+            </div>
           </div>
 
-          {/* ================= SUBSOL CONFORMITATE FISCALĂ ROMÂNIA ================= */}
-          <div className="mt-2 rounded-xl bg-white/95 border border-slate-200/90 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-md flex flex-wrap items-center justify-between gap-1.5 text-[11px] sm:text-xs text-slate-700 shadow-md">
-            <span className="flex items-center gap-1.5 sm:gap-2">
-              <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600 shrink-0" />
-              <span>
-                Standard Fiscal România: <strong className="text-slate-900 font-bold">TVA 21% Deductibil</strong> •{' '}
-                <strong className="text-slate-900 font-bold">Garanție de Rezervare Stripe</strong> •{' '}
-                <strong className="text-slate-900 font-bold">ANAF e-Factura SPV</strong>
+          {/* ================= SUBSOL CONFORMITATE FISCALĂ & PREZENTARE DEMO ================= */}
+          <div className="mt-1.5 rounded-xl bg-[#121215]/95 border border-white/15 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-md shadow-2xl flex flex-col gap-1 text-[11px] sm:text-xs text-zinc-300">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 sm:gap-2">
+                <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-400 shrink-0" />
+                <span>
+                  Conformitate Fiscală România: <strong className="text-white font-bold">TVA Deductibil / Marjă Art. 312</strong> •{' '}
+                  <strong className="text-white font-bold">Garanție de Rezervare Stripe</strong> •{' '}
+                  <strong className="text-white font-bold">ANAF e-Factura SPV</strong>
+                </span>
               </span>
-            </span>
-            <span className="text-[10px] sm:text-xs text-slate-500 flex items-center gap-1 shrink-0">
-              <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-emerald-600" />
-              <span className="font-medium text-slate-700">4 Vehicule Active în Showroom</span>
-            </span>
+              <span className="text-[10px] sm:text-xs text-zinc-400 flex items-center gap-1 shrink-0">
+                <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-emerald-400" />
+                <span className="font-semibold text-zinc-200">4 Vehicule Sincronizate în Hală</span>
+              </span>
+            </div>
+            <div className="text-[10px] text-zinc-400 border-t border-white/10 pt-1 leading-snug">
+              * Modelele, fotografiile și prețurile afișate reprezintă date demonstrative (mock data) pentru simularea showroom-ului digital autonom. ParcOS este furnizat exclusiv ca platformă software Cloud DMS + Showroom Digital Autonom pentru dealeri și parcuri auto.
+            </div>
           </div>
         </div>
 

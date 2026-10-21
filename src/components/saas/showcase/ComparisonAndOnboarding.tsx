@@ -80,7 +80,7 @@ const COMPARISON_ROWS: ComparisonRow[] = [
   },
   {
     feature: 'Conformitate & Matematică Fiscală',
-    parcos: '✅ TVA deductibil 21% + Regim Marjă Art. 312 calculat automat',
+    parcos: '✅ TVA deductibil & Regim Marjă Art. 312 calculat automat',
     parcosStatus: 'good',
     traditionalDms: '⚠️ Câmp informativ simplu sau modul contabil greoi',
     traditionalStatus: 'warning'
@@ -106,11 +106,11 @@ const TESTIMONIALS = [
   },
   {
     name: 'Echipa Vânzări',
-    park: 'Top Auto Transilvania',
-    city: 'Transilvania',
+    park: 'ALD Autoland',
+    city: 'România',
     carsInStock: '60 autoturisme',
     quote: 'Pentru noi, scanarea brief-urilor germane în sub 2 secunde este revoluționară. Introducem un lot de 10 mașini sosite de pe platformă în mai puțin de 20 de minute, cu VIN-ul și puterea în kW calculate impecabil.',
-    avatar: 'TAT'
+    avatar: 'ALD'
   }
 ];
 

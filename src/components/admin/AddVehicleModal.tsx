@@ -22,6 +22,7 @@ import { categorizeFeatures } from '../../utils/vehicleDescriptionGenerator';
 import { uploadCarImagesBatch } from '../../services/cloudMediaStorage';
 import { vehicleRepository } from '../../services/vehicleRepository';
 import { normalizeBrand } from '../../utils/brandNormalizer';
+import { sanitizePublicOcrError } from '../../services/demoOcrService';
 
 interface AddVehicleModalProps {
   isOpen: boolean;
@@ -339,7 +340,7 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
         showToast(`🎉 Document scanat! Date extrase: ${doc.brand || ''} ${doc.model || ''} • VIN ${doc.maskedVin} • ${doc.powerHp ? doc.powerHp + ' CP' : ''}`);
       } catch (err: any) {
         console.error('Eroare procesare OCR:', err);
-        showToast(`⚠️ ${err.message || 'Nu s-a putut procesa documentul optic.'}`);
+        showToast(`⚠️ ${sanitizePublicOcrError(err?.message || 'Nu s-a putut procesa documentul optic.')}`);
       } finally {
         setIsScanningCiv(false);
       }

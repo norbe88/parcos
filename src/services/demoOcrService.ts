@@ -197,6 +197,44 @@ export async function optimizeDocumentImage(file: Blob | File, maxWidth = 1920):
 }
 
 /**
+ * Curăță și normalizează mesajele de eroare OCR pentru a preveni scurgerea
+ * de detalii tehnice despre backend (Google Gemini, endpoint-uri, chei sau coduri brute de stare).
+ */
+export function sanitizePublicOcrError(raw: any): string {
+  if (!raw) {
+    return 'Documentul nu a putut fi analizat automat. Vă rugăm să folosiți o fotografie clară a talonului sau brief-ului.';
+  }
+  const text = typeof raw === 'string' ? raw : (raw.error || raw.message || '');
+  const lower = text.toLowerCase();
+
+  // Păstrăm mesajele prietenoase legate strict de limita de utilizare a testului demo
+  if (lower.includes('limit') || lower.includes('3 scanări') || lower.includes('solicită un cont')) {
+    return text;
+  }
+
+  // Mascăm orice referință la Google, Gemini, coduri HTTP de server sau API
+  if (
+    lower.includes('gemini') ||
+    lower.includes('google') ||
+    lower.includes('api error') ||
+    lower.includes('status 4') ||
+    lower.includes('status 5') ||
+    lower.includes('403') ||
+    lower.includes('502') ||
+    lower.includes('503') ||
+    lower.includes('422') ||
+    lower.includes('failed to fetch') ||
+    lower.includes('networkerror') ||
+    lower.includes('generativelanguage') ||
+    lower.includes('proxy')
+  ) {
+    return 'Documentul nu a putut fi procesat automat. Vă rugăm să asigurați o iluminare bună și o focalizare clară a talonului sau brief-ului și să reîncercați.';
+  }
+
+  return text;
+}
+
+/**
  * Apelează endpoint-ul securizat ParcOS pentru scanarea documentului real
  */
 export async function scanDemoVehicleDocument(
@@ -248,7 +286,7 @@ export async function scanDemoVehicleDocument(
 
     if (!res.ok) {
       const errJson = await res.json().catch(() => ({}));
-      throw new Error(errJson.error || errJson.message || `Eroare server (${res.status})`);
+      throw new Error(sanitizePublicOcrError(errJson.error || errJson.message || `Eroare server (${res.status})`));
     }
 
     const data = await res.json();
@@ -264,14 +302,15 @@ export async function scanDemoVehicleDocument(
       };
     }
 
-    throw new Error(data.error || 'Răspuns invalid de la scannerul AI.');
+    throw new Error(sanitizePublicOcrError(data.error || 'Răspuns invalid de la scannerul AI.'));
   } catch (err: any) {
     console.error('[DemoOcrService] Eroare la apelul OCR:', err);
     return {
       success: false,
       remainingScans: localQuota.remaining,
       limitReached: localQuota.isLimitReached,
-      error: err.message || 'Eroare de conexiune la serviciul OCR. Vă rugăm să reîncercați.'
+      error: sanitizePublicOcrError(err.message || 'Eroare de conexiune la serviciul OCR. Vă rugăm să reîncercați.')
     };
   }
 }
+

@@ -18,7 +18,7 @@ export type AdminTabType =
   | 'settings'        // ⚙️ Setări Parc & Workspace
   | 'financing';      // 💳 Curs BT & Creditori
 
-export interface CarmatikSidebarProps {
+export interface ParcOsSidebarProps {
   activeTab: AdminTabType;
   onTabChange: (tab: AdminTabType) => void;
   dealer?: DealerProfile;
@@ -38,7 +38,10 @@ export interface CarmatikSidebarProps {
   onCloseMobile?: () => void;
 }
 
-export const CarmatikSidebar: React.FC<CarmatikSidebarProps> = ({
+// Backward-compatibility alias
+export type CarmatikSidebarProps = ParcOsSidebarProps;
+
+export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
   activeTab,
   onTabChange,
   dealer = SEED_DEALER,
@@ -148,7 +151,7 @@ export const CarmatikSidebar: React.FC<CarmatikSidebarProps> = ({
   const sidebarContent = (
     <div className="flex flex-col min-h-full justify-between select-none">
       
-      {/* 1. Header Dealer & Branding Carmatik */}
+      {/* 1. Header Dealer & Branding ParcOS */}
       <div className="space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -158,8 +161,25 @@ export const CarmatikSidebar: React.FC<CarmatikSidebarProps> = ({
             <div className="min-w-0 flex-1">
               <div className="text-[11px] font-medium tracking-wide text-zinc-400 flex items-center gap-1.5 whitespace-nowrap">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/80 shrink-0" />
-                <span className="text-zinc-300 font-semibold">Dealer OS</span>
-                <span className="text-zinc-500 font-normal">by Carvana SRL</span>
+                <a 
+                  href="https://parcos.ro" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-zinc-200 hover:text-amber-400 font-semibold transition-colors"
+                  title="ParcOS Dealership Platform"
+                >
+                  ParcOS
+                </a>
+                <span className="text-zinc-500 font-normal">by</span>
+                <a 
+                  href="https://carvana.ro" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-zinc-400 hover:text-amber-400 font-normal transition-colors"
+                  title="Carvana SRL"
+                >
+                  Carvana SRL
+                </a>
               </div>
               <h2 className="text-xs sm:text-[13px] font-black text-white tracking-tight whitespace-nowrap mt-0.5" title={dealer.name}>
                 {dealer.name}
@@ -303,8 +323,13 @@ export const CarmatikSidebar: React.FC<CarmatikSidebarProps> = ({
           </button>
         )}
 
-        <div className="text-[9.5px] font-medium text-zinc-500 text-center pt-1">
-          Dealer OS by Carvana SRL &bull; v2.4
+        <div className="text-[9.5px] font-medium text-zinc-500 text-center pt-1 flex items-center justify-center gap-1">
+          <img src="/brand/icon-32x32.png" alt="ParcOS" className="w-3.5 h-3.5 rounded object-cover shadow-xs inline-block" />
+          <span>Powered by</span>
+          <a href="https://parcos.ro" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors text-zinc-400 font-semibold">ParcOS</a>
+          <span>&bull;</span>
+          <a href="https://carvana.ro" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors text-zinc-400">Carvana SRL</a>
+          <span>&bull; v2.4</span>
         </div>
       </div>
 
@@ -334,3 +359,7 @@ export const CarmatikSidebar: React.FC<CarmatikSidebarProps> = ({
     </>
   );
 };
+
+// Backward-compatibility export alias
+export { ParcOsSidebar as CarmatikSidebar };
+export default ParcOsSidebar;

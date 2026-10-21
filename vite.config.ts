@@ -85,16 +85,16 @@ async function handleGeminiOcrProxy(req: any, res: any): Promise<boolean> {
     }
     const bodyBuffer = Buffer.concat(chunks);
 
-    const secretKeys = (process.env.VITE_GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '')
+    const availableKeys = (process.env.VITE_GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '')
       .split(',')
       .map(k => k.trim())
       .filter(Boolean);
-    const apiKey = secretKeys[0];
+    const apiKey = availableKeys[0];
 
     if (!apiKey) {
       res.statusCode = 503;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ error: 'GEMINI_API_KEY nu este configurat în mediu pentru dev proxy.' }));
+      res.end(JSON.stringify({ error: 'Serviciul de procesare automată a documentelor nu este disponibil.' }));
       return true;
     }
 
@@ -116,7 +116,7 @@ async function handleGeminiOcrProxy(req: any, res: any): Promise<boolean> {
   } catch (err: any) {
     res.statusCode = 500;
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ error: err.message }));
+    res.end(JSON.stringify({ error: 'Eroare la procesarea internă a documentului.' }));
     return true;
   }
 }
@@ -204,32 +204,88 @@ async function handleDemoOcrProxy(req: any, res: any): Promise<boolean> {
       return true;
     }
 
-    const apiKey = (process.env.VITE_GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '')
-      .split(',')[0]
-      .trim();
+    const availableKeys = (process.env.VITE_GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '')
+      .split(',')
+      .map(k => k.trim())
+      .filter(Boolean);
 
     const cleanedBase64 = imageBase64.replace(/^data:image\/[a-zA-Z0-9.+_-]+;base64,/, '').trim();
-    const promptText = `Analyze vehicle registration document (CIV, Talon RO, Zulassungsbescheinigung DE/AT, Carte Grise FR). Extract strict JSON: {"docOriginCountry":"RO","docType":"Talon Auto","brand":"VOLKSWAGEN","model":"Passat","versionTrim":"","vin":"WVWZZZ...","year":2018,"registrationDate":"14.05.2018","powerKw":110,"powerHp":150,"engineCc":1968,"fuelType":"Diesel","color":"Negru","bodyType":"Break","civNumber":"","plateNumber":"","euroNorm":"Euro 6","co2":"108 g/km","confidenceScore":99}`;
+    const promptText = `You are an expert automotive document analyst specializing in European vehicle registration documents:
+- Romania: CIV & Talon
+- Germany: Zulassungsbescheinigung Teil I & II
+- Austria: Zulassungsbescheinigung Teil I (Zulassungsschein) & Typenschein (KFG 1967).
+- France: Carte Grise
+- Italy: Carta di Circolazione
+Analyze the document image. Extract strict JSON:
+{
+  "docOriginCountry": "AT", // "RO", "DE", "AT", "FR", "IT", "OTHER"
+  "docType": "Zulassungsbescheinigung Teil I",
+  "brand": "VOLKSWAGEN",
+  "model": "Passat",
+  "versionTrim": "",
+  "vin": "WVWZZZ...",
+  "year": 2018,
+  "registrationDate": "14.05.2018",
+  "powerKw": 110,
+  "powerHp": 150,
+  "engineCc": 1968,
+  "fuelType": "Diesel",
+  "color": "Negru",
+  "bodyType": "Break",
+  "civNumber": "",
+  "plateNumber": "",
+  "euroNorm": "Euro 6",
+  "co2": "108 g/km",
+  "confidenceScore": 99
+}
+Strict Rules:
+1. Brand is actual brand, model must NOT repeat brand.
+2. VIN must be exactly 17 alphanumeric characters (field E or FIN).
+3. For Austria: Field B gives Erstmalige Zulassung, P.1 Hubraum, P.2 Leistung (kW), P.3 Antriebsart.
+4. Return null for unreadable fields. Strictly output JSON with no fences.`;
+
+    const candidateModels = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+    let extracted: any = null;
 
     try {
-      const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
-      const upstreamRes = await fetch(targetUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptText }, { inline_data: { mime_type: mimeType, data: cleanedBase64 } }] }],
-          generationConfig: { temperature: 0.1, response_mime_type: 'application/json' }
-        })
-      });
+      for (const model of candidateModels) {
+        if (extracted) break;
+        for (const devKey of availableKeys) {
+          try {
+            const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${devKey}`;
+            const upstreamRes = await fetch(targetUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: promptText }, { inline_data: { mime_type: mimeType, data: cleanedBase64 } }] }],
+                generationConfig: { temperature: 0.1, response_mime_type: 'application/json' }
+              })
+            });
 
-      if (!upstreamRes.ok) {
-        throw new Error(`Google API error ${upstreamRes.status}`);
+            if (!upstreamRes.ok) {
+              continue;
+            }
+
+            const resJson = await upstreamRes.json();
+            const rawText = resJson?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (rawText) {
+              const cleanJsonText = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+              extracted = JSON.parse(cleanJsonText);
+              break;
+            }
+          } catch (_) {}
+        }
       }
 
-      const resJson = await upstreamRes.json();
-      const rawText = resJson?.candidates?.[0]?.content?.parts?.[0]?.text;
-      const cleanJsonText = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
-      const extracted = JSON.parse(cleanJsonText);
+      if (!extracted) {
+        res.statusCode = 422;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({
+          success: false,
+          error: 'Documentul nu a putut fi citit automat. Vă rugăm să folosiți o fotografie clară, bine focalizată a documentului.'
+        }));
+        return true;
+      }
 
       // increment usage
       const resetAt = now + 24 * 60 * 60 * 1000;
@@ -254,10 +310,13 @@ async function handleDemoOcrProxy(req: any, res: any): Promise<boolean> {
         vehicleData: extracted
       }));
       return true;
-    } catch (err: any) {
-      res.statusCode = 502;
+    } catch (_) {
+      res.statusCode = 422;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ success: false, error: err.message }));
+      res.end(JSON.stringify({
+        success: false,
+        error: 'Documentul nu a putut fi citit automat. Vă rugăm să folosiți o fotografie clară, bine iluminată și focalizată.'
+      }));
       return true;
     }
   }
@@ -357,6 +416,11 @@ export default defineConfig({
       ignored: ['**/public/**', '**/.git/**'],
     },
     proxy: {
+      '/api/demo': {
+        target: process.env.VITE_API_TARGET || 'https://rxmautomobile.ro',
+        changeOrigin: true,
+        secure: false,
+      },
       '/api/auth': {
         target: process.env.VITE_API_TARGET || 'https://rxmautomobile.ro',
         changeOrigin: true,

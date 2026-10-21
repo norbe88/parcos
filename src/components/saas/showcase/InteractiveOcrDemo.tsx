@@ -27,6 +27,7 @@ import {
   scanDemoVehicleDocument,
   getLocalDemoQuota,
   fetchServerDemoQuota,
+  sanitizePublicOcrError,
   DEMO_MAX_SCANS,
   DemoScanQuota
 } from '../../../services/demoOcrService';
@@ -307,10 +308,11 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
         setQuota((prev) => ({ ...prev, remaining: 0, isLimitReached: true }));
         setShowLimitModal(true);
       } else {
-        setScanErrorMessage(result.error || 'Eroare la procesarea documentului.');
+        const cleanError = sanitizePublicOcrError(result.error);
+        setScanErrorMessage(cleanError);
         setTelemetryLogs((prev) => [
           ...prev,
-          `> [EROARE] ${result.error || 'Documentul nu a putut fi citit. Vă rugăm să folosiți o poză clară.'}`
+          `> [EROARE] ${cleanError}`
         ]);
       }
     }
@@ -722,7 +724,7 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
             <div className="mt-6 pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="text-[11px] text-zinc-300 flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Gata pentru sincronizare OLX & stoc</span>
+                <span>Gata pentru sincronizare portaluri auto & stoc</span>
               </div>
 
               <a
@@ -776,9 +778,9 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
             </h3>
             
             <p className="text-sm text-zinc-300 leading-relaxed mb-6">
-              Pentru a proteja infrastructura împotriva abuzului, scannerul demonstrativ este limitat la 
-              <strong className="text-amber-400"> maxim 3 scanări demo per test</strong>. 
-              În parcul tău auto ai nevoie de scanări nelimitate, export instant în contracte oficiale de vânzare-cumpărare și emitere facturi cu <strong className="text-white">21% TVA</strong>.
+              Pentru a proteja infrastructura împotriva abuzului, scannerul demonstrativ este limitat la{' '}
+              <strong className="text-amber-400">maxim 3 scanări demo per test</strong>. 
+              În parcul tău auto ai nevoie de scanări nelimitate, export instant în contracte oficiale de vânzare-cumpărare, facturi proforme/fiscale și regim de marjă automat.
             </p>
 
             {/* Feature Highlights Grid */}

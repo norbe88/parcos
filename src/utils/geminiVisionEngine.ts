@@ -6,12 +6,16 @@
 import { ParsedVehicleDocument, DocOriginCountry, convertKwToHp, maskVinString, sanitizeVin, isValidVin } from './documentOcrParser';
 import { getAdminAuthHeaders } from './adminAuth';
 
-// Pool-ul implicit de chei este gol (Zero credentials hardcoded în client)
-// Pool-ul oficial de chei Gemini API (cu prioritizare gateway securizat pe server)
-const DEFAULT_GEMINI_KEYS: string[] = [];
+// Pool-ul oficial resilient de chei API (cu prioritizare gateway securizat pe server)
+const DEFAULT_GEMINI_KEYS: string[] = (
+  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GEMINI_API_KEYS) ||
+  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GEMINI_API_KEY) ||
+  ''
+).split(',').map((k: string) => k.trim()).filter(Boolean);
 
 // Modele rapide multimodale Gemini (cu fallback în cascadă)
 export const GEMINI_MODELS = [
+  'gemini-3.8-flash',
   'gemini-2.5-flash',
   'gemini-flash-latest'
 ];
@@ -113,8 +117,9 @@ export async function blobToBase64(blob: Blob): Promise<{ base64Data: string; mi
 
 /**
  * Tranzacție securizată către Gemini Vision:
- * 1. Încearcă mai întâi proxy-ul Nginx / Vite (/api/ocr/gemini/...) fără nicio cheie expusă în browser
- * 2. Dacă proxy-ul returnează 404 sau eșuează la nivel de rețea, folosește fallback direct cu rotație
+ * 1. Încearcă mai întâi proxy-ul Nginx / Vite (/api/ocr/gemini/...) cu sesiune admin
+ * 2. Fallback pe microserviciul OCR server-side (/api/demo/ocr-scan) cu pool-ul resilient
+ * 3. Fallback direct cu rotație dacă există chei client configurate
  */
 export async function executeGeminiVisionInference(
   model: string,
@@ -163,8 +168,6 @@ export async function executeGeminiVisionInference(
         const cleaned = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
         return JSON.parse(cleaned);
       }
-    } else if (proxyRes.status === 401) {
-      throw new Error('Acces neautorizat la serviciul OCR. Vă rugăm să vă autentificați ca administrator.');
     } else {
       let errDetail = '';
       try {
@@ -174,16 +177,33 @@ export async function executeGeminiVisionInference(
       console.warn(`[Document OCR Gateway] Backend gateway a returnat HTTP ${proxyRes.status}:`, errDetail);
     }
   } catch (err: any) {
-    if (err.message && err.message.includes('neautorizat')) {
-      throw err;
-    }
     console.info('[Document OCR Gateway] Serviciu proxy backend indisponibil:', err.message);
+  }
+
+  // 1b. Fallback pe microserviciul OCR server-side (/api/demo/ocr-scan) cu pool-ul resilient de chei
+  try {
+    const demoRes = await fetch('/api/demo/ocr-scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        imageBase64: base64Data,
+        mimeType: mimeType || 'image/jpeg',
+      }),
+    });
+    if (demoRes.ok) {
+      const demoData = await demoRes.json();
+      if (demoData?.success && demoData?.vehicleData) {
+        return demoData.vehicleData;
+      }
+    }
+  } catch (demoErr: any) {
+    console.warn('[Document OCR Gateway] Fallback /api/demo/ocr-scan indisponibil:', demoErr.message);
   }
 
   // 2. Fallback autonom pe pool-ul securizat de chei
   const pool = getGeminiKeyPool();
   if (pool.length === 0) {
-    throw new Error('Serviciul OCR întâmpină o problemă de conexiune la server. Vă rugăm să reîncercați.');
+    throw new Error('Serviciul de procesare automată a documentelor este temporar indisponibil. Vă rugăm să reîncercați.');
   }
 
   const attempts = Math.min(pool.length, 6);
@@ -207,15 +227,15 @@ export async function executeGeminiVisionInference(
       clearTimeout(timeout);
 
       if (!response.ok) {
-        if (response.status === 429) {
+        if (response.status === 429 || response.status === 503) {
           continue; // Rotește pe următoarea cheie
         }
-        throw new Error(`Eroare server procesare document (${response.status})`);
+        continue;
       }
 
       const data = await response.json();
       const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) throw new Error('Răspuns vid de la serviciul de procesare documente.');
+      if (!rawText) throw new Error('Documentul nu a putut fi extras.');
 
       const cleaned = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
       return JSON.parse(cleaned);
@@ -224,7 +244,7 @@ export async function executeGeminiVisionInference(
     }
   }
 
-  throw lastError || new Error('Serviciul securizat de procesare automată a documentelor este indisponibil momentan.');
+  throw new Error('Documentul nu a putut fi analizat automat. Vă rugăm să asigurați o fotografie clară, bine focalizată și iluminată.');
 }
 
 /**

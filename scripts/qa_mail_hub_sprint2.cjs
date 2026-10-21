@@ -368,11 +368,11 @@ On Mon, Oct 19, 2026 at 10:15 AM Andrei - RXM <contact@rxmautomobile.ro> wrote:
     assert(layoutContent.includes('Garanție de Rezervare/Participare'), 'Termenul Garanție de Rezervare lipsește');
   });
 
-  it('CarmatikSidebar și AdminPortal integrează complet tabul ParcOS Mail Hub', () => {
-    const sidebarPath = path.join(__dirname, '..', 'src', 'components', 'admin', 'CarmatikSidebar.tsx');
+  it('ParcOsSidebar și AdminPortal integrează complet tabul ParcOS Mail Hub', () => {
+    const sidebarPath = path.join(__dirname, '..', 'src', 'components', 'admin', 'ParcOsSidebar.tsx');
     const sidebarContent = fs.readFileSync(sidebarPath, 'utf8');
     assert(sidebarContent.includes("'mail'"), "Tabul 'mail' lipsește din AdminTabType");
-    assert(sidebarContent.includes('ParcOS Mail Hub'), "Eticheta 'ParcOS Mail Hub' lipsește din CarmatikSidebar");
+    assert(sidebarContent.includes('ParcOS Mail Hub'), "Eticheta 'ParcOS Mail Hub' lipsește din ParcOsSidebar");
 
     const portalPath = path.join(__dirname, '..', 'src', 'components', 'admin', 'AdminPortal.tsx');
     const portalContent = fs.readFileSync(portalPath, 'utf8');

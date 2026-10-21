@@ -83,13 +83,13 @@ const SHOWROOM_VEHICLES: ShowroomVehicle[] = [
     model: 'Clasa C',
     trim: 'C 300de AMG Line • 2024 • 12.900 km',
     price: '51.200 €',
-    badgeText: 'Sincronizat Automat pe OLX & Autovit • Status: Rezervat',
+    badgeText: 'Sincronizat Automat pe Portaluri Auto • Status: Rezervat',
     statusTag: 'Status: Rezervat',
     accentColor: 'emerald',
     PrimaryIcon: Zap,
     SecondaryIcon: CheckCircle2,
     telemetry: [
-      { label: 'Canale Sincronizate', value: 'Autovit.ro, OLX, Website Propriu' },
+      { label: 'Canale Sincronizate', value: 'Portaluri Auto, Clasificate, Website Propriu' },
       { label: 'Protecție Dublă Vânzare', value: 'Anunțuri marcate automat REZERVAT' },
       { label: 'Timp Sincronizare API', value: '0.42 secunde' },
     ],
@@ -491,7 +491,7 @@ export const ShowroomGarageGate: React.FC<ShowroomGarageGateProps> = ({
 
           {/* Mesajul de Impact Comercial exact conform specificației */}
           <h1 className="max-w-4xl text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.15]">
-            „Nu mai pierde clienți în mesaje de pe OLX.{' '}
+            „Nu mai pierde clienți în mesageria platformelor auto.{' '}
             <span className="bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 bg-clip-text text-transparent">
               Transformă-ți parcul într-un showroom digital autonom.”
             </span>

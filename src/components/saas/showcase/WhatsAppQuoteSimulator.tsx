@@ -86,7 +86,7 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
 
     msg += `💶 *Preț și Regim Fiscal:*\n`;
     if (isVatDeductible) {
-      msg += `• *Preț Total:* ${vehicle.grossPriceEur.toLocaleString('ro-RO')} € (TVA deductibil 21% inclus)\n`;
+      msg += `• *Preț Total:* ${vehicle.grossPriceEur.toLocaleString('ro-RO')} € (TVA deductibil inclus)\n`;
       msg += `• *Valoare Netă:* ${netPriceEur.toLocaleString('ro-RO')} € + TVA: ${vatAmountEur.toLocaleString('ro-RO')} €\n`;
       msg += `• Posibilitate finanțare leasing / credit persoane fizice și juridice cu 0% avans.\n\n`;
     } else {
@@ -202,9 +202,9 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
               className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between cursor-pointer hover:border-slate-300 transition-all touch-manipulation min-h-[44px]"
             >
               <div>
-                <div className="text-xs font-bold text-slate-950">Regim TVA Deductibil (21%)</div>
+                <div className="text-xs font-bold text-slate-950">Regim TVA Deductibil</div>
                 <div className="text-[11px] text-slate-600">
-                  {isVatDeductible ? 'TVA deductibil (Gross / 1.21)' : 'Regim marjă de profit conform Art. 312'}
+                  {isVatDeductible ? 'TVA deductibil inclus' : 'Regim marjă de profit conform Art. 312'}
                 </div>
               </div>
               <div className={`w-10 h-6 rounded-full transition-colors relative p-0.5 ${isVatDeductible ? 'bg-amber-500' : 'bg-slate-300'}`}>
@@ -365,7 +365,7 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
                     {isVatDeductible ? (
                       <>
                         <div className="text-sm font-extrabold text-white">
-                          {vehicle.grossPriceEur.toLocaleString('ro-RO')} € <span className="text-[10px] font-normal text-emerald-300">(TVA 21% deductibil inclus)</span>
+                          {vehicle.grossPriceEur.toLocaleString('ro-RO')} € <span className="text-[10px] font-normal text-emerald-300">(TVA deductibil inclus)</span>
                         </div>
                         <div className="text-[10px] text-zinc-300 font-mono">
                           Net: {netPriceEur.toLocaleString('ro-RO')} € + TVA: {vatAmountEur.toLocaleString('ro-RO')} €

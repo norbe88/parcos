@@ -89,14 +89,14 @@ const SHOWROOM_VEHICLES: ShowroomVehicle[] = [
     model: 'X1',
     trim: 'xDrive20d Sport-Line Panoramic • 2015 • 179.000 km',
     price: '15.990 €',
-    badgeText: 'Sincronizat Automat pe OLX & Autovit în 0.42s',
+    badgeText: 'Sincronizat Automat pe Portaluri Auto în 0.42s',
     statusTag: 'Status: Rezervat în Rețea',
     flank: 'right',
     accentColor: 'emerald',
     drlColor: '#38bdf8',
     imageUrl: '/cars/OLXRXM_kZglo/image_01.webp',
     telemetry: [
-      { label: 'Canale Sincronizate', value: 'Autovit.ro, OLX, Showroom Propriu' },
+      { label: 'Canale Sincronizate', value: 'Portaluri Auto, Clasificate, Showroom Propriu' },
       { label: 'Protecție Dublă Vânzare', value: 'Anunțuri marcate automat REZERVAT' },
       { label: 'Viteză Replicare API', value: '0.42 secunde' },
     ],
@@ -486,7 +486,7 @@ export const ShowroomDoubleDoorIntro: React.FC<ShowroomDoubleDoorIntroProps> = (
 
             {/* Titlul cerut */}
             <h1 className="max-w-4xl mx-auto text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-[-0.03em] text-white leading-[1.15]">
-              „Nu mai pierde clienți în mesaje de pe OLX.{' '}
+              „Nu mai pierde clienți în mesageria platformelor auto.{' '}
               <span className="bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 bg-clip-text text-transparent">
                 Transformă-ți parcul într-un showroom digital autonom.”
               </span>

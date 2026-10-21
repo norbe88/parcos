@@ -20,7 +20,8 @@ import {
   getDealerBySlug,
   getDealerByDomain,
   getAllDealers,
-  upsertDealer
+  upsertDealer,
+  getSql
 } from './db.mjs';
 import { saveCarImageDataUrl, saveCarImageToDisk, deleteCarMediaFromDisk } from './mediaStorage.mjs';
 import { fetchAutovitLive } from '../scripts/marketScraperHelper.js';
@@ -40,11 +41,25 @@ import {
   updateMailAccount,
   disableMailAccountAndReassign,
   savePushSubscription,
+  unsubscribePush,
   getPushSubscriptions
 } from './mailHub.mjs';
+import {
+  registerDomainInSES,
+  syncDnsToCloudflare,
+  checkDomainVerificationStatus,
+  buildDnsChecklist,
+  saveDomainRecord
+} from './mailDomainProvisioner.mjs';
+import {
+  getStorageStats,
+  enforceStorageQuota,
+  streamFileFromVault,
+  getUploadsDir
+} from './storageLifecycle.mjs';
 
 const PORT = process.env.PORT || 3000;
-const DEALER_SLUG = process.env.DEALER_SLUG || 'parcos';
+const DEALER_SLUG = process.env.DEALER_SLUG || 'rxm';
 
 // Generare secret efemer dacă variabila de mediu ADMIN_API_KEY nu este setată (Zero hardcoded credentials)
 const GENERATED_SECRET = crypto.randomBytes(32).toString('hex');
@@ -60,11 +75,14 @@ if (ADMIN_API_KEY === GENERATED_SECRET) {
 const activeSessions = new Map();
 
 function generateSessionToken() {
-  const token = crypto.randomBytes(32).toString('hex');
-  const now = Date.now();
+  const randomPart = crypto.randomBytes(16).toString('hex');
+  const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 ore
+  const payload = `${expiresAt}.${randomPart}`;
+  const hmac = crypto.createHmac('sha256', ADMIN_API_KEY).update(payload).digest('hex');
+  const token = `${payload}.${hmac}`;
   activeSessions.set(token, {
-    createdAt: now,
-    expiresAt: now + 24 * 60 * 60 * 1000 // 24 ore valabilitate
+    createdAt: Date.now(),
+    expiresAt
   });
   return token;
 }
@@ -81,7 +99,25 @@ function isValidSessionToken(token) {
     }
   } catch {}
 
-  // 2. Verificare sesiune efemeră emisă de server la login
+  // 2. Verificare token semnat criptografic HMAC (rezistent la restart container pe VPS)
+  try {
+    const parts = token.split('.');
+    if (parts.length === 3) {
+      const [expiresAtStr, randomPart, signature] = parts;
+      const expiresAt = Number(expiresAtStr);
+      if (Date.now() <= expiresAt) {
+        const payload = `${expiresAtStr}.${randomPart}`;
+        const expectedSig = crypto.createHmac('sha256', ADMIN_API_KEY).update(payload).digest('hex');
+        const sigBuf = Buffer.from(signature);
+        const expectedBuf = Buffer.from(expectedSig);
+        if (sigBuf.length === expectedBuf.length && crypto.timingSafeEqual(sigBuf, expectedBuf)) {
+          return true;
+        }
+      }
+    }
+  } catch {}
+
+  // 3. Verificare sesiune efemeră emisă în memorie (backward compatibility)
   const session = activeSessions.get(token);
   if (!session) return false;
 
@@ -100,6 +136,20 @@ function revokeSessionToken(token) {
 }
 
 // ══════════════════════════════════════════════════════════════════
+// GEMINI VISION OCR ENGINE & KEY ROTATION (HOLDING RESILIENT POOL)
+// ══════════════════════════════════════════════════════════════════
+export const DEFAULT_HOLDING_GEMINI_KEYS = (process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEYS || '')
+  .split(',')
+  .map(k => k.trim())
+  .filter(Boolean);
+
+export function getResolvedGeminiKeys() {
+  const envKeyStr = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEYS || '';
+  const parsed = envKeyStr.split(',').map(k => k.trim()).filter(Boolean);
+  if (parsed.length > 0) return parsed;
+  return DEFAULT_HOLDING_GEMINI_KEYS;
+}
+
 // ══════════════════════════════════════════════════════════════════
 // PARCOS DEMO OCR SCANNER — RATE LIMITING & SECURITY (MAX 3 SCANS)
 // ══════════════════════════════════════════════════════════════════
@@ -195,11 +245,22 @@ Strict Rules:
 2. VIN MUST be exactly 17 characters (no I, O, Q).
 3. Do NOT invent data — return null for unreadable fields.`;
 
-
+// ══════════════════════════════════════════════════════════════════
 // DEALER OS — MULTI-TENANT RESOLUTION ENGINE (PMH-T02)
 // ══════════════════════════════════════════════════════════════════
 const tenantConfigCache = new Map();
 const TENANT_CACHE_TTL = 60 * 1000;
+
+// Cache ANAF (CUI -> dateFiscale, TTL 24h) & Rate Limiting
+const anafCache = new Map();
+const ANAF_CACHE_TTL = 24 * 60 * 60 * 1000;
+const anafRateMap = new Map();
+const ANAF_RATE_LIMIT = 30; // max 30 req/min
+const ANAF_RATE_WINDOW = 60 * 1000;
+
+// Rate-limit Market Lookup (Autovit Live Scraper Proxy)
+const marketLookupRateMap = new Map();
+const MARKET_LOOKUP_RATE_LIMIT = 20; // max 20 req/min
 
 export const DEFAULT_DEALER_PROFILES = {
   rxm: {
@@ -252,13 +313,13 @@ export const DEFAULT_DEALER_PROFILES = {
   },
   top_auto: {
     id: 3,
-    name: 'TOP AUTO TRANSILVANIA S.R.L.',
+    name: 'ALD AUTOLAND S.R.L.',
     slug: 'top_auto',
-    domain: 'topautotransilvania.ro',
+    domain: 'aldautoland.ro',
     phone_primary: '0740 987 654',
     phone_secondary: '0741 876 543',
     whatsapp_number: '40740987654',
-    email: 'office@topautotransilvania.ro',
+    email: 'office@aldautoland.ro',
     address_street: 'B-dul Muncii nr. 18',
     city: 'Cluj-Napoca',
     county: 'Cluj',
@@ -376,86 +437,139 @@ function getStagedDealerProfile(slugOrHost) {
   return null;
 }
 
+/**
+ * Verifică dacă cererea provine de la un administrator autentificat cu sesiune validă pe server.
+ */
+function isAuthorizedAdmin(req) {
+  if (!req || !req.headers) return false;
+  const authHeader = req.headers['authorization'] || '';
+  const tokenHeader = req.headers['x-admin-token'] || '';
+
+  let token = '';
+  if (authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7).trim();
+  } else if (authHeader) {
+    token = authHeader.trim();
+  } else if (tokenHeader) {
+    token = String(tokenHeader).trim();
+  }
+
+  return isValidSessionToken(token);
+}
+
+// Origini CORS autorizate pentru holding Carvana SRL & dealeri parteneri
+const ALLOWED_CORS_ORIGINS = new Set([
+  'https://rxmautomobile.ro',
+  'https://www.rxmautomobile.ro',
+  'https://mpiauto.ro',
+  'https://www.mpiauto.ro',
+  'https://topautotransilvania.ro',
+  'https://www.topautotransilvania.ro',
+  'https://parcos.ro',
+  'https://www.parcos.ro',
+  'https://showroom.autolit.ro',
+  'https://autolit.ro',
+  'https://carvana.ro',
+  'https://www.carvana.ro',
+  'https://autolicit.ro',
+  'https://www.autolicit.ro'
+]);
+
+function resolveCorsOrigin(req) {
+  const origin = req?.headers?.['origin'];
+  if (!origin) return 'https://rxmautomobile.ro';
+  if (ALLOWED_CORS_ORIGINS.has(origin)) return origin;
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return origin;
+  return 'https://rxmautomobile.ro';
+}
+
+const SECURITY_HEADERS = {
+  'X-Frame-Options': 'SAMEORIGIN',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'geolocation=(), microphone=(), camera=(self)',
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.tiktok.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com; font-src 'self' https://fonts.gstatic.com https://cdn.fontshare.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://rxmautomobile.ro https://*.googleapis.com https://*.tiktok.com https://*.tiktokv.com; frame-src 'self' https://www.tiktok.com https://*.tiktok.com https://www.youtube.com https://*.youtube.com https://maps.google.com https://www.google.com; frame-ancestors 'self';",
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+};
+
 export async function resolveTenant(req, urlObj) {
-  // 1. Prioritate 1: Query parameter explicit (?dealer=mpi_auto sau ?dealer=rxm)
+  // 1. Deducere domeniu real din antetul Host (fără spoofing din exterior)
+  const rawHost = (req?.headers?.['host'] || '').split(':')[0].toLowerCase().trim();
+  const host = rawHost.replace(/^www\./, '');
+  const isLocalDev = host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.local');
+  const isAdmin = isAuthorizedAdmin(req);
+
+  // 2. Protecție Strictă Multi-Tenant în Producție:
+  // Pe domenii de producție, tenantul este determinat STRICT din domeniu.
+  // Parametrii din URL (?dealer=...) și antetele de simulare (x-dealer-slug, X-Forwarded-Host)
+  // sunt STRICT IGNORATE pentru a preveni cross-tenant data leakage / tenant spoofing,
+  // CU EXCEPȚIA mediului local de dezvoltare sau a unei sesiuni active de SuperAdmin autentificat.
   const queryDealer = urlObj?.searchParams?.get('dealer') || 
                       urlObj?.searchParams?.get('dealer_slug') || 
                       urlObj?.searchParams?.get('tenant');
-  if (queryDealer) {
-    const cleanSlug = normalizeSlug(queryDealer);
-    const cached = tenantConfigCache.get(`slug:${cleanSlug}`);
-    if (cached && (Date.now() - cached.timestamp < TENANT_CACHE_TTL)) {
-      return cached.data;
-    }
-    const dbDealer = await getDealerBySlug(cleanSlug);
-    if (dbDealer) {
-      tenantConfigCache.set(`slug:${cleanSlug}`, { data: dbDealer, timestamp: Date.now() });
-      return dbDealer;
-    }
-    if (DEFAULT_DEALER_PROFILES[cleanSlug]) {
-      tenantConfigCache.set(`slug:${cleanSlug}`, { data: DEFAULT_DEALER_PROFILES[cleanSlug], timestamp: Date.now() });
-      return DEFAULT_DEALER_PROFILES[cleanSlug];
-    }
-    const staged = getStagedDealerProfile(cleanSlug);
-    if (staged) {
-      tenantConfigCache.set(`slug:${cleanSlug}`, { data: staged, timestamp: Date.now() });
-      return staged;
+  const headerSlug = req?.headers?.['x-dealer-slug'];
+
+  if ((isLocalDev || isAdmin) && (queryDealer || headerSlug)) {
+    const rawTarget = queryDealer || headerSlug;
+    const cleanSlug = normalizeSlug(rawTarget);
+    if (cleanSlug) {
+      const cached = tenantConfigCache.get(`slug:${cleanSlug}`);
+      if (cached && (Date.now() - cached.timestamp < TENANT_CACHE_TTL)) {
+        return cached.data;
+      }
+      const dbDealer = await getDealerBySlug(cleanSlug);
+      if (dbDealer) {
+        tenantConfigCache.set(`slug:${cleanSlug}`, { data: dbDealer, timestamp: Date.now() });
+        return dbDealer;
+      }
+      if (DEFAULT_DEALER_PROFILES[cleanSlug]) {
+        tenantConfigCache.set(`slug:${cleanSlug}`, { data: DEFAULT_DEALER_PROFILES[cleanSlug], timestamp: Date.now() });
+        return DEFAULT_DEALER_PROFILES[cleanSlug];
+      }
+      const staged = getStagedDealerProfile(cleanSlug);
+      if (staged) {
+        tenantConfigCache.set(`slug:${cleanSlug}`, { data: staged, timestamp: Date.now() });
+        return staged;
+      }
     }
   }
 
-  // 2. Prioritate 2: Antet HTTP explicit (x-dealer-slug)
-  const headerSlug = req.headers['x-dealer-slug'];
-  if (headerSlug) {
-    const cleanSlug = normalizeSlug(headerSlug);
-    const cached = tenantConfigCache.get(`slug:${cleanSlug}`);
-    if (cached && (Date.now() - cached.timestamp < TENANT_CACHE_TTL)) {
-      return cached.data;
-    }
-    const dbDealer = await getDealerBySlug(cleanSlug);
-    if (dbDealer) {
-      tenantConfigCache.set(`slug:${cleanSlug}`, { data: dbDealer, timestamp: Date.now() });
-      return dbDealer;
-    }
-    if (DEFAULT_DEALER_PROFILES[cleanSlug]) {
-      tenantConfigCache.set(`slug:${cleanSlug}`, { data: DEFAULT_DEALER_PROFILES[cleanSlug], timestamp: Date.now() });
-      return DEFAULT_DEALER_PROFILES[cleanSlug];
-    }
-    const staged = getStagedDealerProfile(cleanSlug);
-    if (staged) {
-      tenantConfigCache.set(`slug:${cleanSlug}`, { data: staged, timestamp: Date.now() });
-      return staged;
-    }
-  }
-
-  // 3. Prioritate 3: Antet HTTP Host: (ex: mpiauto.ro -> mpi_auto, topautotransilvania.ro -> top_auto)
-  const host = (req.headers['x-forwarded-host'] || req.headers['host'] || '')
-    .split(':')[0]
-    .toLowerCase()
-    .replace(/^www\./, '')
-    .trim();
-
-  if (host && host !== 'localhost' && host !== '127.0.0.1' && !host.includes('152.53.158.65')) {
+  // 3. Rezoluție bazată pe domeniul verificat al cererii
+  if (host) {
     const cached = tenantConfigCache.get(`host:${host}`);
     if (cached && (Date.now() - cached.timestamp < TENANT_CACHE_TTL)) {
       return cached.data;
     }
-    const dbDealer = await getDealerByDomain(host);
-    if (dbDealer) {
-      tenantConfigCache.set(`host:${host}`, { data: dbDealer, timestamp: Date.now() });
-      return dbDealer;
+
+    // Mapare canonică garantată pentru domeniile de producție
+    if (host.includes('rxmautomobile.ro')) {
+      const profile = DEFAULT_DEALER_PROFILES.rxm;
+      tenantConfigCache.set(`host:${host}`, { data: profile, timestamp: Date.now() });
+      return profile;
     }
-    // Fallback static profile după domeniu
-    const matchedProfile = Object.values(DEFAULT_DEALER_PROFILES).find(
-      (p) => p.domain === host || (p.domain && host.includes(p.domain))
-    );
-    if (matchedProfile) {
-      tenantConfigCache.set(`host:${host}`, { data: matchedProfile, timestamp: Date.now() });
-      return matchedProfile;
+    if (host.includes('mpiauto.ro')) {
+      const profile = DEFAULT_DEALER_PROFILES.mpi_auto;
+      tenantConfigCache.set(`host:${host}`, { data: profile, timestamp: Date.now() });
+      return profile;
     }
-    const stagedHost = getStagedDealerProfile(host);
-    if (stagedHost) {
-      tenantConfigCache.set(`host:${host}`, { data: stagedHost, timestamp: Date.now() });
-      return stagedHost;
+    if (host.includes('topautotransilvania.ro')) {
+      const profile = DEFAULT_DEALER_PROFILES.top_auto;
+      tenantConfigCache.set(`host:${host}`, { data: profile, timestamp: Date.now() });
+      return profile;
+    }
+    if (host.includes('parcos.ro')) {
+      const profile = DEFAULT_DEALER_PROFILES.parcos;
+      tenantConfigCache.set(`host:${host}`, { data: profile, timestamp: Date.now() });
+      return profile;
+    }
+
+    // Căutare dinamică în baza de date după domeniu (pentru dealeri noi înrolați)
+    if (!isLocalDev && !host.includes('152.53.158.65')) {
+      const dbDealer = await getDealerByDomain(host);
+      if (dbDealer) {
+        tenantConfigCache.set(`host:${host}`, { data: dbDealer, timestamp: Date.now() });
+        return dbDealer;
+      }
     }
   }
 
@@ -475,37 +589,21 @@ export async function resolveTenant(req, urlObj) {
 }
 
 /**
- * Trimite un răspuns JSON structurat
+ * Trimite un răspuns JSON structurat cu CORS securizat
  */
 function sendJson(res, statusCode, data) {
+  const req = res.req;
+  const allowedOrigin = resolveCorsOrigin(req);
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, X-Admin-Token, x-admin-token, x-car-id, x-image-index, x-file-ext',
+    'Vary': 'Origin',
     'X-Content-Type-Options': 'nosniff',
     'X-Frame-Options': 'SAMEORIGIN',
   });
   res.end(JSON.stringify(data));
-}
-
-/**
- * Verifică dacă cererea provine de la un administrator autentificat cu sesiune validă pe server.
- */
-function isAuthorizedAdmin(req) {
-  const authHeader = req.headers['authorization'] || '';
-  const tokenHeader = req.headers['x-admin-token'] || '';
-
-  let token = '';
-  if (authHeader.startsWith('Bearer ')) {
-    token = authHeader.substring(7).trim();
-  } else if (authHeader) {
-    token = authHeader.trim();
-  } else if (tokenHeader) {
-    token = String(tokenHeader).trim();
-  }
-
-  return isValidSessionToken(token);
 }
 
 /**
@@ -535,11 +633,14 @@ async function readRequestBody(req, maxBytes = 25 * 1024 * 1024) {
 const server = http.createServer(async (req, res) => {
   // Tratare preflight CORS
   if (req.method === 'OPTIONS') {
+    const allowedOrigin = resolveCorsOrigin(req);
     res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, X-Admin-Token, x-admin-token, x-car-id, x-image-index, x-file-ext',
       'Access-Control-Max-Age': '86400',
+      'Vary': 'Origin',
+      'X-Content-Type-Options': 'nosniff',
     });
     return res.end();
   }
@@ -553,20 +654,23 @@ const server = http.createServer(async (req, res) => {
       pathname = pathname.replace('/rxm/api/', '/api/');
     }
 
-    // 0. GET /api/health - Diagnostic & Status Server
+    // 0. GET /api/health - Diagnostic & Status Server [Sanitizat Anonim]
     if (req.method === 'GET' && pathname === '/api/health') {
-      const tenant = await resolveTenant(req, urlObj);
-      return sendJson(res, 200, {
-        status: 'healthy',
-        dealer: tenant.slug,
-        tenantName: tenant.name,
-        domain: tenant.domain,
-        hosting: 'Netcup VPS (152.53.158.65)',
-        version: 'v20_multi_tenant_ready',
-        vatRate: 0.21,
-        warrantyTerm: 'Cont de Garanție',
-        time: new Date().toISOString(),
-      });
+      if (isAuthorizedAdmin(req)) {
+        const tenant = await resolveTenant(req, urlObj);
+        return sendJson(res, 200, {
+          status: 'healthy',
+          dealer: tenant.slug,
+          tenantName: tenant.name,
+          domain: tenant.domain,
+          version: 'v20_multi_tenant_ready',
+          vatRate: 0.21,
+          warrantyTerm: 'Cont de Garanție',
+          uptime: Math.floor(process.uptime()),
+          time: new Date().toISOString(),
+        });
+      }
+      return sendJson(res, 200, { status: 'healthy' });
     }
 
     // 0.01 GET /api/tenant-config & /api/tenant/config - Configurație Dinamică Showroom (PMH-T02)
@@ -574,7 +678,22 @@ const server = http.createServer(async (req, res) => {
       const tenant = await resolveTenant(req, urlObj);
       return sendJson(res, 200, {
         success: true,
-        dealer: tenant,
+        dealer: {
+          id: tenant.id,
+          name: tenant.name,
+          slug: tenant.slug,
+          domain: tenant.domain,
+          phone_primary: tenant.phone_primary || tenant.phonePrimary || '',
+          phone_secondary: tenant.phone_secondary || tenant.phoneSecondary || '',
+          whatsapp_number: tenant.whatsapp_number || tenant.whatsappNumber || '',
+          email: tenant.email || '',
+          vat_number: tenant.vat_number || tenant.vatNumber || '',
+          address_street: tenant.address_street || tenant.address || '',
+          city: tenant.city || '',
+          county: tenant.county || '',
+          is_active: tenant.is_active,
+          config: tenant.config || {},
+        },
         config: tenant.config || {},
         themePreset: tenant.config?.themePreset || 'obsidian_gold',
         vatRate: 0.21,
@@ -626,7 +745,6 @@ const server = http.createServer(async (req, res) => {
         slug: d.slug,
         domain: d.domain,
         city: d.city,
-        phone: d.phone_primary || d.phonePrimary,
         themePreset: d.config?.themePreset || 'obsidian_gold'
       }));
       return sendJson(res, 200, {
@@ -654,13 +772,36 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    // 0.05 GET /api/anaf/:cui - Interogare oficială serviciu ANAF v9 pentru autocompletare CUI
+    // 0.05 GET /api/anaf/:cui - Interogare oficială serviciu ANAF v9 pentru autocompletare CUI [Admin Required]
     if (req.method === 'GET' && pathname.startsWith('/api/anaf/')) {
+      if (!isAuthorizedAdmin(req)) {
+        return sendJson(res, 401, { success: false, error: 'Acces restricționat: Autentificare de administrator necesară pentru interogare ANAF.' });
+      }
       const cuiRaw = pathname.replace('/api/anaf/', '').replace(/\D/g, '');
       const cleanCui = parseInt(cuiRaw, 10);
-      if (!cleanCui) {
-        return sendJson(res, 400, { success: false, error: 'CUI invalid (doar cifre)' });
+      if (!cleanCui || String(cleanCui).length < 6 || String(cleanCui).length > 10) {
+        return sendJson(res, 400, { success: false, error: 'CUI invalid (6-10 cifre)' });
       }
+
+      // Rate limit per token admin (max 30 req/min)
+      const adminToken = (req.headers['authorization'] || req.headers['x-admin-token'] || '').slice(0, 64);
+      const rateEntry = anafRateMap.get(adminToken) || { count: 0, windowStart: Date.now() };
+      if (Date.now() - rateEntry.windowStart > ANAF_RATE_WINDOW) {
+        rateEntry.count = 0;
+        rateEntry.windowStart = Date.now();
+      }
+      rateEntry.count++;
+      anafRateMap.set(adminToken, rateEntry);
+      if (rateEntry.count > ANAF_RATE_LIMIT) {
+        return sendJson(res, 429, { success: false, error: 'Limită interogări ANAF depășită. Max 30 interogări/minut.' });
+      }
+
+      // Verificare cache 24h
+      const cached = anafCache.get(cleanCui);
+      if (cached && Date.now() - cached.cachedAt < ANAF_CACHE_TTL) {
+        return sendJson(res, 200, cached.data);
+      }
+
       try {
         const today = new Date().toISOString().split('T')[0];
         const anafRes = await fetch('https://webservicesp.anaf.ro/api/PlatitorTvaRest/v9/tva', {
@@ -669,7 +810,7 @@ const server = http.createServer(async (req, res) => {
           body: JSON.stringify([{ cui: cleanCui, data: today }]),
         });
         if (!anafRes.ok) {
-          return sendJson(res, 422, { success: false, error: `Eroare serviciu ANAF: HTTP ${anafRes.status}` });
+          return sendJson(res, 502, { success: false, error: `Eroare serviciu ANAF: HTTP ${anafRes.status}` });
         }
         const data = await anafRes.json();
         if (!data.found || data.found.length === 0) {
@@ -678,7 +819,7 @@ const server = http.createServer(async (req, res) => {
         const c = data.found[0];
         const gen = c.date_generale || {};
         const tva = c.inregistrare_scop_Tva || {};
-        return sendJson(res, 200, {
+        const payload = {
           success: true,
           cui: `RO${cleanCui}`,
           rawCui: cleanCui,
@@ -688,7 +829,9 @@ const server = http.createServer(async (req, res) => {
           phone: gen.telefon || '',
           postalCode: gen.codPostal || '',
           isVatPayer: Boolean(tva.scpTVA),
-        });
+        };
+        anafCache.set(cleanCui, { data: payload, cachedAt: Date.now() });
+        return sendJson(res, 200, payload);
       } catch (err) {
         return sendJson(res, 500, { success: false, error: err.message });
       }
@@ -790,9 +933,11 @@ const server = http.createServer(async (req, res) => {
       }
       const status = urlObj.searchParams.get('status') || undefined;
       const assignedTo = urlObj.searchParams.get('assignedTo') || undefined;
+      const currentRole = urlObj.searchParams.get('currentRole') || undefined;
+      const folder = urlObj.searchParams.get('folder') || undefined;
       const limit = urlObj.searchParams.get('limit') || 50;
       const offset = urlObj.searchParams.get('offset') || 0;
-      const data = await getMailThreads(DEALER_SLUG, { status, assignedTo, limit, offset });
+      const data = await getMailThreads(DEALER_SLUG, { status, assignedTo, limit, offset, currentRole, folder });
       return sendJson(res, 200, { success: true, ...data });
     }
 
@@ -918,8 +1063,8 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    // 0.15 PATCH /api/mail/accounts/:id - Actualizare căsuță (PMH-204)
-    if (req.method === 'PATCH' && pathname.startsWith('/api/mail/accounts/')) {
+    // 0.15 PATCH/PUT /api/mail/accounts/:id - Actualizare căsuță (PMH-204)
+    if ((req.method === 'PATCH' || req.method === 'PUT') && pathname.startsWith('/api/mail/accounts/')) {
       if (!isAuthorizedAdmin(req)) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
@@ -979,6 +1124,19 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
+    // 0.18b DELETE /api/mail/push/unsubscribe - Dezabonare Web Push (PMH-402)
+    if (req.method === 'DELETE' && pathname === '/api/mail/push/unsubscribe') {
+      const rawBody = await readRequestBody(req, 1024 * 32);
+      let payload = {};
+      try { payload = JSON.parse(rawBody.toString('utf8')); } catch {}
+      try {
+        const result = await unsubscribePush(payload.endpoint, payload.accountId);
+        return sendJson(res, 200, { success: true, ...result });
+      } catch (err) {
+        return sendJson(res, 400, { success: false, error: err.message });
+      }
+    }
+
     // 0.19 POST /api/mail/push/test - Test canal Web Push (PMH-402)
     if (req.method === 'POST' && pathname === '/api/mail/push/test') {
       if (!isAuthorizedAdmin(req)) {
@@ -990,8 +1148,182 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // 1. GET /api/market-lookup - Căutare oferte comparabile Autovit
+    // 0.20 POST /api/mail/domains/verify - Înregistrare & verificare domeniu nou (SES v2 + Cloudflare DNS) (PMH-202)
+    if (req.method === 'POST' && pathname === '/api/mail/domains/verify') {
+      if (!isAuthorizedAdmin(req)) {
+        return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
+      }
+      const rawBody = await readRequestBody(req, 1024 * 32);
+      let payload;
+      try { payload = JSON.parse(rawBody.toString('utf8')); } catch { return sendJson(res, 400, { success: false, error: 'JSON invalid' }); }
+      
+      const domain = String(payload.domain || '').trim().toLowerCase();
+      if (!domain) {
+        return sendJson(res, 400, { success: false, error: 'Domeniul este obligatoriu' });
+      }
+
+      try {
+        const sesResult = await registerDomainInSES(domain);
+        const cfResult = await syncDnsToCloudflare(
+          payload.cloudflareZoneId,
+          sesResult.dkimTokens,
+          sesResult.spfRecord,
+          payload.cloudflareApiToken,
+          domain
+        );
+
+        const dnsChecklist = buildDnsChecklist(domain, sesResult.dkimTokens, sesResult.spfRecord);
+
+        const domainRecord = await saveDomainRecord(DEALER_SLUG, domain, {
+          verificationStatus: sesResult.verificationStatus,
+          dkimStatus: sesResult.dkimStatus,
+          dkimTokens: sesResult.dkimTokens,
+          spfRecord: sesResult.spfRecord,
+          mxRecord: sesResult.mxRecord,
+          isCloudflareSynced: cfResult.isCloudflareSynced,
+          cloudflareZoneId: payload.cloudflareZoneId,
+        });
+
+        return sendJson(res, 200, {
+          success: true,
+          domain,
+          dkimTokens: sesResult.dkimTokens,
+          spfRecord: sesResult.spfRecord,
+          mxRecord: sesResult.mxRecord,
+          verificationStatus: sesResult.verificationStatus,
+          dkimStatus: sesResult.dkimStatus,
+          isCloudflareSynced: cfResult.isCloudflareSynced,
+          dnsChecklist,
+          record: domainRecord,
+        });
+      } catch (err) {
+        return sendJson(res, 500, { success: false, error: err.message });
+      }
+    }
+
+    // 0.21 GET /api/mail/domains/:domain/status - Interogare status verificare domeniu (SES v2)
+    if (req.method === 'GET' && pathname.startsWith('/api/mail/domains/') && pathname.endsWith('/status')) {
+      if (!isAuthorizedAdmin(req)) {
+        return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
+      }
+      const domain = pathname.replace('/api/mail/domains/', '').replace('/status', '');
+      const statusResult = await checkDomainVerificationStatus(domain);
+      return sendJson(res, 200, statusResult);
+    }
+
+    // 0.22 GET /api/mail/domains - Listă domenii configurate pentru dealer
+    if (req.method === 'GET' && pathname === '/api/mail/domains') {
+      if (!isAuthorizedAdmin(req)) {
+        return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
+      }
+      const sql = getSql();
+      try {
+        const rows = await sql`
+          SELECT * FROM mail_domains WHERE dealer_id = ${DEALER_SLUG} ORDER BY created_at DESC
+        `;
+        return sendJson(res, 200, { success: true, domains: rows });
+      } catch {
+        return sendJson(res, 200, { success: true, domains: [] });
+      }
+    }
+
+    // 0.23 GET /api/admin/storage/stats - Statistici stocare VPS & Google Drive Vault (PMH-404)
+    if (req.method === 'GET' && pathname === '/api/admin/storage/stats') {
+      if (!isAuthorizedAdmin(req)) {
+        return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
+      }
+      try {
+        const stats = await getStorageStats();
+        return sendJson(res, 200, { success: true, ...stats });
+      } catch (err) {
+        return sendJson(res, 500, { success: false, error: err.message });
+      }
+    }
+
+    // 0.24 POST /api/admin/storage/enforce-quota - Rulare forțată verificare cotă & LRU eviction (PMH-404)
+    if (req.method === 'POST' && pathname === '/api/admin/storage/enforce-quota') {
+      if (!isAuthorizedAdmin(req)) {
+        return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
+      }
+      try {
+        const result = await enforceStorageQuota();
+        return sendJson(res, 200, { success: true, ...result });
+      } catch (err) {
+        return sendJson(res, 500, { success: false, error: err.message });
+      }
+    }
+
+    // 0.25 GET /api/mail/attachments/:id/download - Descărcare transparentă atașament (Local sau Google Drive Vault) (PMH-404)
+    if (req.method === 'GET' && pathname.startsWith('/api/mail/attachments/') && pathname.endsWith('/download')) {
+      const attachmentId = pathname.replace('/api/mail/attachments/', '').replace('/download', '');
+      const sql = getSql();
+
+      let attachment = null;
+      try {
+        const rows = await sql`
+          SELECT * FROM mail_attachments WHERE id = ${attachmentId} LIMIT 1
+        `;
+        if (rows && rows[0]) attachment = rows[0];
+      } catch {}
+
+      // 1. Verificare pe disc local uploads/
+      const uploadsDir = getUploadsDir();
+      const localCandidate = attachment?.file_name 
+        ? path.join(uploadsDir, attachment.file_name)
+        : path.join(uploadsDir, attachmentId);
+
+      if (fs.existsSync(localCandidate)) {
+        const stat = fs.statSync(localCandidate);
+        const mimeType = attachment?.mime_type || 'application/octet-stream';
+        const fileName = attachment?.file_name || path.basename(localCandidate);
+
+        res.writeHead(200, {
+          'Content-Type': mimeType,
+          'Content-Length': stat.size,
+          'Content-Disposition': `inline; filename="${fileName}"`,
+          'X-ParcOS-Storage-Driver': 'LOCAL_DISK',
+        });
+        return fs.createReadStream(localCandidate).pipe(res);
+      }
+
+      // 2. Descărcare transparentă din Google Drive Vault
+      const vaultKey = attachment?.storage_key || attachmentId;
+      try {
+        return await streamFileFromVault(vaultKey, res, {
+          fileName: attachment?.file_name || 'document.pdf',
+          mimeType: attachment?.mime_type || 'application/pdf',
+        });
+      } catch (err) {
+        return sendJson(res, 404, {
+          success: false,
+          error: `Atașamentul nu a putut fi recuperat: ${err.message}`,
+        });
+      }
+    }
+
+    // 1. GET /api/market-lookup - Căutare oferte comparabile Autovit [Admin Required]
     if (req.method === 'GET' && pathname === '/api/market-lookup') {
+      if (!isAuthorizedAdmin(req)) {
+        return sendJson(res, 401, {
+          success: false,
+          error: 'Acces interzis. Căutarea comparativă de piață necesită autentificare de Administrator.',
+          ads: []
+        });
+      }
+
+      // Rate-limit: max 20 req/min per token admin
+      const adminToken = (req.headers['authorization'] || req.headers['x-admin-token'] || '').slice(0, 64);
+      const mlRate = marketLookupRateMap.get(adminToken) || { count: 0, windowStart: Date.now() };
+      if (Date.now() - mlRate.windowStart > 60000) {
+        mlRate.count = 0;
+        mlRate.windowStart = Date.now();
+      }
+      mlRate.count++;
+      marketLookupRateMap.set(adminToken, mlRate);
+      if (mlRate.count > MARKET_LOOKUP_RATE_LIMIT) {
+        return sendJson(res, 429, { success: false, error: 'Rate limit depășit. Max 20 căutări/minut.', ads: [] });
+      }
+
       const brand = urlObj.searchParams.get('brand');
       const model = urlObj.searchParams.get('model');
       const year = urlObj.searchParams.get('year') ? parseInt(urlObj.searchParams.get('year'), 10) : undefined;
@@ -1096,6 +1428,207 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 404, { success: false, error: 'Datele de concurență nu au fost găsite pe server' });
     }
 
+    // 6.0.1 GET /api/demo/ocr-quota - Verificare cota rămasă scanări demo (Public)
+    if (req.method === 'GET' && pathname === '/api/demo/ocr-quota') {
+      const clientIp = getClientIp(req);
+      const urlObj = new URL(req.url, 'http://localhost');
+      const clientToken = urlObj.searchParams.get('clientToken') || req.headers['x-client-token'] || '';
+      const limitStatus = checkDemoOcrLimit(clientIp, clientToken);
+
+      return sendJson(res, 200, {
+        success: true,
+        remainingScans: limitStatus.remaining,
+        limitReached: !limitStatus.allowed,
+        maxAllowed: DEMO_OCR_MAX_SCANS,
+      });
+    }
+
+    // 6.0.2 POST /api/demo/ocr-scan - Scanner Demo Public securizat (Rate limit max 3 scanări / IP)
+    if (req.method === 'POST' && pathname === '/api/demo/ocr-scan') {
+      const clientIp = getClientIp(req);
+      const rawHeaderToken = req.headers['x-client-token'];
+      
+      let parsedBody = {};
+      try {
+        const bodyBuffer = await readRequestBody(req, 15 * 1024 * 1024);
+        parsedBody = JSON.parse(bodyBuffer.toString('utf-8'));
+      } catch (err) {
+        return sendJson(res, 400, {
+          success: false,
+          error: 'Format JSON invalid pentru scanare demo.',
+          message: err.message,
+        });
+      }
+
+      const clientToken = parsedBody.clientToken || rawHeaderToken || '';
+      const limitStatus = checkDemoOcrLimit(clientIp, clientToken);
+
+      if (!limitStatus.allowed) {
+        return sendJson(res, 429, {
+          success: false,
+          limitReached: true,
+          remainingScans: 0,
+          error: 'Ați atins limita de 3 scanări gratuite pentru test.',
+          message: 'Ai testat puterea scannerului ParcOS AI pe 3 documente reale. Pentru scanări nelimitate, integrare automată în contracte și acces complet la platformă, solicită un cont dealer sau programează un demo live.',
+        });
+      }
+
+      const { imageBase64, mimeType = 'image/jpeg' } = parsedBody;
+      if (!imageBase64 || typeof imageBase64 !== 'string' || imageBase64.length < 50) {
+        return sendJson(res, 400, {
+          success: false,
+          error: 'Lipsă imagine document (câmpul imageBase64 este obligatoriu).',
+        });
+      }
+
+      const availableKeys = getResolvedGeminiKeys();
+      const candidateModels = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+      let lastError = null;
+      let extractedData = null;
+
+      const cleanedBase64 = imageBase64.replace(/^data:image\/[a-zA-Z0-9.+_-]+;base64,/, '').trim();
+
+      for (const model of candidateModels) {
+        if (extractedData) break;
+        for (const geminiApiKey of availableKeys) {
+          try {
+            const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`;
+            const upstreamRes = await fetch(targetUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [
+                  {
+                    parts: [
+                      { text: VEHICLE_DOC_PROMPT },
+                      { inline_data: { mime_type: mimeType, data: cleanedBase64 } }
+                    ]
+                  }
+                ],
+                generationConfig: {
+                  temperature: 0.1,
+                  response_mime_type: 'application/json'
+                }
+              })
+            });
+
+            if (!upstreamRes.ok) {
+              const errBody = await upstreamRes.text();
+              console.warn(`[Demo OCR] Model ${model} a returnat status ${upstreamRes.status}:`, errBody.slice(0, 150));
+              if (upstreamRes.status === 429) continue;
+              continue;
+            }
+
+            const resJson = await upstreamRes.json();
+            const rawText = resJson?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (rawText) {
+              const cleanJsonText = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+              extractedData = JSON.parse(cleanJsonText);
+              break;
+            }
+          } catch (e) {
+            lastError = e;
+          }
+        }
+      }
+
+      if (!extractedData) {
+        return sendJson(res, 422, {
+          success: false,
+          error: 'Documentul nu a putut fi analizat optic. Vă rugăm să reîncercați cu o fotografie mai clară.',
+          message: 'Serviciul inteligent de procesare a documentelor întâmpină o indisponibilitate temporară. Vă rugăm să reîncercați.',
+        });
+      }
+
+      // Normalizare Seria CIV (format X-123456)
+      if (extractedData.civNumber && typeof extractedData.civNumber === 'string') {
+        const civMatch = extractedData.civNumber.trim().toUpperCase().replace(/\s+/g, '').match(/^([A-Z])[-–]?(\d{6})$/i);
+        if (civMatch) extractedData.civNumber = `${civMatch[1].toUpperCase()}-${civMatch[2]}`;
+      }
+
+      // Înregistrare consum cotă pentru acest IP/Device
+      const remainingAfterScan = incrementDemoOcrUsage(clientIp, clientToken);
+
+      return sendJson(res, 200, {
+        success: true,
+        remainingScans: remainingAfterScan,
+        limitReached: remainingAfterScan <= 0,
+        vehicleData: extractedData,
+      });
+    }
+
+    // 6.1 POST /api/admin/ocr/gemini/* & /api/ocr/gemini/* - Gateway securizat Google Gemini OCR [STRICT ADMIN]
+    if (req.method === 'POST' && (pathname.startsWith('/api/admin/ocr/gemini/') || pathname.startsWith('/api/ocr/gemini/'))) {
+      if (!isAuthorizedAdmin(req)) {
+        return sendJson(res, 401, {
+          success: false,
+          error: 'Acces interzis. Procesarea automată OCR a documentelor necesită autentificare ca Administrator.',
+        });
+      }
+
+      const geminiSubpath = pathname.replace(/^\/api\/(?:admin\/)?ocr\/gemini\//, '');
+      const availableKeys = getResolvedGeminiKeys();
+      if (availableKeys.length === 0) {
+        return sendJson(res, 503, {
+          success: false,
+          error: 'Serviciul OCR nu este configurat pe server (lipsă chei API).',
+        });
+      }
+
+      try {
+        const bodyBuffer = await readRequestBody(req, 20 * 1024 * 1024);
+        let lastProxyStatus = 500;
+        let lastProxyText = '';
+
+        for (const activeKey of availableKeys) {
+          const targetUrl = `https://generativelanguage.googleapis.com/v1beta/${geminiSubpath}`;
+          const upstreamRes = await fetch(targetUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': req.headers['content-type'] || 'application/json',
+              'x-goog-api-key': activeKey,
+            },
+            body: bodyBuffer.length > 0 ? bodyBuffer : undefined,
+          });
+
+          lastProxyStatus = upstreamRes.status;
+          lastProxyText = await upstreamRes.text();
+
+          if (upstreamRes.ok) {
+            const allowedOrigin = resolveCorsOrigin(req);
+            res.writeHead(200, {
+              'Content-Type': upstreamRes.headers.get('content-type') || 'application/json',
+              'Access-Control-Allow-Origin': allowedOrigin,
+              'Vary': 'Origin',
+              'X-Content-Type-Options': 'nosniff',
+            });
+            return res.end(lastProxyText);
+          }
+
+          if (upstreamRes.status === 429) {
+            console.warn(`[OCR Gateway] Limită 429 pe cheia curentă, se încearcă următoarea cheie din pool...`);
+            continue;
+          }
+          break;
+        }
+
+        const allowedOrigin = resolveCorsOrigin(req);
+        res.writeHead(lastProxyStatus, {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': allowedOrigin,
+          'Vary': 'Origin',
+          'X-Content-Type-Options': 'nosniff',
+        });
+        return res.end(lastProxyText);
+      } catch (geminiErr) {
+        return sendJson(res, 500, {
+          success: false,
+          error: 'Eroare la apelul Gemini Vision API',
+          message: geminiErr.message,
+        });
+      }
+    }
+
     // 3. GET /api/vehicles - Listare publică vehicule din stoc (Read-Only, Sanitizat Fără raw_data)
     if (req.method === 'GET' && pathname === '/api/vehicles') {
       const tenant = await resolveTenant(req, urlObj);
@@ -1161,9 +1694,12 @@ const server = http.createServer(async (req, res) => {
       // Sanitizare câmpuri text & numerice
       vehicleData.brand = String(vehicleData.brand).trim().slice(0, 80);
       vehicleData.model = String(vehicleData.model).trim().slice(0, 80);
-      vehicleData.priceEur = Math.max(0, Number(vehicleData.priceEur) || 0);
-      vehicleData.year = Math.min(2035, Math.max(1970, Number(vehicleData.year) || new Date().getFullYear()));
-      vehicleData.mileageKm = Math.max(0, Number(vehicleData.mileageKm) || 0);
+      const rawPrice = vehicleData.priceEur !== undefined ? vehicleData.priceEur : vehicleData.price_eur;
+      vehicleData.priceEur = Math.max(0, Number(rawPrice) || 0);
+      const rawYear = vehicleData.year;
+      vehicleData.year = Math.min(2035, Math.max(1970, Number(rawYear) || new Date().getFullYear()));
+      const rawMileage = vehicleData.mileageKm !== undefined ? vehicleData.mileageKm : vehicleData.mileage_km;
+      vehicleData.mileageKm = Math.max(0, Number(rawMileage) || 0);
 
       // Invariantă fiscală absolută Carvana SRL: Strict TVA 21%
       vehicleData.vatRate = 0.21;
@@ -1262,194 +1798,48 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    // 6.0.1 GET /api/demo/ocr-quota - Verificare cota rămasă scanări demo (Public)
-    if (req.method === 'GET' && pathname === '/api/demo/ocr-quota') {
-      const clientIp = getClientIp(req);
-      const urlObj = new URL(req.url, 'http://localhost');
-      const clientToken = urlObj.searchParams.get('clientToken') || req.headers['x-client-token'] || '';
-      const limitStatus = checkDemoOcrLimit(clientIp, clientToken);
+    // 7. GET & HEAD /cars/... sau /rxm/cars/... - Servire imagine din disc (Read-Only cu căutare ierarhică multi-locație)
+    if ((req.method === 'GET' || req.method === 'HEAD') && (pathname.startsWith('/cars/') || pathname.startsWith('/rxm/cars/'))) {
+      const cleanPath = pathname.replace(/^\/(?:rxm\/)?cars\//, '');
+      const safeRelativePath = path.normalize(cleanPath).replace(/^(\.\.[\/\\])+/, '');
 
-      return sendJson(res, 200, {
-        success: true,
-        remainingScans: limitStatus.remaining,
-        limitReached: !limitStatus.allowed,
-        maxAllowed: DEMO_OCR_MAX_SCANS,
-      });
-    }
+      // Lista ordonată de directoare candidate pentru rezolvarea imaginii:
+      // 1. Storage dinamic configurat pe VPS (MEDIA_STORAGE_PATH, ex: /data/parcos/cars sau /data/rxm-showroom/cars)
+      // 2. Directoare gazdă alternative cunoscute pe Netcup VPS
+      // 3. Bundle-ul dist/cars din producție Vite
+      // 4. Directorul public/cars din rădăcina proiectului
+      // 5. Căi alternative cu prefixul /rxm
+      const candidateRoots = [
+        process.env.MEDIA_STORAGE_PATH,
+        '/data/parcos/cars',
+        '/data/rxm-showroom/cars',
+        path.join(process.cwd(), 'dist', 'cars'),
+        path.join(process.cwd(), 'public', 'cars'),
+        path.join(process.cwd(), 'dist', 'rxm', 'cars'),
+        path.join(process.cwd(), 'public', 'rxm', 'cars'),
+      ].filter(Boolean);
 
-    // 6.0.2 POST /api/demo/ocr-scan - Scanner Demo Public securizat (Rate limit max 3 scanări / IP)
-    if (req.method === 'POST' && pathname === '/api/demo/ocr-scan') {
-      const clientIp = getClientIp(req);
-      const rawHeaderToken = req.headers['x-client-token'];
-      
-      let parsedBody = {};
-      try {
-        const bodyBuffer = await readRequestBody(req, 15 * 1024 * 1024);
-        parsedBody = JSON.parse(bodyBuffer.toString('utf-8'));
-      } catch (err) {
-        return sendJson(res, 400, {
-          success: false,
-          error: 'Format JSON invalid pentru scanare demo.',
-          message: err.message,
-        });
-      }
-
-      const clientToken = parsedBody.clientToken || rawHeaderToken || '';
-      const limitStatus = checkDemoOcrLimit(clientIp, clientToken);
-
-      if (!limitStatus.allowed) {
-        return sendJson(res, 429, {
-          success: false,
-          limitReached: true,
-          remainingScans: 0,
-          error: 'Ați atins limita de 3 scanări gratuite pentru test.',
-          message: 'Ai testat puterea scannerului ParcOS AI pe 3 documente reale. Pentru scanări nelimitate, integrare automată în contracte și acces complet la platformă, solicită un cont dealer sau programează un demo live.',
-        });
-      }
-
-      const { imageBase64, mimeType = 'image/jpeg' } = parsedBody;
-      if (!imageBase64 || typeof imageBase64 !== 'string' || imageBase64.length < 100) {
-        return sendJson(res, 400, {
-          success: false,
-          error: 'Lipsă imagine document (câmpul imageBase64 este obligatoriu).',
-        });
-      }
-
-      // Cheie API din environment (sau fallback activ din holding pool)
-      const geminiApiKey = (process.env.GEMINI_API_KEY || '')
-        .split(',')[0]
-        .trim();
-
-      const candidateModels = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-3.5-flash'];
-      let lastError = null;
-      let extractedData = null;
-
-      const cleanedBase64 = imageBase64.replace(/^data:image\/[a-zA-Z0-9.+_-]+;base64,/, '').trim();
-
-      for (const model of candidateModels) {
+      let foundPath = null;
+      for (const rootDir of candidateRoots) {
         try {
-          const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`;
-          const upstreamRes = await fetch(targetUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    { text: VEHICLE_DOC_PROMPT },
-                    { inline_data: { mime_type: mimeType, data: cleanedBase64 } }
-                  ]
-                }
-              ],
-              generationConfig: {
-                temperature: 0.1,
-                response_mime_type: 'application/json'
-              }
-            })
-          });
-
-          if (!upstreamRes.ok) {
-            const errBody = await upstreamRes.text();
-            console.warn(`[Demo OCR] Model ${model} a returnat status ${upstreamRes.status}:`, errBody.slice(0, 150));
-            continue;
+          const resolvedRoot = path.resolve(rootDir);
+          const candidatePath = path.join(resolvedRoot, safeRelativePath);
+          // Verificare strictă anti-path-traversal
+          if (candidatePath.startsWith(resolvedRoot) && fs.existsSync(candidatePath)) {
+            const stat = fs.statSync(candidatePath);
+            if (stat.isFile()) {
+              foundPath = candidatePath;
+              break;
+            }
           }
-
-          const resJson = await upstreamRes.json();
-          const rawText = resJson?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (rawText) {
-            const cleanJsonText = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
-            extractedData = JSON.parse(cleanJsonText);
-            break;
-          }
-        } catch (e) {
-          lastError = e;
+        } catch {
+          // Ignoră erorile pe căile inexistente
         }
       }
 
-      if (!extractedData) {
-        return sendJson(res, 502, {
-          success: false,
-          error: 'Serviciul OCR nu a putut analiza documentul. Vă rugăm să reîncercați cu o fotografie mai clară.',
-          message: lastError ? lastError.message : 'Niciun răspuns valid de la motorul de procesare optică.',
-        });
-      }
-
-      // Normalizare Seria CIV (format X-123456)
-      if (extractedData.civNumber && typeof extractedData.civNumber === 'string') {
-        const civMatch = extractedData.civNumber.trim().toUpperCase().replace(/\s+/g, '').match(/^([A-Z])[-–]?(\d{6})$/i);
-        if (civMatch) extractedData.civNumber = `${civMatch[1].toUpperCase()}-${civMatch[2]}`;
-      }
-
-      // Înregistrare consum cotă pentru acest IP/Device
-      const remainingAfterScan = incrementDemoOcrUsage(clientIp, clientToken);
-
-      return sendJson(res, 200, {
-        success: true,
-        remainingScans: remainingAfterScan,
-        limitReached: remainingAfterScan <= 0,
-        vehicleData: extractedData,
-      });
-    }
-
-
-    // 6.1 POST /api/admin/ocr/gemini/* - Gateway securizat Google Gemini OCR [STRICT ADMIN]
-    if (req.method === 'POST' && (pathname.startsWith('/api/admin/ocr/gemini/') || pathname.startsWith('/api/ocr/gemini/'))) {
-      if (!isAuthorizedAdmin(req)) {
-        return sendJson(res, 401, {
-          success: false,
-          error: 'Acces interzis. Procesarea automată OCR a documentelor necesită autentificare ca Administrator.',
-        });
-      }
-
-      const geminiSubpath = pathname.replace(/^\/api\/(?:admin\/)?ocr\/gemini\//, '');
-      const geminiApiKey = process.env.GEMINI_API_KEY;
-      if (!geminiApiKey) {
-        return sendJson(res, 503, {
-          success: false,
-          error: 'Serviciul OCR nu este configurat pe server (lipsă cheie GEMINI_API_KEY în mediul serverului).',
-        });
-      }
-
-      try {
-        const bodyBuffer = await readRequestBody(req, 20 * 1024 * 1024);
-        const targetUrl = `https://generativelanguage.googleapis.com/v1beta/${geminiSubpath}`;
-        const upstreamRes = await fetch(targetUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': req.headers['content-type'] || 'application/json',
-            'x-goog-api-key': geminiApiKey,
-          },
-          body: bodyBuffer.length > 0 ? bodyBuffer : undefined,
-        });
-
-        res.statusCode = upstreamRes.status;
-        res.setHeader('Content-Type', upstreamRes.headers.get('content-type') || 'application/json');
-        const resText = await upstreamRes.text();
-        res.end(resText);
-        return;
-      } catch (geminiErr) {
-        return sendJson(res, 500, {
-          success: false,
-          error: 'Eroare la apelul Gemini Vision API',
-          message: geminiErr.message,
-        });
-      }
-    }
-
-    // 7. GET /cars/... sau /rxm/cars/... - Servire imagine din disc (Read-Only cu protecție Path Traversal)
-    if (req.method === 'GET' && (pathname.startsWith('/cars/') || pathname.startsWith('/rxm/cars/'))) {
-      const cleanPath = pathname.replace(/^\/(?:rxm\/)?cars\//, '');
-      const safeRelativePath = path.normalize(cleanPath).replace(/^(\.\.[\/\\])+/, '');
-      const BASE_STORAGE_PATH = process.env.MEDIA_STORAGE_PATH || path.join(process.cwd(), 'public', 'cars');
-      const fullPath = path.join(BASE_STORAGE_PATH, safeRelativePath);
-
-      // Verificare anti-traversal: calea finală rezolvată trebuie să fie strict în interiorul BASE_STORAGE_PATH
-      if (!fullPath.startsWith(path.resolve(BASE_STORAGE_PATH))) {
-        return sendJson(res, 403, { success: false, error: 'Acces interzis' });
-      }
-
-      if (fs.existsSync(fullPath)) {
-        const ext = path.extname(fullPath).toLowerCase();
+      if (foundPath) {
+        const stat = fs.statSync(foundPath);
+        const ext = path.extname(foundPath).toLowerCase();
         const mimeTypes = {
           '.webp': 'image/webp',
           '.jpg': 'image/jpeg',
@@ -1459,26 +1849,56 @@ const server = http.createServer(async (req, res) => {
           '.avif': 'image/avif',
         };
         const contentType = mimeTypes[ext] || 'application/octet-stream';
+        const etag = `W/"${stat.size.toString(16)}-${stat.mtimeMs.toString(16)}"`;
+        const lastModified = stat.mtime.toUTCString();
+
+        // 🛡️ Failsafe 304 Not Modified: Dacă browserul are deja versiunea curentă, răspunde instantaneu
+        if (req.headers['if-none-match'] === etag || req.headers['if-modified-since'] === lastModified) {
+          res.writeHead(304, {
+            'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
+            'ETag': etag,
+            'Last-Modified': lastModified,
+            'Access-Control-Allow-Origin': resolveCorsOrigin(req),
+            'Vary': 'Origin',
+          });
+          return res.end();
+        }
+
         res.writeHead(200, {
           'Content-Type': contentType,
-          'Cache-Control': 'public, max-age=31536000, immutable',
+          'Content-Length': stat.size,
+          'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
+          'ETag': etag,
+          'Last-Modified': lastModified,
           'X-Content-Type-Options': 'nosniff',
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': resolveCorsOrigin(req),
+          'Vary': 'Origin',
         });
-        const stream = fs.createReadStream(fullPath);
+        if (req.method === 'HEAD') return res.end();
+        const stream = fs.createReadStream(foundPath);
         return stream.pipe(res);
       }
       return sendJson(res, 404, { success: false, error: 'Imaginea nu a fost găsită' });
     }
 
-    // 🌐 Servire fișiere statice din bundle-ul de producție (dist/) pentru Coolify / Docker Unificat
+    // 🌐 Servire fișiere statice din bundle-ul de producție (dist/) și public/ pentru Coolify / Docker Unificat
     const DIST_DIR = path.resolve('dist');
-    if (fs.existsSync(DIST_DIR) && (req.method === 'GET' || req.method === 'HEAD') && !pathname.startsWith('/api/')) {
+    const PUBLIC_DIR = path.resolve('public');
+    if ((fs.existsSync(DIST_DIR) || fs.existsSync(PUBLIC_DIR)) && (req.method === 'GET' || req.method === 'HEAD') && !pathname.startsWith('/api/')) {
       const sanitizedPath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
-      const potentialFile = path.join(DIST_DIR, sanitizedPath);
+      let potentialFile = path.join(DIST_DIR, sanitizedPath);
+
+      if (!fs.existsSync(potentialFile) || !fs.statSync(potentialFile).isFile()) {
+        const altPublicFile = path.join(PUBLIC_DIR, sanitizedPath);
+        if (fs.existsSync(altPublicFile) && fs.statSync(altPublicFile).isFile()) {
+          potentialFile = altPublicFile;
+        }
+      }
 
       // Verificare anti-traversal
-      if (potentialFile.startsWith(DIST_DIR) && fs.existsSync(potentialFile) && fs.statSync(potentialFile).isFile()) {
+      const isUnderDist = DIST_DIR && potentialFile.startsWith(DIST_DIR);
+      const isUnderPublic = PUBLIC_DIR && potentialFile.startsWith(PUBLIC_DIR);
+      if ((isUnderDist || isUnderPublic) && fs.existsSync(potentialFile) && fs.statSync(potentialFile).isFile()) {
         const ext = path.extname(potentialFile).toLowerCase();
         const mimeTypes = {
           '.html': 'text/html; charset=utf-8',
@@ -1499,22 +1919,51 @@ const server = http.createServer(async (req, res) => {
           '.xml': 'application/xml; charset=utf-8',
         };
         const contentType = mimeTypes[ext] || 'application/octet-stream';
-        res.writeHead(200, {
+        const isHtml = ext === '.html';
+        const headers = {
           'Content-Type': contentType,
-          'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
+          'Cache-Control': isHtml ? 'no-cache' : 'public, max-age=31536000, immutable',
           'X-Content-Type-Options': 'nosniff',
-        });
+          ...(isHtml ? SECURITY_HEADERS : {})
+        };
+        res.writeHead(200, headers);
         if (req.method === 'HEAD') return res.end();
         return fs.createReadStream(potentialFile).pipe(res);
       }
 
-      // SPA Fallback: dacă nu este fișier static și nu e rută de API, servim dist/index.html
+      // Protecție Asset-uri Statice & Dotfiles:
+      // Dacă cererea este pentru un dotfile sau fișier/asset static inexistent (/assets/* sau extensie de fișier),
+      // returnăm strict 404 Not Found (NU cădem pe index.html, prevenind soft-404).
+      const isDotfile = /^\/\./.test(pathname);
+      if (isDotfile) {
+        res.writeHead(404, {
+          'Content-Type': 'application/json',
+          'X-Content-Type-Options': 'nosniff',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        });
+        return res.end(JSON.stringify({ success: false, error: 'Not found' }));
+      }
+
+      const isStaticAsset = pathname.startsWith('/assets/') || 
+                            pathname.startsWith('/static/') || 
+                            /\.[a-zA-Z0-9]{2,8}$/.test(pathname);
+
+      if (isStaticAsset) {
+        res.writeHead(404, {
+          'Content-Type': 'application/json',
+          'X-Content-Type-Options': 'nosniff',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        });
+        return res.end(JSON.stringify({ success: false, error: 'Asset static inexistent' }));
+      }
+
+      // SPA Fallback: dacă nu este fișier static și nu e rută de API, servim dist/index.html cu toate antetele de securitate
       const indexHtmlPath = path.join(DIST_DIR, 'index.html');
       if (fs.existsSync(indexHtmlPath)) {
         res.writeHead(200, {
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'no-cache',
-          'X-Content-Type-Options': 'nosniff',
+          ...SECURITY_HEADERS
         });
         if (req.method === 'HEAD') return res.end();
         return fs.createReadStream(indexHtmlPath).pipe(res);
@@ -1533,6 +1982,51 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+async function syncSeedCarsToMediaStorage() {
+  const targetRoot = process.env.MEDIA_STORAGE_PATH;
+  if (!targetRoot) return;
+
+  const candidateSources = [
+    path.join(process.cwd(), 'dist', 'cars'),
+    path.join(process.cwd(), 'public', 'cars'),
+  ];
+
+  let sourceDir = null;
+  for (const s of candidateSources) {
+    if (fs.existsSync(s)) {
+      sourceDir = s;
+      break;
+    }
+  }
+
+  if (!sourceDir) return;
+
+  try {
+    const resolvedTarget = path.resolve(targetRoot);
+    if (!fs.existsSync(resolvedTarget)) {
+      fs.mkdirSync(resolvedTarget, { recursive: true });
+    }
+
+    const entries = await fs.promises.readdir(sourceDir, { withFileTypes: true });
+    let copiedDirs = 0;
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        const srcSub = path.join(sourceDir, entry.name);
+        const dstSub = path.join(resolvedTarget, entry.name);
+        if (!fs.existsSync(dstSub)) {
+          await fs.promises.cp(srcSub, dstSub, { recursive: true });
+          copiedDirs++;
+        }
+      }
+    }
+    if (copiedDirs > 0) {
+      console.log(`✅ [MediaStorageSync] Sincronizate ${copiedDirs} directoare foto seed în ${resolvedTarget}`);
+    }
+  } catch (err) {
+    console.warn('⚠️ [MediaStorageSync] Notă sincronizare imagini seed:', err.message);
+  }
+}
+
 initDatabase()
   .then(() => {
     console.log('✅ [Database] PostgreSQL inițializat cu succes.');
@@ -1543,5 +2037,6 @@ initDatabase()
   .finally(() => {
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 [RXM/ParcOS Micro-API] Running on port ${PORT} (Dealer: ${DEALER_SLUG}) [Auth: ENABLED]`);
+      syncSeedCarsToMediaStorage().catch(() => {});
     });
   });
