@@ -669,7 +669,7 @@ const server = http.createServer(async (req, res) => {
           body: JSON.stringify([{ cui: cleanCui, data: today }]),
         });
         if (!anafRes.ok) {
-          return sendJson(res, 502, { success: false, error: `Eroare serviciu ANAF: HTTP ${anafRes.status}` });
+          return sendJson(res, 422, { success: false, error: `Eroare serviciu ANAF: HTTP ${anafRes.status}` });
         }
         const data = await anafRes.json();
         if (!data.found || data.found.length === 0) {
