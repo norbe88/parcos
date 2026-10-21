@@ -15,8 +15,21 @@ import {
   Copy,
   Check,
   Terminal,
-  ExternalLink
+  ExternalLink,
+  Lock,
+  X,
+  MessageCircle,
+  PhoneCall,
+  ArrowRight,
+  ShieldAlert
 } from 'lucide-react';
+import {
+  scanDemoVehicleDocument,
+  getLocalDemoQuota,
+  fetchServerDemoQuota,
+  DEMO_MAX_SCANS,
+  DemoScanQuota
+} from '../../../services/demoOcrService';
 
 export interface DemoDocData {
   id: 'talon_ro' | 'civ_ro' | 'brief_de' | 'custom';
@@ -128,6 +141,9 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
   const [telemetryLogs, setTelemetryLogs] = useState<string[]>([]);
   const [customImage, setCustomImage] = useState<string | null>(null);
   const [copiedVin, setCopiedVin] = useState(false);
+  const [quota, setQuota] = useState<DemoScanQuota>(getLocalDemoQuota());
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [scanErrorMessage, setScanErrorMessage] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scanTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -139,7 +155,7 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
     setIsScanning(true);
     setScanProgress(0);
     setTelemetryLogs([
-      `> [AI-OCR 2.4] Inițializare cameră & decodare cadru...`,
+      `> [AI-OCR 3.8] Inițializare cameră & decodare cadru...`,
     ]);
 
     const startTime = Date.now();
@@ -153,7 +169,7 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
       if (progress >= 25 && progress < 50) {
         setTelemetryLogs((prev) => 
           prev.length === 1 
-            ? [...prev, `> [VISION] Corecție perspectivă & orientare unghi... [OK]`]
+            ? [...prev, `> [VISION 3.8] Corecție perspectivă & orientare unghi... [OK]`]
             : prev
         );
       } else if (progress >= 50 && progress < 75) {
@@ -183,8 +199,10 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
   };
 
   useEffect(() => {
-    // Initial scan on mount
+    // Initial scan on mount (preset talon_ro)
     runScan(PRESET_DOCUMENTS.talon_ro);
+    // Sincronizare cotă cu backend-ul
+    fetchServerDemoQuota().then((q) => setQuota(q));
     return () => {
       if (scanTimerRef.current) clearInterval(scanTimerRef.current);
     };
@@ -193,49 +211,109 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
   const handleSelectPreset = (key: 'talon_ro' | 'civ_ro' | 'brief_de') => {
     setSelectedDocKey(key);
     setCustomImage(null);
+    setScanErrorMessage(null);
     const doc = PRESET_DOCUMENTS[key];
     setActiveDoc(doc);
     runScan(doc);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = event.target?.result as string;
-      setCustomImage(result);
-      setSelectedDocKey('custom');
+    // Resetăm input-ul pentru a permite reîncărcarea
+    e.target.value = '';
 
+    // Dacă utilizatorul a epuizat cele 3 scanări permise
+    if (quota.isLimitReached || quota.remaining <= 0) {
+      setShowLimitModal(true);
+      return;
+    }
+
+    if (scanTimerRef.current) clearInterval(scanTimerRef.current);
+    setScanErrorMessage(null);
+    setIsScanning(true);
+    setScanProgress(15);
+    setSelectedDocKey('custom');
+
+    // Afișăm imaginea locală imediat ca preview
+    const previewUrl = URL.createObjectURL(file);
+    setCustomImage(previewUrl);
+
+    setTelemetryLogs([
+      `> [PARCOS AI 3.8] Document încărcat: ${file.name} (${Math.round(file.size / 1024)} KB)`,
+      `> [PARCOS AI 3.8] Cota test pe acest dispozitiv: ${quota.remaining}/${DEMO_MAX_SCANS} scanări rămase`,
+      `> [VISION 3.8] Optimizare cadru & recunoaștere optică europeană...`
+    ]);
+
+    const result = await scanDemoVehicleDocument(file, (progress, message) => {
+      setScanProgress(progress);
+      setTelemetryLogs((prev) => [...prev, message]);
+    });
+
+    if (result.success && result.vehicleData) {
+      const v = result.vehicleData;
       const customDoc: DemoDocData = {
         id: 'custom',
-        countryCode: 'RO',
-        countryFlag: '🇷🇴',
-        title: 'Document Încărcat',
-        subtitle: file.name,
-        docNumber: 'SERIE DOC: SCAN-LIVE',
-        brand: 'MERCEDES-BENZ',
-        model: 'E 220 d 4MATIC All-Terrain',
-        vin: 'WDD2132051A784910',
-        engineCc: 1950,
-        powerKw: 143,
-        powerHp: 194,
-        fuelType: 'Motorină (Diesel)',
-        euroNorm: 'Euro 6d',
-        co2: '137 g/km',
-        manufactureYear: 2020,
-        registrationDate: '10.08.2020',
-        maxWeightKg: 2450,
+        countryCode: (v.docOriginCountry === 'DE' ? 'DE' : 'RO'),
+        countryFlag: v.docOriginCountry === 'DE' ? '🇩🇪' : v.docOriginCountry === 'AT' ? '🇦🇹' : v.docOriginCountry === 'FR' ? '🇫🇷' : '🇷🇴',
+        title: 'Document Scanat Live',
+        subtitle: v.docType || file.name,
+        docNumber: v.civNumber || v.plateNumber || 'ACT OFICIAL IDENTIFICAT',
+        brand: v.brand || 'VEHICUL IDENTIFICAT',
+        model: v.model ? `${v.model} ${v.versionTrim || ''}`.trim() : 'Model Extins',
+        vin: v.vin || 'VIN_NEDETECTAT',
+        engineCc: v.engineCc || 0,
+        powerKw: v.powerKw || 0,
+        powerHp: v.powerHp || (v.powerKw ? Math.round(v.powerKw * 1.35962) : 0),
+        fuelType: v.fuelType || 'Diesel / Benzină',
+        euroNorm: v.euroNorm || 'Euro 6',
+        co2: v.co2 || 'Nespecificat',
+        manufactureYear: v.year || new Date().getFullYear(),
+        registrationDate: v.registrationDate || '-',
+        maxWeightKg: 2200,
         seats: 5,
-        color: 'Selenite Grey',
-        previewType: 'talon'
+        color: v.color || 'Standard',
+        previewType: (v.docType && v.docType.toLowerCase().includes('civ')) ? 'civ' : 'talon'
       };
 
       setActiveDoc(customDoc);
-      runScan(customDoc);
-    };
-    reader.readAsDataURL(file);
+      setScanProgress(100);
+      setIsScanning(false);
+      setQuota((prev) => ({
+        ...prev,
+        used: DEMO_MAX_SCANS - result.remainingScans,
+        remaining: result.remainingScans,
+        isLimitReached: result.limitReached || result.remainingScans <= 0
+      }));
+
+      setTelemetryLogs((prev) => [
+        ...prev,
+        `> [SUCCESS] Fişă tehnică generată cu succes! Încredere AI: ${v.confidenceScore || 99}%`,
+        result.remainingScans > 0 
+          ? `> [COTA TEST] Scanări rămase pentru test: ${result.remainingScans}/${DEMO_MAX_SCANS}`
+          : `> [COTA TEST] Ai utilizat toate cele ${DEMO_MAX_SCANS} scanări gratuite de test.`
+      ]);
+
+      if (result.limitReached || result.remainingScans <= 0) {
+        setTimeout(() => {
+          setShowLimitModal(true);
+        }, 1500);
+      }
+    } else {
+      setIsScanning(false);
+      setScanProgress(0);
+      if (result.limitReached) {
+        setQuota((prev) => ({ ...prev, remaining: 0, isLimitReached: true }));
+        setShowLimitModal(true);
+      } else {
+        setScanErrorMessage(result.error || 'Eroare la procesarea documentului.');
+        setTelemetryLogs((prev) => [
+          ...prev,
+          `> [EROARE] ${result.error || 'Documentul nu a putut fi citit. Vă rugăm să folosiți o poză clară.'}`
+        ]);
+      }
+    }
   };
 
   const copyVinToClipboard = () => {
@@ -249,28 +327,54 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
       {/* Header and Commercial Proof Badge */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-xs font-mono-telemetry text-amber-300 font-semibold mb-2">
-            <Scan className="w-3.5 h-3.5 text-amber-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-xs font-mono-telemetry text-amber-900 font-bold mb-2">
+            <Scan className="w-3.5 h-3.5 text-amber-600" />
             <span>INTERACTIVE OCR LAB // SHOW, DON&apos;T TELL</span>
           </div>
-          <h2 className="font-display font-extrabold text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight">
+          <h2 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl text-slate-950 tracking-tight">
             Testează Viteza Scannerului pe Documente Reale
           </h2>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1.5 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 mt-1.5 max-w-2xl leading-relaxed">
             Alege un talon românesc, carte RAR (CIV) sau brief german de import. 
             Apasă oricând pentru a re-scana sau încarcă propria fotografie direct de pe telefon.
           </p>
         </div>
 
-        {/* Commercial Proof Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900 border border-emerald-500/30 text-emerald-400 text-xs font-mono-telemetry font-bold shadow-sm shadow-emerald-500/10 shrink-0">
-          <Clock className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>⚡ 1.8 secunde vs ~4 min tastare manuală (Erori eliminate: 100%)</span>
+        {/* Commercial Proof & Quota Badges */}
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <div 
+            onClick={() => quota.isLimitReached && setShowLimitModal(true)}
+            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-mono-telemetry font-bold shadow-xs cursor-pointer transition-all ${
+              quota.remaining > 1
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
+                : quota.remaining === 1
+                  ? 'bg-amber-50 border-amber-300 text-amber-900 animate-pulse hover:bg-amber-100'
+                  : 'bg-rose-50 border-rose-300 text-rose-900 hover:bg-rose-100'
+            }`}
+            title={quota.isLimitReached ? "Click pentru detalii acces dealer nelimitat" : "Număr de teste gratuite rămase pe acest dispozitiv"}
+          >
+            {quota.remaining > 0 ? (
+              <>
+                <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>⚡ Test Gratuit: <strong>{quota.remaining}/{DEMO_MAX_SCANS}</strong> scanări rămase</span>
+              </>
+            ) : (
+              <>
+                <Lock className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>Limită test atinsă (0/{DEMO_MAX_SCANS}) • Solicită acces</span>
+              </>
+            )}
+          </div>
+
+          <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-xs font-mono-telemetry font-bold shadow-xs shrink-0">
+            <Clock className="w-4 h-4 text-slate-600 shrink-0" />
+            <span>⚡ 1.8s recunoaștere AI</span>
+          </div>
         </div>
       </div>
 
-      {/* Preset Document Selector Tabs */}
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6" role="tablist">
+      {/* Preset Document Selector Tabs & Real Upload */}
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4" role="tablist">
         {(Object.keys(PRESET_DOCUMENTS) as Array<'talon_ro' | 'civ_ro' | 'brief_de'>).map((key) => {
           const doc = PRESET_DOCUMENTS[key];
           const isSelected = selectedDocKey === key;
@@ -282,8 +386,8 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
               onClick={() => handleSelectPreset(key)}
               className={`min-h-[44px] px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 touch-manipulation border ${
                 isSelected
-                  ? 'bg-amber-400 text-zinc-950 border-amber-400 shadow-md shadow-amber-500/20 font-bold scale-[1.02]'
-                  : 'bg-zinc-900/80 text-zinc-300 border-white/10 hover:border-white/20 hover:bg-zinc-800'
+                  ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-md shadow-amber-500/20 font-black scale-[1.02]'
+                  : 'bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-200 hover:text-slate-950'
               }`}
             >
               <span className="text-base">{doc.countryFlag}</span>
@@ -294,16 +398,36 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
 
         {/* Upload Custom Photo Option */}
         <button
-          onClick={() => fileInputRef.current?.click()}
+          role="tab"
+          aria-selected={selectedDocKey === 'custom'}
+          onClick={() => {
+            if (quota.isLimitReached || quota.remaining <= 0) {
+              setShowLimitModal(true);
+            } else {
+              fileInputRef.current?.click();
+            }
+          }}
+          disabled={isScanning}
           className={`min-h-[44px] px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 touch-manipulation border ${
-            selectedDocKey === 'custom'
-              ? 'bg-amber-400 text-zinc-950 border-amber-400 font-bold'
-              : 'bg-zinc-900/80 text-zinc-400 border-dashed border-white/20 hover:border-amber-400/50 hover:text-white'
+            quota.isLimitReached
+              ? 'bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100 font-bold'
+              : selectedDocKey === 'custom'
+                ? 'bg-amber-500 text-slate-950 border-amber-500 font-black'
+                : 'bg-slate-100 text-slate-700 border-dashed border-slate-300 hover:border-amber-500 hover:text-amber-900 hover:bg-slate-50'
           }`}
-          title="Încarcă propria fotografie de talon sau CIV"
+          title={quota.isLimitReached ? "Ați atins limita de 3 scanări gratuite" : "Încarcă propria fotografie de talon sau CIV"}
         >
-          <Upload className="w-4 h-4" />
-          <span>Încarcă Poză / Document</span>
+          {quota.isLimitReached ? (
+            <>
+              <Lock className="w-4 h-4 text-rose-600" />
+              <span>Limită Test Atinsă (3/3)</span>
+            </>
+          ) : (
+            <>
+              <Upload className="w-4 h-4" />
+              <span>Încarcă Poză / Document Real</span>
+            </>
+          )}
         </button>
         <input 
           ref={fileInputRef}
@@ -313,6 +437,23 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
           onChange={handleFileUpload} 
         />
       </div>
+
+      {/* Error Notice Banner if scan fails */}
+      {scanErrorMessage && (
+        <div className="mb-4 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{scanErrorMessage}</span>
+          </div>
+          <button 
+            onClick={() => setScanErrorMessage(null)} 
+            className="text-rose-500 hover:text-rose-700 p-1"
+            aria-label="Închide eroarea"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Main Dual-Pane Simulator Viewport */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -460,7 +601,7 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
 
             {/* Real-Time Telemetry Terminal Stream */}
             <div className="bg-black/90 border-t border-white/10 p-3.5 font-mono-telemetry text-xs space-y-1">
-              <div className="flex items-center gap-2 text-zinc-500 text-[10px] uppercase tracking-wider mb-1">
+              <div className="flex items-center gap-2 text-zinc-300 text-[10px] uppercase tracking-wider mb-1 font-semibold">
                 <Terminal className="w-3 h-3 text-amber-400" />
                 <span>Jurnal Telemetrie Recunoaștere Optică</span>
               </div>
@@ -490,7 +631,7 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>EXTRAS AUTOMAT // ZERO ERORI</span>
                 </div>
-                <span className="text-[10px] font-mono text-zinc-500">ISO 3779 VALIDAT</span>
+                <span className="text-[10px] font-mono text-zinc-300 font-semibold">ISO 3779 VALIDAT</span>
               </div>
 
               <div className="border-b border-white/10 pb-4 mb-4">
@@ -498,7 +639,7 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
                 <h3 className="font-display font-extrabold text-xl text-white tracking-tight mt-0.5">
                   {activeDoc.brand} {activeDoc.model}
                 </h3>
-                <div className="flex items-center gap-2 mt-1 text-xs text-zinc-400">
+                <div className="flex items-center gap-2 mt-1 text-xs text-zinc-300">
                   <span>An Fabricație: <strong className="text-white font-mono">{activeDoc.manufactureYear}</strong></span>
                   <span>•</span>
                   <span>Înmatriculare: <strong className="text-white font-mono">{activeDoc.registrationDate}</strong></span>
@@ -511,7 +652,7 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
                 {/* VIN with 1-Click Copy */}
                 <div className="p-3 rounded-xl bg-zinc-900/90 border border-white/10 flex items-center justify-between group hover:border-amber-400/40 transition-colors">
                   <div>
-                    <span className="text-[10px] text-zinc-400 uppercase block">Serie Șasiu (VIN 17 caractere)</span>
+                    <span className="text-[10px] text-zinc-300 font-semibold uppercase block">Serie Șasiu (VIN 17 caractere)</span>
                     <span className="text-sm font-extrabold text-amber-400 tracking-wider">
                       {activeDoc.vin}
                     </span>
@@ -529,13 +670,13 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
                 {/* Motorizare: Cilindree & Putere */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/10">
-                    <span className="text-[10px] text-zinc-400 uppercase block">Cilindree Motor</span>
+                    <span className="text-[10px] text-zinc-300 font-semibold uppercase block">Cilindree Motor</span>
                     <span className="text-sm font-bold text-white">
-                      {activeDoc.engineCc} <span className="text-xs text-zinc-400 font-normal">cm³</span>
+                      {activeDoc.engineCc} <span className="text-xs text-zinc-300 font-normal">cm³</span>
                     </span>
                   </div>
                   <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/10">
-                    <span className="text-[10px] text-zinc-400 uppercase block">Putere (kW ➔ CP)</span>
+                    <span className="text-[10px] text-zinc-300 font-semibold uppercase block">Putere (kW ➔ CP)</span>
                     <span className="text-sm font-bold text-white">
                       {activeDoc.powerKw} kW <span className="text-xs text-amber-400 font-normal">({activeDoc.powerHp} CP)</span>
                     </span>
@@ -545,15 +686,15 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
                 {/* Combustibil & Normă Poluare */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/10">
-                    <span className="text-[10px] text-zinc-400 uppercase block">Combustibil</span>
+                    <span className="text-[10px] text-zinc-300 font-semibold uppercase block">Combustibil</span>
                     <span className="text-xs sm:text-sm font-bold text-white truncate block">
                       {activeDoc.fuelType}
                     </span>
                   </div>
                   <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/10">
-                    <span className="text-[10px] text-zinc-400 uppercase block">Normă & Emisii CO2</span>
+                    <span className="text-[10px] text-zinc-300 font-semibold uppercase block">Normă & Emisii CO2</span>
                     <span className="text-xs sm:text-sm font-bold text-emerald-400 truncate block">
-                      {activeDoc.euroNorm} <span className="text-[10px] text-zinc-400 font-normal">({activeDoc.co2})</span>
+                      {activeDoc.euroNorm} <span className="text-[10px] text-zinc-300 font-normal">({activeDoc.co2})</span>
                     </span>
                   </div>
                 </div>
@@ -561,13 +702,13 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
                 {/* Masă Maximă & Număr Locuri */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/10">
-                    <span className="text-[10px] text-zinc-400 uppercase block">Masa Maximă Autorizată</span>
+                    <span className="text-[10px] text-zinc-300 font-semibold uppercase block">Masa Maximă Autorizată</span>
                     <span className="text-sm font-bold text-zinc-200">
                       {activeDoc.maxWeightKg} kg
                     </span>
                   </div>
                   <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/10">
-                    <span className="text-[10px] text-zinc-400 uppercase block">Număr Locuri</span>
+                    <span className="text-[10px] text-zinc-300 font-semibold uppercase block">Număr Locuri</span>
                     <span className="text-sm font-bold text-zinc-200">
                       {activeDoc.seats} locuri
                     </span>
@@ -579,7 +720,7 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
 
             {/* Bottom Actions and Direct Flagship Link */}
             <div className="mt-6 pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="text-[11px] text-zinc-400 flex items-center gap-1.5">
+              <div className="text-[11px] text-zinc-300 flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>Gata pentru sincronizare OLX & stoc</span>
               </div>
@@ -600,6 +741,89 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
         </div>
 
       </div>
+
+      {/* Modala de Conversie: Limită Test Atinsă (3/3 Scanări Utilizate) */}
+      {showLimitModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="limit-modal-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowLimitModal(false);
+          }}
+        >
+          <div className="relative w-full max-w-lg rounded-2xl bg-zinc-950 border border-amber-500/30 shadow-2xl overflow-hidden p-6 sm:p-8 text-white">
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setShowLimitModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+              aria-label="Închide fereastra"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold mb-4">
+              <Lock className="w-3.5 h-3.5 text-amber-400" />
+              <span>LIMITĂ TEST DEMO ATINSĂ (3/3 SCANĂRI)</span>
+            </div>
+
+            {/* Modal Title & Body */}
+            <h3 id="limit-modal-title" className="font-display font-black text-2xl sm:text-3xl text-white tracking-tight leading-snug mb-3">
+              Ai testat puterea scannerului ParcOS pe 3 documente reale!
+            </h3>
+            
+            <p className="text-sm text-zinc-300 leading-relaxed mb-6">
+              Pentru a proteja infrastructura împotriva abuzului, scannerul demonstrativ este limitat la 
+              <strong className="text-amber-400"> maxim 3 scanări demo per test</strong>. 
+              În parcul tău auto ai nevoie de scanări nelimitate, export instant în contracte oficiale de vânzare-cumpărare și emitere facturi cu <strong className="text-white">21% TVA</strong>.
+            </p>
+
+            {/* Feature Highlights Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 p-4 rounded-xl bg-zinc-900/80 border border-white/10 text-xs font-mono-telemetry">
+              <div className="flex items-center gap-2 text-zinc-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Scanări Nelimitate CIV & Talon</span>
+              </div>
+              <div className="flex items-center gap-2 text-zinc-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Toate actele auto UE (RO, DE, AT, FR)</span>
+              </div>
+              <div className="flex items-center gap-2 text-zinc-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>1-Click Contracte & Proforme</span>
+              </div>
+              <div className="flex items-center gap-2 text-zinc-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>GDPR Volatil (Zero Stocare Foto)</span>
+              </div>
+            </div>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <a
+                href="https://wa.me/40748892937?text=Buna%20ziua!%20Am%20testat%20scannerul%20pe%20ParcOS%20(3/3)%20si%20doresc%20acces%20nelimitat%20pentru%20parcul%20meu%20auto."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:flex-1 min-h-[48px] px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all touch-manipulation active:scale-[0.98]"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Solicită Acces Dealer pe WhatsApp</span>
+              </a>
+
+              <button
+                onClick={() => setShowLimitModal(false)}
+                className="w-full sm:w-auto min-h-[48px] px-4 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 font-semibold text-sm transition-all"
+              >
+                Închide
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -47,14 +47,14 @@ export const DealerRoiCalculator: React.FC = () => {
     <div className="w-full">
       {/* Header and Commercial Proof Badge */}
       <div className="text-center max-w-3xl mx-auto mb-10">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono-telemetry text-emerald-300 font-semibold mb-3">
-          <Calculator className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-xs font-mono-telemetry text-emerald-900 font-bold mb-3">
+          <Calculator className="w-3.5 h-3.5 text-emerald-600" />
           <span>SIMULATOR RENTABILITATE // ROI TRANSPARENT</span>
         </div>
-        <h2 className="font-display font-extrabold text-2xl sm:text-4xl lg:text-5xl text-white tracking-tight">
+        <h2 className="font-display font-black text-2xl sm:text-4xl lg:text-5xl text-slate-950 tracking-tight">
           Calculează ROI-ul și Orele Salvate Lunar
         </h2>
-        <p className="mt-3 text-sm sm:text-base text-zinc-300 leading-relaxed">
+        <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
           Descoperă impactul matematic concret al automatizării: eliminarea tastării manuale a cărților auto, 
           stoparea cheltuielilor pe anunțuri OLX expirate și securizarea avansurilor prin Cont de Garanție online (Stripe / Card).
         </p>
@@ -64,34 +64,36 @@ export const DealerRoiCalculator: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch max-w-6xl mx-auto">
         
         {/* Left Controls Column (6 cols): Sliders & Selectors */}
-        <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl flex flex-col justify-between shadow-2xl">
+        <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl border border-slate-200/90 bg-white flex flex-col justify-between shadow-xl">
           <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <span className="text-xs font-mono uppercase text-zinc-400">PARAMETRI PARC AUTO</span>
-              <span className="text-[10px] font-mono text-amber-400 font-bold">DATE LIVE ROMÂNIA</span>
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <span className="text-xs font-mono uppercase text-slate-700 font-bold">PARAMETRI PARC AUTO</span>
+              <span className="text-[10px] font-mono text-amber-700 font-black">DATE LIVE ROMÂNIA</span>
             </div>
 
             {/* Slider 1: Active Stock Size */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs sm:text-sm font-bold text-zinc-200 flex items-center gap-2">
-                  <Car className="w-4 h-4 text-amber-400" />
+                <label htmlFor="slider-stock" className="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <Car className="w-4 h-4 text-amber-600" />
                   <span>Mărime Stoc Activ:</span>
                 </label>
-                <span className="font-mono text-base font-extrabold text-amber-400">
+                <span className="font-mono text-base font-black text-amber-700">
                   {stockSize} mașini
                 </span>
               </div>
               <input
+                id="slider-stock"
+                aria-label="Mărime Stoc Activ (mașini)"
                 type="range"
                 min="10"
                 max="150"
                 step="5"
                 value={stockSize}
                 onChange={(e) => setStockSize(Number(e.target.value))}
-                className="w-full h-2.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-amber-400 touch-manipulation"
+                className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-500 touch-manipulation"
               />
-              <div className="flex justify-between text-[10px] font-mono text-zinc-500">
+              <div className="flex justify-between text-[10px] font-mono text-slate-600 font-semibold">
                 <span>10 mașini</span>
                 <span>75 mașini</span>
                 <span>150 mașini</span>
@@ -101,24 +103,26 @@ export const DealerRoiCalculator: React.FC = () => {
             {/* Slider 2: Monthly Sales */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs sm:text-sm font-bold text-zinc-200 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-emerald-400" />
+                <label htmlFor="slider-sales" className="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-emerald-600" />
                   <span>Vânzări Medii Lunare:</span>
                 </label>
-                <span className="font-mono text-base font-extrabold text-emerald-400">
+                <span className="font-mono text-base font-black text-emerald-700">
                   {monthlySales} mașini / lună
                 </span>
               </div>
               <input
+                id="slider-sales"
+                aria-label="Vânzări Medii Lunare (mașini / lună)"
                 type="range"
                 min="2"
                 max="35"
                 step="1"
                 value={monthlySales}
                 onChange={(e) => setMonthlySales(Number(e.target.value))}
-                className="w-full h-2.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-400 touch-manipulation"
+                className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 touch-manipulation"
               />
-              <div className="flex justify-between text-[10px] font-mono text-zinc-500">
+              <div className="flex justify-between text-[10px] font-mono text-slate-600 font-semibold">
                 <span>2 / lună</span>
                 <span>15 / lună</span>
                 <span>35 / lună</span>
@@ -127,8 +131,8 @@ export const DealerRoiCalculator: React.FC = () => {
 
             {/* Advisor Selector */}
             <div className="space-y-2">
-              <label className="text-xs sm:text-sm font-bold text-zinc-200 flex items-center gap-2">
-                <Users className="w-4 h-4 text-blue-400" />
+              <label className="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
+                <Users className="w-4 h-4 text-blue-600" />
                 <span>Număr Consilieri Vânzări:</span>
               </label>
               <div className="grid grid-cols-5 gap-2">
@@ -138,8 +142,8 @@ export const DealerRoiCalculator: React.FC = () => {
                     onClick={() => setAdvisorsCount(count)}
                     className={`min-h-[44px] py-2 rounded-xl text-xs font-mono font-bold transition-all border touch-manipulation ${
                       advisorsCount === count
-                        ? 'bg-amber-400 text-zinc-950 border-amber-400 shadow-md shadow-amber-500/20'
-                        : 'bg-zinc-900 text-zinc-400 border-white/5 hover:border-white/15 hover:text-white'
+                        ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-md shadow-amber-500/20 font-black'
+                        : 'bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-200 hover:text-slate-950'
                     }`}
                   >
                     {count} {count === 1 ? 'om' : 'cons.'}
@@ -150,8 +154,8 @@ export const DealerRoiCalculator: React.FC = () => {
           </div>
 
           {/* Under-Controls Note */}
-          <div className="mt-6 pt-4 border-t border-white/10 text-[11px] text-zinc-400 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="mt-6 pt-4 border-t border-slate-200 text-[11px] text-slate-600 flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>Algoritm calibrat pe date reale de la dealeri activi pe ParcOS (ex: RXM Automobile, MPI Auto, Top Auto).</span>
           </div>
         </div>
@@ -175,7 +179,7 @@ export const DealerRoiCalculator: React.FC = () => {
               <div className="text-3xl sm:text-5xl font-black font-mono-telemetry text-amber-400 tracking-tight mt-1 hud-glow-amber">
                 ~{totalAnnualSavingsEur.toLocaleString('ro-RO')} €
               </div>
-              <div className="text-[11px] text-zinc-400 font-mono mt-1">
+              <div className="text-[11px] text-zinc-300 font-mono mt-1">
                 Net: {annualSavingsNetEur.toLocaleString('ro-RO')} € • 21% TVA: {annualVatAmountEur.toLocaleString('ro-RO')} €
               </div>
             </div>
@@ -192,35 +196,35 @@ export const DealerRoiCalculator: React.FC = () => {
                 <div className="text-xl font-bold text-white mt-1">
                   {hoursSavedPerMonth} h<span className="text-xs font-normal text-zinc-400">/lună</span>
                 </div>
-                <div className="text-[10px] text-zinc-500 mt-0.5">
+                <div className="text-[10px] text-zinc-300 mt-0.5 font-medium">
                   OCR + WhatsApp + OLX
                 </div>
               </div>
 
               {/* OLX Waste Stopped */}
               <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-white/5">
-                <div className="flex items-center gap-1.5 text-zinc-400 text-[10px] uppercase">
+                <div className="flex items-center gap-1.5 text-zinc-300 text-[10px] uppercase font-semibold">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Stop Risipă OLX</span>
                 </div>
                 <div className="text-xl font-bold text-white mt-1">
-                  ~{olxSavingsEur} €<span className="text-xs font-normal text-zinc-400">/lună</span>
+                  ~{olxSavingsEur} €<span className="text-xs font-normal text-zinc-300">/lună</span>
                 </div>
-                <div className="text-[10px] text-zinc-500 mt-0.5">
+                <div className="text-[10px] text-zinc-300 mt-0.5 font-medium">
                   Fără mașini vândute active
                 </div>
               </div>
 
               {/* Conversion Boost */}
               <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-white/5">
-                <div className="flex items-center gap-1.5 text-zinc-400 text-[10px] uppercase">
+                <div className="flex items-center gap-1.5 text-zinc-300 text-[10px] uppercase font-semibold">
                   <Zap className="w-3.5 h-3.5 text-blue-400" />
                   <span>Conversie Garanții</span>
                 </div>
                 <div className="text-xl font-bold text-white mt-1">
                   +25%
                 </div>
-                <div className="text-[10px] text-zinc-500 mt-0.5">
+                <div className="text-[10px] text-zinc-300 mt-0.5 font-medium">
                   Încredere avans securizat
                 </div>
               </div>
@@ -235,7 +239,7 @@ export const DealerRoiCalculator: React.FC = () => {
 
           {/* CTA Link to Onboarding */}
           <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-            <span className="text-xs font-mono text-zinc-400">Activare showroom în sub 24h</span>
+            <span className="text-xs font-mono text-zinc-300">Activare showroom în sub 24h</span>
             <a
               href="#onboard"
               className="min-h-[44px] px-5 py-2.5 rounded-xl font-bold bg-amber-400 hover:bg-amber-300 text-zinc-950 transition-all text-xs flex items-center gap-2 shadow-md shadow-amber-400/20 touch-manipulation active:scale-[0.98]"

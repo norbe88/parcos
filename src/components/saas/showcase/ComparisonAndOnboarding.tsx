@@ -193,46 +193,46 @@ export const ComparisonAndOnboarding: React.FC = () => {
       {/* 1. Comparison Matrix Section (#comparatie) */}
       <section id="comparatie" className="scroll-mt-20">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-mono-telemetry text-blue-300 font-semibold mb-3">
-            <Scale className="w-3.5 h-3.5 text-blue-400" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-xs font-mono-telemetry text-blue-900 font-bold mb-3">
+            <Scale className="w-3.5 h-3.5 text-blue-600" />
             <span>ARHITECTURĂ ȘI EFICIENȚĂ // AUTOMATIZARE VS PROCEDURI MANUALE</span>
           </div>
-          <h2 className="font-display font-extrabold text-2xl sm:text-4xl lg:text-5xl text-white tracking-tight">
+          <h2 className="font-display font-black text-2xl sm:text-4xl lg:text-5xl text-slate-950 tracking-tight">
             De Ce Aleg Dealerii Suveranitatea ParcOS
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-zinc-300 leading-relaxed">
+          <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
             Nu oferim doar un șablon de site, ci un întreg sistem de operare pentru dealership: 
             showroom dedicat fără concurență, OCR cu inteligență artificială și garanții bancare sigure.
           </p>
         </div>
 
         {/* Responsive Table Wrapper with Horizontal Scroll & Touch Pan */}
-        <div className="rounded-3xl border border-white/10 bg-zinc-950/80 shadow-2xl overflow-hidden max-w-6xl mx-auto">
+        <div className="rounded-3xl border border-slate-200/90 bg-white shadow-xl overflow-hidden max-w-6xl mx-auto">
           <div className="overflow-x-auto touch-pan-x scrollbar-none">
             <table className="w-full text-left text-xs sm:text-sm border-collapse min-w-[680px]">
               <thead>
-                <tr className="border-b border-white/10 bg-zinc-900/80 font-mono-telemetry">
-                  <th className="py-4 px-6 text-zinc-400 font-bold uppercase tracking-wider text-[11px] w-2/5">
+                <tr className="border-b border-slate-200 bg-slate-50 font-mono-telemetry">
+                  <th className="py-4 px-6 text-slate-700 font-bold uppercase tracking-wider text-[11px] w-2/5">
                     CRITERIU DE EVALUARE
                   </th>
-                  <th className="py-4 px-6 text-amber-400 font-black uppercase tracking-wider text-xs bg-amber-400/5 border-x border-amber-400/20 w-1/3">
+                  <th className="py-4 px-6 text-amber-800 font-black uppercase tracking-wider text-xs bg-amber-500/10 border-x border-amber-500/30 w-1/3">
                     👑 PARCOS DMS v2.4
                   </th>
-                  <th className="py-4 px-5 text-zinc-400 font-semibold uppercase tracking-wider text-[11px] w-1/3">
+                  <th className="py-4 px-5 text-slate-700 font-bold uppercase tracking-wider text-[11px] w-1/3">
                     METODE MANUALE & DMS TRADIȚIONAL
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.08] text-zinc-200">
+              <tbody className="divide-y divide-slate-100 text-slate-800">
                 {COMPARISON_ROWS.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="py-4 px-6 font-semibold text-white">
+                  <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-4 px-6 font-bold text-slate-950">
                       {row.feature}
                     </td>
-                    <td className="py-4 px-6 font-medium text-emerald-300 bg-amber-400/[0.02] border-x border-amber-400/20 font-mono-telemetry">
+                    <td className="py-4 px-6 font-semibold text-emerald-800 bg-amber-500/5 border-x border-amber-500/20 font-mono-telemetry">
                       {row.parcos}
                     </td>
-                    <td className="py-4 px-5 text-zinc-400 font-mono-telemetry text-xs">
+                    <td className="py-4 px-5 text-slate-600 font-mono-telemetry text-xs">
                       {row.traditionalDms}
                     </td>
                   </tr>
@@ -241,23 +241,23 @@ export const ComparisonAndOnboarding: React.FC = () => {
             </table>
           </div>
           
-          <div className="p-3 bg-zinc-900/60 border-t border-white/5 text-[11px] font-mono text-zinc-400 text-center">
+          <div className="p-3 bg-slate-50 border-t border-slate-200 text-[11px] font-mono text-slate-600 text-center font-medium">
             ← Glisați pe mobil pentru a compara toate specificațiile →
           </div>
         </div>
       </section>
 
       {/* 2. Social Proof & Active Dealer Network */}
-      <section className="border-t border-white/[0.08] pt-20">
+      <section className="border-t border-slate-200/80 pt-20">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-xs font-mono-telemetry text-amber-300 font-semibold mb-3">
-            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-xs font-mono-telemetry text-amber-900 font-bold mb-3">
+            <Star className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
             <span>DEALERI ACTIVI ÎN PRODUCȚIE</span>
           </div>
-          <h2 className="font-display font-extrabold text-2xl sm:text-4xl text-white tracking-tight">
+          <h2 className="font-display font-black text-2xl sm:text-4xl text-slate-950 tracking-tight">
             Validat de Parcuri Auto Reale din România
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-zinc-300">
+          <p className="mt-3 text-sm sm:text-base text-slate-600">
             Iată ce spun fondatorii și consilierii de vânzări care folosesc ParcOS zi de zi în parcurile lor auto:
           </p>
         </div>
@@ -266,30 +266,30 @@ export const ComparisonAndOnboarding: React.FC = () => {
           {TESTIMONIALS.map((t, idx) => (
             <div 
               key={idx}
-              className="p-6 sm:p-7 rounded-3xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl flex flex-col justify-between hover:border-amber-400/40 transition-all shadow-xl group"
+              className="p-6 sm:p-7 rounded-3xl border border-slate-200/90 bg-white flex flex-col justify-between hover:border-slate-300 hover:shadow-xl transition-all shadow-md group"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center font-bold text-amber-400 text-xs font-mono">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center font-black text-amber-800 text-xs font-mono">
                     {t.avatar}
                   </div>
-                  <div className="flex items-center gap-1 text-amber-400">
+                  <div className="flex items-center gap-1 text-amber-500">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
+                      <Star key={i} className="w-3.5 h-3.5 fill-amber-500" />
                     ))}
                   </div>
                 </div>
 
-                <Quote className="w-6 h-6 text-zinc-600 mb-2" />
-                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed italic">
+                <Quote className="w-6 h-6 text-slate-300 mb-2" />
+                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed italic">
                   „{t.quote}”
                 </p>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/10">
-                <div className="font-bold text-sm text-white">{t.name}</div>
-                <div className="text-xs text-amber-400 font-medium">{t.park} • {t.city}</div>
-                <div className="text-[10px] font-mono text-zinc-400 mt-0.5">{t.carsInStock} gestionate</div>
+              <div className="mt-6 pt-4 border-t border-slate-100">
+                <div className="font-bold text-sm text-slate-950">{t.name}</div>
+                <div className="text-xs text-amber-700 font-bold">{t.park} • {t.city}</div>
+                <div className="text-[10px] font-mono text-slate-600 mt-0.5">{t.carsInStock} gestionate</div>
               </div>
             </div>
           ))}
@@ -297,20 +297,20 @@ export const ComparisonAndOnboarding: React.FC = () => {
       </section>
 
       {/* 3. Instant Onboarding Form with ANAF Autofill (#onboard) */}
-      <section id="onboard" className="scroll-mt-20 border-t border-white/[0.08] pt-20">
-        <div className="max-w-4xl mx-auto p-6 sm:p-10 md:p-12 rounded-3xl bg-zinc-950/90 border border-white/15 shadow-2xl relative overflow-hidden">
+      <section id="onboard" className="scroll-mt-20 border-t border-slate-200/80 pt-20">
+        <div className="max-w-4xl mx-auto p-6 sm:p-10 md:p-12 rounded-3xl bg-white border border-slate-200/90 shadow-2xl relative overflow-hidden">
           
           <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
           <div className="text-center max-w-2xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-xs font-mono-telemetry text-amber-300 font-semibold mb-3">
-              <Building2 className="w-3.5 h-3.5 text-amber-400" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-xs font-mono-telemetry text-amber-900 font-bold mb-3">
+              <Building2 className="w-3.5 h-3.5 text-amber-600" />
               <span>ONBOARDING INSTANT PRIN CUI ANAF v9</span>
             </div>
-            <h2 className="font-display font-extrabold text-2xl sm:text-4xl text-white tracking-tight">
+            <h2 className="font-display font-black text-2xl sm:text-4xl text-slate-950 tracking-tight">
               Activează Showroom-ul Parcului Tău în 24 de Ore
             </h2>
-            <p className="mt-2 text-xs sm:text-sm text-zinc-300 leading-relaxed">
+            <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
               Introdu CUI-ul firmei pentru a prelua automat datele fiscale oficiale. 
               Echipa noastră configurează domeniul și importă stocul de autovehicule.
             </p>
@@ -318,19 +318,19 @@ export const ComparisonAndOnboarding: React.FC = () => {
 
           {submitted ? (
             <div className="p-8 sm:p-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center animate-fade-in space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-600 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h3 className="font-display font-extrabold text-xl sm:text-2xl text-white">
+              <h3 className="font-display font-black text-xl sm:text-2xl text-slate-950">
                 Cerere Recepționată cu Succes!
               </h3>
-              <p className="text-sm text-zinc-300 max-w-lg mx-auto leading-relaxed">
+              <p className="text-sm text-slate-700 max-w-lg mx-auto leading-relaxed">
                 Am înregistrat parcul <strong>{parkName}</strong>. Showroom-ul tău dedicat pe domeniul{' '}
-                <strong className="text-amber-400 font-mono">https://{subdomainSlug}.parcos.ro</strong>{' '}
+                <strong className="text-amber-700 font-mono">https://{subdomainSlug}.parcos.ro</strong>{' '}
                 este în curs de inițializare în cloud securizat. Te vom contacta în scurt timp la telefon <strong>{phone}</strong>.
               </p>
               <div className="pt-4 flex justify-center">
-                <span className="px-3 py-1 rounded-full bg-zinc-900 border border-white/10 text-xs font-mono text-zinc-400">
+                <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-mono text-slate-700 font-semibold">
                   Nr. Înregistrare: PRX-{Math.floor(100000 + Math.random() * 900000)} • SLA 24h
                 </span>
               </div>
@@ -340,11 +340,11 @@ export const ComparisonAndOnboarding: React.FC = () => {
               
               {/* CUI Input with Instant ANAF Lookup Button */}
               <div>
-                <label className="block text-xs font-semibold text-zinc-200 mb-1.5 flex items-center justify-between">
+                <label className="block text-xs font-bold text-slate-800 mb-1.5 flex items-center justify-between">
                   <span>CUI Firmă (pentru completare automată ANAF):</span>
                   {anafSuccess && (
-                    <span className="text-[11px] text-emerald-400 font-mono font-bold flex items-center gap-1">
-                      <Check className="w-3.5 h-3.5" /> Date preluate oficial din ANAF
+                    <span className="text-[11px] text-emerald-700 font-mono font-bold flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5 text-emerald-600" /> Date preluate oficial din ANAF
                     </span>
                   )}
                 </label>
@@ -354,18 +354,18 @@ export const ComparisonAndOnboarding: React.FC = () => {
                     value={cuiInput}
                     onChange={(e) => setCuiInput(e.target.value)}
                     placeholder="Ex: RO47910283 sau 47910283"
-                    className="flex-1 px-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-white text-sm focus:border-amber-400 focus:outline-none min-h-[46px] font-mono"
+                    className="flex-1 px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-950 text-sm focus:border-amber-500 focus:bg-white focus:outline-none min-h-[46px] font-mono shadow-xs"
                   />
                   <button
                     type="button"
                     onClick={handleCuiLookup}
                     disabled={isQueryingAnaf}
-                    className="min-h-[46px] px-4 py-2.5 rounded-xl text-xs font-bold bg-zinc-800 hover:bg-zinc-700 text-amber-300 border border-amber-400/30 flex items-center gap-2 touch-manipulation disabled:opacity-50"
+                    className="min-h-[46px] px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 flex items-center gap-2 touch-manipulation disabled:opacity-50 transition-colors"
                   >
                     {isQueryingAnaf ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
+                      <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
                     ) : (
-                      <Search className="w-4 h-4 text-amber-400" />
+                      <Search className="w-4 h-4 text-amber-600" />
                     )}
                     <span>{isQueryingAnaf ? 'Se caută...' : 'Caută ANAF'}</span>
                   </button>
@@ -375,25 +375,25 @@ export const ComparisonAndOnboarding: React.FC = () => {
               {/* Park Name and Contact Person */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-200 mb-1.5">Nume Parc Auto / Societate *</label>
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">Nume Parc Auto / Societate *</label>
                   <input
                     type="text"
                     required
                     value={parkName}
                     onChange={(e) => handleParkNameChange(e.target.value)}
                     placeholder="Ex: Auto Park Transilvania SRL"
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-white text-sm focus:border-amber-400 focus:outline-none min-h-[46px]"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-950 text-sm focus:border-amber-500 focus:bg-white focus:outline-none min-h-[46px] shadow-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-200 mb-1.5">Persoană de Contact *</label>
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">Persoană de Contact *</label>
                   <input
                     type="text"
                     required
                     value={contactName}
                     onChange={(e) => setContactName(e.target.value)}
                     placeholder="Ex: Marius Pop"
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-white text-sm focus:border-amber-400 focus:outline-none min-h-[46px]"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-950 text-sm focus:border-amber-500 focus:bg-white focus:outline-none min-h-[46px] shadow-xs"
                   />
                 </div>
               </div>
@@ -401,35 +401,35 @@ export const ComparisonAndOnboarding: React.FC = () => {
               {/* Phone and Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-200 mb-1.5">Număr de Telefon *</label>
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">Număr de Telefon *</label>
                   <input
                     type="tel"
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Ex: 0740 000 000"
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-white text-sm focus:border-amber-400 focus:outline-none min-h-[46px]"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-950 text-sm focus:border-amber-500 focus:bg-white focus:outline-none min-h-[46px] shadow-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-200 mb-1.5">Adresă Email</label>
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">Adresă Email</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="contact@nume-parc.ro"
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-white text-sm focus:border-amber-400 focus:outline-none min-h-[46px]"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-950 text-sm focus:border-amber-500 focus:bg-white focus:outline-none min-h-[46px] shadow-xs"
                   />
                 </div>
               </div>
 
               {/* Showroom URL Live Preview */}
-              <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                <span className="text-xs text-zinc-400 flex items-center gap-1.5">
-                  <Globe className="w-3.5 h-3.5 text-amber-400" />
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                <span className="text-xs text-slate-700 font-medium flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-amber-600" />
                   Domeniul viitorului tău showroom:
                 </span>
-                <span className="font-mono text-xs font-bold text-amber-300 px-2 py-0.5 rounded bg-black/40 border border-white/10">
+                <span className="font-mono text-xs font-bold text-amber-800 px-2.5 py-1 rounded bg-white border border-slate-200 shadow-2xs">
                   https://{subdomainSlug}.parcos.ro
                 </span>
               </div>
@@ -437,13 +437,13 @@ export const ComparisonAndOnboarding: React.FC = () => {
               {/* Submit CTA Button */}
               <button
                 type="submit"
-                className="w-full min-h-[48px] py-3.5 rounded-xl font-bold bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-zinc-950 shadow-lg shadow-amber-500/25 transition-all text-sm flex items-center justify-center gap-2 mt-4 touch-manipulation active:scale-[0.98]"
+                className="w-full min-h-[48px] py-3.5 rounded-xl font-black bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 shadow-lg shadow-amber-500/25 transition-all text-sm flex items-center justify-center gap-2 mt-4 touch-manipulation active:scale-[0.98] cursor-pointer"
               >
                 <span>Solicită Activarea Showroom-ului (24h)</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-              <div className="text-center text-[11px] text-zinc-400 font-mono">
+              <div className="text-center text-[11px] text-slate-600 font-mono font-medium">
                 Activare garantată în cloud dedicat • Suveranitate 100% a datelor • Fără contracte pe termen lung
               </div>
 

@@ -43,37 +43,40 @@ interface ShowroomVehicle {
     value: string;
   }[];
   drlColor: string;
+  imageUrl: string;
 }
 
 const SHOWROOM_VEHICLES: ShowroomVehicle[] = [
   {
-    id: 'bmw-seria-5',
-    brand: 'BMW',
-    model: 'Seria 5',
-    trim: '520d xDrive M-Sport • 2024 • 18.400 km',
-    price: '54.900 €',
+    id: 'audi-a6',
+    brand: 'Audi',
+    model: 'A6',
+    trim: '3.0 TDI S-Line Matrix • 2017 • 142.000 km',
+    price: '21.900 €',
     badgeText: 'CIV Scanat cu AI (1.8s) • e-Factura Pregătită',
     statusTag: 'OCR + ANAF SPV Validat',
     flank: 'left',
     accentColor: 'amber',
     drlColor: '#60a5fa',
+    imageUrl: '/cars/OLXRXM_kZFcE/image_01.webp',
     telemetry: [
-      { label: 'Serie Șasiu (VIN)', value: 'WBA51FJ090CP89214 (Verificat RAR)' },
+      { label: 'Serie Șasiu (VIN)', value: 'WAUZZZ4G0HN082194 (RAR Valid)' },
       { label: 'Extracție Cărți (CIV)', value: '19/19 câmpuri • Acuitate 99.8%' },
       { label: 'XML ANAF e-Factura', value: 'Validat • Gata de transmitere SPV' },
     ],
   },
   {
-    id: 'audi-a6',
-    brand: 'Audi',
-    model: 'A6',
-    trim: '45 TFSI quattro S-Line • 2023 • 31.200 km',
-    price: '48.500 €',
+    id: 'mercedes-clasa-c',
+    brand: 'Mercedes-Benz',
+    model: 'Clasa C',
+    trim: 'C 220d AMG Line Panoramic • 2016 • 168.000 km',
+    price: '19.490 €',
     badgeText: 'Ofertă WhatsApp Trimisă • Garanție Rezervare Încasată',
     statusTag: 'Avans 500 € Încasat (Stripe)',
     flank: 'left',
     accentColor: 'emerald',
     drlColor: '#f8fafc',
+    imageUrl: '/cars/OLXRXMA9090710648/image_01.webp',
     telemetry: [
       { label: 'Link Plată Stripe', value: 'Achitat prin Apple Pay (500 €)' },
       { label: 'Contract Rezervare', value: 'Generat & Semnat Digital' },
@@ -81,16 +84,17 @@ const SHOWROOM_VEHICLES: ShowroomVehicle[] = [
     ],
   },
   {
-    id: 'mercedes-clasa-c',
-    brand: 'Mercedes-Benz',
-    model: 'Clasa C',
-    trim: 'C 300de AMG Line • 2024 • 12.900 km',
-    price: '51.200 €',
+    id: 'bmw-x1-sport',
+    brand: 'BMW',
+    model: 'X1',
+    trim: 'xDrive20d Sport-Line Panoramic • 2015 • 179.000 km',
+    price: '15.990 €',
     badgeText: 'Sincronizat Automat pe OLX & Autovit în 0.42s',
     statusTag: 'Status: Rezervat în Rețea',
     flank: 'right',
     accentColor: 'emerald',
     drlColor: '#38bdf8',
+    imageUrl: '/cars/OLXRXM_kZglo/image_01.webp',
     telemetry: [
       { label: 'Canale Sincronizate', value: 'Autovit.ro, OLX, Showroom Propriu' },
       { label: 'Protecție Dublă Vânzare', value: 'Anunțuri marcate automat REZERVAT' },
@@ -98,25 +102,26 @@ const SHOWROOM_VEHICLES: ShowroomVehicle[] = [
     ],
   },
   {
-    id: 'porsche-taycan',
-    brand: 'Porsche',
-    model: 'Taycan',
-    trim: '4S Performance Plus • 2024 • 9.800 km',
-    price: '79.900 €',
+    id: 'audi-a4-matrix',
+    brand: 'Audi',
+    model: 'A4',
+    trim: '2.0 TDI Matrix Virtual Cockpit • 2018 • 154.000 km',
+    price: '18.750 €',
     badgeText: 'Dosar Digital Complet • Fișă Parbriz QR Generată',
     statusTag: 'Showroom VIP • Gata de Livrare',
     flank: 'right',
     accentColor: 'amber',
     drlColor: '#cbd5e1',
+    imageUrl: '/cars/OLXRXM_kZgfV/image_01.webp',
     telemetry: [
       { label: 'Fișă Parbriz QR', value: 'Scanare instantă pentru vizitatori' },
       { label: 'Calcul Rată / Leasing', value: 'Aprobat prin partener bancar' },
-      { label: 'Garanție Tehnică', value: 'Certificat 24 luni inclus' },
+      { label: 'Garanție Tehnică', value: 'Certificat 12 luni inclus' },
     ],
   },
 ];
 
-const SESSION_STORAGE_KEY = 'parcos_doubledoor_v1_seen';
+const SESSION_STORAGE_KEY = 'parcos_doubledoor_v2_media';
 
 export const ShowroomDoubleDoorIntro: React.FC<ShowroomDoubleDoorIntroProps> = ({
   onExploreClick,
@@ -127,7 +132,7 @@ export const ShowroomDoubleDoorIntro: React.FC<ShowroomDoubleDoorIntroProps> = (
   const [doorPhase, setDoorPhase] = useState<'closed' | 'opening' | 'open'>('closed');
   const [lightsIgnited, setLightsIgnited] = useState<boolean>(false);
   const [initProgress, setInitProgress] = useState<number>(0);
-  const [activeCarId, setActiveCarId] = useState<string>('bmw-seria-5');
+  const [activeCarId, setActiveCarId] = useState<string>('audi-a6');
   const timersRef = useRef<number[]>([]);
 
   const clearAllTimers = useCallback(() => {
@@ -200,6 +205,8 @@ export const ShowroomDoubleDoorIntro: React.FC<ShowroomDoubleDoorIntroProps> = (
       try {
         const params = new URLSearchParams(window.location.search);
         if (params.get('gate') === 'true' || params.get('intro') === 'true' || params.get('replay') === 'true') {
+          alreadySeen = false;
+        } else if (import.meta.env.DEV) {
           alreadySeen = false;
         } else {
           alreadySeen = sessionStorage.getItem(SESSION_STORAGE_KEY) === 'true';
@@ -387,6 +394,21 @@ export const ShowroomDoubleDoorIntro: React.FC<ShowroomDoubleDoorIntroProps> = (
       {/* ========================================================================= */}
       <div className="relative z-10 flex-1 flex flex-col justify-between overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950">
         
+        {/* 📸 FOTOGRAFIE ARHITECTURALĂ DE FUNDAL: HALĂ SHOWROOM LUX ÎN PERSPECTIVĂ */}
+        <div 
+          className={`absolute inset-0 pointer-events-none z-0 transition-all duration-1000 ease-out ${
+            lightsIgnited ? 'opacity-40 scale-100 blur-0' : 'opacity-0 scale-105 blur-sm'
+          }`}
+        >
+          <img 
+            src="/images/parcos-showroom-hall.jpg" 
+            alt="ParcOS Luxury Showroom Pavilion" 
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/40" />
+          <div className="absolute inset-0 bg-slate-950/25" />
+        </div>
+
         {/* ILUMINARE ARHITECTURALĂ DE TAVAN: Carouri LED Albe (Studio 4500K) + Glow Cald */}
         <div className="absolute top-0 inset-x-0 h-44 pointer-events-none z-0 overflow-hidden">
           {/* Benzi LED liniare de studio */}
@@ -538,6 +560,24 @@ export const ShowroomDoubleDoorIntro: React.FC<ShowroomDoubleDoorIntroProps> = (
 
                     <p className="text-[11px] text-slate-300 line-clamp-1 mb-3">{v.trim}</p>
 
+                    {/* Fotografie Mașină în Showroom cu Efect de Adâncime */}
+                    {v.imageUrl && (
+                      <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden mb-3 bg-slate-950 border border-white/10 group-hover:border-amber-400/40 transition-colors shadow-inner">
+                        <img 
+                          src={v.imageUrl} 
+                          alt={`${v.brand} ${v.model}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                        <div className="absolute top-2 left-2">
+                          <span className="px-2 py-0.5 rounded-md bg-slate-950/80 backdrop-blur-md border border-white/15 text-[9px] font-mono text-zinc-300">
+                            STAND STÂNGA
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
                     {/* HUD Badge Tehnologic */}
                     <div className="rounded-lg bg-slate-950/70 border border-white/10 p-2.5 mb-3">
                       <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-400 font-semibold">
@@ -591,6 +631,24 @@ export const ShowroomDoubleDoorIntro: React.FC<ShowroomDoubleDoorIntroProps> = (
                     </div>
 
                     <p className="text-[11px] text-slate-300 line-clamp-1 mb-3">{v.trim}</p>
+
+                    {/* Fotografie Mașină în Showroom cu Efect de Adâncime */}
+                    {v.imageUrl && (
+                      <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden mb-3 bg-slate-950 border border-white/10 group-hover:border-emerald-400/40 transition-colors shadow-inner">
+                        <img 
+                          src={v.imageUrl} 
+                          alt={`${v.brand} ${v.model}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                        <div className="absolute top-2 left-2">
+                          <span className="px-2 py-0.5 rounded-md bg-slate-950/80 backdrop-blur-md border border-white/15 text-[9px] font-mono text-zinc-300">
+                            STAND DREAPTA
+                          </span>
+                        </div>
+                      </div>
+                    )}
 
                     {/* HUD Badge Tehnologic */}
                     <div className="rounded-lg bg-slate-950/70 border border-white/10 p-2.5 mb-3">

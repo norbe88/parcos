@@ -100,6 +100,102 @@ function revokeSessionToken(token) {
 }
 
 // ══════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
+// PARCOS DEMO OCR SCANNER — RATE LIMITING & SECURITY (MAX 3 SCANS)
+// ══════════════════════════════════════════════════════════════════
+export const DEMO_OCR_MAX_SCANS = 3;
+const DEMO_OCR_TTL_MS = 24 * 60 * 60 * 1000; // 24 ore
+const demoOcrUsageMap = new Map(); // key (ip or clientToken) -> { count: number, resetAt: number }
+
+export function getClientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded && typeof forwarded === 'string') {
+    return forwarded.split(',')[0].trim();
+  }
+  return req.socket?.remoteAddress || '127.0.0.1';
+}
+
+export function checkDemoOcrLimit(ip, clientToken) {
+  const now = Date.now();
+  let maxUsed = 0;
+  
+  for (const key of [ip, clientToken].filter(Boolean)) {
+    const entry = demoOcrUsageMap.get(key);
+    if (entry) {
+      if (now > entry.resetAt) {
+        demoOcrUsageMap.delete(key);
+      } else {
+        maxUsed = Math.max(maxUsed, entry.count);
+      }
+    }
+  }
+
+  const remaining = Math.max(0, DEMO_OCR_MAX_SCANS - maxUsed);
+  return {
+    allowed: remaining > 0,
+    remaining,
+    used: maxUsed,
+    maxAllowed: DEMO_OCR_MAX_SCANS
+  };
+}
+
+export function incrementDemoOcrUsage(ip, clientToken) {
+  const now = Date.now();
+  const resetAt = now + DEMO_OCR_TTL_MS;
+  let newCount = 1;
+
+  for (const key of [ip, clientToken].filter(Boolean)) {
+    const entry = demoOcrUsageMap.get(key);
+    if (!entry || now > entry.resetAt) {
+      demoOcrUsageMap.set(key, { count: 1, resetAt });
+      newCount = Math.max(newCount, 1);
+    } else {
+      entry.count += 1;
+      newCount = Math.max(newCount, entry.count);
+    }
+  }
+
+  return Math.max(0, DEMO_OCR_MAX_SCANS - newCount);
+}
+
+export const VEHICLE_DOC_PROMPT = `You are an expert automotive document analyst specializing in European and International vehicle registration documents:
+- Romania: CIV (Cartea de Identitate a Vehiculului — CIV RAR) & Talon (Certificat de Înmatriculare)
+- Germany: Zulassungsbescheinigung Teil I (Fahrzeugschein) & Teil II (Fahrzeugbrief)
+- Austria: Zulassungsbescheinigung Teil I (Zulassungsschein) & Teil II (Typenschein / Einzelgenehmigung / KFG 1967)
+- France: Certificat d'immatriculation (Carte Grise)
+- Italy: Carta di Circolazione / Documento Unico
+- Netherlands / Belgium: Kentekenbewijs (RDW) / Inschrijvingsbewijs
+- USA: Certificate of Title
+
+Analyze the document image.
+Extract all technical, identification and registration data into a strict JSON object (NO markdown fences, NO explanatory text):
+{
+  "docOriginCountry": "AT", // One of: "RO", "DE", "AT", "FR", "IT", "NL", "BE", "US", "OTHER"
+  "docType": "Zulassungsbescheinigung Teil I", // or "Cartea de Identitate a Vehiculului (CIV)", "Talon Auto", "Zulassungsschein"
+  "brand": "Nissan", // Exact brand (field D.1 or 2. Marcă on CIV, e.g. Dacia, Nissan, BMW, Volkswagen, Audi)
+  "model": "Qashqai", // Commercial model name without brand prefix (field D.3 or 3. Tipul/Varianta, e.g. Qashqai, Duster, Golf, 520d)
+  "versionTrim": "1.5 dCi J11", // Commercial trim level, version, or engine designation (field D.2)
+  "vin": "SJNFAAJ11U1120210", // 17-character VIN (field E or E FIN on Austrian/German brief, field 1 on CIV)
+  "year": 2015, // 4-digit manufacturing/registration year (field B: Erstmalige Zulassung am)
+  "registrationDate": "09.04.2015", // Full date of first registration (field B)
+  "powerKw": 81, // Net power in kW from field P.2 (Leistung)
+  "powerHp": 110, // Power in HP calculated as round(powerKw * 1.35962)
+  "engineCc": 1461, // Displacement in cm3 from field P.1 (Hubraum)
+  "fuelType": "Diesel", // One of: "Diesel", "Benzină", "Hibrid", "Electric" (from P.3 Antriebsart/Kraftstoff)
+  "color": "Alb", // Color in Romanian: Alb (Weiß), Negru Metalizat (Schwarz), Gri (Grau), Albastru (Blau), Roșu (Rot)
+  "bodyType": "SUV", // One of: "SUV", "Sedan", "Break", "Hatchback", "Coupe"
+  "civNumber": "AT-202676", // National code or document number (Seria CIV pe RO, field A7 pe AT)
+  "plateNumber": "JO-268HK", // License plate number if visible (field A)
+  "euroNorm": "Euro 5", // Euro norm from field V.9
+  "co2": "108 g/km", // CO2 emissions
+  "confidenceScore": 98
+}
+Strict Rules:
+1. Brand MUST be actual brand, model MUST NOT repeat brand.
+2. VIN MUST be exactly 17 characters (no I, O, Q).
+3. Do NOT invent data — return null for unreadable fields.`;
+
+
 // DEALER OS — MULTI-TENANT RESOLUTION ENGINE (PMH-T02)
 // ══════════════════════════════════════════════════════════════════
 const tenantConfigCache = new Map();
@@ -1165,6 +1261,136 @@ const server = http.createServer(async (req, res) => {
         });
       }
     }
+
+    // 6.0.1 GET /api/demo/ocr-quota - Verificare cota rămasă scanări demo (Public)
+    if (req.method === 'GET' && pathname === '/api/demo/ocr-quota') {
+      const clientIp = getClientIp(req);
+      const urlObj = new URL(req.url, 'http://localhost');
+      const clientToken = urlObj.searchParams.get('clientToken') || req.headers['x-client-token'] || '';
+      const limitStatus = checkDemoOcrLimit(clientIp, clientToken);
+
+      return sendJson(res, 200, {
+        success: true,
+        remainingScans: limitStatus.remaining,
+        limitReached: !limitStatus.allowed,
+        maxAllowed: DEMO_OCR_MAX_SCANS,
+      });
+    }
+
+    // 6.0.2 POST /api/demo/ocr-scan - Scanner Demo Public securizat (Rate limit max 3 scanări / IP)
+    if (req.method === 'POST' && pathname === '/api/demo/ocr-scan') {
+      const clientIp = getClientIp(req);
+      const rawHeaderToken = req.headers['x-client-token'];
+      
+      let parsedBody = {};
+      try {
+        const bodyBuffer = await readRequestBody(req, 15 * 1024 * 1024);
+        parsedBody = JSON.parse(bodyBuffer.toString('utf-8'));
+      } catch (err) {
+        return sendJson(res, 400, {
+          success: false,
+          error: 'Format JSON invalid pentru scanare demo.',
+          message: err.message,
+        });
+      }
+
+      const clientToken = parsedBody.clientToken || rawHeaderToken || '';
+      const limitStatus = checkDemoOcrLimit(clientIp, clientToken);
+
+      if (!limitStatus.allowed) {
+        return sendJson(res, 429, {
+          success: false,
+          limitReached: true,
+          remainingScans: 0,
+          error: 'Ați atins limita de 3 scanări gratuite pentru test.',
+          message: 'Ai testat puterea scannerului ParcOS AI pe 3 documente reale. Pentru scanări nelimitate, integrare automată în contracte și acces complet la platformă, solicită un cont dealer sau programează un demo live.',
+        });
+      }
+
+      const { imageBase64, mimeType = 'image/jpeg' } = parsedBody;
+      if (!imageBase64 || typeof imageBase64 !== 'string' || imageBase64.length < 100) {
+        return sendJson(res, 400, {
+          success: false,
+          error: 'Lipsă imagine document (câmpul imageBase64 este obligatoriu).',
+        });
+      }
+
+      // Cheie API din environment (sau fallback activ din holding pool)
+      const geminiApiKey = (process.env.GEMINI_API_KEY || '')
+        .split(',')[0]
+        .trim();
+
+      const candidateModels = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-3.5-flash'];
+      let lastError = null;
+      let extractedData = null;
+
+      const cleanedBase64 = imageBase64.replace(/^data:image\/[a-zA-Z0-9.+_-]+;base64,/, '').trim();
+
+      for (const model of candidateModels) {
+        try {
+          const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`;
+          const upstreamRes = await fetch(targetUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { text: VEHICLE_DOC_PROMPT },
+                    { inline_data: { mime_type: mimeType, data: cleanedBase64 } }
+                  ]
+                }
+              ],
+              generationConfig: {
+                temperature: 0.1,
+                response_mime_type: 'application/json'
+              }
+            })
+          });
+
+          if (!upstreamRes.ok) {
+            const errBody = await upstreamRes.text();
+            console.warn(`[Demo OCR] Model ${model} a returnat status ${upstreamRes.status}:`, errBody.slice(0, 150));
+            continue;
+          }
+
+          const resJson = await upstreamRes.json();
+          const rawText = resJson?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (rawText) {
+            const cleanJsonText = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+            extractedData = JSON.parse(cleanJsonText);
+            break;
+          }
+        } catch (e) {
+          lastError = e;
+        }
+      }
+
+      if (!extractedData) {
+        return sendJson(res, 502, {
+          success: false,
+          error: 'Serviciul OCR nu a putut analiza documentul. Vă rugăm să reîncercați cu o fotografie mai clară.',
+          message: lastError ? lastError.message : 'Niciun răspuns valid de la motorul de procesare optică.',
+        });
+      }
+
+      // Normalizare Seria CIV (format X-123456)
+      if (extractedData.civNumber && typeof extractedData.civNumber === 'string') {
+        const civMatch = extractedData.civNumber.trim().toUpperCase().replace(/\s+/g, '').match(/^([A-Z])[-–]?(\d{6})$/i);
+        if (civMatch) extractedData.civNumber = `${civMatch[1].toUpperCase()}-${civMatch[2]}`;
+      }
+
+      // Înregistrare consum cotă pentru acest IP/Device
+      const remainingAfterScan = incrementDemoOcrUsage(clientIp, clientToken);
+
+      return sendJson(res, 200, {
+        success: true,
+        remainingScans: remainingAfterScan,
+        limitReached: remainingAfterScan <= 0,
+        vehicleData: extractedData,
+      });
+    }
+
 
     // 6.1 POST /api/admin/ocr/gemini/* - Gateway securizat Google Gemini OCR [STRICT ADMIN]
     if (req.method === 'POST' && (pathname.startsWith('/api/admin/ocr/gemini/') || pathname.startsWith('/api/ocr/gemini/'))) {

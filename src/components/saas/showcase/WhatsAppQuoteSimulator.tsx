@@ -133,22 +133,22 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
       {/* Header and Commercial Proof Badge */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono-telemetry text-emerald-300 font-semibold mb-2">
-            <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-xs font-mono-telemetry text-emerald-900 font-bold mb-2">
+            <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
             <span>MODUL CONVERSIE WHATSAPP // REZERVĂRI ONLINE</span>
           </div>
-          <h2 className="font-display font-extrabold text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight">
+          <h2 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl text-slate-950 tracking-tight">
             Oferte Elegante pe WhatsApp cu Garanție de Rezervare
           </h2>
-          <p className="text-xs sm:text-sm text-zinc-300 mt-1.5 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 mt-1.5 max-w-2xl leading-relaxed">
             Elimină ofertele compuse greoi pe telefon și ezitarea clienților de a trimite avans. 
             Generează în 10 secunde un mesaj profesionist cu calcul TVA deductibil și link de plată securizat.
           </p>
         </div>
 
         {/* Commercial Proof Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900 border border-emerald-500/30 text-emerald-400 text-xs font-mono-telemetry font-bold shadow-sm shadow-emerald-500/10 shrink-0">
-          <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-mono-telemetry font-bold shadow-xs shrink-0">
+          <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>Rată de închidere cu +34% mai mare pe lead-urile din online</span>
         </div>
       </div>
@@ -160,8 +160,8 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
         <div className="lg:col-span-5 space-y-4">
           
           {/* Vehicle Selector */}
-          <div className="p-5 rounded-2xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl">
-            <label className="text-xs font-mono uppercase tracking-wider text-zinc-400 block mb-3">
+          <div className="p-5 rounded-2xl border border-slate-200/90 bg-white shadow-sm">
+            <label className="text-xs font-mono uppercase tracking-wider text-slate-700 font-bold block mb-3">
               1. Alege Vehiculul din Stoc
             </label>
             <div className="space-y-2">
@@ -171,18 +171,18 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
                   onClick={() => setSelectedVehicleId(v.id)}
                   className={`w-full min-h-[48px] p-3 rounded-xl border text-left transition-all touch-manipulation flex items-center justify-between ${
                     selectedVehicleId === v.id
-                      ? 'border-amber-400/80 bg-zinc-900 text-white shadow-md shadow-amber-500/10'
-                      : 'border-white/5 bg-zinc-900/40 text-zinc-400 hover:border-white/20 hover:text-white'
+                      ? 'border-amber-500 bg-amber-50/80 text-slate-950 shadow-sm ring-1 ring-amber-500'
+                      : 'border-slate-200 bg-slate-50/60 text-slate-700 hover:border-slate-300 hover:bg-slate-100'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Car className={`w-4 h-4 ${selectedVehicleId === v.id ? 'text-amber-400' : 'text-zinc-500'}`} />
+                    <Car className={`w-4 h-4 ${selectedVehicleId === v.id ? 'text-amber-600' : 'text-slate-400'}`} />
                     <div>
-                      <div className="text-xs font-bold leading-tight text-white">{v.brand} {v.model}</div>
-                      <div className="text-[11px] font-mono text-zinc-400">{v.year} • {v.km.toLocaleString('ro-RO')} km</div>
+                      <div className="text-xs font-bold leading-tight text-slate-950">{v.brand} {v.model}</div>
+                      <div className="text-[11px] font-mono text-slate-600">{v.year} • {v.km.toLocaleString('ro-RO')} km</div>
                     </div>
                   </div>
-                  <span className="font-mono text-xs font-extrabold text-amber-400">
+                  <span className="font-mono text-xs font-black text-amber-700">
                     {v.grossPriceEur.toLocaleString('ro-RO')} €
                   </span>
                 </button>
@@ -191,75 +191,75 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
           </div>
 
           {/* Configuration Options (Toggles) */}
-          <div className="p-5 rounded-2xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl space-y-3.5">
-            <label className="text-xs font-mono uppercase tracking-wider text-zinc-400 block">
+          <div className="p-5 rounded-2xl border border-slate-200/90 bg-white shadow-sm space-y-3.5">
+            <label className="text-xs font-mono uppercase tracking-wider text-slate-700 font-bold block">
               2. Parametri Fiscali & Garanții
             </label>
 
             {/* Fiscal Regime Toggle */}
             <div 
               onClick={() => setIsVatDeductible(!isVatDeductible)}
-              className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 flex items-center justify-between cursor-pointer hover:border-white/15 transition-all touch-manipulation min-h-[44px]"
+              className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between cursor-pointer hover:border-slate-300 transition-all touch-manipulation min-h-[44px]"
             >
               <div>
-                <div className="text-xs font-bold text-white">Regim TVA Deductibil (21%)</div>
-                <div className="text-[11px] text-zinc-400">
+                <div className="text-xs font-bold text-slate-950">Regim TVA Deductibil (21%)</div>
+                <div className="text-[11px] text-slate-600">
                   {isVatDeductible ? 'TVA deductibil (Gross / 1.21)' : 'Regim marjă de profit conform Art. 312'}
                 </div>
               </div>
-              <div className={`w-10 h-6 rounded-full transition-colors relative p-0.5 ${isVatDeductible ? 'bg-amber-400' : 'bg-zinc-700'}`}>
-                <div className={`w-5 h-5 rounded-full bg-zinc-950 transition-transform ${isVatDeductible ? 'translate-x-4' : 'translate-x-0'}`} />
+              <div className={`w-10 h-6 rounded-full transition-colors relative p-0.5 ${isVatDeductible ? 'bg-amber-500' : 'bg-slate-300'}`}>
+                <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${isVatDeductible ? 'translate-x-4' : 'translate-x-0'}`} />
               </div>
             </div>
 
             {/* Cont de Garanție Toggle */}
             <div 
               onClick={() => setIncludeBtGuarantee(!includeBtGuarantee)}
-              className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 flex items-center justify-between cursor-pointer hover:border-white/15 transition-all touch-manipulation min-h-[44px]"
+              className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between cursor-pointer hover:border-slate-300 transition-all touch-manipulation min-h-[44px]"
             >
               <div>
-                <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                <div className="text-xs font-bold text-slate-950 flex items-center gap-1.5">
                   <span>Garanție de Rezervare (Stripe / Card / Transfer)</span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-400/10 text-purple-300 border border-purple-400/30">500 €</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-100 text-purple-800 border border-purple-200 font-bold">500 €</span>
                 </div>
-                <div className="text-[11px] text-zinc-400">
+                <div className="text-[11px] text-slate-600">
                   Link de plată securizat (card Stripe sau transfer) pentru blocarea mașinii 48h
                 </div>
               </div>
-              <div className={`w-10 h-6 rounded-full transition-colors relative p-0.5 ${includeBtGuarantee ? 'bg-emerald-400' : 'bg-zinc-700'}`}>
-                <div className={`w-5 h-5 rounded-full bg-zinc-950 transition-transform ${includeBtGuarantee ? 'translate-x-4' : 'translate-x-0'}`} />
+              <div className={`w-10 h-6 rounded-full transition-colors relative p-0.5 ${includeBtGuarantee ? 'bg-emerald-500' : 'bg-slate-300'}`}>
+                <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${includeBtGuarantee ? 'translate-x-4' : 'translate-x-0'}`} />
               </div>
             </div>
 
             {/* Inspection & carVertical Toggle */}
             <div 
               onClick={() => setIncludeInspection(!includeInspection)}
-              className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 flex items-center justify-between cursor-pointer hover:border-white/15 transition-all touch-manipulation min-h-[44px]"
+              className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between cursor-pointer hover:border-slate-300 transition-all touch-manipulation min-h-[44px]"
             >
               <div>
-                <div className="text-xs font-bold text-white">Inspecție 120 Puncte & carVertical</div>
-                <div className="text-[11px] text-zinc-400">
+                <div className="text-xs font-bold text-slate-950">Inspecție 120 Puncte & carVertical</div>
+                <div className="text-[11px] text-slate-600">
                   Verificare carVertical disponibilă în platformă
                 </div>
               </div>
-              <div className={`w-10 h-6 rounded-full transition-colors relative p-0.5 ${includeInspection ? 'bg-blue-400' : 'bg-zinc-700'}`}>
-                <div className={`w-5 h-5 rounded-full bg-zinc-950 transition-transform ${includeInspection ? 'translate-x-4' : 'translate-x-0'}`} />
+              <div className={`w-10 h-6 rounded-full transition-colors relative p-0.5 ${includeInspection ? 'bg-blue-500' : 'bg-slate-300'}`}>
+                <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${includeInspection ? 'translate-x-4' : 'translate-x-0'}`} />
               </div>
             </div>
 
             {/* Delivery Toggle */}
             <div 
               onClick={() => setIncludeDelivery(!includeDelivery)}
-              className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 flex items-center justify-between cursor-pointer hover:border-white/15 transition-all touch-manipulation min-h-[44px]"
+              className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between cursor-pointer hover:border-slate-300 transition-all touch-manipulation min-h-[44px]"
             >
               <div>
-                <div className="text-xs font-bold text-white">Livrare pe Platformă la Domiciliu</div>
-                <div className="text-[11px] text-zinc-400">
+                <div className="text-xs font-bold text-slate-950">Livrare pe Platformă la Domiciliu</div>
+                <div className="text-[11px] text-slate-600">
                   Livrăm în toată România cu numere roșii provizorii
                 </div>
               </div>
-              <div className={`w-10 h-6 rounded-full transition-colors relative p-0.5 ${includeDelivery ? 'bg-amber-400' : 'bg-zinc-700'}`}>
-                <div className={`w-5 h-5 rounded-full bg-zinc-950 transition-transform ${includeDelivery ? 'translate-x-4' : 'translate-x-0'}`} />
+              <div className={`w-10 h-6 rounded-full transition-colors relative p-0.5 ${includeDelivery ? 'bg-amber-500' : 'bg-slate-300'}`}>
+                <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${includeDelivery ? 'translate-x-4' : 'translate-x-0'}`} />
               </div>
             </div>
           </div>
@@ -268,7 +268,7 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               onClick={handleCopy}
-              className="min-h-[48px] px-4 py-3 rounded-xl font-bold bg-amber-400 hover:bg-amber-300 text-zinc-950 transition-all text-xs flex items-center justify-center gap-2 touch-manipulation shadow-md shadow-amber-500/20 active:scale-[0.98]"
+              className="min-h-[48px] px-4 py-3 rounded-xl font-black bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all text-xs flex items-center justify-center gap-2 touch-manipulation shadow-md shadow-amber-500/20 active:scale-[0.98]"
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               <span>{copied ? 'Copiat în Clipboard!' : 'Copiază Text Ofertă'}</span>
@@ -276,7 +276,7 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
 
             <button
               onClick={handleOpenWhatsApp}
-              className="min-h-[48px] px-4 py-3 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all text-xs flex items-center justify-center gap-2 touch-manipulation shadow-md shadow-emerald-600/20 active:scale-[0.98]"
+              className="min-h-[48px] px-4 py-3 rounded-xl font-black bg-emerald-700 hover:bg-emerald-600 text-white transition-all text-xs flex items-center justify-center gap-2 touch-manipulation shadow-md shadow-emerald-700/20 active:scale-[0.98]"
             >
               <Send className="w-4 h-4" />
               <span>Deschide în WhatsApp</span>
@@ -290,7 +290,7 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
           <div className="w-full max-w-[420px] rounded-[38px] border-[5px] border-zinc-800 bg-[#0b141a] shadow-2xl overflow-hidden relative">
             
             {/* Phone Speaker & Camera Notch */}
-            <div className="bg-black py-2 px-6 flex items-center justify-between text-[11px] text-zinc-400 font-mono select-none">
+            <div className="bg-black py-2 px-6 flex items-center justify-between text-[11px] text-zinc-300 font-mono select-none">
               <span>09:41</span>
               <div className="w-20 h-4 bg-zinc-900 rounded-full mx-auto" />
               <div className="flex items-center gap-1">
@@ -370,7 +370,7 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
                         <div className="text-[10px] text-zinc-300 font-mono">
                           Net: {netPriceEur.toLocaleString('ro-RO')} € + TVA: {vatAmountEur.toLocaleString('ro-RO')} €
                         </div>
-                        <div className="text-[10px] text-zinc-400">Eligibil finanțare credit/leasing fără avans.</div>
+                        <div className="text-[10px] text-emerald-100">Eligibil finanțare credit/leasing fără avans.</div>
                       </>
                     ) : (
                       <>
@@ -403,7 +403,7 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
                       <div className="text-zinc-200">
                         Blocare stoc 48h prin Cont de Garanție: <strong>500 € (2.500 RON)</strong>
                       </div>
-                      <div className="text-[9px] font-mono text-zinc-400">
+                      <div className="text-[9px] font-mono text-emerald-100">
                         Plată securizată Stripe / Card sau Transfer • Confirmare instantanee
                       </div>
                     </div>
@@ -422,7 +422,7 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
                   </div>
 
                   {/* Timestamp & Double Checkmarks */}
-                  <div className="flex items-center justify-end gap-1 text-[10px] text-[#8696a0] pt-1">
+                  <div className="flex items-center justify-end gap-1 text-[10px] text-emerald-100 pt-1 font-medium">
                     <span>09:41</span>
                     <CheckCheck className="w-3.5 h-3.5 text-[#53bdeb]" />
                   </div>
@@ -434,7 +434,7 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
 
             {/* WhatsApp Chat Input Bar Footer */}
             <div className="bg-[#1f2c34] px-3 py-2 flex items-center gap-2 border-t border-[#2a3942]">
-              <div className="flex-1 bg-[#2a3942] rounded-full px-4 py-1.5 text-xs text-[#8696a0]">
+              <div className="flex-1 bg-[#2a3942] rounded-full px-4 py-1.5 text-xs text-zinc-200">
                 Răspunde clientului...
               </div>
               <div className="w-8 h-8 rounded-full bg-[#00a884] flex items-center justify-center text-white">

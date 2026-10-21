@@ -365,6 +365,15 @@ img[src*="/cars/"],
    🎨 CARVANA DEALER OS — THEME PRESETS CASCADE (DARK LUXURY & CLEAN WHITE)
    ========================================================================== */
 
+/* 🏛️ 0. THEME PRESET: PARCOS SAAS LIGHT ARCHITECTURAL THEME */
+[data-theme="parcos_light"] {
+  --theme-accent: #f59e0b;
+  --theme-accent-hover: #d97706;
+  --theme-accent-text: #0f172a;
+  --theme-border: #e2e8f0;
+  color-scheme: light;
+}
+
 /* ⚪ 1. THEME PRESET: CLEAN WHITE LUXURY / NORDIC MINIMALIST */
 [data-theme="clean_white"] {
   --theme-accent: #ffffff;

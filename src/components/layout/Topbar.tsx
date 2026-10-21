@@ -4,8 +4,8 @@ import { SEED_DEALER } from '../../db/seed';
 import { NavigationModal } from '../modals/NavigationModal';
 
 interface TopbarProps {
-  viewMode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas';
-  setViewMode: (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas') => void;
+  viewMode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin';
+  setViewMode: (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin') => void;
   dealer?: typeof SEED_DEALER;
   isRevealed?: boolean;
 }

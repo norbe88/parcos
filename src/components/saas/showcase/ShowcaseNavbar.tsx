@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Car, 
-  Lock, 
   ArrowRight, 
   Menu, 
   X, 
@@ -18,14 +17,12 @@ import {
 
 export interface ShowcaseNavbarProps {
   onSwitchToDealer?: (slug: string) => void;
-  onOpenSuperAdmin?: () => void;
   activeLanguage?: 'RO' | 'EN' | 'HU';
   onLanguageChange?: (lang: 'RO' | 'EN' | 'HU') => void;
 }
 
 export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
   onSwitchToDealer,
-  onOpenSuperAdmin,
   activeLanguage = 'RO',
   onLanguageChange
 }) => {
@@ -71,8 +68,8 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
     <header 
       className={`sticky top-0 z-50 w-full transition-all duration-200 ${
         scrolled 
-          ? 'bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.08] shadow-lg shadow-black/40' 
-          : 'bg-[#09090b]/80 backdrop-blur-md border-b border-white/[0.05]'
+          ? 'bg-white/95 backdrop-blur-xl border-b border-slate-200/90 shadow-sm' 
+          : 'bg-white/80 backdrop-blur-md border-b border-slate-200/60'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
@@ -82,27 +79,26 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
           <a 
             href="#hero" 
             onClick={(e) => handleNavClick(e, '#hero')}
-            className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-lg p-1 -m-1"
-            aria-label="ParcOS Home"
+            className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg p-1 -m-1"
           >
             {/* Sculptural Hex-Automotive Emblem */}
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 p-[1px] shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/35 transition-all">
-              <div className="w-full h-full bg-zinc-950 rounded-[11px] flex items-center justify-center">
+              <div className="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
                 <Car className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
               </div>
             </div>
 
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 leading-none">
-                <span className="font-display font-extrabold text-lg tracking-tight text-white">
-                  Parc<span className="text-amber-400">OS</span>
+                <span className="font-display font-black text-lg tracking-tight text-slate-950">
+                  Parc<span className="text-amber-700">OS</span>
                 </span>
-                <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono-telemetry font-semibold bg-zinc-900 border border-white/10 text-zinc-300">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono-telemetry font-semibold bg-slate-100 border border-slate-200 text-slate-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   v2.4 Production
                 </span>
               </div>
-              <span className="text-[9px] font-mono tracking-widest text-zinc-400 uppercase leading-tight sm:block hidden">
+              <span className="text-[9px] font-mono tracking-widest text-slate-500 uppercase leading-tight sm:block hidden">
                 Dealership OS • Cloud-Native
               </span>
             </div>
@@ -116,7 +112,7 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
               key={link.href}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className="px-2.5 xl:px-3 py-1.5 rounded-lg text-xs xl:text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all"
+              className="px-2.5 xl:px-3 py-1.5 rounded-lg text-xs xl:text-sm font-semibold text-slate-600 hover:text-slate-950 hover:bg-slate-100 transition-all"
             >
               {link.label}
             </a>
@@ -127,15 +123,15 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
         <div className="flex items-center gap-2 sm:gap-2.5">
           
           {/* Quick Language Switcher */}
-          <div className="hidden sm:flex items-center bg-zinc-900/90 border border-white/10 rounded-lg p-0.5 text-[11px] font-mono font-semibold" role="group" aria-label="Selector Limbă">
+          <div className="hidden sm:flex items-center bg-slate-100 border border-slate-200 rounded-lg p-0.5 text-[11px] font-mono font-semibold" role="group" aria-label="Selector Limbă">
             {(['RO', 'EN', 'HU'] as const).map((lang) => (
               <button
                 key={lang}
                 onClick={() => handleLangSelect(lang)}
                 className={`px-2 py-1 rounded transition-colors touch-manipulation ${
                   currentLang === lang 
-                    ? 'bg-amber-400 text-zinc-950 font-bold shadow-sm' 
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-amber-500 text-slate-950 font-bold shadow-sm' 
+                    : 'text-slate-600 hover:text-slate-950'
                 }`}
                 title={`Schimbă limba în ${lang}`}
               >
@@ -144,36 +140,26 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
             ))}
           </div>
 
-          {/* SuperAdmin Access Button */}
-          {onOpenSuperAdmin && (
-            <button
-              onClick={onOpenSuperAdmin}
-              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 hover:border-amber-400/40 transition-all touch-manipulation min-h-[36px]"
-              title="Acces Panou SuperAdmin Multi-Tenant"
-            >
-              <Lock className="w-3.5 h-3.5 text-amber-400" />
-              <span>SuperAdmin</span>
-            </button>
-          )}
+
 
           {/* Showroom Demo Live Button (RXM Official Site) */}
           <a
             href="https://rxmautomobile.ro"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900/90 hover:bg-zinc-800 text-amber-300 border border-amber-400/30 hover:border-amber-400/70 transition-all touch-manipulation min-h-[36px] shadow-sm shadow-amber-500/10"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-amber-800 border border-amber-300 transition-all touch-manipulation min-h-[36px] shadow-sm"
             title="Deschide site-ul oficial RXM Automobile dezvoltat pe ParcOS"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
             <span>Showroom Live (rxmautomobile.ro)</span>
-            <span className="text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30 ml-0.5">LIVE</span>
+            <span className="text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-amber-400/20 text-amber-800 border border-amber-400/40 ml-0.5">LIVE</span>
           </a>
 
           {/* Primary Action Button */}
           <a
             href="#onboard"
             onClick={(e) => handleNavClick(e, '#onboard')}
-            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-zinc-950 shadow-md shadow-amber-500/20 transition-all touch-manipulation min-h-[36px] active:scale-[0.98]"
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 shadow-md shadow-amber-500/20 transition-all touch-manipulation min-h-[36px] active:scale-[0.98]"
           >
             <span>Înscrie Parcul</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -183,7 +169,7 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden min-w-[44px] min-h-[44px] p-2.5 rounded-lg text-zinc-300 hover:text-white hover:bg-zinc-800/80 border border-white/10 flex items-center justify-center touch-manipulation transition-colors"
+            className="lg:hidden min-w-[44px] min-h-[44px] p-2.5 rounded-lg text-slate-700 hover:text-slate-950 hover:bg-slate-100 border border-slate-200 flex items-center justify-center touch-manipulation transition-colors"
             aria-label={mobileMenuOpen ? 'Închide Meniul' : 'Deschide Meniul'}
             aria-expanded={mobileMenuOpen}
           >
@@ -194,7 +180,7 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
 
       {/* Mobile Drawer / Slide-Down Navigation Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-white/[0.08] bg-[#09090b]/98 backdrop-blur-2xl px-4 py-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="lg:hidden border-b border-slate-200 bg-white/98 backdrop-blur-2xl px-4 py-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-150">
           <div className="grid grid-cols-1 gap-1">
             {navLinks.map((link) => {
               const Icon = link.icon;
@@ -203,9 +189,9 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
                   key={link.href}
                   href={link.href}
                   onClick={(e) => handleNavClick(e, link.href)}
-                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] transition-colors min-h-[44px] touch-manipulation"
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition-colors min-h-[44px] touch-manipulation"
                 >
-                  <Icon className="w-4 h-4 text-amber-400" />
+                  <Icon className="w-4 h-4 text-amber-500" />
                   <span>{link.label}</span>
                 </a>
               );
@@ -213,21 +199,21 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
           </div>
 
           {/* Mobile Controls Divider & Language Switcher */}
-          <div className="pt-3 border-t border-white/[0.08] space-y-3">
+          <div className="pt-3 border-t border-slate-200 space-y-3">
             <div className="flex items-center justify-between px-1">
-              <span className="text-xs text-zinc-400 flex items-center gap-1.5 font-mono">
-                <Globe className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-xs text-slate-500 flex items-center gap-1.5 font-mono">
+                <Globe className="w-3.5 h-3.5 text-amber-500" />
                 Limbă Interfață
               </span>
-              <div className="flex items-center bg-zinc-900 border border-white/10 rounded-lg p-0.5 text-xs font-mono font-semibold">
+              <div className="flex items-center bg-slate-100 border border-slate-200 rounded-lg p-0.5 text-xs font-mono font-semibold">
                 {(['RO', 'EN', 'HU'] as const).map((lang) => (
                   <button
                     key={lang}
                     onClick={() => handleLangSelect(lang)}
                     className={`min-w-[40px] min-h-[34px] px-2 py-1 rounded transition-colors touch-manipulation ${
                       currentLang === lang 
-                        ? 'bg-amber-400 text-zinc-950 font-bold' 
-                        : 'text-zinc-400 hover:text-white'
+                        ? 'bg-amber-500 text-slate-950 font-bold' 
+                        : 'text-slate-600 hover:text-slate-950'
                     }`}
                   >
                     {lang}
@@ -243,24 +229,12 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full min-h-[44px] px-4 py-2.5 rounded-lg text-xs font-bold bg-zinc-900 text-amber-300 border border-amber-400/30 flex items-center justify-center gap-2 touch-manipulation active:scale-[0.98]"
+                className="w-full min-h-[44px] px-4 py-2.5 rounded-lg text-xs font-bold bg-slate-100 text-amber-800 border border-amber-300 flex items-center justify-center gap-2 touch-manipulation active:scale-[0.98]"
               >
-                <ExternalLink className="w-4 h-4 text-amber-400" />
+                <ExternalLink className="w-4 h-4 text-amber-600" />
                 <span>Showroom Live (rxmautomobile.ro)</span>
               </a>
 
-              {onOpenSuperAdmin && (
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onOpenSuperAdmin();
-                  }}
-                  className="w-full min-h-[44px] px-4 py-2.5 rounded-lg text-xs font-mono font-semibold bg-zinc-900 text-zinc-300 border border-white/10 flex items-center justify-center gap-2 touch-manipulation active:scale-[0.98]"
-                >
-                  <Lock className="w-4 h-4 text-amber-400" />
-                  <span>Panou SuperAdmin</span>
-                </button>
-              )}
             </div>
           </div>
         </div>

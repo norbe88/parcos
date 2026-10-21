@@ -30,6 +30,7 @@ const TermsAndConditionsPage = lazy(() => import('./components/legal/TermsAndCon
 const NationalDeliveryPage = lazy(() => import('./components/delivery/NationalDeliveryPage').then(m => ({ default: m.NationalDeliveryPage })));
 const CookiePolicyPage = lazy(() => import('./components/legal/CookiePolicyPage').then(m => ({ default: m.CookiePolicyPage })));
 const ParcOSSaaSPage = lazy(() => import('./components/saas/ParcOSSaaSPage').then(m => ({ default: m.ParcOSSaaSPage })));
+const ParcOSSuperAdminHub = lazy(() => import('./components/superadmin/ParcOSSuperAdminHub').then(m => ({ default: m.ParcOSSuperAdminHub })));
 import { CookieConsentBanner } from './components/common/CookieConsentBanner';
 import { extractOlxId, normalizeCarImageUrl } from './utils/helpers';
 import { preloadMediaKeys } from './utils/mediaVaultDb';
@@ -46,7 +47,7 @@ import { getAdminAuthHeaders, isCurrentSessionAdmin } from './utils/adminAuth';
 const APP_TAB_SESSION_ID = getTabSessionId();
 
 export default function App() {
-  const { tenant } = useTenant();
+  const { tenant, setTenantId } = useTenant();
   const [introKey, setIntroKey] = useState(0);
   const [isRevealed, setIsRevealed] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -360,30 +361,64 @@ export default function App() {
   };
 
   // Verificare dacă ruta accesată este pagina de prezentare SaaS (parcos.ro, /saas, #saas sau ?saas)
-  // Verificare dacă ruta accesată este pagina de prezentare SaaS (ParcOS prima clasă)
   const checkIsSaasPath = () => {
-    if (typeof window === 'undefined') return true;
-    const search = window.location.search.toLowerCase();
+    if (typeof window === 'undefined') return false;
+    const hostname = window.location.hostname.toLowerCase();
     const path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();
+    const search = window.location.search.toLowerCase();
 
-    // Doar dacă se cere explicit modul showroom permitem fallback la catalogul RXM
-    if (search.includes('mode=showroom') || search.includes('dealer=rxm') || path.includes('/showroom') || hash.includes('#showroom')) {
-      return false;
+    const port = window.location.port;
+
+    // Pe domeniul de bază parcos.ro sau portul dedicat ParcOS (3001) randăm direct pagina SaaS de prezentare
+    if (
+      (hostname === 'parcos.ro' || hostname === 'www.parcos.ro' || hostname === 'parcos.local' || port === '3001') &&
+      !hostname.startsWith('app.') &&
+      !hostname.startsWith('admin.') &&
+      !search.includes('dealer=rxm') &&
+      !search.includes('mode=showroom')
+    ) {
+      return true;
     }
-    return true;
+
+    return (
+      path.includes('saas') ||
+      path.includes('parcos') ||
+      hash.includes('saas') ||
+      hash.includes('parcos') ||
+      search.includes('saas') ||
+      search.includes('mode=saas') ||
+      search.includes('dealer=parcos')
+    );
   };
 
-  const getInitialViewMode = (): 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' => {
+    // Verificare dacă ruta accesată este consola SuperAdmin (/superadmin, #superadmin, ?mode=superadmin)
+  const checkIsSuperAdminPath = () => {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    const search = window.location.search.toLowerCase();
+
+    return (
+      path.includes('superadmin') ||
+      hash.includes('superadmin') ||
+      search.includes('mode=superadmin') ||
+      search.includes('superadmin')
+    );
+  };
+
+  const getInitialViewMode = (): 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' => {
+    if (checkIsSuperAdminPath()) return 'superadmin';
+    if (checkIsSaasPath()) return 'saas';
     if (checkIsAdminPath()) return 'admin';
     if (checkIsTermsPath()) return 'terms';
     if (checkIsDeliveryPath()) return 'delivery';
     if (checkIsCookiesPath()) return 'cookies';
-    if (checkIsSaasPath()) return 'saas';
     return 'showroom';
   };
 
-  const [viewMode, setViewMode] = useState<'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas'>(getInitialViewMode);
+  const [viewMode, setViewMode] = useState<'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin'>(getInitialViewMode);
+  const [isMasquerading, setIsMasquerading] = useState<boolean>(false);
   const [isCookiePreferencesOpen, setIsCookiePreferencesOpen] = useState(false);
 
   // 🔐 Verificare Sesiune Administrator pe Server
@@ -416,7 +451,9 @@ export default function App() {
   // Ascultare evenimente istoric browser (Back / Forward / HashChange)
   useEffect(() => {
     const handleUrlChange = () => {
-      if (checkIsAdminPath()) {
+      if (checkIsSaasPath()) {
+        setViewMode('saas');
+      } else if (checkIsAdminPath()) {
         setViewMode('admin');
       } else if (checkIsTermsPath()) {
         setViewMode('terms');
@@ -424,8 +461,6 @@ export default function App() {
         setViewMode('delivery');
       } else if (checkIsCookiesPath()) {
         setViewMode('cookies');
-      } else if (checkIsSaasPath()) {
-        setViewMode('saas');
       } else {
         setViewMode('showroom');
         if (window.location.hash === '#contact' || window.location.pathname.includes('contact')) {
@@ -452,7 +487,7 @@ export default function App() {
   }, []);
 
   // Sincronizare URL la comutarea viewMode
-  const handleSetViewMode = (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas') => {
+  const handleSetViewMode = (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin') => {
     setViewMode(mode);
     const basePath = window.location.pathname.startsWith('/rxm') ? '/rxm' : '';
     if (mode === 'saas') {
@@ -1331,13 +1366,15 @@ export default function App() {
     <WorkspaceProvider>
       <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] font-sans antialiased selection:bg-amber-500/30 selection:text-amber-200">
       
-      {/* 🎬 Cinematic Intro cu Deschidere Cortină (Split Shutter) */}
-      <CinematicIntro 
-        key={introKey} 
-        forceReplay={introKey > 0} 
-        onSplit={() => setIsRevealed(true)}
-        onComplete={() => setIsRevealed(true)}
-      />
+      {/* 🎬 Cinematic Intro cu Deschidere Cortină (Split Shutter) — doar pe showroom RXM, nu pe ParcOS SaaS */}
+      {viewMode !== 'saas' && (
+        <CinematicIntro 
+          key={introKey} 
+          forceReplay={introKey > 0} 
+          onSplit={() => setIsRevealed(true)}
+          onComplete={() => setIsRevealed(true)}
+        />
+      )}
 
       {/* 🔔 Toast Notification */}
       {toastMessage && (
@@ -1348,7 +1385,7 @@ export default function App() {
       )}
 
       {/* 📌 TOPBAR: Date Reale Showroom (Cluj-Napoca) */}
-      {viewMode !== 'saas' && (
+      {viewMode !== 'saas' && viewMode !== 'superadmin' && (
         <Topbar 
           viewMode={viewMode}
           setViewMode={handleSetViewMode}
@@ -1358,7 +1395,7 @@ export default function App() {
       )}
 
       {/* 🧭 NAVBAR: Logo Oficial + Meniu */}
-      {viewMode !== 'saas' && (
+      {viewMode !== 'saas' && viewMode !== 'superadmin' && (
         <Navbar 
           totalCarsCount={cars.length}
           viewMode={viewMode}
@@ -1390,7 +1427,27 @@ export default function App() {
               }
               handleSetViewMode('showroom');
             }}
-            onOpenSuperAdmin={() => handleSetViewMode('admin')}
+          />
+        </Suspense>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 👑 VEDEREA 0.5: CONSOLĂ SUPERADMIN MULTI-TENANT (ACCES SECURIZAT /superadmin) */}
+      {/* ========================================================================= */}
+      {viewMode === 'superadmin' && (
+        <Suspense fallback={
+          <div className="min-h-screen bg-[#070709] flex flex-col items-center justify-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold animate-pulse">👑</div>
+            <p className="text-xs text-zinc-400 font-mono tracking-wider uppercase">Se încarcă consola SuperAdmin...</p>
+          </div>
+        }>
+          <ParcOSSuperAdminHub 
+            onBackToSaas={() => handleSetViewMode('saas')}
+            onImpersonateTenant={(slug) => {
+              setTenantId(slug);
+              handleSetViewMode('showroom');
+            }}
+            showToast={showToast}
           />
         </Suspense>
       )}
@@ -1633,7 +1690,7 @@ export default function App() {
       </Suspense>
 
       {/* 📌 FOOTER: Legal & Contact */}
-      {viewMode !== 'saas' && (
+      {viewMode !== 'saas' && viewMode !== 'superadmin' && (
         <Footer 
           dealer={tenant} 
           onOpenAdmin={() => handleSetViewMode('admin')}
@@ -1646,10 +1703,10 @@ export default function App() {
       )}
 
       {/* 🔝 BUTON PLUTITOR REVENIRE SUS (EXCLUSIV ÎN VEDERILE PUBLICE PENTRU SCROLL ADÂNC) */}
-      {viewMode !== 'saas' && viewMode !== 'admin' && <FloatingBackToTop />}
+      {viewMode !== 'saas' && viewMode !== 'admin' && viewMode !== 'superadmin' && <FloatingBackToTop />}
 
       {/* 💬 BUTON PLUTITOR WHATSAPP (EXCLUSIV ÎN VEDERILE PUBLICE PENTRU CLIENȚI) */}
-      {viewMode !== 'saas' && viewMode !== 'admin' && (
+      {viewMode !== 'saas' && viewMode !== 'admin' && viewMode !== 'superadmin' && (
         <FloatingWhatsApp whatsappNumber={tenant.whatsappNumber} />
       )}
 
