@@ -47,7 +47,7 @@ import { getAdminAuthHeaders, isCurrentSessionAdmin } from './utils/adminAuth';
 const APP_TAB_SESSION_ID = getTabSessionId();
 
 export default function App() {
-  const { tenant, setTenantId } = useTenant();
+  const { tenant, tenantId, setTenantId } = useTenant();
   const [introKey, setIntroKey] = useState(0);
   const [isRevealed, setIsRevealed] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -106,8 +106,9 @@ export default function App() {
   };
 
   // Persistență automată și citire sincronă instant (0ms) din Unified Vehicle Repository (SWR)
+  const currentDealerSlug = tenantId || tenant?.slug || 'rxm';
   const [cars, setCars] = useState<VehicleItem[]>(() => {
-    const raw = vehicleRepository.getVehicles('rxm');
+    const raw = vehicleRepository.getVehicles(currentDealerSlug);
     const seen = new Set<string>();
     const deduplicated = raw.filter(c => {
       if (!c || !c.id || seen.has(c.id)) return false;
@@ -117,10 +118,23 @@ export default function App() {
     return ensureDealOfWeekActive(deduplicated);
   });
 
+  // Reîncărcare vehicule la schimbarea tenantului curent (ex: SuperAdmin Masquerade)
+  useEffect(() => {
+    const freshData = vehicleRepository.getVehicles(currentDealerSlug);
+    const seen = new Set<string>();
+    const deduplicated = freshData.filter(v => {
+      if (!v || !v.id || seen.has(v.id)) return false;
+      seen.add(v.id);
+      return true;
+    });
+    setCars(ensureDealOfWeekActive(deduplicated));
+    vehicleRepository.triggerSync(currentDealerSlug);
+  }, [currentDealerSlug]);
+
   // ☁️ Sincronizare automată Netcup VPS (PostgreSQL) în fundal (SWR Revalidation)
   useEffect(() => {
     // Declanșează sincronizarea activă cu serverul Netcup la montare
-    vehicleRepository.triggerSync('rxm');
+    vehicleRepository.triggerSync(currentDealerSlug);
 
     // Ascultă sosirea datelor actualizate din cloud și actualizează starea React
     const handleSync = (e: Event) => {
@@ -137,7 +151,7 @@ export default function App() {
           return uniqueVehicles;
         });
       } else {
-        const freshData = vehicleRepository.getVehicles('rxm');
+        const freshData = vehicleRepository.getVehicles(currentDealerSlug);
         setCars(prev => {
           const seen = new Set<string>();
           const uniqueVehicles = freshData.filter(v => {
@@ -153,7 +167,7 @@ export default function App() {
 
     window.addEventListener('rxm:vehicles-synced', handleSync);
     return () => window.removeEventListener('rxm:vehicles-synced', handleSync);
-  }, []);
+  }, [currentDealerSlug]);
 
   // 🔄 Sincronizare multi-tab & cross-window în timp real (Cross-Tab Live Sync)
   useEffect(() => {
@@ -360,6 +374,16 @@ export default function App() {
     );
   };
 
+  // Verificare dacă domeniul curent este platforma centrală ParcOS
+  const isParcosDomain = (hostname: string) => {
+    return (
+      hostname === 'parcos.ro' ||
+      hostname === 'www.parcos.ro' ||
+      hostname === 'parcos.local' ||
+      hostname.includes('parcos')
+    );
+  };
+
   // Verificare dacă ruta accesată este pagina de prezentare SaaS (parcos.ro, /saas, #saas sau ?saas)
   const checkIsSaasPath = () => {
     if (typeof window === 'undefined') return false;
@@ -367,16 +391,21 @@ export default function App() {
     const path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();
     const search = window.location.search.toLowerCase();
-
     const port = window.location.port;
 
-    // Pe domeniul de bază parcos.ro sau portul dedicat ParcOS (3001) randăm direct pagina SaaS de prezentare
+    // Pe domeniul de bază parcos.ro randăm direct pagina SaaS de prezentare, DAR NU dacă este o rută administrativă
     if (
-      (hostname === 'parcos.ro' || hostname === 'www.parcos.ro' || hostname === 'parcos.local' || port === '3001') &&
+      (isParcosDomain(hostname) || port === '3001') &&
       !hostname.startsWith('app.') &&
       !hostname.startsWith('admin.') &&
       !search.includes('dealer=rxm') &&
-      !search.includes('mode=showroom')
+      !search.includes('mode=showroom') &&
+      !path.includes('admin') &&
+      !hash.includes('admin') &&
+      !path.includes('superadmin') &&
+      !hash.includes('superadmin') &&
+      !path.includes('portal') &&
+      !hash.includes('portal')
     ) {
       return true;
     }
@@ -392,19 +421,42 @@ export default function App() {
     );
   };
 
-    // Verificare dacă ruta accesată este consola SuperAdmin (/superadmin, #superadmin, ?mode=superadmin)
+  // Verificare dacă ruta accesată este consola SuperAdmin (/superadmin, #superadmin, ?mode=superadmin)
+  // Sau /admin pe domeniul central de platformă parcos.ro (fără ?dealer=...)
   const checkIsSuperAdminPath = () => {
     if (typeof window === 'undefined') return false;
+    const hostname = window.location.hostname.toLowerCase();
+    // STRICT interzis pe domeniul oficial de producție al showroom-ului rxmautomobile.ro
+    if (hostname.includes('rxmautomobile.ro')) {
+      return false;
+    }
     const path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();
     const search = window.location.search.toLowerCase();
 
-    return (
+    // 1. Explicit superadmin
+    if (
       path.includes('superadmin') ||
       hash.includes('superadmin') ||
       search.includes('mode=superadmin') ||
       search.includes('superadmin')
-    );
+    ) {
+      return true;
+    }
+
+    // 2. Pe domeniul central ParcOS (parcos.ro), /admin sau #admin este implicit SuperAdmin
+    // (cu excepția cazului în care s-a cerut explicit gestiunea unui dealer: ?dealer=...)
+    if (
+      isParcosDomain(hostname) && 
+      (path.endsWith('/admin') || path === '/admin' || hash === '#admin' || hash === '#portal' || path.endsWith('/portal') || path === '/portal')
+    ) {
+      const urlParams = new URLSearchParams(search);
+      if (!urlParams.get('dealer')) {
+        return true;
+      }
+    }
+
+    return false;
   };
 
   const getInitialViewMode = (): 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' => {
@@ -444,14 +496,16 @@ export default function App() {
   // La autentificarea administratorului, revalidăm inventarul din /api/admin/vehicles pentru a prelua datele financiare
   useEffect(() => {
     if (isAdminAuthenticated) {
-      vehicleRepository.triggerSync('rxm');
+      vehicleRepository.triggerSync(currentDealerSlug);
     }
-  }, [isAdminAuthenticated]);
+  }, [isAdminAuthenticated, currentDealerSlug]);
 
   // Ascultare evenimente istoric browser (Back / Forward / HashChange)
   useEffect(() => {
     const handleUrlChange = () => {
-      if (checkIsSaasPath()) {
+      if (checkIsSuperAdminPath()) {
+        setViewMode('superadmin');
+      } else if (checkIsSaasPath()) {
         setViewMode('saas');
       } else if (checkIsAdminPath()) {
         setViewMode('admin');
@@ -490,9 +544,16 @@ export default function App() {
   const handleSetViewMode = (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin') => {
     setViewMode(mode);
     const basePath = window.location.pathname.startsWith('/rxm') ? '/rxm' : '';
+    const isParcos = typeof window !== 'undefined' && isParcosDomain(window.location.hostname);
+
     if (mode === 'saas') {
-      const target = `${basePath}/saas`;
+      const target = isParcos ? `${basePath}/` : `${basePath}/saas`;
       if (window.location.pathname !== target && window.location.hash !== '#saas') {
+        window.history.pushState(null, '', target);
+      }
+    } else if (mode === 'superadmin') {
+      const target = `${basePath}/admin`;
+      if (window.location.pathname !== target && window.location.hash !== '#admin' && window.location.hash !== '#superadmin') {
         window.history.pushState(null, '', target);
       }
     } else if (mode === 'admin') {
@@ -521,12 +582,14 @@ export default function App() {
         window.location.pathname.includes('saas') ||
         window.location.pathname.includes('parcos') ||
         window.location.pathname.includes('admin') || 
+        window.location.pathname.includes('superadmin') || 
         window.location.pathname.includes('termeni') || 
         window.location.pathname.includes('livrare') || 
         window.location.pathname.includes('cookie') || 
         window.location.hash.includes('saas') ||
         window.location.hash.includes('parcos') ||
         window.location.hash.includes('admin') || 
+        window.location.hash.includes('superadmin') || 
         window.location.hash.includes('termeni') || 
         window.location.hash.includes('livrare') || 
         window.location.hash.includes('cookie')
@@ -1385,7 +1448,7 @@ export default function App() {
       )}
 
       {/* 📌 TOPBAR: Date Reale Showroom (Cluj-Napoca) */}
-      {viewMode !== 'saas' && viewMode !== 'superadmin' && (
+      {viewMode !== 'saas' && viewMode !== 'superadmin' && viewMode !== 'admin' && (
         <Topbar 
           viewMode={viewMode}
           setViewMode={handleSetViewMode}
@@ -1395,7 +1458,7 @@ export default function App() {
       )}
 
       {/* 🧭 NAVBAR: Logo Oficial + Meniu */}
-      {viewMode !== 'saas' && viewMode !== 'superadmin' && (
+      {viewMode !== 'saas' && viewMode !== 'superadmin' && viewMode !== 'admin' && (
         <Navbar 
           totalCarsCount={cars.length}
           viewMode={viewMode}
@@ -1403,6 +1466,26 @@ export default function App() {
           dealer={tenant}
           isRevealed={isRevealed}
         />
+      )}
+
+      {/* 👑 BANNER SUPERADMIN MASQUERADE */}
+      {isMasquerading && (
+        <div className="sticky top-0 z-50 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-black px-4 py-2 text-xs font-bold flex items-center justify-between shadow-lg">
+          <div className="flex items-center gap-2">
+            <span>👑 Sesiune SuperAdmin Masquerade:</span>
+            <span className="font-mono bg-black/15 px-2 py-0.5 rounded text-black font-extrabold">{tenant.name}</span>
+            <span className="text-[11px] opacity-80 hidden sm:inline">(Vizualizezi spațiul acestui dealer)</span>
+          </div>
+          <button
+            onClick={() => {
+              setIsMasquerading(false);
+              handleSetViewMode('superadmin');
+            }}
+            className="px-3 py-1 rounded-lg bg-black text-amber-400 hover:bg-zinc-900 transition-colors cursor-pointer text-xs font-bold flex items-center gap-1.5"
+          >
+            ← Înapoi în SuperAdmin Hub
+          </button>
+        </div>
       )}
 
       {/* ========================================================================= */}
@@ -1441,14 +1524,47 @@ export default function App() {
             <p className="text-xs text-zinc-400 font-mono tracking-wider uppercase">Se încarcă consola SuperAdmin...</p>
           </div>
         }>
-          <ParcOSSuperAdminHub 
-            onBackToSaas={() => handleSetViewMode('saas')}
-            onImpersonateTenant={(slug) => {
-              setTenantId(slug);
-              handleSetViewMode('showroom');
-            }}
-            showToast={showToast}
-          />
+          {!isAdminAuthenticated ? (
+            <AdminLoginGate 
+              onAuthenticated={() => {
+                setIsAdminAuthenticated(true);
+                showToast('👑 Autentificare SuperAdmin reușită!');
+              }}
+              onCancel={() => handleSetViewMode('saas')}
+              dealer={{
+                name: 'ParcOS Platform (Carvana SRL)',
+                slug: 'parcos'
+              }}
+              title="Consolă Centrală ParcOS SuperAdmin"
+              subtitle="Accesul la nivel de platformă este restricționat administratorilor Carvana SRL. Introduceți parola pentru a debloca consola."
+              cancelLabel="Înapoi pe ParcOS.ro"
+            />
+          ) : (typeof window !== 'undefined' && window.location.hostname.toLowerCase().includes('rxmautomobile.ro')) ? (
+            <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center p-6 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-2xl mb-4 font-bold">⛔</div>
+              <h2 className="text-xl font-bold mb-2">Acces Restricționat</h2>
+              <p className="text-sm text-zinc-400 max-w-md mb-6">
+                Consola SuperAdmin Multi-Tenant este dezactivată pe domeniul de producție al showroom-ului. Aceasta este accesibilă doar pe subdomeniul securizat de infrastructură.
+              </p>
+              <button 
+                onClick={() => handleSetViewMode('admin')}
+                className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-all"
+              >
+                Mergi la Panoul Administrator RXM
+              </button>
+            </div>
+          ) : (
+            <ParcOSSuperAdminHub 
+              onBackToSaas={() => handleSetViewMode('saas')}
+              onLogoutSuperAdmin={handleLogoutAdmin}
+              onImpersonateTenant={(slug) => {
+                setTenantId(slug);
+                setIsMasquerading(true);
+                handleSetViewMode('showroom');
+              }}
+              showToast={showToast}
+            />
+          )}
         </Suspense>
       )}
 
@@ -1459,16 +1575,18 @@ export default function App() {
         <Suspense fallback={
           <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3">
             <div className="w-9 h-9 rounded-full border-2 border-amber-400/20 border-t-amber-400 animate-spin" />
-            <p className="text-xs text-zinc-400 font-mono tracking-wider uppercase">Se încarcă consola de gestiune RXM...</p>
+            <p className="text-xs text-zinc-400 font-mono tracking-wider uppercase">Se încarcă consola de gestiune...</p>
           </div>
         }>
           {!isAdminAuthenticated ? (
             <AdminLoginGate 
+              dealer={tenant}
               onAuthenticated={() => {
                 setIsAdminAuthenticated(true);
                 showToast('🔓 Autentificare reușită! Bine ați venit în panoul de gestiune.');
               }}
-              onCancel={() => handleSetViewMode('showroom')}
+              onCancel={() => handleSetViewMode(isParcosDomain(window.location.hostname) ? 'saas' : 'showroom')}
+              cancelLabel={isParcosDomain(window.location.hostname) ? 'Înapoi pe ParcOS.ro' : 'Înapoi la Showroom-ul Public'}
             />
           ) : (
             <>
@@ -1485,7 +1603,7 @@ export default function App() {
                   setEditingCar(car);
                   setIsAddModalOpen(true);
                 }}
-                onBackToShowroom={() => handleSetViewMode('showroom')}
+                onBackToShowroom={() => handleSetViewMode(isParcosDomain(window.location.hostname) ? 'saas' : 'showroom')}
                 onLogout={handleLogoutAdmin}
                 showToast={showToast}
                 dealer={tenant}
@@ -1690,7 +1808,7 @@ export default function App() {
       </Suspense>
 
       {/* 📌 FOOTER: Legal & Contact */}
-      {viewMode !== 'saas' && viewMode !== 'superadmin' && (
+      {viewMode !== 'saas' && viewMode !== 'superadmin' && viewMode !== 'admin' && (
         <Footer 
           dealer={tenant} 
           onOpenAdmin={() => handleSetViewMode('admin')}

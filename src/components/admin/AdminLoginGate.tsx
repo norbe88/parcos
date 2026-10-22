@@ -4,6 +4,13 @@ import { Lock, Eye, EyeOff, ShieldAlert, ArrowLeft } from 'lucide-react';
 interface AdminLoginGateProps {
   onAuthenticated: () => void;
   onCancel: () => void;
+  dealer?: {
+    name?: string;
+    slug?: string;
+  };
+  title?: string;
+  subtitle?: string;
+  cancelLabel?: string;
 }
 
 const LOCKOUT_KEY_COUNT = 'rxm_admin_fail_count';
@@ -13,7 +20,11 @@ const LOCKOUT_DURATION_MS = 30 * 1000; // 30 de secunde
 
 export const AdminLoginGate: React.FC<AdminLoginGateProps> = ({
   onAuthenticated,
-  onCancel
+  onCancel,
+  dealer,
+  title,
+  subtitle,
+  cancelLabel
 }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -138,13 +149,13 @@ export const AdminLoginGate: React.FC<AdminLoginGateProps> = ({
             <Lock className="w-7 h-7" />
           </div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-mono font-bold text-amber-400 uppercase tracking-wider mb-2">
-            <span>Zonă Securizată • RXM AUTO MOBILE</span>
+            <span>Zonă Securizată • {dealer?.name || 'ParcOS Platform'}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-            Portal Gestiune Flotă
+            {title || (dealer?.slug && dealer.slug !== 'parcos' ? 'Portal Gestiune Flotă' : 'ParcOS SuperAdmin Hub')}
           </h1>
           <p className="text-xs text-zinc-400 mt-1.5 max-w-xs mx-auto">
-            Accesul este restricționat administratorilor autorizați. Introduceți parola pentru a debloca portalul.
+            {subtitle || 'Accesul este restricționat administratorilor autorizați. Introduceți parola pentru a debloca portalul.'}
           </p>
         </div>
 
@@ -201,14 +212,14 @@ export const AdminLoginGate: React.FC<AdminLoginGateProps> = ({
             </span>
           </button>
 
-          {/* Buton Înapoi în Showroom */}
+          {/* Buton Înapoi */}
           <button
             type="button"
             onClick={onCancel}
             className="w-full min-h-[42px] rounded-xl bg-white/5 hover:bg-white/10 active:scale-[0.98] text-zinc-300 hover:text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-all border border-white/10 touch-manipulation cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Înapoi la Showroom-ul Public</span>
+            <span>{cancelLabel || 'Înapoi la Showroom-ul Public'}</span>
           </button>
         </form>
 
