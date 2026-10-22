@@ -443,7 +443,10 @@ export default function App() {
       !path.includes('superadmin') &&
       !hash.includes('superadmin') &&
       !path.includes('portal') &&
-      !hash.includes('portal')
+      !hash.includes('portal') &&
+      !path.includes('ghid') &&
+      !hash.includes('ghid') &&
+      !search.includes('ghid')
     ) {
       return true;
     }
@@ -546,6 +549,8 @@ export default function App() {
     const handleUrlChange = () => {
       if (checkIsSuperAdminPath()) {
         setViewMode('superadmin');
+      } else if (checkIsGhidAutoPath()) {
+        setViewMode('ghid-auto');
       } else if (checkIsSaasPath()) {
         setViewMode('saas');
       } else if (checkIsAdminPath()) {
