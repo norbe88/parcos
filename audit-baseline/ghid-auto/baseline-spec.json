@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "auditMetadata": {
+    "target": "carmatik.ro/ghid-auto-carmatik/",
+    "auditor": "Website Baseline & State Auditor (/www, /audit-web, /baseline)",
+    "node": "Node-ZBook / Zety",
+    "timestamp": "2026-10-23T01:05:00+03:00",
+    "totalRoutesAudited": 85,
+    "totalArticlesAudited": 76,
+    "totalCategoriesAudited": 7,
+    "totalCalculatorsAudited": 1,
+    "status": "COMPLETED"
+  },
+  "technologyStack": {
+    "backend": "Django / Python (Python SSR with Django Templates)",
+    "frontend": "Vanilla JS, CSS custom properties, IntersectionObserver TOC, JSON-LD Schema.org (Article, HowTo, FAQPage, BreadcrumbList)",
+    "search": "Server-side search endpoint (/cautare/?q=) with live AJAX autocomplete (/autocomplete/?q=)",
+    "calculator": "Dynamic server-rendered fragment (_impozit_result) triggered by form input debounce (250ms)"
+  },
+  "categories": [
+    {
+      "slug": "inmatriculare-transcriere",
+      "name": "Înmatriculare & Transcriere",
+      "icon": "🚗",
+      "accentColor": "#2563eb",
+      "articlesCount": 21,
+      "description": "Înmatriculare, transcriere, schimbare proprietar, radiere și numere de înmatriculare."
+    },
+    {
+      "slug": "asigurari-rca-casco",
+      "name": "Asigurări RCA & CASCO",
+      "icon": "🛡️",
+      "accentColor": "#0891b2",
+      "articlesCount": 17,
+      "description": "Polițe RCA și CASCO, despăgubiri, constatare amiabilă și transfer bonus-malus."
+    },
+    {
+      "slug": "permis-de-conducere",
+      "name": "Permis de conducere",
+      "icon": "🪪",
+      "accentColor": "#7c3aed",
+      "articlesCount": 13,
+      "description": "Obținere, preschimbare, duplicat, suspendare și școli de șoferi."
+    },
+    {
+      "slug": "itp-rar",
+      "name": "ITP & RAR",
+      "icon": "🔧",
+      "accentColor": "#ea580c",
+      "articlesCount": 7,
+      "description": "Inspecția tehnică periodică, omologări RAR și modificări în acte."
+    },
+    {
+      "slug": "rovinieta",
+      "name": "Rovinietă",
+      "icon": "🎫",
+      "accentColor": "#16a34a",
+      "articlesCount": 7,
+      "description": "Prețuri, valabilitate, verificare online și amenzi rovinietă."
+    },
+    {
+      "slug": "transport-autorizatii",
+      "name": "Transport & Autorizații",
+      "icon": "🚕",
+      "accentColor": "#dc2626",
+      "articlesCount": 6,
+      "description": "Taxi, ridesharing (Uber, Bolt), licențe și atestate transport."
+    },
+    {
+      "slug": "impozite-taxe-auto",
+      "name": "Impozite & Taxe auto",
+      "icon": "💰",
+      "accentColor": "#ca8a04",
+      "articlesCount": 5,
+      "description": "Impozit auto la primărie, fiscalizare, scutiri și Programul Rabla."
+    }
+  ],
+  "extractedArticlesFile": "audit-baseline/ghid-auto/extracted-articles.json",
+  "sanitizationReport": {
+    "carmatikMentionsFound": 0,
+    "whatsappNumbersStripped": true,
+    "mobileAppBadgesStripped": true,
+    "brandReplacedWith": "ParcOS",
+    "domainReplacedWith": "parcos.ro"
+  }
+}

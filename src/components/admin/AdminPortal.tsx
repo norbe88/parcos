@@ -21,6 +21,7 @@ import { PhotoGalleryManagerModal } from './PhotoGalleryManagerModal';
 import { PlateOverlayStudioModal } from './PlateOverlayStudioModal';
 import { FinancingSettingsManager } from './FinancingSettingsManager';
 import { AutolicitPushModal } from './AutolicitPushModal';
+import { OLXExportModal } from './OLXExportModal';
 import { VehicleSocialPostModal } from '../modals/VehicleSocialPostModal';
 import { StockFeedExportModal } from './StockFeedExportModal';
 import { VehicleSeedExporterModal } from './VehicleSeedExporterModal';
@@ -34,6 +35,7 @@ import { FeedsHubView } from './FeedsHubView';
 import { MailboxLayout } from '../../modules/mail/MailboxLayout';
 import { convertEurToRon } from '../../utils/currencyEngine';
 import { DealPricingData } from './DealPriceModal';
+import { BackupRollbackManager } from './BackupRollbackManager';
 
 interface AdminPortalProps {
   cars: VehicleItem[];
@@ -121,6 +123,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [isPlateStudioOpen, setIsPlateStudioOpen] = useState(false);
   const [autolicitCar, setAutolicitCar] = useState<VehicleItem | null>(null);
   const [isAutolicitOpen, setIsAutolicitOpen] = useState(false);
+  const [olxExportCar, setOlxExportCar] = useState<VehicleItem | null>(null);
+  const [isOlxExportOpen, setIsOlxExportOpen] = useState(false);
   const [socialPostCar, setSocialPostCar] = useState<VehicleItem | null>(null);
   const [isSocialPostOpen, setIsSocialPostOpen] = useState(false);
   const [seedExporterCar, setSeedExporterCar] = useState<VehicleItem | null>(null);
@@ -375,6 +379,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 setAutolicitCar(car);
                 setIsAutolicitOpen(true);
               }}
+              onOpenOlxExport={(car) => {
+                setOlxExportCar(car);
+                setIsOlxExportOpen(true);
+              }}
               onOpenSocialPost={(car) => {
                 setSocialPostCar(car);
                 setIsSocialPostOpen(true);
@@ -498,6 +506,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         {/* 9. Configurare Finanțare, Curs BT & Creditori */}
         {activeAdminTab === 'financing' && (
           <FinancingSettingsManager showToast={showToast} />
+        )}
+
+        {/* 10. Centru de Backup & Rollback Disaster Recovery */}
+        {activeAdminTab === 'backups' && (
+          <BackupRollbackManager dealer={activeDealer} showToast={showToast} />
         )}
 
       {/* 🛠️ Suport Tehnic & Mentenanță Showroom — Carvana S.R.L. */}
@@ -719,6 +732,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           onClose={() => {
             setIsSocialPostOpen(false);
             setSocialPostCar(null);
+          }}
+          showToast={showToast}
+          dealer={activeDealer}
+        />
+      )}
+
+      {/* 🚀 Modal Export Automat pe OLX România (Pre-completare inteligentă & 8 poze) */}
+      {isOlxExportOpen && olxExportCar && (
+        <OLXExportModal
+          isOpen={isOlxExportOpen}
+          car={olxExportCar}
+          onClose={() => {
+            setIsOlxExportOpen(false);
+            setOlxExportCar(null);
           }}
           showToast={showToast}
           dealer={activeDealer}

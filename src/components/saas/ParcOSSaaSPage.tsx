@@ -42,20 +42,22 @@ interface ParcOSSaaSPageProps {
   onOpenCookies?: () => void;
   onOpenCookiePreferences?: () => void;
   onOpenTerms?: () => void;
+  onOpenGhidAuto?: () => void;
 }
 
 export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({ 
   onSwitchToDealer,
   onOpenCookies,
   onOpenCookiePreferences,
-  onOpenTerms
+  onOpenTerms,
+  onOpenGhidAuto
 }) => {
   const [activeLang, setActiveLang] = useState<'RO' | 'EN' | 'HU'>('RO');
 
   // 🏷️ Actualizare dinamică document.title pentru tab-ul de browser ParcOS
   React.useEffect(() => {
     const prevTitle = document.title;
-    document.title = 'ParcOS — Sistem de Operare Autonom pentru Parcuri Auto & DMS Cloud';
+    document.title = 'ParcOS — Program Complet pentru Parcuri Auto: Site Propriu & Gestiune Vânzări';
     
     // Dynamic favicon swap for ParcOS
     const faviconLink = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
@@ -118,6 +120,7 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
         onSwitchToDealer={onSwitchToDealer}
         activeLanguage={activeLang}
         onLanguageChange={setActiveLang}
+        onOpenGhidAuto={onOpenGhidAuto}
       />
 
       {/* 2. Sculptural Hero Section & Telemetry HUD Dock */}
@@ -147,18 +150,18 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
         </div>
       </section>
 
-      {/* 5. Complete DMS Feature Grid Section (#module / #features) */}
+      {/* 5. Complete Feature Grid Section (#module / #features) */}
       <section id="module" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-200/80">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs text-slate-700 font-mono-telemetry mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs text-slate-800 font-semibold mb-3">
             <Layers className="w-3.5 h-3.5 text-amber-500" />
-            <span>ARHITECTURĂ COMPLETĂ TURNKEY</span>
+            <span>TOT CE AI NEVOIE PENTRU PARCUL TĂU AUTO</span>
           </div>
           <h2 className="font-display font-extrabold text-2xl sm:text-4xl lg:text-5xl text-slate-950 tracking-tight">
-            Toate uneltele de care are nevoie un parc modern
+            Tot ce ai nevoie să-ți conduci parcul auto simplu și profitabil
           </h2>
           <p className="mt-4 text-sm sm:text-base text-slate-600">
-            Fără foi volante, fără mesaje pierdute pe WhatsApp și fără ore irosite tastând specificații de mână.
+            Fără foi rătăcite prin birou, fără mesaje uitate pe WhatsApp și fără ore pierdute tastând serii de șasiu de mână.
           </p>
         </div>
 
@@ -169,13 +172,13 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
               <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 mb-5">
                 <FileText className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-xl text-slate-900 mb-2">Scanner CIV & Talon cu AI</h3>
+              <h3 className="font-bold text-xl text-slate-900 mb-2">Scanare Talon & CIV cu Telefonul</h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Fotografiezi cartea sau talonul mașinii direct de pe telefon. Motorul OCR extrage automat VIN, anul fabricației, cilindreea, puterea (kW/CP) și norma de poluare.
+                Faci o poză cu telefonul la talon sau la cartea mașinii (RO sau Germania). Programul citește singur seria de șasiu, anul, motorul, caii putere și norma de poluare. Fără greșeli de tastare.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-amber-700 font-semibold flex items-center gap-1.5">
-              <Check className="w-3.5 h-3.5 text-amber-600" /> Fără introducere manuală de date
+              <Check className="w-3.5 h-3.5 text-amber-600" /> Date completate în 2 secunde
             </div>
           </div>
 
@@ -185,13 +188,13 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
               <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 mb-5">
                 <MessageSquare className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-xl text-slate-900 mb-2">Oferte WhatsApp & Garanție de Rezervare</h3>
+              <h3 className="font-bold text-xl text-slate-900 mb-2">Oferte pe WhatsApp cu Rezervare Online</h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Compune oferte elegante în 10 secunde și trimite-le pe WhatsApp direct clientului. Include opțional link securizat de Garanție de Rezervare (procesare Stripe / card / transfer).
+                Trimiți clientului o ofertă clară și elegantă direct pe WhatsApp, în câteva secunde. Include buton securizat prin care clientul îți poate achita avansul cu cardul sau prin transfer bancar.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-blue-700 font-semibold flex items-center gap-1.5">
-              <Check className="w-3.5 h-3.5 text-blue-600" /> Garanție de Rezervare securizată
+              <Check className="w-3.5 h-3.5 text-blue-600" /> Avans încasat în siguranță pe loc
             </div>
           </div>
 
@@ -201,13 +204,13 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
               <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 mb-5">
                 <RefreshCw className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-xl text-slate-900 mb-2">Sincronizare Multi-Canal Portaluri</h3>
+              <h3 className="font-bold text-xl text-slate-900 mb-2">Controlul Stocului dintr-un Singur Loc</h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Scanează automat anunțurile active de pe principalele portaluri auto și platforme de profil. Notifică instant agenții dacă o mașină a fost marcată vândută sau dacă prețurile diferă.
+                Vezi pe un singur ecran toate mașinile pe care le ai în parc și pe ce portaluri sunt publicate. Când vinzi o mașină, știi imediat să oprești anunțurile ca să nu mai cheltui bani degeaba.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-emerald-700 font-semibold flex items-center gap-1.5">
-              <Check className="w-3.5 h-3.5 text-emerald-600" /> Zero discrepanțe de stoc
+              <Check className="w-3.5 h-3.5 text-emerald-600" /> Știi mereu ce mașini ai în parc
             </div>
           </div>
 
@@ -217,13 +220,13 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
               <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-600 mb-5">
                 <Inbox className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-xl text-slate-900 mb-2">Showroom Mail Hub & Lead Pool</h3>
+              <h3 className="font-bold text-xl text-slate-900 mb-2">Toate Mesajele Clienților într-un Loc</h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Toate cererile venite de pe site și portaluri ajung într-un inbox unificat. Agenții preiau lead-urile cu 1-click fără suprapuneri.
+                Toți clienții care întreabă de mașini (de pe site-ul tău sau de pe portaluri) ajung în același inbox unificat. Tu sau consilierii tăi le răspundeți rapid de pe telefon, fără să mai pierdeți cumpărători.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-purple-700 font-semibold flex items-center gap-1.5">
-              <Check className="w-3.5 h-3.5 text-purple-600" /> Notificări Web Push & PWA
+              <Check className="w-3.5 h-3.5 text-purple-600" /> Răspunzi pe loc de pe telefon
             </div>
           </div>
 
@@ -233,13 +236,13 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
               <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 mb-5">
                 <Zap className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-xl text-slate-900 mb-2">Control Stoc, Marjă & Fiscal</h3>
+              <h3 className="font-bold text-xl text-slate-900 mb-2">Știi Exact Cât Câștigi pe Fiecare Mașină</h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Urmărești costul real de achiziție, cheltuielile de pregătire și marja de profit pe fiecare vehicul. Sistemul calculează automat regimul de marjă sau deductibil și integrează CUI ANAF v9.
+                Treci cât ai dat pe mașină și ce cheltuieli ai avut cu pregătirea sau piesele. Programul îți calculează pe loc profitul curat și te ajută la facturare (cu TVA deductibil sau în regim de marjă).
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-amber-700 font-semibold flex items-center gap-1.5">
-              <Check className="w-3.5 h-3.5 text-amber-600" /> Marjă reală & conformitate ANAF
+              <Check className="w-3.5 h-3.5 text-amber-600" /> Profit curat & facturi fără greșeli
             </div>
           </div>
 
@@ -249,13 +252,13 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
               <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-600 mb-5">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-xl text-slate-900 mb-2">Inspecții & Rapoarte carVertical</h3>
+              <h3 className="font-bold text-xl text-slate-900 mb-2">Rapoarte Tehnice & Încredere</h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Fiecare mașină include puncte de verificare tehnică în 120 de pași și verificare carVertical disponibilă direct în platformă.
+                Fiecare mașină de pe site-ul tău are fișă tehnică de verificare și verificare carVertical integrată. Cumpărătorul vede că ești un dealer serios și ia decizia mult mai repede.
               </p>
             </div>
             <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-rose-700 font-semibold flex items-center gap-1.5">
-              <Check className="w-3.5 h-3.5 text-rose-600" /> Transparență totală pentru cumpărători
+              <Check className="w-3.5 h-3.5 text-rose-600" /> Încredere maximă pentru cumpărători
             </div>
           </div>
         </div>
@@ -280,7 +283,7 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <img src="/brand/icon-32x32.png" alt="ParcOS" className="w-5 h-5 rounded-md object-cover shadow-sm border border-slate-200" />
-            <span className="font-bold text-slate-800">ParcOS — Dealership Operating System</span>
+            <span className="font-bold text-slate-800">ParcOS — Program pentru Gestiune Auto & Site Propriu</span>
             <span>•</span>
             <span>CARVANA SRL</span>
           </div>
@@ -304,6 +307,18 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
                   className="hover:text-amber-600 transition-colors cursor-pointer py-1"
                 >
                   Preferințe Cookie-uri
+                </button>
+              </>
+            )}
+            {onOpenGhidAuto && (
+              <>
+                <span className="text-slate-300">•</span>
+                <button 
+                  type="button" 
+                  onClick={onOpenGhidAuto} 
+                  className="font-bold text-amber-700 hover:text-amber-800 transition-colors cursor-pointer py-1 flex items-center gap-1"
+                >
+                  📘 Ghid Auto 2026
                 </button>
               </>
             )}

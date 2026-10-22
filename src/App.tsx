@@ -31,6 +31,7 @@ const NationalDeliveryPage = lazy(() => import('./components/delivery/NationalDe
 const CookiePolicyPage = lazy(() => import('./components/legal/CookiePolicyPage').then(m => ({ default: m.CookiePolicyPage })));
 const ParcOSSaaSPage = lazy(() => import('./components/saas/ParcOSSaaSPage').then(m => ({ default: m.ParcOSSaaSPage })));
 const ParcOSSuperAdminHub = lazy(() => import('./components/superadmin/ParcOSSuperAdminHub').then(m => ({ default: m.ParcOSSuperAdminHub })));
+const GhidAutoHub = lazy(() => import('./components/ghid/GhidAutoHub').then(m => ({ default: m.GhidAutoHub })));
 import { CookieConsentBanner } from './components/common/CookieConsentBanner';
 import { extractOlxId, normalizeCarImageUrl } from './utils/helpers';
 import { preloadMediaKeys } from './utils/mediaVaultDb';
@@ -66,6 +67,7 @@ export default function App() {
         hash.includes('admin') || hash.includes('superadmin') || hash.includes('portal') ||
         path.includes('admin') || path.includes('superadmin') || path.includes('portal') ||
         path.includes('saas') || hash.includes('saas') ||
+        path.includes('ghid') || hash.includes('ghid') ||
         path.includes('termeni') || hash.includes('termeni') ||
         path.includes('livrare') || hash.includes('livrare') ||
         path.includes('cookie') || hash.includes('cookie') ||
@@ -393,6 +395,21 @@ export default function App() {
     );
   };
 
+  // Verificare dacă ruta accesată este Ghid Auto (/ghid-auto, #ghid-auto, ?ghid)
+  const checkIsGhidAutoPath = () => {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    const search = window.location.search.toLowerCase();
+    return (
+      path.includes('ghid-auto') ||
+      path.includes('ghid') ||
+      hash.includes('ghid-auto') ||
+      hash.includes('ghid') ||
+      search.includes('ghid')
+    );
+  };
+
   // Verificare dacă domeniul curent este platforma centrală ParcOS
   const isParcosDomain = (hostname: string, port?: string) => {
     const p = port !== undefined ? port : (typeof window !== 'undefined' ? window.location.port : '');
@@ -482,8 +499,9 @@ export default function App() {
     return false;
   };
 
-  const getInitialViewMode = (): 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' => {
+  const getInitialViewMode = (): 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' | 'ghid-auto' => {
     if (checkIsSuperAdminPath()) return 'superadmin';
+    if (checkIsGhidAutoPath()) return 'ghid-auto';
     if (checkIsSaasPath()) return 'saas';
     if (checkIsAdminPath()) return 'admin';
     if (checkIsTermsPath()) return 'terms';
@@ -492,7 +510,7 @@ export default function App() {
     return 'showroom';
   };
 
-  const [viewMode, setViewMode] = useState<'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin'>(getInitialViewMode);
+  const [viewMode, setViewMode] = useState<'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' | 'ghid-auto'>(getInitialViewMode);
   const [isMasquerading, setIsMasquerading] = useState<boolean>(false);
   const [isCookiePreferencesOpen, setIsCookiePreferencesOpen] = useState(false);
 
@@ -564,7 +582,7 @@ export default function App() {
   }, []);
 
   // Sincronizare URL la comutarea viewMode
-  const handleSetViewMode = (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin') => {
+  const handleSetViewMode = (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' | 'ghid-auto') => {
     setViewMode(mode);
     if (mode !== 'showroom') {
       setIsRevealed(true);
@@ -572,7 +590,12 @@ export default function App() {
     const basePath = window.location.pathname.startsWith('/rxm') ? '/rxm' : '';
     const isParcos = typeof window !== 'undefined' && isParcosDomain(window.location.hostname, window.location.port);
 
-    if (mode === 'saas') {
+    if (mode === 'ghid-auto') {
+      const target = '#ghid-auto';
+      if (!window.location.hash.startsWith('#ghid-auto')) {
+        window.history.pushState(null, '', target);
+      }
+    } else if (mode === 'saas') {
       const target = isParcos ? `${basePath}/` : `${basePath}/saas`;
       if (window.location.pathname !== target && window.location.hash !== '#saas') {
         window.history.pushState(null, '', target);
@@ -618,7 +641,9 @@ export default function App() {
         window.location.hash.includes('superadmin') || 
         window.location.hash.includes('termeni') || 
         window.location.hash.includes('livrare') || 
-        window.location.hash.includes('cookie')
+        window.location.hash.includes('cookie') ||
+        window.location.hash.includes('ghid') ||
+        window.location.pathname.includes('ghid')
       ) {
         window.history.pushState(null, '', target);
       }
@@ -1474,7 +1499,7 @@ export default function App() {
       )}
 
       {/* 📌 TOPBAR: Date Reale Showroom (Cluj-Napoca) */}
-      {viewMode !== 'saas' && viewMode !== 'superadmin' && viewMode !== 'admin' && (
+      {viewMode !== 'saas' && viewMode !== 'superadmin' && viewMode !== 'admin' && viewMode !== 'ghid-auto' && (
         <Topbar 
           viewMode={viewMode}
           setViewMode={handleSetViewMode}
@@ -1484,7 +1509,7 @@ export default function App() {
       )}
 
       {/* 🧭 NAVBAR: Logo Oficial + Meniu */}
-      {viewMode !== 'saas' && viewMode !== 'superadmin' && viewMode !== 'admin' && (
+      {viewMode !== 'saas' && viewMode !== 'superadmin' && viewMode !== 'admin' && viewMode !== 'ghid-auto' && (
         <Navbar 
           totalCarsCount={cars.length}
           viewMode={viewMode}
@@ -1539,6 +1564,7 @@ export default function App() {
             onOpenCookies={() => handleSetViewMode('cookies')}
             onOpenCookiePreferences={() => setIsCookiePreferencesOpen(true)}
             onOpenTerms={() => handleSetViewMode('terms')}
+            onOpenGhidAuto={() => handleSetViewMode('ghid-auto')}
           />
         </Suspense>
       )}
@@ -1785,6 +1811,22 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
+      {/* 📘 VEDEREA 6: GHID AUTO PARCOS (EDIȚIA 2026)                               */}
+      {/* ========================================================================= */}
+      {viewMode === 'ghid-auto' && (
+        <Suspense fallback={
+          <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold animate-pulse">📘</div>
+            <p className="text-xs text-zinc-400 font-mono tracking-wider uppercase">Se încarcă Ghid Auto ParcOS...</p>
+          </div>
+        }>
+          <GhidAutoHub 
+            onBackToMain={() => handleSetViewMode(isParcosDomain(window.location.hostname) ? 'saas' : 'showroom')}
+          />
+        </Suspense>
+      )}
+
+      {/* ========================================================================= */}
       {/* 🔍 MODAL DETALII MAȘINĂ (FOTO, RATE, TIKTOK EMBED & TEST DRIVE) */}
       {/* ========================================================================= */}
       <Suspense fallback={null}>
@@ -1839,7 +1881,7 @@ export default function App() {
       </Suspense>
 
       {/* 📌 FOOTER: Legal & Contact */}
-      {viewMode !== 'saas' && viewMode !== 'superadmin' && viewMode !== 'admin' && (
+      {viewMode !== 'saas' && viewMode !== 'superadmin' && viewMode !== 'admin' && viewMode !== 'ghid-auto' && (
         <Footer 
           dealer={tenant} 
           onOpenAdmin={() => handleSetViewMode('admin')}
@@ -1847,15 +1889,16 @@ export default function App() {
           onOpenDelivery={() => handleSetViewMode('delivery')}
           onOpenCookies={() => handleSetViewMode('cookies')}
           onOpenCookiePreferences={() => setIsCookiePreferencesOpen(true)}
+          onOpenGhidAuto={() => handleSetViewMode('ghid-auto')}
           onReplayIntro={handleReplayIntro}
         />
       )}
 
       {/* 🔝 BUTON PLUTITOR REVENIRE SUS (EXCLUSIV ÎN VEDERILE PUBLICE PENTRU SCROLL ADÂNC) */}
-      {viewMode !== 'saas' && viewMode !== 'admin' && viewMode !== 'superadmin' && <FloatingBackToTop />}
+      {viewMode !== 'saas' && viewMode !== 'admin' && viewMode !== 'superadmin' && viewMode !== 'ghid-auto' && <FloatingBackToTop />}
 
       {/* 💬 BUTON PLUTITOR WHATSAPP (EXCLUSIV ÎN VEDERILE PUBLICE PENTRU CLIENȚI) */}
-      {viewMode !== 'saas' && viewMode !== 'admin' && viewMode !== 'superadmin' && (
+      {viewMode !== 'saas' && viewMode !== 'admin' && viewMode !== 'superadmin' && viewMode !== 'ghid-auto' && (
         <FloatingWhatsApp whatsappNumber={tenant.whatsappNumber} />
       )}
 

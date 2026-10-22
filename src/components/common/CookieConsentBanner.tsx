@@ -16,7 +16,7 @@ interface CookieConsentBannerProps {
   onOpenPolicy: () => void;
   isOpenPreferenceTrigger?: boolean;
   onClosePreferences?: () => void;
-  viewMode?: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin';
+  viewMode?: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' | 'ghid-auto';
 }
 
 export const CookieConsentBanner: React.FC<CookieConsentBannerProps> = ({

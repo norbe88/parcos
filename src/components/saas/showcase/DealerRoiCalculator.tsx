@@ -53,16 +53,16 @@ export const DealerRoiCalculator: React.FC = () => {
     <div className="w-full">
       {/* Header and Commercial Proof Badge */}
       <div className="text-center max-w-3xl mx-auto mb-10">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-xs font-mono-telemetry text-emerald-900 font-bold mb-3">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-900 font-bold mb-3">
           <Calculator className="w-3.5 h-3.5 text-emerald-600" />
-          <span>SIMULATOR RENTABILITATE // ROI TRANSPARENT</span>
+          <span>CÂT TIMP ȘI BANI ECONOMISEȘTI</span>
         </div>
         <h2 className="font-display font-black text-2xl sm:text-4xl lg:text-5xl text-slate-950 tracking-tight">
-          Calculează ROI-ul și Orele Salvate Lunar
+          Află cât timp și câți bani câștigi în fiecare lună
         </h2>
         <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-          Descoperă impactul matematic concret al automatizării: eliminarea tastării manuale a cărților auto, 
-          stoparea cheltuielilor pe anunțuri expirate din portalurile auto și securizarea avansurilor prin Cont de Garanție online (Stripe / Card).
+          Vezi cât economisești când nu mai tastezi manual cărțile auto, nu mai uiți anunțuri plătite degeaba pe internet 
+          și iei avans sigur de la cumpărători direct pe WhatsApp.
         </p>
       </div>
 

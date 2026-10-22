@@ -22,12 +22,16 @@ const today = new Date().toISOString().split('T')[0];
 
 console.log(`🚀 [SEO Generator] Starting generation for ${SEED_VEHICLES.length} vehicles...`);
 
+import { GHID_ARTICLES, GHID_CATEGORIES } from '../src/data/ghidAutoData';
+
 // ==========================================
 // 1. GENERATE public/sitemap.xml
 // ==========================================
 const staticPages = [
   { loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'daily', lastmod: today },
   { loc: `${BASE_URL}/#catalog`, priority: '0.9', changefreq: 'daily', lastmod: today },
+  { loc: `${BASE_URL}/#ghid-auto`, priority: '0.95', changefreq: 'daily', lastmod: today },
+  { loc: `${BASE_URL}/#ghid-auto/calculator-impozit-auto`, priority: '0.9', changefreq: 'monthly', lastmod: today },
   { loc: `${BASE_URL}/#finantare`, priority: '0.85', changefreq: 'weekly', lastmod: today },
   { loc: `${BASE_URL}/#buyback`, priority: '0.8', changefreq: 'weekly', lastmod: today },
   { loc: `${BASE_URL}/#comanda`, priority: '0.8', changefreq: 'weekly', lastmod: today },
@@ -82,10 +86,31 @@ for (const car of SEED_VEHICLES) {
   sitemapXml += `  </url>\n`;
 }
 
+// Add Ghid Auto 2026 Category & Article pages
+for (const cat of GHID_CATEGORIES) {
+  sitemapXml += `  <url>
+    <loc>${escapeXml(`${BASE_URL}/#ghid-auto?cat=${cat.slug}`)}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>\n`;
+}
+
+for (const art of GHID_ARTICLES) {
+  const artUrl = `${BASE_URL}/#ghid-auto/${encodeURIComponent(art.slug)}`;
+  sitemapXml += `  <url>
+    <loc>${escapeXml(artUrl)}</loc>
+    <lastmod>${art.updatedAt || today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>\n`;
+}
+
 sitemapXml += `</urlset>\n`;
 
+const totalUrls = staticPages.length + SEED_VEHICLES.length + GHID_CATEGORIES.length + GHID_ARTICLES.length;
 fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), sitemapXml, 'utf8');
-console.log(`✅ [SEO Generator] Created public/sitemap.xml (${staticPages.length + SEED_VEHICLES.length} URLs)`);
+console.log(`✅ [SEO Generator] Created public/sitemap.xml (${totalUrls} URLs, including ${GHID_ARTICLES.length} Ghid Auto articles)`);
 
 // ==========================================
 // 2. GENERATE public/llms.txt (Standard AI Agent Context)
@@ -132,6 +157,8 @@ Fiecare vehicul este livrat cu:
 - **TikTok Oficial:** ${SEED_DEALER.tiktokUrl}
 
 ## Resurse Detaliate pentru Agenți AI (LLMs)
+- [Ghid Auto 2026 ParcOS & Legislație Rutieră](${BASE_URL}/#ghid-auto): Peste 76 de ghiduri actualizate (Înmatriculări, RAR, Acte Auto, Permis de Conducere, Amenzi, Buy-Back, Finanțare).
+- [Calculator Impozit Auto 2026](${BASE_URL}/#ghid-auto/calculator-impozit-auto): Instrument de calcul instant conform Art. 470 Codul fiscal (Legea 239/2025 și OUG 78/2025).
 - [Catalog Complet Mașini Detaliat (llms-full.txt)](${BASE_URL}/llms-full.txt): Fișier complet cu date tehnice, prețuri și specificații pentru toate mașinile din stoc.
 - [Sitemap Oficial XML](${BASE_URL}/sitemap.xml): Index complet al tuturor URL-urilor pentru motoare de căutare.
 - [Termeni și Condiții de Garanție](${BASE_URL}/termeni-si-conditii): Politica detaliată de garanție și retur.

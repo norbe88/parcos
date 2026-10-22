@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>ParcOS OLX Publisher</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 320px;
+      background: #121215;
+      color: #f4f4f5;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 16px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 14px;
+    }
+    .logo-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f59e0b;
+      font-weight: 900;
+      font-size: 14px;
+    }
+    .title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+    .subtitle {
+      font-size: 11px;
+      color: #a1a1aa;
+    }
+    .card {
+      background: #18181b;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #71717a;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .car-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fbbf24;
+      margin-bottom: 4px;
+    }
+    .car-meta {
+      font-size: 11px;
+      color: #a1a1aa;
+    }
+    .empty-state {
+      font-size: 12px;
+      color: #71717a;
+      text-align: center;
+      padding: 12px 0;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: #f59e0b;
+      color: #000;
+      margin-bottom: 8px;
+    }
+    .btn-primary:hover {
+      background: #fbbf24;
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #a1a1aa;
+    }
+    .btn-secondary:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .footer {
+      text-align: center;
+      font-size: 10px;
+      color: #52525b;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-badge">P</div>
+    <div>
+      <div class="title">ParcOS OLX Publisher</div>
+      <div class="subtitle">Conectat & Activ</div>
+    </div>
+  </div>
+
+  <div class="card" id="car-card">
+    <div class="card-title">Mașină în așteptare</div>
+    <div id="car-content">
+      <div class="empty-state">Nicio mașină selectată recent.<br>Mergi în ParcOS și apasă pe [Exportă pe OLX].</div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="btn-open-olx">
+    <span>🚀 Deschide Formular OLX</span>
+  </button>
+  <button class="btn btn-secondary" id="btn-clear">
+    <span>Curăță datele salvate</span>
+  </button>
+
+  <div class="footer">
+    CARVANA SRL · Versiunea 1.0.0
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

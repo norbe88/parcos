@@ -30,59 +30,59 @@ interface ComparisonRow {
 
 const COMPARISON_ROWS: ComparisonRow[] = [
   {
-    feature: 'Suveranitate Brand & Domeniu Propriu',
-    parcos: '✅ Showroom 100% dedicat pe domeniul tău (fără concurență)',
+    feature: 'Site-ul Tău Propriu (ex: numeparc.ro)',
+    parcos: '✅ Site dedicat 100% doar mașinilor tale, cu sigla ta',
     parcosStatus: 'good',
-    traditionalDms: '❌ Marketplace comun sau soluție fără domeniu dedicat',
+    traditionalDms: '❌ Ești amestecat cu mii de alte parcuri sau ai un site vechi',
     traditionalStatus: 'bad'
   },
   {
-    feature: 'Design & Teme Vizuale Showroom',
-    parcos: '✅ Dark Luxury & Light Modern 60fps (Obsidian, White, Navy)',
+    feature: 'Aspectul Mașinilor pe Telefon',
+    parcos: '✅ Arată impecabil pe orice telefon, cu poze mari și filmări video',
     parcosStatus: 'good',
-    traditionalDms: '❌ Șabloane rigide, nemodificabile, fără adaptare mobilă',
+    traditionalDms: '❌ Site-uri vechi, încete, unde mașinile se văd înghesuit',
     traditionalStatus: 'bad'
   },
   {
-    feature: 'Scaner Acte Inteligent (AI OCR)',
-    parcos: '✅ Extragere în <1.8s (Talon RO, CIV RAR & Brief Germania)',
+    feature: 'Completarea Datelor Mașinilor',
+    parcos: '✅ Faci o poză la talon și datele se pun singure în 2 secunde',
     parcosStatus: 'good',
-    traditionalDms: '❌ Introducere manuală caracter cu caracter în soft intern',
+    traditionalDms: '❌ Bătăi de cap cu tastat manual seria de șasiu caracter cu caracter',
     traditionalStatus: 'bad'
   },
   {
-    feature: 'Garanție Rezervare la Distanță',
-    parcos: '✅ Garanție de Rezervare securizată (Stripe / Card / Transfer Instant)',
+    feature: 'Încasarea Avansului la Distanță',
+    parcos: '✅ Trimiți link pe WhatsApp, clientul plătește cu cardul pe loc',
     parcosStatus: 'good',
-    traditionalDms: '❌ Fără plată securizată online, risc de tranzacții nesigure',
+    traditionalDms: '❌ Risc de clienți neserioși sau cerut bani prin conturi nesigure',
     traditionalStatus: 'bad'
   },
   {
-    feature: 'Format Video & Media Modern',
-    parcos: '✅ Player video nativ 9:16 (TikTok & Instagram Reels)',
+    feature: 'Prezentare Video pe Telefon',
+    parcos: '✅ Video vertical tip TikTok / Reels direct pe pagina mașinii',
     parcosStatus: 'good',
-    traditionalDms: '❌ Doar galerie foto statică standard cu rezoluție redusă',
+    traditionalDms: '❌ Doar poze statice, adesea neclare',
     traditionalStatus: 'bad'
   },
   {
-    feature: 'Sincronizare Delta Stoc Portaluri',
-    parcos: '✅ Notificări live discrepanțe preț și mașini vândute automat',
+    feature: 'Evidența Mașinilor la Vânzare',
+    parcos: '✅ Știi mereu ce mașini mai ai în parc și ce ai vândut',
     parcosStatus: 'good',
-    traditionalDms: '⚠️ Export de bază periodic sau actualizări manuale',
+    traditionalDms: '⚠️ Uiți anunțuri vechi pe internet și plătești degeaba promovare',
     traditionalStatus: 'warning'
   },
   {
-    feature: 'Studio Plăcuțe & Watermark',
-    parcos: '✅ Eliminare automată numere & aplicare logo în browser',
+    feature: 'Poze cu Sigla Parcului Tău',
+    parcos: '✅ Ascunzi automat numerele vechi și pui sigla ta pe poze',
     parcosStatus: 'good',
-    traditionalDms: '❌ Necesită editare manuală în Photoshop sau poze needitate',
+    traditionalDms: '❌ Poze needitate sau ore pierdute cu programe complicate',
     traditionalStatus: 'bad'
   },
   {
-    feature: 'Conformitate & Matematică Fiscală',
-    parcos: '✅ TVA deductibil & Regim Marjă Art. 312 calculat automat',
+    feature: 'Calculul de TVA și Profit',
+    parcos: '✅ Calculează automat mașini cu TVA deductibil sau la marjă',
     parcosStatus: 'good',
-    traditionalDms: '⚠️ Câmp informativ simplu sau modul contabil greoi',
+    traditionalDms: '⚠️ Calcule manuale complicate sau certuri la facturare',
     traditionalStatus: 'warning'
   }
 ];
@@ -193,16 +193,16 @@ export const ComparisonAndOnboarding: React.FC = () => {
       {/* 1. Comparison Matrix Section (#comparatie) */}
       <section id="comparatie" className="scroll-mt-20">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-xs font-mono-telemetry text-blue-900 font-bold mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-xs text-blue-900 font-bold mb-3">
             <Scale className="w-3.5 h-3.5 text-blue-600" />
-            <span>ARHITECTURĂ ȘI EFICIENȚĂ // AUTOMATIZARE VS PROCEDURI MANUALE</span>
+            <span>DE CE SĂ ALEGI PARCOS ÎN LOC SĂ ȚII EVIDENȚA PE HÂRTIE SAU EXCEL</span>
           </div>
           <h2 className="font-display font-black text-2xl sm:text-4xl lg:text-5xl text-slate-950 tracking-tight">
-            De Ce Aleg Dealerii Suveranitatea ParcOS
+            Diferența dintre metodele vechi și un parc auto modern
           </h2>
           <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-            Nu oferim doar un șablon de site, ci un întreg sistem de operare pentru dealership: 
-            showroom dedicat fără concurență, OCR cu inteligență artificială și garanții bancare sigure.
+            Nu îți dăm doar o pagină web simplă, ci un program complet care îți organizează tot parcul: 
+            site-ul tău fără concurență, scanare de acte cu telefonul și încasarea avansului pe loc.
           </p>
         </div>
 
@@ -211,15 +211,15 @@ export const ComparisonAndOnboarding: React.FC = () => {
           <div className="overflow-x-auto touch-pan-x scrollbar-none">
             <table className="w-full text-left text-xs sm:text-sm border-collapse min-w-[680px]">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 font-mono-telemetry">
+                <tr className="border-b border-slate-200 bg-slate-50">
                   <th className="py-4 px-6 text-slate-700 font-bold uppercase tracking-wider text-[11px] w-2/5">
-                    CRITERIU DE EVALUARE
+                    CE AI NEVOIE ÎN PARC
                   </th>
                   <th className="py-4 px-6 text-amber-800 font-black uppercase tracking-wider text-xs bg-amber-500/10 border-x border-amber-500/30 w-1/3">
-                    👑 PARCOS DMS v2.4
+                    👑 CU PARCOS
                   </th>
                   <th className="py-4 px-5 text-slate-700 font-bold uppercase tracking-wider text-[11px] w-1/3">
-                    METODE MANUALE & DMS TRADIȚIONAL
+                    METODE VECHI (EXCEL, CAIET, SITE SIMPLU)
                   </th>
                 </tr>
               </thead>
@@ -303,16 +303,16 @@ export const ComparisonAndOnboarding: React.FC = () => {
           <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
           <div className="text-center max-w-2xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-xs font-mono-telemetry text-amber-900 font-bold mb-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-xs text-amber-900 font-bold mb-3">
               <Building2 className="w-3.5 h-3.5 text-amber-600" />
-              <span>ONBOARDING INSTANT PRIN CUI ANAF v9</span>
+              <span>ÎNCEARCĂ GRATUIT PENTRU PARCUL TĂU</span>
             </div>
             <h2 className="font-display font-black text-2xl sm:text-4xl text-slate-950 tracking-tight">
-              Activează Showroom-ul Parcului Tău în 24 de Ore
+              Vezi cum arată mașinile tale pe propriul tău site
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Introdu CUI-ul firmei pentru a prelua automat datele fiscale oficiale. 
-              Echipa noastră configurează domeniul și importă stocul de autovehicule.
+              Scrie CUI-ul firmei tale pentru a prelua automat datele oficiale. 
+              Îți pregătim gratuit o demonstrație cu stocul tău de mașini în maxim 24 de ore.
             </p>
           </div>
 
@@ -322,16 +322,16 @@ export const ComparisonAndOnboarding: React.FC = () => {
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <h3 className="font-display font-black text-xl sm:text-2xl text-slate-950">
-                Cerere Recepționată cu Succes!
+                Am primit solicitarea ta!
               </h3>
               <p className="text-sm text-slate-700 max-w-lg mx-auto leading-relaxed">
-                Am înregistrat parcul <strong>{parkName}</strong>. Showroom-ul tău dedicat pe domeniul{' '}
+                Am înregistrat parcul <strong>{parkName}</strong>. Pregătim demonstrația pe domeniul{' '}
                 <strong className="text-amber-700 font-mono">https://{subdomainSlug}.parcos.ro</strong>{' '}
-                este în curs de inițializare în cloud securizat. Te vom contacta în scurt timp la telefon <strong>{phone}</strong>.
+                și te sunăm în cel mai scurt timp la numărul <strong>{phone}</strong> pentru a-ți arăta cum funcționează.
               </p>
               <div className="pt-4 flex justify-center">
-                <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-mono text-slate-700 font-semibold">
-                  Nr. Înregistrare: PRX-{Math.floor(100000 + Math.random() * 900000)} • SLA 24h
+                <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700">
+                  Nr. Solicitare: PRX-{Math.floor(100000 + Math.random() * 900000)} • Răspuns în maxim 24h
                 </span>
               </div>
             </div>
@@ -439,12 +439,12 @@ export const ComparisonAndOnboarding: React.FC = () => {
                 type="submit"
                 className="w-full min-h-[48px] py-3.5 rounded-xl font-black bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 shadow-lg shadow-amber-500/25 transition-all text-sm flex items-center justify-center gap-2 mt-4 touch-manipulation active:scale-[0.98] cursor-pointer"
               >
-                <span>Solicită Activarea Showroom-ului (24h)</span>
+                <span>Vreau să văd parcul meu pe ParcOS (Gratuit)</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-              <div className="text-center text-[11px] text-slate-600 font-mono font-medium">
-                Activare garantată în cloud dedicat • Suveranitate 100% a datelor • Fără contracte pe termen lung
+              <div className="text-center text-[11px] text-slate-600 font-medium">
+                Fără obligații financiare • Fără contracte pe termen lung • Configurare rapidă
               </div>
 
             </form>

@@ -10,6 +10,7 @@ interface FooterProps {
   onOpenDelivery?: () => void;
   onOpenCookies?: () => void;
   onOpenCookiePreferences?: () => void;
+  onOpenGhidAuto?: () => void;
   onReplayIntro?: () => void;
 }
 
@@ -20,6 +21,7 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenDelivery,
   onOpenCookies,
   onOpenCookiePreferences,
+  onOpenGhidAuto,
   onReplayIntro
 }) => {
   const [clickCount, setClickCount] = useState(0);
@@ -95,6 +97,15 @@ export const Footer: React.FC<FooterProps> = ({
             >
               <span>🚚 Livrare în toată România</span>
             </button>
+            {onOpenGhidAuto && (
+              <button
+                type="button"
+                onClick={onOpenGhidAuto}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 hover:text-amber-200 text-[11px] font-bold transition-all cursor-pointer shadow-sm"
+              >
+                <span>📘 Ghid Auto 2026</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={onOpenTerms}

@@ -36,6 +36,8 @@ Fiecare vehicul este livrat cu:
 - **TikTok Oficial:** https://www.tiktok.com/@rxm.automobile
 
 ## Resurse Detaliate pentru Agenți AI (LLMs)
+- [Ghid Auto 2026 ParcOS & Legislație Rutieră](https://rxmautomobile.ro/#ghid-auto): Peste 76 de ghiduri actualizate (Înmatriculări, RAR, Acte Auto, Permis de Conducere, Amenzi, Buy-Back, Finanțare).
+- [Calculator Impozit Auto 2026](https://rxmautomobile.ro/#ghid-auto/calculator-impozit-auto): Instrument de calcul instant conform Art. 470 Codul fiscal (Legea 239/2025 și OUG 78/2025).
 - [Catalog Complet Mașini Detaliat (llms-full.txt)](https://rxmautomobile.ro/llms-full.txt): Fișier complet cu date tehnice, prețuri și specificații pentru toate mașinile din stoc.
 - [Sitemap Oficial XML](https://rxmautomobile.ro/sitemap.xml): Index complet al tuturor URL-urilor pentru motoare de căutare.
 - [Termeni și Condiții de Garanție](https://rxmautomobile.ro/termeni-si-conditii): Politica detaliată de garanție și retur.

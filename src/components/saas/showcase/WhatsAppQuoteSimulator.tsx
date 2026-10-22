@@ -133,23 +133,23 @@ export const WhatsAppQuoteSimulator: React.FC = () => {
       {/* Header and Commercial Proof Badge */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-xs font-mono-telemetry text-emerald-900 font-bold mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-900 font-bold mb-2">
             <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
-            <span>MODUL CONVERSIE WHATSAPP // REZERVĂRI ONLINE</span>
+            <span>OFERTE PE WHATSAPP & REZERVARE PE LOC</span>
           </div>
           <h2 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl text-slate-950 tracking-tight">
-            Oferte Elegante pe WhatsApp cu Garanție de Rezervare
+            Trimite oferte clienților pe WhatsApp și ia avansul pe loc
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 mt-1.5 max-w-2xl leading-relaxed">
-            Elimină ofertele compuse greoi pe telefon și ezitarea clienților de a trimite avans. 
-            Generează în 10 secunde un mesaj profesionist cu calcul TVA deductibil și link de plată securizat.
+            Nu mai pierde timp scriind mesaje lungi pe telefon. Generezi în câteva secunde o ofertă clară, 
+            cu toate datele mașinii și cu link securizat prin care clientul îți poate achita avansul cu cardul sau prin bancă.
           </p>
         </div>
 
         {/* Commercial Proof Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-mono-telemetry font-bold shadow-xs shrink-0">
+        <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold shadow-xs shrink-0">
           <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>Rată de închidere cu +34% mai mare pe lead-urile din online</span>
+          <span>Clienții au încredere și rezervă pe loc</span>
         </div>
       </div>
 

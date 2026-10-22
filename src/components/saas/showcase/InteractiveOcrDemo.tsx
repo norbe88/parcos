@@ -329,16 +329,16 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
       {/* Header and Commercial Proof Badge */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-xs font-mono-telemetry text-amber-900 font-bold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-xs text-amber-900 font-bold mb-2">
             <Scan className="w-3.5 h-3.5 text-amber-600" />
-            <span>INTERACTIVE OCR LAB // SHOW, DON&apos;T TELL</span>
+            <span>SCANARE RAPIDĂ TALON & CARTE AUTO (CIV)</span>
           </div>
           <h2 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl text-slate-950 tracking-tight">
             Testează Viteza Scannerului pe Documente Reale
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 mt-1.5 max-w-2xl leading-relaxed">
             Alege un talon românesc, carte RAR (CIV) sau brief german de import. 
-            Apasă oricând pentru a re-scana sau încarcă propria fotografie direct de pe telefon.
+            Apasă pentru a testa sau încarcă propria fotografie direct de pe telefon.
           </p>
         </div>
 
@@ -346,7 +346,7 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <div 
             onClick={() => quota.isLimitReached && setShowLimitModal(true)}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-mono-telemetry font-bold shadow-xs cursor-pointer transition-all ${
+            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold shadow-xs cursor-pointer transition-all ${
               quota.remaining > 1
                 ? 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
                 : quota.remaining === 1
@@ -368,9 +368,9 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
             )}
           </div>
 
-          <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-xs font-mono-telemetry font-bold shadow-xs shrink-0">
+          <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold shadow-xs shrink-0">
             <Clock className="w-4 h-4 text-slate-600 shrink-0" />
-            <span>⚡ 1.8s recunoaștere AI</span>
+            <span>⚡ Gata în sub 2 secunde</span>
           </div>
         </div>
       </div>

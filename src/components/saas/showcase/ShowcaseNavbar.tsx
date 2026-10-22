@@ -12,19 +12,22 @@ import {
   Calculator,
   Scale,
   Palette,
-  MessageSquare
+  MessageSquare,
+  BookOpen
 } from 'lucide-react';
 
 export interface ShowcaseNavbarProps {
   onSwitchToDealer?: (slug: string) => void;
   activeLanguage?: 'RO' | 'EN' | 'HU';
   onLanguageChange?: (lang: 'RO' | 'EN' | 'HU') => void;
+  onOpenGhidAuto?: () => void;
 }
 
 export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
   onSwitchToDealer,
   activeLanguage = 'RO',
-  onLanguageChange
+  onLanguageChange,
+  onOpenGhidAuto
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState<'RO' | 'EN' | 'HU'>(activeLanguage);
@@ -44,13 +47,13 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
   };
 
   const navLinks = [
-    { href: '#module', label: 'Module DMS', icon: Layers },
-    { href: '#demo-ocr', label: 'Simulator OCR', icon: FileSearch },
-    { href: '#teme', label: 'Showroom Tematic', icon: Palette },
+    { href: '#module', label: 'Ce Poate Face', icon: Layers },
+    { href: '#demo-ocr', label: 'Scanare Talon', icon: FileSearch },
+    { href: '#teme', label: 'Site-ul Tău', icon: Palette },
     { href: '#oferte-whatsapp', label: 'Oferte WhatsApp', icon: MessageSquare },
-    { href: '#calculator-roi', label: 'Calculator ROI', icon: Calculator },
-    { href: '#comparatie', label: 'Eficiență DMS', icon: Scale },
-    { href: '#onboard', label: 'Înscriere Parc', icon: Sparkles },
+    { href: '#calculator-roi', label: 'Economii', icon: Calculator },
+    { href: '#comparatie', label: 'De Ce ParcOS', icon: Scale },
+    { href: '#onboard', label: 'Încearcă Gratuit', icon: Sparkles },
   ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -74,7 +77,7 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
         
-        {/* Brand Logo & Telemetry Pill */}
+        {/* Brand Logo & Status Pill */}
         <div className="flex items-center gap-3">
           <a 
             href="#hero" 
@@ -95,13 +98,13 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
                 <span className="font-display font-black text-lg tracking-tight text-slate-950">
                   Parc<span className="text-amber-700">OS</span>
                 </span>
-                <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono-telemetry font-semibold bg-slate-100 border border-slate-200 text-slate-700">
+                <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 border border-slate-200 text-slate-700">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  v2.4 Production
+                  Pentru Parcuri Auto
                 </span>
               </div>
-              <span className="text-[9px] font-mono tracking-widest text-slate-500 uppercase leading-tight sm:block hidden">
-                Dealership OS • Cloud-Native
+              <span className="text-[10px] font-medium tracking-wide text-slate-500 leading-tight sm:block hidden">
+                Site Propriu & Gestiune Stoc
               </span>
             </div>
           </a>
@@ -144,6 +147,19 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
 
 
 
+          {/* Ghid Auto 2026 Button */}
+          {onOpenGhidAuto && (
+            <button
+              type="button"
+              onClick={onOpenGhidAuto}
+              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 border border-amber-500/30 transition-all touch-manipulation min-h-[36px]"
+              title="Deschide Ghidul Auto Oficial 2026"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-amber-600" />
+              <span>Ghid Auto 2026</span>
+            </button>
+          )}
+
           {/* Showroom Demo Live Button (RXM Official Site) */}
           <a
             href="https://rxmautomobile.ro"
@@ -163,7 +179,7 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
             onClick={(e) => handleNavClick(e, '#onboard')}
             className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 shadow-md shadow-amber-500/20 transition-all touch-manipulation min-h-[36px] active:scale-[0.98]"
           >
-            <span>Înscrie Parcul</span>
+            <span>Încearcă Gratuit</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </a>
 
@@ -226,6 +242,20 @@ export const ShowcaseNavbar: React.FC<ShowcaseNavbarProps> = ({
 
             {/* Mobile Direct Buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+              {onOpenGhidAuto && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenGhidAuto();
+                  }}
+                  className="w-full min-h-[44px] px-4 py-2.5 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-900 border border-amber-400/50 flex items-center justify-center gap-2 touch-manipulation active:scale-[0.98]"
+                >
+                  <BookOpen className="w-4 h-4 text-amber-600" />
+                  <span>📘 Ghid Auto 2026</span>
+                </button>
+              )}
+
               <a
                 href="https://rxmautomobile.ro"
                 target="_blank"

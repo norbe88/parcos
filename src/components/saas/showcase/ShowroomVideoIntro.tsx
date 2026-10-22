@@ -52,10 +52,10 @@ interface ShowroomVehicle {
 
 /**
  * Cele 4 vehicule reprezentate în showroom (aliniate exact cu modelele din video-ul din hală):
- * - Card 0: Porsche Cayenne GTS Coupé (Flanc Stâng Față / Top-Left)
- * - Card 1: Mercedes-AMG GT Coupé (Flanc Stâng Mijloc / Top-Right)
- * - Card 2: Audi RS7 Sportback (Flanc Drept Mijloc / Bottom-Left)
- * - Card 3: Audi R8 V10 Performance (Flanc Drept Față / Bottom-Right)
+ * - Card 0: Porsche Cayenne GTS Coupé (Flanc Drept Față / Bottom-Right)
+ * - Card 1: Mercedes-Benz Clasa E AMG Line (Flanc Drept Mijloc / Top-Right)
+ * - Card 2: Audi RS7 Sportback 4.0 TFSI (Flanc Stâng Față / Bottom-Left)
+ * - Card 3: BMW X5 xDrive40d M Sport (Flanc Stâng Mijloc / Top-Left)
  *
  * * Toate prețurile includ TVA 21% deductibil și sunt marcate cu * pentru a indica date demonstrative (mock data).
  * * Design Tokeni: Dark Luxury (#09090b canvas, #121215 card glass, text-white, WCAG AAA 18:1 contrast).
@@ -69,80 +69,76 @@ const VEHICLES: ShowroomVehicle[] = [
     priceGross: '108.900 € (TVA inclus)*',
     statusBadge: 'În Stoc • Livrare Imediată',
     statusColor: 'sky',
-    imageUrl:
-      'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
-    anchorX: '20%',
-    anchorY: '74%',
-    featureTitle: 'CIV Scanat cu AI (1.8s) • e-Factura SPV',
-    featureSub: '19/19 câmpuri RAR extrase instant în sistem',
+    imageUrl: '/images/showcase/porsche-cayenne-showcase.jpg',
+    anchorX: '79%',
+    anchorY: '65%',
+    featureTitle: 'Scanare CIV cu AI • e-Factura SPV',
+    featureSub: 'Datele din CIV și talon preluate automat în 1.8s, fără tastare',
     Icon: Scan,
     telemetry: [
-      { label: 'CIV RAR', value: '19/19 Validate' },
-      { label: 'ANAF e-Factura', value: 'XML SPV' },
+      { label: 'CIV RAR', value: 'Completat Automat' },
+      { label: 'Factură', value: 'e-Factura SPV' },
       { label: 'Garanție Rezervare', value: '1.000 €' },
     ],
   },
   {
-    id: 'merc-amg-gt-02',
-    shortName: 'Mercedes-AMG GT',
-    vehicleName: 'Mercedes-AMG GT Coupé V8',
-    trim: 'Night Package • Burmester • 2022 • 29.500 km',
-    priceGross: '119.500 € (TVA inclus)*',
+    id: 'merc-e-class-02',
+    shortName: 'Mercedes-Benz Clasa E',
+    vehicleName: 'Mercedes-Benz Clasa E AMG Line',
+    trim: 'AMG Line • Burmester • Pano • 2023 • 28.500 km',
+    priceGross: '79.900 € (TVA inclus)*',
     statusBadge: 'Rezervare Online • WhatsApp',
     statusColor: 'emerald',
-    imageUrl:
-      'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=800&q=80',
-    anchorX: '34%',
-    anchorY: '64%',
-    featureTitle: 'Ofertă Trimisă • Plată Stripe Link',
-    featureSub: 'Garanție de Rezervare confirmată prin Apple Pay (Stripe)',
+    imageUrl: '/images/showcase/mercedes-e-class-showcase.jpg',
+    anchorX: '65%',
+    anchorY: '59%',
+    featureTitle: 'Ofertă pe WhatsApp • Garanție Rezervare',
+    featureSub: 'Clientul plătește garanția de rezervare online, iar mașina se blochează 48h',
     Icon: MessageSquare,
     telemetry: [
-      { label: 'Plată Stripe', value: '1.500 € Încasat' },
-      { label: 'Dosar WhatsApp', value: 'PDF Auto' },
-      { label: 'Status Rezervare', value: 'Blocat 48h' },
+      { label: 'Garanție Încasată', value: '1.500 €' },
+      { label: 'Ofertă WhatsApp', value: 'Trimisă în 10s' },
+      { label: 'Status Mașină', value: 'Rezervată 48h' },
     ],
   },
   {
     id: 'audi-rs7-03',
-    shortName: 'Audi RS7 Sportback',
+    shortName: 'Audi RS7',
     vehicleName: 'Audi RS7 Sportback 4.0 TFSI',
     trim: 'HD Matrix Laser • Ceramic • 2023 • 24.000 km',
     priceGross: '114.900 € (TVA inclus)*',
     statusBadge: 'Verificat Tehnic • Raport RAR',
     statusColor: 'amber',
-    imageUrl:
-      'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&w=800&q=80',
-    anchorX: '72%',
-    anchorY: '65%',
+    imageUrl: '/images/showcase/audi-rs7-showcase.jpg',
+    anchorX: '23%',
+    anchorY: '64%',
     featureTitle: 'Contract Vânzare & Înstrăinare DRPCIV',
-    featureSub: 'Fișă înstrăinare DRPCIV + Proces Verbal predare',
+    featureSub: 'Contractul și dosarul de predare sunt generate instant, gata de semnat',
     Icon: FileText,
     telemetry: [
-      { label: 'Contract Vânzare', value: 'PDF Auto' },
-      { label: 'Înstrăinare DRPCIV', value: 'Anexa 2' },
+      { label: 'Contract Vânzare', value: 'Gata de Semnat' },
+      { label: 'Dosar Predare', value: 'Complet' },
       { label: 'Regim Fiscal', value: 'TVA Deductibil' },
     ],
   },
   {
-    id: 'audi-r8-04',
-    shortName: 'Audi R8 V10',
-    vehicleName: 'Audi R8 V10 Performance Quattro',
-    trim: 'Carbon Aerokit • Laser Light • 2022 • 18.200 km',
-    priceGross: '139.900 € (TVA inclus)*',
+    id: 'bmw-x5-04',
+    shortName: 'BMW X5',
+    vehicleName: 'BMW X5 xDrive40d M Sport',
+    trim: 'M Sport • Laserlight • Pano • 2023 • 32.000 km',
+    priceGross: '89.900 € (TVA inclus)*',
     statusBadge: 'Sincronizat Live • Multi-Canal',
     statusColor: 'emerald',
-    imageUrl:
-      'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=800&q=80',
-    anchorX: '82%',
-    anchorY: '74%',
-    featureTitle: 'Sincronizat pe marile portaluri în 0.42s',
-    featureSub: 'Protecție activă împotriva dublei vânzări',
+    imageUrl: '/images/showcase/bmw-x5-showcase.jpg',
+    anchorX: '36%',
+    anchorY: '58%',
+    featureTitle: 'Stoc Sincronizat pe Autovit & OLX',
+    featureSub: 'ParcOS publică și actualizează stocul instant pe marile portaluri auto',
     Icon: Zap,
     telemetry: [
-      { label: 'Sincronizare', value: 'Portaluri Auto & Clasificate' },
-      { label: 'Timp Replicare', value: '0.42s' },
-      { label: 'Alertă Stoc', value: 'Activă 24/7' },
+      { label: 'Portaluri Auto', value: 'Sincronizate' },
+      { label: 'Stoc Parc', value: 'Timp Real' },
+      { label: 'Alerte Dubluri', value: 'Zero Erori' },
     ],
   },
 ];
@@ -167,8 +163,8 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
   const [isVideoEnded, setIsVideoEnded] = useState<boolean>(false);
 
   // Stare pentru selecția manuală a cardului activ pe mobil în cele 2 sloturi
-  const [manualSlotA, setManualSlotA] = useState<0 | 2 | null>(null);
-  const [manualSlotB, setManualSlotB] = useState<1 | 3 | null>(null);
+  const [manualSlotA, setManualSlotA] = useState<2 | 3 | null>(null);
+  const [manualSlotB, setManualSlotB] = useState<0 | 1 | null>(null);
 
   // Monitorizare scroll nativ cuantificată pe cele 5 milestone-uri discrete (-1, 0, 1, 2, 3)
   // Elimină complet re-randările sub-pixel pe monitoare 4K (reduce re-randările cu >99%)
@@ -313,29 +309,33 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
 
   let cameraPan = 'translate3d(0, 0, 0) scale(1)';
   if (scrollPhase === 0) {
-    cameraPan = 'translate3d(2.5vw, -1vh, 0) scale(1.04)';
+    // Porsche Cayenne GTS (Flanc Drept Față): Soft zoom lin spre Porsche în dreapta jos
+    cameraPan = 'translate3d(-10%, -4%, 0) scale(1.22)';
   } else if (scrollPhase === 1) {
-    cameraPan = 'translate3d(-2.5vw, -1vh, 0) scale(1.04)';
+    // Mercedes-Benz Clasa E (Flanc Drept Mijloc): Soft zoom lin spre Mercedes în dreapta mijloc
+    cameraPan = 'translate3d(-8%, 1%, 0) scale(1.26)';
   } else if (scrollPhase === 2) {
-    cameraPan = 'translate3d(2.5vw, 1.5vh, 0) scale(1.05)';
+    // Audi RS7 Sportback (Flanc Stâng Față): Soft zoom lin spre Audi RS7 în stânga jos
+    cameraPan = 'translate3d(10%, -4%, 0) scale(1.22)';
   } else if (scrollPhase === 3) {
-    cameraPan = 'translate3d(-2.5vw, 1.5vh, 0) scale(1.05)';
+    // BMW X5 xDrive40d (Flanc Stâng Mijloc): Soft zoom lin spre BMW X5 în stânga mijloc
+    cameraPan = 'translate3d(8%, 1%, 0) scale(1.26)';
   }
 
-  // Calcul mașină activă în Slot A (Card 0 / Card 2) și Slot B (Card 1 / Card 3) pe mobil
-  const activeSlotACar: 0 | 2 = manualSlotA ?? (scrollPhase >= 2 ? 2 : 0);
-  const activeSlotBCar: 1 | 3 = manualSlotB ?? (scrollPhase >= 3 ? 3 : 1);
+  // Calcul mașină activă în Slot A (Flanc Stâng: Card 2: Audi RS7 / Card 3: BMW X5) și Slot B (Flanc Drept: Card 0: Porsche / Card 1: Mercedes) pe mobil
+  const activeSlotACar: 2 | 3 = manualSlotA ?? (scrollPhase === 3 ? 3 : 2);
+  const activeSlotBCar: 0 | 1 = manualSlotB ?? (scrollPhase === 1 ? 1 : 0);
 
   // Derulare lină către un vehicul specific
   const scrollToVehicle = (index: number) => {
-    if (index === 0 || index === 2) setManualSlotA(index as 0 | 2);
-    if (index === 1 || index === 3) setManualSlotB(index as 1 | 3);
+    if (index === 2 || index === 3) setManualSlotA(index as 2 | 3);
+    if (index === 0 || index === 1) setManualSlotB(index as 0 | 1);
 
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const containerTop = window.scrollY + rect.top;
     const total = rect.height - window.innerHeight;
-    const milestones = [0.16, 0.38, 0.61, 0.84];
+    const milestones = [0.18, 0.41, 0.64, 0.86];
     const targetProgress = milestones[index] ?? 0;
     window.scrollTo({
       top: containerTop + total * targetProgress,
@@ -379,7 +379,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
     const vehicle = VEHICLES[vehicleIndex];
     if (!vehicle) return null;
 
-    const isVisible = isMobileSlot ? true : scrollPhase >= vehicleIndex;
+    const isVisible = isMobileSlot ? true : scrollPhase >= 0;
     const isPrimPlan = primPlanIndex === vehicleIndex;
     const isLeft = quadrant.includes('left');
     const isBottom = quadrant.includes('bottom');
@@ -407,7 +407,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
           },
         } as const)[vehicle.statusColor]
       : {
-          card: 'opacity-90 scale-[0.98] translate-x-0 translate-y-0 bg-[#121215]/95 border-white/15 shadow-xl z-20 hover:opacity-100 hover:scale-[0.99] hover:border-white/30',
+          card: 'opacity-75 scale-[0.97] translate-x-0 translate-y-0 bg-[#121215]/95 border-white/10 shadow-xl z-20 hover:opacity-100 hover:scale-[0.99] hover:border-white/30',
           text: 'text-zinc-300',
           dot:  'bg-zinc-500',
         };
@@ -524,11 +524,12 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
             - Zero seek destructiv la final (elimină riscul de reset la uși închise)
            ===================================================================== */}
         <div 
-          className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+          className="pointer-events-none absolute -inset-[2%] sm:inset-0 z-0 overflow-hidden"
           style={{
             transform: cameraPan,
-            transition: 'transform 850ms cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'transform 950ms cubic-bezier(0.16, 1, 0.3, 1)',
             willChange: 'transform',
+            transformOrigin: 'center center',
             backfaceVisibility: 'hidden',
           }}
         >
@@ -588,10 +589,20 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
 
         {/* =====================================================================
             LAYER 1.5: FASCICULE HOLOGRAFICE DISCRETE PE CAROSERIA VEHICULELOR
+            - Sincronizate în lockstep cu cameraPan pentru ancorare pe caroserie
            ===================================================================== */}
-        <div className="pointer-events-none absolute inset-0 z-10">
+        <div
+          className="pointer-events-none absolute -inset-[2%] sm:inset-0 z-10 overflow-hidden"
+          style={{
+            transform: cameraPan,
+            transition: 'transform 950ms cubic-bezier(0.16, 1, 0.3, 1)',
+            willChange: 'transform',
+            transformOrigin: 'center center',
+            backfaceVisibility: 'hidden',
+          }}
+        >
           {VEHICLES.map((vehicle, index) => {
-            const isVisibleOnScreen = scrollPhase >= index;
+            const isVisibleOnScreen = scrollPhase >= 0;
             const isPrimPlan = primPlanIndex === index;
 
             if (!isVisibleOnScreen) return null;
@@ -661,19 +672,19 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
             <div className="transition-all duration-400 ease-out">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.06] border border-white/15 px-3 py-0.5 sm:px-3.5 sm:py-1 text-[11px] sm:text-xs font-semibold text-zinc-200 mb-1.5 sm:mb-2">
                 <Sparkles className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-amber-400" />
-                <span>Showroom Digital Autonom • ParcOS Cloud DMS</span>
+                <span>Showroom Digital & Gestiune Parc Auto</span>
               </div>
 
               <h1 className="text-sm sm:text-xl md:text-2xl lg:text-[1.65rem] font-black tracking-tight text-white leading-snug">
-                „Nu mai pierde clienți în mesageria platformelor auto.{' '}
+                „Nu mai pierde clienți pe drum.{' '}
                 <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-emerald-400 bg-clip-text text-transparent">
-                  Transformă-ți parcul într-un showroom digital autonom.”
+                  Prezintă-ți mașinile ca un profesionist și încasează avansul pe loc.”
                 </span>
               </h1>
 
               <p className="mt-1 sm:mt-1.5 text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-2xl mx-auto">
-                De la scanarea CIV în 1.8 secunde și e-Factura în SPV, până la contract generat
-                și încasarea garanției de rezervare prin Stripe direct pe WhatsApp.
+                De la scanarea talonului cu camera telefonului și factura fiscală, până la contractul de vânzare
+                și rezervarea mașinii garantată direct pe WhatsApp.
               </p>
 
               <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
@@ -683,7 +694,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                   className="group inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-black tracking-wide shadow-lg shadow-amber-500/25 transition-all duration-200 hover:scale-[1.02] cursor-pointer"
                 >
                   <Car className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-950" />
-                  <span>Explorează Sistemul DMS</span>
+                  <span>Vezi Cum Funcționează</span>
                   <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-950 transition-transform duration-200 group-hover:translate-x-1" />
                 </button>
 
@@ -721,14 +732,14 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
               scrollPhase < 0 ? 'pointer-events-none' : ''
             }`}
           >
-            <div className="bg-[#121215]/95 backdrop-blur-md border border-white/15 rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-1.5 shadow-xl flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
-              <div className="flex items-center gap-1.5 text-[11px] font-bold text-zinc-200 shrink-0">
+            <div className="bg-[#121215]/95 backdrop-blur-md border border-white/15 rounded-xl px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 shadow-xl flex items-center justify-between gap-2 sm:gap-3">
+              <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-zinc-200 shrink-0">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
-                <span className="hidden sm:inline text-zinc-400">Selector Showroom:</span>
+                <span className="hidden sm:inline text-zinc-300">Selector Showroom:</span>
               </div>
 
               {/* Slider selector cu butoane directe către cele 4 mașini */}
-              <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+              <div className="flex items-center justify-start sm:justify-center gap-1.5 sm:gap-2 flex-1 overflow-x-auto no-scrollbar py-0.5">
                 {VEHICLES.map((v, idx) => {
                   const isCurrent = (primPlanIndex >= 0 ? primPlanIndex : 0) === idx;
                   return (
@@ -736,7 +747,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                       key={v.id}
                       type="button"
                       onClick={() => scrollToVehicle(idx)}
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shrink-0 ${
+                      className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shrink-0 ${
                         isCurrent
                           ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25 font-black ring-2 ring-amber-400'
                           : 'bg-white/[0.06] text-zinc-300 hover:text-white hover:bg-white/[0.12] border border-white/10'
@@ -752,10 +763,6 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                   );
                 })}
               </div>
-
-              <span className="text-[10px] text-zinc-400 font-mono hidden lg:inline shrink-0">
-                Click pentru focalizare
-              </span>
             </div>
           </div>
         </div>
@@ -769,7 +776,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
         <div className="relative z-30 max-w-[1560px] mx-auto w-full px-3 sm:px-6 lg:px-8 pb-3 flex-1 flex flex-col justify-between">
           
           <div className="w-full flex-1 flex flex-col justify-center my-auto py-1 sm:py-2">
-            {/* 🖥️ VARIANTA A: DESKTOP (lg:grid) — 4 CADRANE SEPARATE */}
+            {/* 🖥️ VARIANTA A: DESKTOP (lg:grid) — 4 CADRANE ALINIATE CU SHOWROOM-UL */}
             <div
               className={`hidden lg:grid w-full grid-cols-2 gap-3.5 lg:gap-x-12 xl:gap-x-20 2xl:gap-x-28 lg:gap-y-3.5 items-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 scrollPhase < 0
@@ -777,24 +784,24 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                   : 'opacity-100 translate-y-0 pointer-events-auto scale-100'
               }`}
             >
-              {/* 1. Sus în Stânga: Porsche Cayenne GTS Coupé */}
+              {/* 1. Sus în Stânga (Flanc Stâng Mijloc): BMW X5 xDrive40d M Sport */}
               <div className="col-start-1 row-start-1 w-full">
-                {renderVehicleQuadrantCard(0, 'top-left')}
+                {renderVehicleQuadrantCard(3, 'top-left')}
               </div>
 
-              {/* 2. Sus în Dreapta: Mercedes-AMG GT Coupé */}
+              {/* 2. Sus în Dreapta (Flanc Drept Mijloc): Mercedes-Benz Clasa E AMG Line */}
               <div className="col-start-2 row-start-1 w-full">
                 {renderVehicleQuadrantCard(1, 'top-right')}
               </div>
 
-              {/* 3. Sub cel din stânga sus: Audi RS7 Sportback */}
+              {/* 3. Jos în Stânga (Flanc Stâng Față): Audi RS7 Sportback 4.0 TFSI */}
               <div className="col-start-1 row-start-2 w-full">
                 {renderVehicleQuadrantCard(2, 'bottom-left')}
               </div>
 
-              {/* 4. În Dreapta Jos: Audi R8 V10 Performance */}
+              {/* 4. Jos în Dreapta (Flanc Drept Față): Porsche Cayenne GTS Coupé */}
               <div className="col-start-2 row-start-2 w-full">
-                {renderVehicleQuadrantCard(3, 'bottom-right')}
+                {renderVehicleQuadrantCard(0, 'bottom-right')}
               </div>
             </div>
 
@@ -806,7 +813,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                   : 'opacity-100 translate-y-0 pointer-events-auto scale-100'
               }`}
             >
-              {/* SLOTUL A (Card 0: Porsche Cayenne & Card 2: Audi RS7) */}
+              {/* SLOTUL A (Flanc Stâng: Card 2: Audi RS7 & Card 3: BMW X5) */}
               <div
                 style={{
                   transition: 'opacity 500ms ease, transform 500ms ease',
@@ -829,20 +836,6 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setManualSlotA(0);
-                      }}
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
-                        activeSlotACar === 0
-                          ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
-                          : 'text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      {VEHICLES[0].shortName}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
                         setManualSlotA(2);
                       }}
                       className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
@@ -853,20 +846,34 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                     >
                       {VEHICLES[2].shortName}
                     </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setManualSlotA(3);
+                      }}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        activeSlotACar === 3
+                          ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
+                          : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      {VEHICLES[3].shortName}
+                    </button>
                   </div>
                 </div>
 
                 {/* Randare Card Activ în Slotul A */}
-                {renderVehicleQuadrantCard(activeSlotACar, 'top-left', true)}
+                {renderVehicleQuadrantCard(activeSlotACar, 'bottom-left', true)}
               </div>
 
-              {/* SLOTUL B (Card 1: Mercedes-AMG & Card 3: Audi R8) */}
+              {/* SLOTUL B (Flanc Drept: Card 0: Porsche Cayenne & Card 1: Mercedes-Benz) */}
               <div
                 style={{
                   transition: 'opacity 500ms ease, transform 500ms ease',
                 }}
                 className={`w-full transition-all duration-500 ${
-                  scrollPhase < 1
+                  scrollPhase < 0
                     ? 'opacity-0 pointer-events-none translate-y-3'
                     : 'opacity-100 translate-y-0'
                 }`}
@@ -883,6 +890,20 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
+                        setManualSlotB(0);
+                      }}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                        activeSlotBCar === 0
+                          ? 'bg-sky-500 text-slate-950 shadow-sm font-black'
+                          : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      {VEHICLES[0].shortName}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setManualSlotB(1);
                       }}
                       className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
@@ -893,25 +914,11 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                     >
                       {VEHICLES[1].shortName}
                     </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setManualSlotB(3);
-                      }}
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
-                        activeSlotBCar === 3
-                          ? 'bg-emerald-500 text-slate-950 shadow-sm font-black'
-                          : 'text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      {VEHICLES[3].shortName}
-                    </button>
                   </div>
                 </div>
 
                 {/* Randare Card Activ în Slotul B */}
-                {renderVehicleQuadrantCard(activeSlotBCar, 'top-right', true)}
+                {renderVehicleQuadrantCard(activeSlotBCar, 'bottom-right', true)}
               </div>
 
             </div>
@@ -923,18 +930,18 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
               <span className="flex items-center gap-1.5 sm:gap-2">
                 <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-400 shrink-0" />
                 <span>
-                  Conformitate Fiscală România: <strong className="text-white font-bold">TVA Deductibil / Marjă Art. 312</strong> •{' '}
-                  <strong className="text-white font-bold">Garanție de Rezervare Stripe</strong> •{' '}
-                  <strong className="text-white font-bold">ANAF e-Factura SPV</strong>
+                  100% Adaptat pentru România: <strong className="text-white font-bold">Facturare cu TVA sau Regim de Marjă</strong> •{' '}
+                  <strong className="text-white font-bold">Avans Securizat cu Cardul</strong> •{' '}
+                  <strong className="text-white font-bold">e-Factura SPV</strong>
                 </span>
               </span>
               <span className="text-[10px] sm:text-xs text-zinc-400 flex items-center gap-1 shrink-0">
                 <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-emerald-400" />
-                <span className="font-semibold text-zinc-200">4 Vehicule Sincronizate în Hală</span>
+                <span className="font-semibold text-zinc-200">Stoc Sincronizat în Timp Real</span>
               </span>
             </div>
             <div className="text-[10px] text-zinc-400 border-t border-white/10 pt-1 leading-snug">
-              * Modelele, fotografiile și prețurile afișate reprezintă date demonstrative (mock data) pentru simularea showroom-ului digital autonom. ParcOS este furnizat exclusiv ca platformă software Cloud DMS + Showroom Digital Autonom pentru dealeri și parcuri auto.
+              * Imaginile și prețurile sunt orientative, folosite pentru prezentare. ParcOS este un program complet dedicat parcurilor și dealerilor auto pentru gestionarea stocului, a vânzărilor și a propriului site oficial de prezentare.
             </div>
           </div>
         </div>

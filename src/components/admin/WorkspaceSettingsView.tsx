@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Sliders, Eye, EyeOff, Check, RotateCcw, Sparkles
+  Sliders, Eye, EyeOff, Check, RotateCcw, Sparkles,
+  Download, ExternalLink, Bookmark, Copy, CheckCircle2,
+  AlertCircle, Puzzle, ShieldCheck
 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { DealerProfile, SEED_DEALER } from '../../db/seed';
+import { generateOlxBookmarkletUrl } from '../../utils/olxBookmarkletGenerator';
 
 interface WorkspaceSettingsViewProps {
   dealer?: DealerProfile;
@@ -24,6 +27,30 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
     toggleColumn, 
     resetSettings 
   } = useWorkspace();
+
+  // Detecție extensie ParcOS instalată în browser
+  const [isExtensionInstalled, setIsExtensionInstalled] = useState(false);
+  const [isCopiedBookmarklet, setIsCopiedBookmarklet] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      const attr = document.documentElement.getAttribute('data-parcos-olx-extension');
+      if (attr === 'installed' || (window as any).__PARCOS_OLX_EXTENSION__) {
+        setIsExtensionInstalled(true);
+      }
+    };
+    check();
+    window.addEventListener('parcos-olx-extension-ready', () => setIsExtensionInstalled(true));
+  }, []);
+
+  const bookmarkletUrl = generateOlxBookmarkletUrl();
+
+  const handleCopyBookmarklet = () => {
+    navigator.clipboard.writeText(bookmarkletUrl);
+    setIsCopiedBookmarklet(true);
+    showToast('✓ Codul Bookmarklet a fost copiat în clipboard!');
+    setTimeout(() => setIsCopiedBookmarklet(false), 3000);
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
@@ -369,6 +396,156 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
                 </span>
               </div>
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 🔌 INTEGRARE EXTENSIE CHROME OLX PUBLISHER & SMART BOOKMARKLET (NETCUP VPS) */}
+      {/* ========================================================================= */}
+      <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-6 shadow-xl space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/[0.08]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+              <Puzzle className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-bold text-white">
+                  Extensie Browser & Integrări Publicare OLX
+                </h3>
+                {isExtensionInstalled ? (
+                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Extensie Activă
+                  </span>
+                ) : (
+                  <span className="text-[10px] bg-amber-500/15 text-amber-300 font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
+                    Găzduit pe Netcup VPS
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-zinc-400">
+                Pachet oficial de instalare directă pentru completarea automată a anunțurilor auto pe OLX România.
+              </p>
+            </div>
+          </div>
+
+          <a
+            href="/downloads/parcos-olx-publisher.zip"
+            download="parcos-olx-publisher.zip"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-blue-500/20 transition-all cursor-pointer self-start sm:self-auto shrink-0"
+            title="Descarcă arhiva ZIP a extensiei direct de pe serverul VPS"
+          >
+            <Download className="w-4 h-4" />
+            <span>Descarcă Extensia Chrome (ZIP)</span>
+          </a>
+        </div>
+
+        {/* 2 Metode de Instalare */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          
+          {/* Card 1: Instalare Extensie Chrome din Arhivă ZIP */}
+          <div className="p-4 sm:p-5 rounded-xl bg-[#18181b] border border-white/5 space-y-4 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-blue-400 flex items-center gap-1.5 uppercase tracking-wider">
+                  <Puzzle className="w-3.5 h-3.5" /> Metoda 1: Extensie Chrome (1 Minut)
+                </span>
+                <span className="text-[10px] bg-white/5 text-zinc-400 px-2 py-0.5 rounded font-mono">
+                  v1.0.0 · Manifest V3
+                </span>
+              </div>
+              
+              <p className="text-xs text-zinc-300 leading-relaxed">
+                Extensia este împachetată și găzduită direct pe serverul Netcup VPS al showroom-ului. Se instalează direct în Chrome în 3 pași simpli fără a fi nevoie de Web Store.
+              </p>
+
+              <ol className="text-xs text-zinc-400 space-y-2 list-decimal list-inside bg-black/30 p-3 rounded-lg border border-white/5">
+                <li>Apasă butonul de mai sus pentru a descărca fișierul <strong className="text-zinc-200">parcos-olx-publisher.zip</strong> și dezarhivează-l.</li>
+                <li>Deschide Chrome și navighează la adresa <code className="text-amber-300 bg-white/10 px-1 py-0.5 rounded font-mono">chrome://extensions</code>.</li>
+                <li>Activează <strong className="text-zinc-200">„Developer mode”</strong> (dreapta sus) și apasă <strong className="text-zinc-200">„Load unpacked”</strong> (Încarcă extensie dezarhivată), selectând folderul descărcat.</li>
+              </ol>
+            </div>
+
+            <div className="pt-2 flex items-center gap-2">
+              <a
+                href="/downloads/parcos-olx-publisher.zip"
+                download="parcos-olx-publisher.zip"
+                className="flex-1 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-blue-400" />
+                <span>Descarcă Pachetul (9.5 KB)</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  window.open('https://www.olx.ro/adding/', '_blank', 'noopener,noreferrer');
+                }}
+                className="py-2 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+                title="Deschide formularul OLX pentru a testa extensia"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-amber-400" />
+                <span>Test OLX</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Card 2: Smart Bookmarklet 1-Click (Zero Instalare) */}
+          <div className="p-4 sm:p-5 rounded-xl bg-[#18181b] border border-white/5 space-y-4 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider">
+                  <Bookmark className="w-3.5 h-3.5" /> Metoda 2: Smart Bookmarklet (Zero Instalare)
+                </span>
+                <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-bold">
+                  Instant
+                </span>
+              </div>
+
+              <p className="text-xs text-zinc-300 leading-relaxed">
+                Nu ai permisiuni de instalat extensii pe calculatorul de birou? Trage butonul de mai jos direct în bara ta de Favorite Chrome. Funcționează pe loc!
+              </p>
+
+              {/* Zona Draggable Bookmarklet */}
+              <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-white/[0.02] border border-dashed border-amber-500/30 gap-2 text-center">
+                <span className="text-[11px] text-zinc-400">Trage cu mouse-ul în bara de Favorite sus:</span>
+                <a
+                  href={bookmarkletUrl}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    showToast('💡 Trage acest buton cu mouse-ul în bara ta de semne de carte sus!');
+                  }}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 text-black font-extrabold text-xs shadow-md shadow-amber-500/20 cursor-grab active:cursor-grabbing hover:scale-105 transition-all flex items-center gap-2 select-none"
+                  title="Trage acest buton în bara de semne de carte"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-black" />
+                  <span>⚡ ParcOS OLX Auto-Poster</span>
+                </a>
+                <span className="text-[10px] text-zinc-500">
+                  (Tastează <kbd className="px-1 py-0.2 rounded bg-white/10 text-zinc-300 font-mono">Ctrl + Shift + B</kbd> dacă bara e ascunsă)
+                </span>
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleCopyBookmarklet}
+                className="flex-1 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                {isCopiedBookmarklet ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-amber-400" />}
+                <span>{isCopiedBookmarklet ? 'Copiat!' : 'Copiază Cod Bookmarklet'}</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Notă Securitate & Invariante */}
+        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-2.5 text-xs text-emerald-200">
+          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+          <div className="leading-relaxed">
+            <strong>Protecție Cont & Zero Costuri:</strong> Extensia rulează strict local în browserul tău, fără a stoca parole sau a efectua conexiuni externe neverificate. Nu folosește credite de publicare automată — tu verifici întotdeauna anunțul înainte de lansare.
           </div>
         </div>
       </div>

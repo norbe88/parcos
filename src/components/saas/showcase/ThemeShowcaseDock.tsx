@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Palette, 
   Car, 
@@ -14,7 +14,15 @@ import {
   GripVertical,
   CheckCircle2,
   Lock,
-  Globe
+  Globe,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  RotateCcw,
+  Film,
+  Zap,
+  Server
 } from 'lucide-react';
 
 export type ThemePresetKey = 'obsidian_gold' | 'mpi_auto' | 'top_auto';
@@ -32,6 +40,11 @@ export interface ThemeConfig {
   textClass: string;
   mutedTextClass: string;
   borderClass: string;
+  previewVideoMp4?: string;
+  previewVideoWebm?: string;
+  previewPoster?: string;
+  isRealProduction?: boolean;
+  videoHighlights?: Array<{ label: string; value: string; desc: string }>;
   previewHeroCar: {
     brand: string;
     model: string;
@@ -57,9 +70,9 @@ const THEME_PRESETS: Record<ThemePresetKey, ThemeConfig> = {
   obsidian_gold: {
     key: 'obsidian_gold',
     name: 'RXM Automobile (Obsidian Gold)',
-    tagline: 'Dark luxury cu accente aurii — Showroom pilot creat cu ParcOS',
+    tagline: 'Dark luxury cu accente aurii — Showroom pilot live creat cu ParcOS',
     domain: 'rxmautomobile.ro',
-    badge: 'EXEMPLU CREAT',
+    badge: 'PRODUCȚIE REALĂ',
     accentColor: '#d4af37',
     accentSecondary: '#f59e0b',
     surfaceClass: 'bg-[#09090b]',
@@ -67,6 +80,16 @@ const THEME_PRESETS: Record<ThemePresetKey, ThemeConfig> = {
     textClass: 'text-zinc-100',
     mutedTextClass: 'text-zinc-400',
     borderClass: 'border-white/10',
+    previewVideoMp4: '/videos/rxm-preview.mp4',
+    previewVideoWebm: '/videos/rxm-preview.webm',
+    previewPoster: '/videos/rxm-poster.webp',
+    isRealProduction: true,
+    videoHighlights: [
+      { label: 'Showroom Live', value: 'rxmautomobile.ro', desc: 'Domeniu propriu client, găzduit pe Netcup VPS dedicat' },
+      { label: 'Procesare Foto AI', value: 'YOLOv8 + WebP', desc: 'Estompare automată a numerelor și comprimare -65%' },
+      { label: 'Video Lounge', value: 'TikTok Integrat', desc: 'Prezentare video cinematică și walkaround pentru fiecare mașină' },
+      { label: 'Garanție & Siguranță', value: 'carVertical + SPV', desc: 'Rapoarte tehnice complete și facturare e-Factura SPV' }
+    ],
     previewHeroCar: {
       brand: 'AUDI',
       model: 'RS6 Avant V8 Biturbo',
@@ -154,6 +177,10 @@ export const ThemeShowcaseDock: React.FC<ThemeShowcaseDockProps> = ({
   onSwitchToDealer
 }) => {
   const [activeThemeKey, setActiveThemeKey] = useState<ThemePresetKey>('obsidian_gold');
+  const [viewMode, setViewMode] = useState<'video' | 'mockup'>('video');
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [isMuted, setIsMuted] = useState<boolean>(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [activeSections, setActiveSections] = useState<string[]>([
     'Hero Spotlight',
     'Catalog Stoc Live',
@@ -164,21 +191,45 @@ export const ThemeShowcaseDock: React.FC<ThemeShowcaseDockProps> = ({
 
   const currentTheme = THEME_PRESETS[activeThemeKey];
 
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      videoRef.current.play().catch(() => {});
+      setIsPlaying(true);
+    }
+  };
+
+  const toggleMute = () => {
+    if (!videoRef.current) return;
+    videoRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
+
+  const handleRestart = () => {
+    if (!videoRef.current) return;
+    videoRef.current.currentTime = 0;
+    videoRef.current.play().catch(() => {});
+    setIsPlaying(true);
+  };
+
   return (
     <div className="w-full">
       {/* Header Description */}
       <div className="text-center max-w-3xl mx-auto mb-10">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-xs font-mono-telemetry text-blue-900 font-bold mb-3">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-xs text-blue-900 font-bold mb-3">
           <Palette className="w-3.5 h-3.5 text-blue-600" />
-          <span>SUVERANITATE TOTALĂ A BRANDULUI // DOMENIU PROPRIU</span>
+          <span>SITE-UL TĂU PROPRIU • FĂRĂ CONCURENȚĂ</span>
         </div>
         <h2 className="font-display font-black text-2xl sm:text-4xl lg:text-5xl text-slate-950 tracking-tight">
-          Un Singur Motor, Teme Adaptate Fiecărui Parc
+          Aspect personalizat cu sigla și culorile parcului tău
         </h2>
         <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-          Spre deosebire de marketplace-urile aglomerate unde mașinile tale apar alături de concurență, 
-          ParcOS îți oferă un <strong>Showroom Autonom la Cheie pe domeniul tău</strong> (`nume-parc.ro`), 
-          personalizat cu identitatea ta vizuală unică.
+          Spre deosebire de site-urile unde mașinile tale apar lângă cele ale concurenței, cu ParcOS ai 
+          <strong> propriul tău site oficial</strong> (ex: <code className="text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded font-bold">numeparc.ro</code>), 
+          cu sigla ta, culorile tale și doar mașinile tale.
         </p>
       </div>
 
@@ -190,7 +241,12 @@ export const ThemeShowcaseDock: React.FC<ThemeShowcaseDockProps> = ({
           return (
             <button
               key={key}
-              onClick={() => setActiveThemeKey(key)}
+              onClick={() => {
+                setActiveThemeKey(key);
+                if (key === 'obsidian_gold') {
+                  setViewMode('video');
+                }
+              }}
               className={`min-h-[52px] p-3 rounded-2xl border text-left transition-all touch-manipulation flex items-center justify-between group cursor-pointer ${
                 isSelected
                   ? 'border-amber-500 bg-amber-50/80 shadow-md ring-1 ring-amber-500 scale-[1.02]'
@@ -253,8 +309,40 @@ export const ThemeShowcaseDock: React.FC<ThemeShowcaseDockProps> = ({
             </div>
           </div>
 
-          {/* Direct Launch Real Showroom Button */}
+          {/* Controls: Mode Switcher & Direct Launch Real Showroom Button */}
           <div className="flex items-center gap-2">
+            {/* View Mode Switcher (only when theme has real video) */}
+            {currentTheme.previewVideoMp4 && (
+              <div className="flex items-center gap-0.5 bg-black/70 p-0.5 rounded-xl border border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('video')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    viewMode === 'video'
+                      ? 'bg-amber-500 text-slate-950 shadow-sm font-bold'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                  title="Vezi filmarea reală cu showroom-ul în producție"
+                >
+                  <Film className="w-3 h-3" />
+                  <span>Video Real</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('mockup')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    viewMode === 'mockup'
+                      ? 'bg-amber-500 text-slate-950 shadow-sm font-bold'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                  title="Inspectează structura modulară de componente"
+                >
+                  <Layers className="w-3 h-3" />
+                  <span className="hidden md:inline">Inspector Teme</span>
+                </button>
+              </div>
+            )}
+
             {currentTheme.domain === 'rxmautomobile.ro' ? (
               <a
                 href="https://rxmautomobile.ro"
@@ -279,140 +367,245 @@ export const ThemeShowcaseDock: React.FC<ThemeShowcaseDockProps> = ({
           </div>
         </div>
 
-        {/* Viewport Interior: The Dynamic Showroom Engine */}
-        <div 
-          className={`rounded-2xl p-4 sm:p-8 transition-colors duration-300 ${currentTheme.surfaceClass} border ${currentTheme.borderClass} overflow-hidden`}
-        >
-          {/* Mini Showroom Header */}
-          <div className="flex items-center justify-between border-b pb-4 mb-6" style={{ borderColor: 'rgba(128,128,128,0.15)' }}>
-            <div className="flex items-center gap-2.5">
-              <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shadow-md"
-                style={{ backgroundColor: currentTheme.accentColor, color: currentTheme.key === 'mpi_auto' ? '#ffffff' : '#000000' }}
+        {/* Viewport Interior: Either Real Video or The Dynamic Showroom Engine */}
+        {currentTheme.previewVideoMp4 && viewMode === 'video' ? (
+          <div className="flex flex-col gap-4">
+            {/* 16:9 Cinema Container with real video presentation */}
+            <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl group">
+              <video
+                ref={videoRef}
+                autoPlay
+                loop
+                muted={isMuted}
+                playsInline
+                preload="metadata"
+                poster={currentTheme.previewPoster}
+                className="w-full h-full object-cover"
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
               >
-                <Car className="w-4 h-4" />
-              </div>
-              <div>
-                <span className={`font-display font-extrabold text-sm sm:text-base tracking-tight ${currentTheme.textClass}`}>
-                  {currentTheme.name.split(' (')[0]}
+                {currentTheme.previewVideoWebm && (
+                  <source src={currentTheme.previewVideoWebm} type="video/webm" />
+                )}
+                <source src={currentTheme.previewVideoMp4} type="video/mp4" />
+              </video>
+
+              {/* Top Floating Badge */}
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-wrap items-center gap-2 pointer-events-none z-10">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/85 backdrop-blur-md border border-amber-400/40 text-[11px] font-mono font-bold text-amber-300 shadow-xl">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>SHOWROOM LIVE ÎN PRODUCȚIE</span>
                 </span>
-                <span className={`block text-[10px] font-mono ${currentTheme.mutedTextClass}`}>
-                  Showroom Auto Autorizat
+                <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/15 text-[10px] font-mono text-zinc-300">
+                  <Server className="w-3 h-3 text-amber-400 mr-1" />
+                  Găzduit pe Netcup VPS • rxmautomobile.ro
                 </span>
               </div>
-            </div>
 
-            <div className="hidden sm:flex items-center gap-4 text-xs font-medium" style={{ color: currentTheme.accentColor }}>
-              <span>Parc Auto</span>
-              <span>Finanțare 0% Avans</span>
-              <span>Garanție</span>
-              <span>Contact</span>
-            </div>
-          </div>
+              {/* Video Control Bar Overlay */}
+              <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 flex items-center justify-between gap-2 p-2 rounded-xl bg-black/80 backdrop-blur-md border border-white/15 z-10">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={togglePlay}
+                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer"
+                    title={isPlaying ? "Pauză" : "Redare"}
+                  >
+                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-white" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={toggleMute}
+                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer"
+                    title={isMuted ? "Activează Sunetul" : "Dezactivează Sunetul"}
+                  >
+                    {isMuted ? <VolumeX className="w-4 h-4 text-zinc-400" /> : <Volume2 className="w-4 h-4 text-amber-400" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRestart}
+                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer hidden sm:inline-flex"
+                    title="Reia de la început"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                  <span className="text-[11px] font-mono text-zinc-300 ml-1 hidden sm:inline">
+                    Prezentare Walkaround & Stoc Real
+                  </span>
+                </div>
 
-          {/* Mini Showroom Hero Spotlight Vehicle */}
-          <div className={`p-4 sm:p-6 rounded-2xl border mb-6 transition-all ${currentTheme.cardClass}`}>
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div>
-                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold mb-2"
-                  style={{ backgroundColor: `${currentTheme.accentColor}15`, color: currentTheme.accentColor, border: `1px solid ${currentTheme.accentColor}30` }}
+                <a
+                  href="https://rxmautomobile.ro"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 shadow-md"
                 >
-                  <Sparkles className="w-3 h-3" />
-                  <span>VEHICULUL SĂPTĂMÂNII</span>
-                </div>
-                <h3 className={`font-display font-black text-lg sm:text-2xl tracking-tight ${currentTheme.textClass}`}>
-                  {currentTheme.previewHeroCar.brand} {currentTheme.previewHeroCar.model}
-                </h3>
-                <div className={`flex flex-wrap items-center gap-2 text-xs font-mono mt-1 ${currentTheme.mutedTextClass}`}>
-                  <span>An: {currentTheme.previewHeroCar.year}</span>
-                  <span>•</span>
-                  <span>{currentTheme.previewHeroCar.km.toLocaleString('ro-RO')} km</span>
-                  <span>•</span>
-                  <span>{currentTheme.previewHeroCar.fuel}</span>
-                  <span>•</span>
-                  <span>{currentTheme.previewHeroCar.hp} CP</span>
-                </div>
-                <div className="text-[11px] font-semibold text-emerald-500 mt-2 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>{currentTheme.previewHeroCar.tag}</span>
-                </div>
-              </div>
-
-              <div className="text-left md:text-right shrink-0">
-                <div className={`text-2xl sm:text-3xl font-extrabold font-mono tracking-tight ${currentTheme.textClass}`}>
-                  {currentTheme.previewHeroCar.priceEur.toLocaleString('ro-RO')} €
-                </div>
-                <div className={`text-[11px] font-mono mt-0.5 ${currentTheme.mutedTextClass}`}>
-                  {currentTheme.previewHeroCar.vatType}
-                </div>
-                <button
-                  onClick={() => onSwitchToDealer?.(currentTheme.key)}
-                  className="mt-3 px-4 py-2 rounded-xl text-xs font-bold shadow-md transition-transform active:scale-[0.98] flex items-center gap-1.5"
-                  style={{ 
-                    backgroundColor: currentTheme.accentColor, 
-                    color: currentTheme.key === 'mpi_auto' ? '#ffffff' : '#000000' 
-                  }}
-                >
-                  <span>Vezi Detalii Showroom</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                  <span>Explorează rxmautomobile.ro</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
               </div>
             </div>
-          </div>
 
-          {/* Mini Showroom Stock Grid (3 Sample Cars) */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <span className={`text-xs font-bold uppercase tracking-wider ${currentTheme.mutedTextClass}`}>
-                Stoc Recent Adăugat (32 autoturisme disponibile)
-              </span>
-              <span className="text-xs font-mono" style={{ color: currentTheme.accentColor }}>
-                Vezi Tot Stocul ↗
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {currentTheme.sampleStock.map((car, idx) => (
-                <div key={idx} className={`p-3.5 rounded-xl border ${currentTheme.cardClass}`}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className={`text-[10px] font-mono ${currentTheme.mutedTextClass}`}>{car.year}</span>
-                    <span className="text-[10px] font-mono text-emerald-500 font-semibold">{car.tag}</span>
+            {/* Production Highlights Ribbon */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {currentTheme.videoHighlights?.map((item, idx) => (
+                <div key={idx} className="p-3.5 rounded-2xl bg-zinc-900/90 border border-white/10 flex flex-col justify-between shadow-sm">
+                  <div>
+                    <div className="text-[10px] font-mono text-amber-400/90 uppercase tracking-wider font-semibold mb-1 flex items-center gap-1.5">
+                      <Zap className="w-3 h-3 text-amber-400" />
+                      <span>{item.label}</span>
+                    </div>
+                    <div className="font-bold text-sm text-white">
+                      {item.value}
+                    </div>
                   </div>
-                  <div className={`font-bold text-sm truncate ${currentTheme.textClass}`}>
-                    {car.brand} {car.model}
-                  </div>
-                  <div className={`text-[11px] font-mono mt-1 ${currentTheme.mutedTextClass}`}>
-                    {car.km.toLocaleString('ro-RO')} km
-                  </div>
-                  <div className={`text-base font-extrabold font-mono mt-2 ${currentTheme.textClass}`}>
-                    {car.priceEur.toLocaleString('ro-RO')} €
-                  </div>
+                  <p className="text-[11px] text-zinc-400 mt-2 leading-relaxed">
+                    {item.desc}
+                  </p>
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* Modular Section Reorder Preview Bar */}
-          <div className="pt-4 border-t flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs" style={{ borderColor: 'rgba(128,128,128,0.15)' }}>
-            <div className="flex items-center gap-2 text-zinc-300">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
-              <span className="font-semibold text-white">Ordine Secțiuni Showroom (Modular Drag & Drop):</span>
+            <div className="text-center text-[11px] text-zinc-400 font-mono py-1">
+              * Înregistrare live din producție a showroom-ului pilot creat și administrat prin ParcOS.
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
-              {activeSections.map((sec, idx) => (
-                <span 
-                  key={idx}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono bg-black/40 border border-white/10 text-zinc-200"
+          </div>
+        ) : (
+          <div 
+            className={`rounded-2xl p-4 sm:p-8 transition-colors duration-300 ${currentTheme.surfaceClass} border ${currentTheme.borderClass} overflow-hidden`}
+          >
+            {/* Mini Showroom Header */}
+            <div className="flex items-center justify-between border-b pb-4 mb-6" style={{ borderColor: 'rgba(128,128,128,0.15)' }}>
+              <div className="flex items-center gap-2.5">
+                <div 
+                  className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shadow-md"
+                  style={{ backgroundColor: currentTheme.accentColor, color: currentTheme.key === 'mpi_auto' ? '#ffffff' : '#000000' }}
                 >
-                  <GripVertical className="w-2.5 h-2.5 text-zinc-400" />
-                  {sec}
-                </span>
-              ))}
-            </div>
-          </div>
+                  <Car className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className={`font-display font-extrabold text-sm sm:text-base tracking-tight ${currentTheme.textClass}`}>
+                    {currentTheme.name.split(' (')[0]}
+                  </span>
+                  <span className={`block text-[10px] font-mono ${currentTheme.mutedTextClass}`}>
+                    Showroom Auto Autorizat
+                  </span>
+                </div>
+              </div>
 
-        </div>
+              <div className="hidden sm:flex items-center gap-4 text-xs font-medium" style={{ color: currentTheme.accentColor }}>
+                <span>Parc Auto</span>
+                <span>Finanțare 0% Avans</span>
+                <span>Garanție</span>
+                <span>Contact</span>
+              </div>
+            </div>
+
+            {/* Mini Showroom Hero Spotlight Vehicle */}
+            <div className={`p-4 sm:p-6 rounded-2xl border mb-6 transition-all ${currentTheme.cardClass}`}>
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold mb-2"
+                    style={{ backgroundColor: `${currentTheme.accentColor}15`, color: currentTheme.accentColor, border: `1px solid ${currentTheme.accentColor}30` }}
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span>VEHICULUL SĂPTĂMÂNII</span>
+                  </div>
+                  <h3 className={`font-display font-black text-lg sm:text-2xl tracking-tight ${currentTheme.textClass}`}>
+                    {currentTheme.previewHeroCar.brand} {currentTheme.previewHeroCar.model}
+                  </h3>
+                  <div className={`flex flex-wrap items-center gap-2 text-xs font-mono mt-1 ${currentTheme.mutedTextClass}`}>
+                    <span>An: {currentTheme.previewHeroCar.year}</span>
+                    <span>•</span>
+                    <span>{currentTheme.previewHeroCar.km.toLocaleString('ro-RO')} km</span>
+                    <span>•</span>
+                    <span>{currentTheme.previewHeroCar.fuel}</span>
+                    <span>•</span>
+                    <span>{currentTheme.previewHeroCar.hp} CP</span>
+                  </div>
+                  <div className="text-[11px] font-semibold text-emerald-500 mt-2 flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>{currentTheme.previewHeroCar.tag}</span>
+                  </div>
+                </div>
+
+                <div className="text-left md:text-right shrink-0">
+                  <div className={`text-2xl sm:text-3xl font-extrabold font-mono tracking-tight ${currentTheme.textClass}`}>
+                    {currentTheme.previewHeroCar.priceEur.toLocaleString('ro-RO')} €
+                  </div>
+                  <div className={`text-[11px] font-mono mt-0.5 ${currentTheme.mutedTextClass}`}>
+                    {currentTheme.previewHeroCar.vatType}
+                  </div>
+                  <button
+                    onClick={() => onSwitchToDealer?.(currentTheme.key)}
+                    className="mt-3 px-4 py-2 rounded-xl text-xs font-bold shadow-md transition-transform active:scale-[0.98] flex items-center gap-1.5"
+                    style={{ 
+                      backgroundColor: currentTheme.accentColor, 
+                      color: currentTheme.key === 'mpi_auto' ? '#ffffff' : '#000000' 
+                    }}
+                  >
+                    <span>Vezi Detalii Showroom</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Mini Showroom Stock Grid (3 Sample Cars) */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <span className={`text-xs font-bold uppercase tracking-wider ${currentTheme.mutedTextClass}`}>
+                  Stoc Recent Adăugat (32 autoturisme disponibile)
+                </span>
+                <span className="text-xs font-mono" style={{ color: currentTheme.accentColor }}>
+                  Vezi Tot Stocul ↗
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {currentTheme.sampleStock.map((car, idx) => (
+                  <div key={idx} className={`p-3.5 rounded-xl border ${currentTheme.cardClass}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={`text-[10px] font-mono ${currentTheme.mutedTextClass}`}>{car.year}</span>
+                      <span className="text-[10px] font-mono text-emerald-500 font-semibold">{car.tag}</span>
+                    </div>
+                    <div className={`font-bold text-sm truncate ${currentTheme.textClass}`}>
+                      {car.brand} {car.model}
+                    </div>
+                    <div className={`text-[11px] font-mono mt-1 ${currentTheme.mutedTextClass}`}>
+                      {car.km.toLocaleString('ro-RO')} km
+                    </div>
+                    <div className={`text-base font-extrabold font-mono mt-2 ${currentTheme.textClass}`}>
+                      {car.priceEur.toLocaleString('ro-RO')} €
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modular Section Reorder Preview Bar */}
+            <div className="pt-4 border-t flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs" style={{ borderColor: 'rgba(128,128,128,0.15)' }}>
+              <div className="flex items-center gap-2 text-zinc-300">
+                <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
+                <span className="font-semibold text-white">Ordine Secțiuni Showroom (Modular Drag & Drop):</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {activeSections.map((sec, idx) => (
+                  <span 
+                    key={idx}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono bg-black/40 border border-white/10 text-zinc-200"
+                  >
+                    <GripVertical className="w-2.5 h-2.5 text-zinc-400" />
+                    {sec}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        )}
       </div>
     </div>
   );
 };
+

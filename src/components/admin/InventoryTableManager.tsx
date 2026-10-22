@@ -44,6 +44,7 @@ interface InventoryTableManagerProps {
   onOpenGallery?: (car: VehicleItem) => void;
   onOpenPlateStudio?: (car: VehicleItem) => void;
   onOpenAutolicit?: (car: VehicleItem) => void;
+  onOpenOlxExport?: (car: VehicleItem) => void;
   onOpenSocialPost?: (car: VehicleItem) => void;
   onOpenSeedExporter?: (car: VehicleItem) => void;
   onOpenExporter?: (car: VehicleItem) => void;
@@ -72,6 +73,7 @@ export const InventoryTableManager: React.FC<InventoryTableManagerProps> = ({
   onOpenGallery,
   onOpenPlateStudio,
   onOpenAutolicit,
+  onOpenOlxExport,
   onOpenSocialPost,
   onOpenSeedExporter,
   onOpenExporter,
@@ -1617,6 +1619,25 @@ export const InventoryTableManager: React.FC<InventoryTableManagerProps> = ({
                             </div>
                           </button>
 
+                          {/* Export Automat pe OLX */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOpenMenuCarId(null);
+                              onOpenOlxExport ? onOpenOlxExport(c) : null;
+                            }}
+                            className="w-full px-2.5 py-2 rounded-xl hover:bg-blue-500/10 text-zinc-200 hover:text-blue-300 text-xs font-semibold flex items-center gap-2.5 transition-colors cursor-pointer text-left group/olx"
+                          >
+                            <ExternalLink className="w-4 h-4 text-blue-400 group-hover/olx:scale-110 transition-transform shrink-0" />
+                            <div className="flex flex-col">
+                              <span className="flex items-center gap-1.5">
+                                <span>Exportă pe OLX</span>
+                                <span className="text-[9px] bg-blue-500/20 text-blue-300 font-bold px-1.5 py-0.2 rounded border border-blue-500/30">Auto</span>
+                              </span>
+                              <span className="text-[10px] text-zinc-400 font-normal">Pre-completare 1-click & 8 poze</span>
+                            </div>
+                          </button>
+
                           {/* Postare Social Media (Meta FB / IG) */}
                           <button
                             type="button"
@@ -2205,6 +2226,25 @@ export const InventoryTableManager: React.FC<InventoryTableManagerProps> = ({
                                     </div>
                                   </button>
 
+                                  {/* Export Automat pe OLX */}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setOpenMenuCarId(null);
+                                      onOpenOlxExport ? onOpenOlxExport(c) : null;
+                                    }}
+                                    className="w-full px-2.5 py-1.5 rounded-xl hover:bg-blue-500/10 text-zinc-200 hover:text-blue-300 text-xs font-semibold flex items-center gap-2.5 transition-colors cursor-pointer text-left group/olx"
+                                  >
+                                    <ExternalLink className="w-4 h-4 text-blue-400 group-hover/olx:scale-110 transition-transform shrink-0" />
+                                    <div className="flex flex-col">
+                                      <span className="flex items-center gap-1.5">
+                                        <span>Exportă pe OLX</span>
+                                        <span className="text-[9px] bg-blue-500/20 text-blue-300 font-bold px-1.5 py-0.2 rounded border border-blue-500/30">Auto</span>
+                                      </span>
+                                      <span className="text-[10px] text-zinc-400 font-normal">Pre-completare 1-click & 8 poze</span>
+                                    </div>
+                                  </button>
+
                                   {/* Postare Social Media (Meta FB / IG) */}
                                   <button
                                     type="button"
@@ -2679,6 +2719,22 @@ export const InventoryTableManager: React.FC<InventoryTableManagerProps> = ({
                               <span className="text-[10px] text-zinc-400 font-normal">
                                 {c.autolicitSync?.isSynced ? 'Activ / Configurat' : 'Publică la licitație'}
                               </span>
+                            </div>
+                          </button>
+
+                          {/* Export Automat pe OLX */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOpenMenuCarId(null);
+                              onOpenOlxExport ? onOpenOlxExport(c) : null;
+                            }}
+                            className="w-full px-2.5 py-1.5 rounded-xl hover:bg-blue-500/10 text-zinc-200 hover:text-blue-300 text-xs font-semibold flex items-center gap-2.5 transition-colors cursor-pointer text-left"
+                          >
+                            <ExternalLink className="w-4 h-4 text-blue-400 shrink-0" />
+                            <div className="flex flex-col">
+                              <span>Exportă pe OLX</span>
+                              <span className="text-[10px] text-zinc-400 font-normal">Pre-completare 1-click</span>
                             </div>
                           </button>
 
