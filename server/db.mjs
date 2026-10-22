@@ -214,6 +214,7 @@ export async function initMailHubSchema() {
         id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         thread_id   UUID NOT NULL REFERENCES mail_threads(id) ON DELETE CASCADE,
         message_id  VARCHAR(998) NOT NULL,
+        ses_message_id VARCHAR(500),
         direction   VARCHAR(10) NOT NULL CHECK (direction IN ('INBOUND','OUTBOUND')),
         sender      VARCHAR(320) NOT NULL,
         recipient   VARCHAR(320) NOT NULL,
@@ -225,7 +226,9 @@ export async function initMailHubSchema() {
         CONSTRAINT uq_mail_messages_message_id UNIQUE (message_id)
       );
     `;
+    await sql`ALTER TABLE mail_messages ADD COLUMN IF NOT EXISTS ses_message_id VARCHAR(500);`;
     await sql`CREATE INDEX IF NOT EXISTS idx_mail_messages_thread ON mail_messages(thread_id);`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_mail_messages_ses_id ON mail_messages(ses_message_id);`;
     await sql`
       CREATE TABLE IF NOT EXISTS mail_attachments (
         id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -283,6 +286,48 @@ export async function initMailHubSchema() {
         created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
     `;
+    await sql`
+      CREATE TABLE IF NOT EXISTS mail_domains (
+        id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        dealer_id            TEXT NOT NULL,
+        domain               VARCHAR(255) NOT NULL,
+        verification_status  VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+        dkim_status          VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+        spf_status           VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+        dkim_tokens          JSONB DEFAULT '[]'::jsonb,
+        spf_record           TEXT,
+        mx_record            TEXT,
+        is_cloudflare_synced BOOLEAN NOT NULL DEFAULT FALSE,
+        cloudflare_zone_id   VARCHAR(100),
+        created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        CONSTRAINT uq_mail_domains_dealer_domain UNIQUE (dealer_id, domain)
+      );
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_mail_domains_dealer ON mail_domains(dealer_id);`;
+
+    // 0.7 Migrație mail_accounts: alias, domain, rol HR_PAYROLL
+    try {
+      await sql`ALTER TABLE mail_accounts ADD COLUMN IF NOT EXISTS alias TEXT;`;
+      await sql`ALTER TABLE mail_accounts ADD COLUMN IF NOT EXISTS domain TEXT;`;
+      await sql`ALTER TABLE mail_accounts DROP CONSTRAINT IF EXISTS mail_accounts_role_check;`;
+      await sql`ALTER TABLE mail_accounts ADD CONSTRAINT mail_accounts_role_check CHECK (role IN ('ADMIN','SALES','MECHANIC','FINANCE','SUPPORT','HR_PAYROLL'));`;
+    } catch (e) {
+      // Ignoră dacă DB mock sau constraint deja setat
+    }
+
+    // 0.8 Tabel abonamente Web Push (VAPID / PWA Mobile)
+    await sql`
+      CREATE TABLE IF NOT EXISTS mail_push_subscriptions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        account_id UUID REFERENCES mail_accounts(id) ON DELETE CASCADE,
+        endpoint TEXT UNIQUE NOT NULL,
+        p256dh TEXT NOT NULL,
+        auth TEXT NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT now()
+      );
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_mail_push_account ON mail_push_subscriptions(account_id);`;
 
     // Auto-seeding căsuțe poștale angajați / agenți showroom (PMH-304)
     const rxmAccounts = await sql`SELECT count(*)::int AS count FROM mail_accounts WHERE dealer_id = 'rxm'`;
@@ -439,16 +484,45 @@ export async function upsertVehicle(car, dealerSlug = 'rxm') {
   const sql = getSql();
 
   const vatRate = 0.21;
-  const priceEur = typeof car.priceEur === 'number' ? car.priceEur : Number(car.priceEur) || 0;
-  const vatDeductible = !!car.vatDeductible;
+  const rawPrice = car.priceEur !== undefined ? car.priceEur : car.price_eur;
+  const priceEur = typeof rawPrice === 'number' ? rawPrice : Number(rawPrice) || 0;
+  const rawMileage = car.mileageKm !== undefined ? car.mileageKm : car.mileage_km;
+  const mileageKm = typeof rawMileage === 'number' ? rawMileage : Number(rawMileage) || 0;
+  const vatDeductible = car.vatDeductible !== undefined ? !!car.vatDeductible : !!car.vat_deductible;
+
+  const rawPowerHp = car.powerHp !== undefined ? car.powerHp : car.power_hp;
+  const powerHp = rawPowerHp !== undefined && rawPowerHp !== null ? (Number(rawPowerHp) || 0) : 0;
+  const rawEngineCc = car.engineCc !== undefined ? car.engineCc : car.engine_cc;
+  const engineCc = rawEngineCc !== undefined && rawEngineCc !== null ? (Number(rawEngineCc) || 0) : 0;
+  const stockNumber = car.stockNumber || car.stock_number || null;
+  const versionTrim = car.versionTrim || car.version_trim || null;
+  const year = Number(car.year) || new Date().getFullYear();
+  const fuelType = car.fuelType || car.fuel_type || 'Diesel';
+  const transmission = car.transmission || 'Automată';
+  const bodyType = car.bodyType || car.body_type || 'SUV';
+  const drivetrain = car.drivetrain || 'Față';
+  const color = car.color || '';
+  const vin = car.vin || '';
+  const isVinPublic = car.isVinPublic !== undefined ? !!car.isVinPublic : !!car.is_vin_public;
+  const docOriginCountry = car.docOriginCountry || car.doc_origin_country || 'RO';
+  const warrantyMonths = car.warrantyMonths !== undefined ? car.warrantyMonths : (car.warranty_months || 12);
+  const status = car.status || 'in_stock';
+  const stockEntryDate = car.stockEntryDate || car.stock_entry_date || null;
+  const videoUrl = car.videoUrl || car.video_url || null;
+  const tiktokUrl = car.tiktokUrl || car.tiktok_url || null;
+  const tiktokViews = car.tiktokViews !== undefined ? car.tiktokViews : (car.tiktok_views || null);
+  const isDealOfWeek = car.isDealOfWeek !== undefined ? !!car.isDealOfWeek : !!car.is_deal_of_week;
+  const isPinnedToTop = car.isPinnedToTop !== undefined ? !!car.isPinnedToTop : !!car.is_pinned_to_top;
+  const rawOldPriceEur = car.oldPriceEur !== undefined ? car.oldPriceEur : car.old_price_eur;
+  const oldPriceEur = rawOldPriceEur ? Number(rawOldPriceEur) : null;
+  const dealBadgeText = car.dealBadgeText || car.deal_badge_text || null;
+  const equipmentSheetText = car.equipmentSheetText || car.equipment_sheet_text || null;
+  const description = car.description || null;
+  const images = car.images;
+  const features = car.features;
 
   const {
-    id, stockNumber, brand, model, versionTrim, year, mileageKm,
-    fuelType, transmission, powerHp, engineCc, bodyType, drivetrain,
-    color, vin, isVinPublic, docOriginCountry, warrantyMonths,
-    status, stockEntryDate, images, videoUrl, tiktokUrl, tiktokViews,
-    isDealOfWeek, isPinnedToTop, oldPriceEur, dealBadgeText,
-    features, equipmentSheetText, description,
+    id,
     ...rawDataRest
   } = car;
 
@@ -509,7 +583,7 @@ export async function upsertVehicle(car, dealerSlug = 'rxm') {
       is_deal_of_week, is_pinned_to_top, old_price_eur, deal_badge_text,
       features, equipment_sheet_text, description, raw_data, updated_at
     ) VALUES (
-      ${id}, ${dealerSlug}, ${stockNumber || null}, ${brand || ''}, ${model || ''}, ${versionTrim || null},
+      ${id}, ${dealerSlug}, ${stockNumber || null}, ${car.brand || ''}, ${car.model || ''}, ${versionTrim || null},
       ${Number(year) || new Date().getFullYear()}, ${Number(mileageKm) || 0}, ${priceEur}, ${vatDeductible},
       ${vatRate}, ${fuelType || 'Diesel'}, ${transmission || 'Automată'}, ${Number(powerHp) || 0}, ${Number(engineCc) || 0},
       ${bodyType || 'SUV'}, ${drivetrain || 'Față'}, ${color || ''}, ${cleanVin}, ${!!isVinPublic},
@@ -557,7 +631,8 @@ export async function upsertVehicle(car, dealerSlug = 'rxm') {
       updated_at = NOW()
   `;
 
-  return car;
+  const updatedRow = await getAdminVehicleById(id, dealerSlug);
+  return updatedRow || car;
 }
 
 /**
