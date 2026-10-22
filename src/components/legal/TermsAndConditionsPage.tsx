@@ -18,14 +18,25 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
   onBackToShowroom,
   onOpenCookies
 }) => {
+  const isParcos = typeof window !== 'undefined' && (
+    window.location.hostname.includes('parcos') ||
+    window.location.port === '3001' ||
+    dealer?.slug === 'parcos'
+  );
+
   // Asigură scroll la începutul paginii la deschidere
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    document.title = `Termeni și Condiții & Confidențialitate — ${dealer.name}`;
+    const prevTitle = document.title;
+    document.title = isParcos
+      ? 'Termeni și Condiții & Confidențialitate — ParcOS Dealership OS'
+      : `Termeni și Condiții & Confidențialitate — ${dealer.name}`;
     return () => {
-      document.title = `${dealer.name} — Dealer Automobile Rulate Cluj-Napoca`;
+      document.title = prevTitle || (isParcos
+        ? 'ParcOS — Sistem de Operare Autonom pentru Parcuri Auto & DMS Cloud'
+        : `${dealer.name} — Dealer Automobile Rulate Cluj-Napoca`);
     };
-  }, [dealer.name]);
+  }, [dealer.name, isParcos]);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -61,10 +72,10 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
             <button
               type="button"
               onClick={onBackToShowroom}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-xs sm:text-sm font-semibold text-zinc-200 hover:text-white transition-all shadow-sm touch-manipulation"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-xs sm:text-sm font-semibold text-zinc-200 hover:text-white transition-all shadow-sm touch-manipulation cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 text-amber-400" />
-              <span>← Înapoi la Showroom</span>
+              <span>{isParcos ? '← Înapoi la ParcOS' : '← Înapoi la Showroom'}</span>
             </button>
           </div>
 
@@ -78,14 +89,22 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
           </h1>
 
           <p className="text-sm sm:text-base text-zinc-400 max-w-3xl leading-relaxed">
-            Regulamentul complet de utilizare a platformei digitale oficiale a dealerului auto autorizat{' '}
-            <strong className="text-zinc-200">{dealer.name}</strong>, normele de protecție a datelor cu caracter personal (Regulamentul UE 2016/679) și garanția comercială acordată autovehiculelor rulate.
+            {isParcos ? (
+              <>
+                Regulamentul complet de utilizare a suitei software și platformei SaaS <strong className="text-zinc-200">ParcOS</strong> (operată de societatea <strong className="text-zinc-200">CARVANA SRL</strong>), normele de protecție a datelor cu caracter personal (Regulamentul UE 2016/679) și condițiile comerciale de licențiere Dealership OS.
+              </>
+            ) : (
+              <>
+                Regulamentul complet de utilizare a platformei digitale oficiale a dealerului auto autorizat{' '}
+                <strong className="text-zinc-200">{dealer.name}</strong>, normele de protecție a datelor cu caracter personal (Regulamentul UE 2016/679) și garanția comercială acordată autovehiculelor rulate.
+              </>
+            )}
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-zinc-500">
             <span className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-amber-400" />
-              <span>Ultima actualizare: <strong>11 octombrie 2026</strong></span>
+              <span>Ultima actualizare: <strong>22 octombrie 2026</strong></span>
             </span>
             <span>•</span>
             <span className="flex items-center gap-1.5">
@@ -93,7 +112,9 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
               <span>Versiunea 1.2 — Conformă GDPR & ANPC</span>
             </span>
             <span>•</span>
-            <span className="text-zinc-400">Operator: CUI {dealer.cui}</span>
+            <span className="text-zinc-400">
+              {isParcos ? 'Operator: CARVANA SRL (CUI: RO48464618)' : `Operator: CUI ${dealer.cui}`}
+            </span>
           </div>
 
           {/* Jump Pills / Navigare Rapidă prin Secțiuni */}
@@ -350,9 +371,11 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
 
             <div className="space-y-3 pt-2">
               <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                <strong className="text-white text-sm block mb-1">1. Cookie-uri strict necesare (tehnice)</strong>
+                <strong className="text-white text-sm block mb-1">1. Module strict necesare (tehnice & stocare locală)</strong>
                 <p className="text-xs sm:text-sm text-zinc-400">
-                  Esențiale pentru rularea corectă a interfeței Dark Luxury, salvarea stării filtrelor din catalogul de mașini (marcă, preț, transmisie), memorarea vizualizării animației de intro și securizarea sesiunilor. Aceste cookie-uri nu pot fi dezactivate fără a afecta funcționarea site-ului.
+                  {isParcos 
+                    ? 'Esențiale pentru rularea platformei ParcOS, salvarea preferințelor de temă, stocarea parametrilor demonstrativi (simulator CIV OCR cu AI, calculator de marjă dealer, generator oferte WhatsApp), memorarea vizualizării intro-ului video 4K și securizarea sesiunilor de administrare. Aceste tehnologii nu pot fi dezactivate fără a afecta funcționarea platformei.'
+                    : 'Esențiale pentru rularea corectă a interfeței Dark Luxury, salvarea stării filtrelor din catalogul de mașini (marcă, preț, transmisie), memorarea vizualizării animației de intro și securizarea sesiunilor. Aceste cookie-uri nu pot fi dezactivate fără a afecta funcționarea site-ului.'}
                 </p>
               </div>
 
@@ -657,25 +680,29 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
               Suntem aici să te ajutăm cu răspunsuri clare și transparente.
             </h3>
             <p className="text-xs sm:text-sm text-zinc-300 max-w-2xl leading-relaxed">
-              Echipa <strong className="text-white">{dealer.name}</strong> îți stă la dispoziție atât telefonic, cât și direct la showroom-ul nostru din Cluj-Napoca.
+              {isParcos ? (
+                <>Echipa <strong className="text-white">ParcOS (CARVANA SRL)</strong> îți stă la dispoziție pentru orice întrebare legată de securitatea datelor, conformitatea GDPR și licențierea platformei.</>
+              ) : (
+                <>Echipa <strong className="text-white">{dealer.name}</strong> îți stă la dispoziție atât telefonic, cât și direct la showroom-ul nostru din Cluj-Napoca.</>
+              )}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <a
-              href={`tel:${dealer.phonePrimary.replace(/\s+/g, '')}`}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-black font-bold text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/20 touch-manipulation"
+              href={isParcos ? 'tel:+40748892937' : `tel:${dealer.phonePrimary.replace(/\s+/g, '')}`}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-black font-bold text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/20 touch-manipulation cursor-pointer"
             >
               <Phone className="w-4 h-4" />
-              <span>Sună: {dealer.phonePrimary}</span>
+              <span>Sună: {isParcos ? '+40 748 892 937' : dealer.phonePrimary}</span>
             </a>
             <button
               type="button"
               onClick={onBackToShowroom}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/15 active:scale-95 text-white font-semibold text-xs sm:text-sm border border-white/10 transition-all touch-manipulation"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/15 active:scale-95 text-white font-semibold text-xs sm:text-sm border border-white/10 transition-all touch-manipulation cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 text-amber-400" />
-              <span>Înapoi în Showroom</span>
+              <span>{isParcos ? 'Înapoi la ParcOS' : 'Înapoi în Showroom'}</span>
             </button>
           </div>
         </div>

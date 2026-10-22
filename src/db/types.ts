@@ -181,6 +181,7 @@ export interface TenantFeatures {
   windowStickersQr: boolean;    // Fișe de parbriz printabile cu cod QR
   financingCalculator: boolean;   // Calculator rate BT / TBI
   whatsappLeadsBot: boolean;    // Simulator cotații & leaduri WhatsApp
+  fgoInvoicing?: boolean;       // Conectare Facturare & Proforme FGO.ro API v2
 }
 
 export type TenantTier = 'starter' | 'pro' | 'enterprise';

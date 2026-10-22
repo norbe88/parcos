@@ -26,6 +26,7 @@ export interface TenantContextType {
   allTenants: Record<string, DealerProfile>;
   updateTenantFeatures: (tenantId: string, features: Partial<TenantFeatures>) => void;
   updateTenantStatus: (tenantId: string, status: TenantStatus) => void;
+  updateTenantProfile: (tenantId: string, partialProfile: Partial<DealerProfile>) => void;
   registerTenant: (newTenant: DealerProfile) => void;
   isPitchModeAllowed: boolean;
   vatRate: number;
@@ -114,6 +115,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
   // Rezolvă alias-uri scurte (ex: mpi -> mpi_auto, top -> top_auto)
   const resolveTenantKey = (rawKey: string): string => {
     const k = rawKey.toLowerCase().trim();
+    if (k === 'sandbox' || k === 'rxm_sandbox' || k === 'rxm-sandbox' || k === 'stage' || k === 'staging') return 'rxm_sandbox';
     if (k === 'mpi' || k === 'mpi_auto' || k === 'mpiauto') return 'mpi_auto';
     if (k === 'top' || k === 'top_auto' || k === 'topauto') return 'top_auto';
     if (k === 'rxm' || k === 'rxm_auto' || k === 'rxmautomobile') return 'rxm';
@@ -231,6 +233,29 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       const updated: DealerProfile = {
         ...current,
         status
+      };
+      const nextMap = { ...prev, [resolved]: updated };
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('parcos_tenants_map', JSON.stringify(nextMap));
+        }
+      } catch {}
+      return nextMap;
+    });
+  };
+
+  // Actualizare date profil & integrare tenant (SuperAdmin Master Control)
+  const updateTenantProfile = (tId: string, partialProfile: Partial<DealerProfile>) => {
+    const resolved = resolveTenantKey(tId);
+    setTenantsMap(prev => {
+      const current = prev[resolved] || TENANT_DEALERS[resolved] || SEED_DEALER;
+      const updated: DealerProfile = {
+        ...current,
+        ...partialProfile,
+        config: {
+          ...(current.config || {}),
+          ...(partialProfile.config || {})
+        }
       };
       const nextMap = { ...prev, [resolved]: updated };
       try {
@@ -370,6 +395,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         allTenants: tenantsMap,
         updateTenantFeatures,
         updateTenantStatus,
+        updateTenantProfile,
         registerTenant,
         isPitchModeAllowed,
         vatRate: 0.21, // Invariant strict 21%
@@ -407,6 +433,7 @@ export const useTenantContext = (): TenantContextType => {
       allTenants: TENANT_DEALERS,
       updateTenantFeatures: () => {},
       updateTenantStatus: () => {},
+      updateTenantProfile: () => {},
       registerTenant: () => {},
       isPitchModeAllowed: false,
       vatRate: 0.21,

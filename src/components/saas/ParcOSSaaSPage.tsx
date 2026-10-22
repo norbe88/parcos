@@ -39,10 +39,16 @@ import { MobileStickyDock } from './showcase/MobileStickyDock';
 
 interface ParcOSSaaSPageProps {
   onSwitchToDealer?: (slug: string) => void;
+  onOpenCookies?: () => void;
+  onOpenCookiePreferences?: () => void;
+  onOpenTerms?: () => void;
 }
 
 export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({ 
-  onSwitchToDealer 
+  onSwitchToDealer,
+  onOpenCookies,
+  onOpenCookiePreferences,
+  onOpenTerms
 }) => {
   const [activeLang, setActiveLang] = useState<'RO' | 'EN' | 'HU'>('RO');
 
@@ -270,12 +276,50 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
       </section>
 
       {/* 9. Footer */}
-      <footer className="border-t border-slate-200/80 bg-white pt-12 pb-28 sm:pb-12 px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
-        <div className="max-w-6xl mx-auto flex items-center justify-center gap-2.5">
-          <img src="/brand/icon-32x32.png" alt="ParcOS" className="w-5 h-5 rounded-md object-cover shadow-sm border border-slate-200" />
-          <span className="font-bold text-slate-800">ParcOS — Dealership Operating System</span>
-          <span>•</span>
-          <span>CARVANA SRL</span>
+      <footer className="border-t border-slate-200/80 bg-white pt-12 pb-28 sm:pb-12 px-4 sm:px-6 lg:px-8 text-xs text-slate-500">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
+            <img src="/brand/icon-32x32.png" alt="ParcOS" className="w-5 h-5 rounded-md object-cover shadow-sm border border-slate-200" />
+            <span className="font-bold text-slate-800">ParcOS — Dealership Operating System</span>
+            <span>•</span>
+            <span>CARVANA SRL</span>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500">
+            {onOpenCookies && (
+              <button 
+                type="button" 
+                onClick={onOpenCookies} 
+                className="hover:text-amber-600 transition-colors cursor-pointer py-1"
+              >
+                Politica Cookies
+              </button>
+            )}
+            {onOpenCookiePreferences && (
+              <>
+                <span className="text-slate-300">•</span>
+                <button 
+                  type="button" 
+                  onClick={onOpenCookiePreferences} 
+                  className="hover:text-amber-600 transition-colors cursor-pointer py-1"
+                >
+                  Preferințe Cookie-uri
+                </button>
+              </>
+            )}
+            {onOpenTerms && (
+              <>
+                <span className="text-slate-300">•</span>
+                <button 
+                  type="button" 
+                  onClick={onOpenTerms} 
+                  className="hover:text-amber-600 transition-colors cursor-pointer py-1"
+                >
+                  Termeni și Condiții
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </footer>
 

@@ -44,6 +44,7 @@ export const ShowcaseHero: React.FC<ShowcaseHeroProps> = ({
   return (
     <section 
       id="hero" 
+      data-non-interactive-start="true"
       className="relative pt-12 sm:pt-16 md:pt-20 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden text-slate-900"
       aria-label="Prezentare ParcOS Hero"
     >

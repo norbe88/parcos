@@ -1510,6 +1510,9 @@ export default function App() {
               }
               handleSetViewMode('showroom');
             }}
+            onOpenCookies={() => handleSetViewMode('cookies')}
+            onOpenCookiePreferences={() => setIsCookiePreferencesOpen(true)}
+            onOpenTerms={() => handleSetViewMode('terms')}
           />
         </Suspense>
       )}
@@ -1719,7 +1722,7 @@ export default function App() {
         <Suspense fallback={<div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-400">Se încarcă...</div>}>
           <TermsAndConditionsPage 
             dealer={tenant}
-            onBackToShowroom={() => handleSetViewMode('showroom')}
+            onBackToShowroom={() => handleSetViewMode(isParcosDomain(window.location.hostname) ? 'saas' : 'showroom')}
             onOpenCookies={() => handleSetViewMode('cookies')}
           />
         </Suspense>
@@ -1746,7 +1749,7 @@ export default function App() {
         <Suspense fallback={<div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-400">Se încarcă...</div>}>
           <CookiePolicyPage 
             dealer={tenant}
-            onBackToShowroom={() => handleSetViewMode('showroom')}
+            onBackToShowroom={() => handleSetViewMode(isParcosDomain(window.location.hostname) ? 'saas' : 'showroom')}
             onOpenPreferences={() => setIsCookiePreferencesOpen(true)}
             onOpenTerms={() => handleSetViewMode('terms')}
           />
@@ -1833,6 +1836,7 @@ export default function App() {
         onOpenPolicy={() => handleSetViewMode('cookies')}
         isOpenPreferenceTrigger={isCookiePreferencesOpen}
         onClosePreferences={() => setIsCookiePreferencesOpen(false)}
+        viewMode={viewMode}
       />
 
       </div>

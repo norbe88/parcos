@@ -191,9 +191,39 @@ export const DEALER_AUTONORD_CLUJ: DealerProfile = {
   }
 };
 
+export const DEALER_RXM_SANDBOX: DealerProfile = {
+  ...SEED_DEALER,
+  name: "RXM Automobile [SANDBOX STAGING]",
+  slug: "rxm_sandbox",
+  domain: "sandbox.rxmautomobile.ro",
+  cui: "RO00000000-TEST",
+  tier: "enterprise",
+  status: "active",
+  maxVehiclesQuota: 100,
+  features: {
+    ...DEFAULT_TENANT_FEATURES,
+    fgoInvoicing: true,
+  },
+  config: {
+    ...(SEED_DEALER.config || {}),
+    isSandboxEnvironment: true,
+    sandboxClonedFrom: "rxm",
+    invoicing: {
+      provider: "fgo",
+      fgo: {
+        environment: "test", // Strict UAT Test FGO
+        seriesFiscal: "TEST",
+        seriesProforma: "SANDBOX",
+        autoSendSpv: false // Strict interzis SPV ANAF pe mediul de test
+      }
+    }
+  }
+};
+
 export const TENANT_DEALERS: Record<string, DealerProfile> = {
   autonord_cluj: DEALER_AUTONORD_CLUJ,
   rxm: SEED_DEALER,
+  rxm_sandbox: DEALER_RXM_SANDBOX,
   mpi_auto: DEALER_MPI_AUTO,
   top_auto: DEALER_TOP_AUTO
 };

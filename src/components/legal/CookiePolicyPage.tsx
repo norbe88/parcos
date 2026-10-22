@@ -5,7 +5,6 @@ import {
   ExternalLink, Phone, Mail, MapPin, Database, Eye, Globe
 } from 'lucide-react';
 import { DealerProfile } from '../../db/types';
-import { SEED_DEALER } from '../../db/seed';
 
 interface CookiePolicyPageProps {
   dealer?: DealerProfile;
@@ -25,92 +24,101 @@ interface CookieItem {
 
 const COOKIE_INVENTORY: CookieItem[] = [
   {
-    name: 'rxm_cookie_consent_v1',
-    provider: 'RXM Automobile (First-party)',
+    name: 'parcos_cookie_consent_v1',
+    provider: 'ParcOS / CARVANA SRL (First-party)',
     type: 'LocalStorage',
     duration: '12 luni',
-    purpose: 'Memorează opțiunile și preferințele de confidențialitate ale utilizatorului (acceptare module esențiale, analitice sau media).',
+    purpose: 'Memorează opțiunile și preferințele de confidențialitate ale utilizatorului (acceptare module esențiale, analitice sau conținut multimedia integrat).',
     category: 'essential'
   },
   {
-    name: 'rxm_intro_seen',
-    provider: 'RXM Automobile (First-party)',
+    name: 'parcos_intro_seen',
+    provider: 'ParcOS / CARVANA SRL (First-party)',
     type: 'LocalStorage / SessionStorage',
     duration: '30 zile',
-    purpose: 'Reține dacă animația cinematică de deschidere a showroom-ului a fost deja vizualizată pentru a nu întrerupe navigarea ulterioară.',
+    purpose: 'Reține dacă prezentarea cinematică 4K cu showroom-ul autonom și turul tehnic al halei a fost deja vizualizată pentru o navigare directă și fluentă la vizitele recurente.',
     category: 'essential'
   },
   {
-    name: 'rxm_cars_inventory',
-    provider: 'RXM Automobile (First-party)',
+    name: 'parcos_theme',
+    provider: 'ParcOS / CARVANA SRL (First-party)',
+    type: 'LocalStorage',
+    duration: '12 luni',
+    purpose: 'Memorează presetul vizual de temă selectat (Obsidian Gold, Clean Slate sau temele de showcase) pentru adaptarea contrastului WCAG AAA.',
+    category: 'essential'
+  },
+  {
+    name: 'parcos_demo_cache',
+    provider: 'ParcOS / CARVANA SRL (First-party)',
     type: 'LocalStorage',
     duration: '7 zile (auto-refresh)',
-    purpose: 'Stochează în memoria locală a dispozitivului catalogul de mașini rulate pentru a permite încărcarea instantanee (0ms) a stocului și navigarea offline.',
+    purpose: 'Stochează în memoria locală datele demonstrative de configurare pentru simulatorul CIV OCR cu AI, calculatorul de marjă dealer și generatorul de oferte WhatsApp.',
     category: 'essential'
   },
   {
-    name: 'rxm_cars_version',
-    provider: 'RXM Automobile (First-party)',
+    name: 'parcos_app_version',
+    provider: 'ParcOS / CARVANA SRL (First-party)',
     type: 'LocalStorage',
     duration: '7 zile',
-    purpose: 'Controlează versiunea catalogului pentru a asigura sincronizarea automată a prețurilor, disponibilității și Ofertelor Săptămânii.',
+    purpose: 'Controlează versiunea aplicației și a componentelor statice pentru a asigura sincronizarea instantanee a noilor module lansate în suita DMS.',
     category: 'essential'
   },
   {
-    name: 'rxm_admin_authenticated',
-    provider: 'RXM Automobile (First-party)',
+    name: 'parcos_auth_session',
+    provider: 'ParcOS Hub (First-party)',
     type: 'SessionStorage',
     duration: 'Durata sesiunii curente',
-    purpose: 'Verifică autorizarea personalului administrativ autorizat în portalul de gestiune stoc.',
+    purpose: 'Verifică autorizarea securizată a operatorului sau administratorului de parc auto în portalul DMS și modulul SuperAdmin Hub.',
     category: 'essential'
+  },
+  {
+    name: 'cwv_metrics',
+    provider: 'ParcOS Platform (First-party)',
+    type: 'SessionStorage',
+    duration: 'Durata sesiunii curente',
+    purpose: 'Măsoară anonimizat indicatorii de viteză Core Web Vitals (Largest Contentful Paint, Cumulative Layout Shift, INP) pentru optimizarea experienței pe dispozitive mobile.',
+    category: 'analytics'
   },
   {
     name: '_ga / _ga_*',
     provider: 'Google Analytics (Google LLC)',
     type: 'Cookie HTTP',
     duration: '24 luni / 24 ore',
-    purpose: 'Colectează date statistice agregate și anonimizate despre modul în care vizitatorii utilizează platforma (fără identificare personală directă).',
+    purpose: 'Colectează date statistice agregate și anonimizate despre modul în care vizitatorii utilizează platforma și uneltele ParcOS (fără identificare personală directă).',
     category: 'analytics'
   },
   {
-    name: 'cwv_metrics',
-    provider: 'RXM Automobile (First-party)',
-    type: 'SessionStorage',
-    duration: 'Durata sesiunii curente',
-    purpose: 'Măsoară indicatorii de viteză Core Web Vitals (Largest Contentful Paint, Cumulative Layout Shift) pentru optimizarea performanței pe dispozitive mobile.',
-    category: 'analytics'
-  },
-  {
-    name: 'tt_csrf_token / msToken',
-    provider: 'TikTok Pte. Ltd. (Third-party)',
-    type: 'Cookie HTTP',
+    name: 'video_stream_cache',
+    provider: 'Cloudflare / Media Stream (Third-party)',
+    type: 'Cache Web / Cookie HTTP',
     duration: 'Sesiune / 6 luni',
-    purpose: 'Permite redarea securizată și optimizată a recenziilor video și a prezentărilor de autoturisme găzduite pe canalul oficial TikTok @rxm.automobile.',
+    purpose: 'Asigură streaming-ul video fluid 4K adaptiv pentru turul de prezentare a showroom-ului digital autonom și livrarea fără buffering a documentației video.',
     category: 'marketing'
   },
   {
-    name: 'NID / 1P_JAR',
-    provider: 'Google LLC (Google Maps)',
+    name: 'maps_session',
+    provider: 'Google LLC / Maps (Third-party)',
     type: 'Cookie HTTP',
     duration: '6 luni',
-    purpose: 'Facilitează afișarea hărții interactive a showroom-ului din Cluj-Napoca și calculul traseului de navigare GPS.',
+    purpose: 'Facilitează afișarea hărților interactive de localizare a parcurilor auto partenere și calculul traseelor de livrare pe platformă.',
     category: 'marketing'
   }
 ];
 
 export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
-  dealer = SEED_DEALER,
+  dealer,
   onBackToShowroom,
   onOpenPreferences,
   onOpenTerms
 }) => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    document.title = `Politica de Cookie-uri — ${dealer.name}`;
+    const prevTitle = document.title;
+    document.title = 'Politica de Cookie-uri — ParcOS Dealership OS';
     return () => {
-      document.title = `${dealer.name} — Dealer Automobile Rulate Cluj-Napoca`;
+      document.title = prevTitle || 'ParcOS — Sistem de Operare Autonom pentru Parcuri Auto & DMS Cloud';
     };
-  }, [dealer.name]);
+  }, []);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -149,13 +157,13 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-xs sm:text-sm font-semibold text-zinc-200 hover:text-white transition-all shadow-sm touch-manipulation cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 text-amber-400" />
-              <span>← Înapoi la Showroom</span>
+              <span>← Înapoi la ParcOS</span>
             </button>
           </div>
 
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold uppercase tracking-wider mb-4">
             <Cookie className="w-3.5 h-3.5" />
-            <span>Transparență & Protecția Datelor Online</span>
+            <span>Transparență & Protecția Datelor Platformă</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
@@ -163,15 +171,15 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
           </h1>
 
           <p className="text-sm sm:text-base text-zinc-400 max-w-3xl leading-relaxed">
-            Această politică descrie modul în care platforma digitală oficială <strong className="text-zinc-200">{dealer.name}</strong> utilizează 
-            modulele cookie și tehnologiile similare de stocare web, în conformitate cu Directiva ePrivacy (2002/58/CE), 
+            Această politică descrie modul în care platforma digitală oficială <strong className="text-zinc-200">ParcOS</strong> (operată de societatea <strong className="text-zinc-200">CARVANA SRL</strong>) utilizează 
+            modulele cookie și tehnologiile avansate de stocare web (HTML5 Web Storage), în deplină conformitate cu Directiva ePrivacy (2002/58/CE), 
             Legea nr. 506/2004 privind prelucrarea datelor în sectorul comunicațiilor electronice și Regulamentul General privind Protecția Datelor (GDPR - UE 2016/679).
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-zinc-500">
             <span className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-amber-400" />
-              <span>Ultima actualizare: <strong>15 octombrie 2026</strong></span>
+              <span>Ultima actualizare: <strong>22 octombrie 2026</strong></span>
             </span>
             <span>•</span>
             <span className="flex items-center gap-1.5">
@@ -179,7 +187,7 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
               <span>Conformitate ANSPDCP & ePrivacy</span>
             </span>
             <span>•</span>
-            <span className="text-zinc-400">Operator: {dealer.name} (CUI: {dealer.cui})</span>
+            <span className="text-zinc-400">Operator: CARVANA SRL (ParcOS Platform • CUI: RO48464618)</span>
           </div>
 
           {/* Jump Pills / Navigare Rapidă prin Secțiuni */}
@@ -217,7 +225,7 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
             </div>
             <div>
               <h2 className="text-sm font-bold text-white">Doriți să vă modificați preferințele chiar acum?</h2>
-              <p className="text-xs text-zinc-300">Puteți activa sau dezactiva oricând modulele analitice și de redare media printr-un singur click.</p>
+              <p className="text-xs text-zinc-300">Puteți activa sau dezactiva oricând modulele analitice și de streaming media printr-un singur click.</p>
             </div>
           </div>
           {onOpenPreferences && (
@@ -265,8 +273,8 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
               <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                 <strong className="text-amber-300 text-sm block mb-1">Tehnologii conexe (Web Storage)</strong>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  Platforma noastră modernă utilizează și tehnologiile <strong>HTML5 LocalStorage</strong> și <strong>SessionStorage</strong> pentru a stoca în siguranță 
-                  pe dispozitivul dumneavoastră catalogul de mașini, asigurând timpi de răspuns sub 50ms și independență față de fluctuațiile conexiunii la internet.
+                  Platforma ParcOS utilizează tehnologiile <strong>HTML5 LocalStorage</strong> și <strong>SessionStorage</strong> pentru a stoca în siguranță 
+                  pe dispozitivul dumneavoastră datele de configurare DMS, simulatoarele demonstrative și preferințele de temă, asigurând timpi de răspuns sub 50ms și independență față de fluctuațiile conexiunii la internet.
                 </p>
               </div>
             </div>
@@ -287,22 +295,22 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
 
           <div className="space-y-4 text-sm sm:text-[15px] leading-relaxed text-zinc-300">
             <p>
-              Utilizarea modulelor cookie pe site-ul <strong>{dealer.name}</strong> se realizează în deplină concordanță cu legislația națională și europeană aplicabilă:
+              Utilizarea modulelor cookie pe platforma <strong>ParcOS</strong> se realizează în deplină concordanță cu legislația națională și europeană aplicabilă:
             </p>
 
             <ul className="list-disc pl-5 space-y-2 text-zinc-300 text-xs sm:text-sm">
               <li>
-                <strong>Pentru cookie-urile strict necesare (tehnice):</strong> Baza legală este <em>interesul legitim al operatorului</em> (art. 6 alin. 1 lit. f din GDPR) și excepția prevăzută la art. 4 alin. (5) lit. b) din <strong>Legea nr. 506/2004</strong>, nefiind necesar consimțământul prealabil deoarece aceste tehnologii sunt esențiale furnizării serviciului solicitat expres de vizitator (navigarea catalogului auto, securitate).
+                <strong>Pentru cookie-urile strict necesare (tehnice):</strong> Baza legală este <em>interesul legitim al operatorului</em> (art. 6 alin. 1 lit. f din GDPR) și excepția prevăzută la art. 4 alin. (5) lit. b) din <strong>Legea nr. 506/2004</strong>, nefiind necesar consimțământul prealabil deoarece aceste tehnologii sunt esențiale furnizării serviciului solicitat expres de vizitator (navigarea platformei SaaS, funcționarea simulatoarelor DMS, securitatea sesiunilor).
               </li>
               <li>
-                <strong>Pentru cookie-urile analitice și conținut multimedia terț:</strong> Baza legală o reprezintă <em>consimțământul liber exprimat, informat și specific al utilizatorului</em> (art. 6 alin. 1 lit. a din GDPR și art. 4 alin. 5 din Legea 506/2004), colectat prin intermediul bannerului interactiv de consimțământ.
+                <strong>Pentru cookie-urile analitice și conținut multimedia integrat:</strong> Baza legală o reprezintă <em>consimțământul liber exprimat, informat și specific al utilizatorului</em> (art. 6 alin. 1 lit. a din GDPR și art. 4 alin. 5 din Legea 506/2004), colectat prin intermediul pop-out-ului discret de consimțământ.
               </li>
             </ul>
 
             <div className="p-3.5 rounded-xl bg-blue-500/[0.05] border border-blue-500/20 text-xs text-blue-300 flex items-start gap-2.5">
               <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
               <span>
-                Nu condiționăm accesul dumneavoastră la catalogul de mașini sau la datele de contact ale showroom-ului de acceptarea cookie-urilor opționale. Puteți refuza în orice moment modulele analitice sau media fără nicio repercusiune asupra vizualizării vehiculelor rulate.
+                Nu condiționăm accesul dumneavoastră la prezentarea platformei ParcOS, la specificațiile tehnice, la simulatoarele demonstrative (OCR, ROI, Oferte) sau la datele de contact de acceptarea cookie-urilor opționale. Puteți refuza oricând modulele analitice sau media fără nicio repercusiune asupra navigării.
               </span>
             </div>
           </div>
@@ -334,7 +342,7 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-                Aceste tehnologii sunt indispensabile funcționării corecte a platformei. Ele permit memorarea mașinilor favorite, starea filtrelor aplicate (marcă, preț, tip combustibil, cutie de viteze), memorarea deciziei de consimțământ pentru a nu afișa bannerul la fiecare click, și optimizarea cache-ului local pentru încărcare ultra-rapidă. Acestea nu colectează date cu caracter personal în scopuri comerciale.
+                Aceste tehnologii sunt indispensabile funcționării corecte a platformei ParcOS. Ele permit navigarea fluidă în suita de module DMS, stocarea temporară a parametrilor din simulatorul CIV OCR cu AI, salvarea deciziei de consimțământ pentru a nu afișa pop-out-ul la fiecare pagină și securitatea sesiunilor de administrare. Acestea nu colectează date personale în scopuri de publicitate comportamentală.
               </p>
             </div>
 
@@ -343,30 +351,30 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
               <div className="flex items-center justify-between gap-2 mb-2">
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-amber-400" />
-                  2. Module de Analiză și Măsurare a Performanței
+                  2. Module de Măsurare & Performanță Tehnică
                 </h3>
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
                   OPȚIONAL
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-                Ne permit să contorizăm numărul de vizitatori unici și să măsurăm performanța tehnică a paginilor (de exemplu: viteza de redare a fotografiilor de înaltă rezoluție, stabilitatea vizuală pe mobil). Toate adresele IP sunt anonimizate înainte de procesare, astfel încât utilizatorii individuali nu pot fi identificați.
+                Ne permit să contorizăm anonimizat traficul și să măsurăm performanța tehnică a platformei (viteza de încărcare a componentelor reactive, metricile Core Web Vitals și stabilitatea pe dispozitive mobile). Toate adresele IP sunt anonimizate automat înainte de stocare, astfel încât utilizatorii individuali nu pot fi identificați.
               </p>
             </div>
 
-            {/* 3. Media & Social Terț */}
+            {/* 3. Media & Servicii Integrate */}
             <div className="p-4 sm:p-5 rounded-xl bg-white/[0.02] border border-blue-500/20">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-blue-400" />
-                  3. Module de Conținut Multimedia & Servicii Terțe
+                  3. Module de Conținut Multimedia & Streaming Video 4K
                 </h3>
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30">
                   OPȚIONAL
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-                Pentru a vă oferi o transparență totală asupra stării tehnice a mașinilor rulate, integrăm scurte videoclipuri oficiale din contul nostru de TikTok (@rxm.automobile), hărți de navigare Waze și Google Maps pentru a ajunge la showroom, precum și butonul de consultanță directă prin WhatsApp. Acești furnizori pot plasa propriile module cookie în conformitate cu politicile lor independente de securitate.
+                Pentru a vă oferi o prezentare realistă a experienței de showroom digital, integrăm clipuri video de înaltă rezoluție (prezentare 4K a halei auto), hărți interactive pentru reprezentarea punctelor de lucru ale dealerilor parteneri și unelte de suport direct WhatsApp. Acești furnizori pot plasa propriile module tehnice de cache și streaming în conformitate cu standardele lor de confidențialitate.
               </p>
             </div>
 
@@ -381,12 +389,12 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
             </div>
             <div>
               <span className="text-[11px] font-mono uppercase tracking-wider text-amber-400 font-bold">Secțiunea 04</span>
-              <h2 className="text-xl sm:text-2xl font-bold text-white">Inventarul transparent al modulelor și cheilor de stocare</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-white">Inventarul transparent al modulelor și cheilor de stocare ParcOS</h2>
             </div>
           </div>
 
           <p className="text-xs sm:text-sm text-zinc-400 mb-4 leading-relaxed">
-            Mai jos regăsiți lista completă și actualizată a cheilor de memorie și cookie-urilor utilizate în platforma digitală {dealer.name}:
+            Mai jos regăsiți lista completă și actualizată a cheilor de memorie web și modulelor cookie utilizate în platforma digitală ParcOS:
           </p>
 
           {/* Tabel cu Scroll Orizontal Protejat conform Invariantelor Mobile */}
@@ -455,7 +463,7 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
 
           <div className="space-y-4 text-sm sm:text-[15px] leading-relaxed text-zinc-300">
             <p>
-              Aveți control deplin asupra modulelor cookie utilizate. Puteți alege să modificați opțiunile acordate pe acest site 
+              Aveți control deplin asupra modulelor cookie utilizate. Puteți alege să modificați opțiunile acordate pe platforma ParcOS 
               sau să blocați / ștergeți cookie-urile direct din browserul dumneavoastră web.
             </p>
 
@@ -468,7 +476,7 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
                   className="min-h-[44px] px-5 py-2.5 rounded-xl bg-white/10 hover:bg-amber-500 hover:text-black border border-white/15 text-white font-semibold text-xs sm:text-sm inline-flex items-center gap-2 transition-all active:scale-95 touch-manipulation cursor-pointer"
                 >
                   <Settings2 className="w-4 h-4 text-amber-400 group-hover:text-black" />
-                  <span>Modifică consimțământul acordat pe RXM Automobile</span>
+                  <span>Modifică consimțământul acordat pe ParcOS</span>
                 </button>
               </div>
             )}
@@ -521,7 +529,7 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
             </div>
 
             <p className="text-xs text-zinc-400 mt-2">
-              <em>Notă:</em> Dezactivarea totală a modulelor cookie din setările browserului poate face ca anumite funcționalități avansate ale site-ului (precum stocarea preferințelor de sortare sau calculatoarele de rate lunare) să necesite reconfigurare la fiecare vizită.
+              <em>Notă:</em> Dezactivarea totală a modulelor cookie din setările browserului poate face ca anumite funcționalități avansate (precum memorarea parametrilor în simulatorul de marjă dealer, simulatorul CIV OCR sau preferințele de temă vizuală) să necesite reconfigurare la fiecare vizită.
             </p>
           </div>
         </section>
@@ -545,20 +553,28 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
             </p>
 
             <div className="p-4 sm:p-5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-3">
-              <strong className="text-white text-sm block">Pentru orice solicitare privind confidențialitatea și modulele cookie:</strong>
+              <strong className="text-white text-sm block">Date oficiale de contact privind confidențialitatea și modulele cookie:</strong>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Email DPO: <a href={`mailto:${dealer.email}`} className="text-amber-300 hover:underline">{dealer.email}</a></span>
+                  <span>Email DPO: <a href="mailto:dpo@parcos.ro" className="text-amber-300 hover:underline font-mono">dpo@parcos.ro</a></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>Suport General: <a href="mailto:contact@parcos.ro" className="text-amber-300 hover:underline font-mono">contact@parcos.ro</a></span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Telefon: <a href={`tel:${dealer.phonePrimary.replace(/\s+/g, '')}`} className="text-amber-300 hover:underline">{dealer.phonePrimary}</a></span>
+                  <span>Asistență Tehnică: <a href="tel:+40748892937" className="text-amber-300 hover:underline font-mono">+40 748 892 937</a></span>
                 </div>
-                <div className="flex items-start gap-2 sm:col-span-2">
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>Website Oficial: <a href="https://parcos.ro" className="text-amber-300 hover:underline font-mono">parcos.ro</a></span>
+                </div>
+                <div className="flex items-start gap-2 sm:col-span-2 pt-1 border-t border-white/[0.04]">
                   <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <span>Sediu Social: {dealer.name}, {dealer.legalAddress} (CUI: {dealer.cui}, Reg. Com.: {dealer.regCom || 'J12/3012/13.07.2023'})</span>
+                  <span>Operator Platformă: <strong>CARVANA SRL</strong> • CUI: <strong>RO48464618</strong> • Reg. Com.: <strong>J12/3012/13.07.2023</strong> • Sediu: Mun. Cluj-Napoca, jud. Cluj, România</span>
                 </div>
               </div>
             </div>
@@ -590,7 +606,7 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
 
       </main>
 
-      {/* 🔝 Revenire Rapidă la Începutul Showroom-ului */}
+      {/* 🔝 Revenire Rapidă la Începutul Platformei */}
       <div className="max-w-5xl mx-auto py-8 px-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/[0.08]">
         <button
           type="button"
@@ -598,7 +614,7 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
           className="min-h-[44px] px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs sm:text-sm inline-flex items-center gap-2 transition-all shadow-md active:scale-95 touch-manipulation cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>← Înapoi în Showroom</span>
+          <span>← Înapoi la ParcOS</span>
         </button>
 
         <button

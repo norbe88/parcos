@@ -19,6 +19,8 @@ export interface ShowroomVideoIntroProps {
   videoSrc?: string;
   /** Imaginea de poster afișată ca fallback sau înainte de redare */
   posterSrc?: string;
+  /** Imaginea de cadru final (showroom deschis cu cele 4 vehicule) afișată după terminare */
+  lastFrameSrc?: string;
   /** ID-ul secțiunii din pagină către care derulează butonul CTA */
   targetSectionId?: string;
   /** Callback la apăsarea butonului principal CTA */
@@ -148,21 +150,28 @@ const VEHICLES: ShowroomVehicle[] = [
 export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
   videoSrc = '/videos/parcos-showroom-intro.mp4',
   posterSrc = '/images/parcos-showroom-hall.jpg',
+  lastFrameSrc = '/images/parcos-showroom-hall-lastframe.jpg',
   targetSectionId = 'demo-ocr',
   onExploreClick,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const lastProgressRef = useRef<number>(0);
-  const [scrollProgress, setScrollProgress] = useState<number>(0);
+  const currentPhaseRef = useRef<-1 | 0 | 1 | 2 | 3>(-1);
+  const isHeroBannerRevealedRef = useRef<boolean>(false);
+  const isVideoEndedRef = useRef<boolean>(false);
+
+  // Cuantificare pe 5 faze discrete (-1, 0, 1, 2, 3) pentru eliminarea completă a re-randărilor continue la scroll
+  const [scrollPhase, setScrollPhase] = useState<-1 | 0 | 1 | 2 | 3>(-1);
   const [videoLoadError, setVideoLoadError] = useState<boolean>(false);
   const [isHeroBannerRevealed, setIsHeroBannerRevealed] = useState<boolean>(false);
+  const [isVideoEnded, setIsVideoEnded] = useState<boolean>(false);
 
   // Stare pentru selecția manuală a cardului activ pe mobil în cele 2 sloturi
   const [manualSlotA, setManualSlotA] = useState<0 | 2 | null>(null);
   const [manualSlotB, setManualSlotB] = useState<1 | 3 | null>(null);
 
-  // Monitorizare scroll nativ optimizată pentru ecrane 4K (evită re-randări sub-pixel)
+  // Monitorizare scroll nativ cuantificată pe cele 5 milestone-uri discrete (-1, 0, 1, 2, 3)
+  // Elimină complet re-randările sub-pixel pe monitoare 4K (reduce re-randările cu >99%)
   useEffect(() => {
     let ticking = false;
 
@@ -178,16 +187,33 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
           if (totalScrollable > 0) {
             const currentScroll = -rect.top;
             const progress = Math.max(0, Math.min(1, currentScroll / totalScrollable));
-            if (
-              Math.abs(progress - lastProgressRef.current) > 0.001 ||
-              progress === 0 ||
-              progress === 1
-            ) {
-              lastProgressRef.current = progress;
-              setScrollProgress(progress);
-              if (progress > 0.04 && !isHeroBannerRevealed) {
-                setIsHeroBannerRevealed(true);
-              }
+
+            // Revelare banner intro la derulare minimă
+            if (progress > 0.04 && !isHeroBannerRevealedRef.current) {
+              isHeroBannerRevealedRef.current = true;
+              setIsHeroBannerRevealed(true);
+            }
+
+            // Calcul praguri discrete:
+            // -1: Hero Extins (0 .. 0.08)
+            //  0: Porsche Cayenne GTS (0.08 .. 0.30)
+            //  1: Mercedes-AMG GT (0.30 .. 0.53)
+            //  2: Audi RS7 Sportback (0.53 .. 0.76)
+            //  3: Audi R8 V10 (>= 0.76)
+            let newPhase: -1 | 0 | 1 | 2 | 3 = -1;
+            if (progress >= 0.76) {
+              newPhase = 3;
+            } else if (progress >= 0.53) {
+              newPhase = 2;
+            } else if (progress >= 0.30) {
+              newPhase = 1;
+            } else if (progress >= 0.08) {
+              newPhase = 0;
+            }
+
+            if (newPhase !== currentPhaseRef.current) {
+              currentPhaseRef.current = newPhase;
+              setScrollPhase(newPhase);
             }
           }
           ticking = false;
@@ -199,61 +225,107 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isHeroBannerRevealed]);
+  }, []);
 
-  // Pornire automată a clipului video
+  // Pornire automată a clipului video (autonome & muted conform politicilor WebKit/Blink)
   useEffect(() => {
     const vid = videoRef.current;
     if (vid && !videoLoadError) {
       vid.defaultMuted = true;
       vid.muted = true;
-      vid.play().catch(() => {});
+      const playPromise = vid.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {});
+      }
     }
   }, [videoLoadError]);
 
+  // IntersectionObserver: Pune pe pauză videoclipul când e derulat în afara ecranului (>230vh)
+  // pentru a elibera resursele GPU/VRAM pe monitoare 4K, fără a reseta poziția cadrului.
+  useEffect(() => {
+    const vid = videoRef.current;
+    const container = containerRef.current;
+    if (!vid || !container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Dacă s-a reîntors în ecran și videoclipul nu a atins finalul, reluăm redarea
+            if (!isVideoEndedRef.current && vid.paused && !vid.ended) {
+              const playPromise = vid.play();
+              if (playPromise !== undefined) {
+                playPromise.catch(() => {});
+              }
+            }
+          } else {
+            // A părăsit ecranul: pauză pentru a economisi pipeline-ul GPU pe 4K
+            if (!vid.paused) {
+              vid.pause();
+            }
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
   // Apariția cardului de sus după câteva secunde (la ~2.6s când s-au deschis ușile și camera a pătruns în hală)
   const handleTimeUpdate = useCallback(() => {
+    if (isHeroBannerRevealedRef.current) return;
     const vid = videoRef.current;
     if (!vid) return;
-    if (vid.currentTime >= 2.6 && !isHeroBannerRevealed) {
+    if (vid.currentTime >= 2.6) {
+      isHeroBannerRevealedRef.current = true;
       setIsHeroBannerRevealed(true);
     }
-  }, [isHeroBannerRevealed]);
+  }, []);
 
   // Siguranță: dacă utilizatorul nu așteaptă sau video-ul nu emite timeupdate, revelăm bannerul după max 3s
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setIsHeroBannerRevealed(true);
+      if (!isHeroBannerRevealedRef.current) {
+        isHeroBannerRevealedRef.current = true;
+        setIsHeroBannerRevealed(true);
+      }
     }, 3000);
     return () => window.clearTimeout(timer);
+  }, []);
+
+  // Finalizare video: pauză curată și ancorare pe imaginea cadrului final fără seek periculos
+  const handleVideoEnded = useCallback(() => {
+    const vid = videoRef.current;
+    if (vid) {
+      vid.pause();
+    }
+    isVideoEndedRef.current = true;
+    setIsVideoEnded(true);
   }, []);
 
   // =========================================================================
   // LOGICĂ SCROLLYTELLING: CALCULE DE PRIM-PLAN ȘI CAMERA PAN (COMPACT 230vh)
   // =========================================================================
-  const isHeroActive = scrollProgress < 0.08;
+  const isHeroActive = scrollPhase < 0;
   const isCompactHeader = !isHeroActive;
+  const primPlanIndex = scrollPhase;
 
-  let primPlanIndex = -1;
   let cameraPan = 'translate3d(0, 0, 0) scale(1)';
-
-  if (scrollProgress >= 0.08 && scrollProgress < 0.30) {
-    primPlanIndex = 0; // Porsche Cayenne GTS (Prim-plan Flanc Stâng Față)
+  if (scrollPhase === 0) {
     cameraPan = 'translate3d(2.5vw, -1vh, 0) scale(1.04)';
-  } else if (scrollProgress >= 0.30 && scrollProgress < 0.53) {
-    primPlanIndex = 1; // Mercedes-AMG GT (Prim-plan Flanc Stâng Mijloc)
+  } else if (scrollPhase === 1) {
     cameraPan = 'translate3d(-2.5vw, -1vh, 0) scale(1.04)';
-  } else if (scrollProgress >= 0.53 && scrollProgress < 0.76) {
-    primPlanIndex = 2; // Audi RS7 Sportback (Prim-plan Flanc Drept Mijloc)
+  } else if (scrollPhase === 2) {
     cameraPan = 'translate3d(2.5vw, 1.5vh, 0) scale(1.05)';
-  } else if (scrollProgress >= 0.76) {
-    primPlanIndex = 3; // Audi R8 V10 (Prim-plan Flanc Drept Față)
+  } else if (scrollPhase === 3) {
     cameraPan = 'translate3d(-2.5vw, 1.5vh, 0) scale(1.05)';
   }
 
   // Calcul mașină activă în Slot A (Card 0 / Card 2) și Slot B (Card 1 / Card 3) pe mobil
-  const activeSlotACar: 0 | 2 = manualSlotA ?? (scrollProgress >= 0.53 ? 2 : 0);
-  const activeSlotBCar: 1 | 3 = manualSlotB ?? (scrollProgress >= 0.76 ? 3 : 1);
+  const activeSlotACar: 0 | 2 = manualSlotA ?? (scrollPhase >= 2 ? 2 : 0);
+  const activeSlotBCar: 1 | 3 = manualSlotB ?? (scrollPhase >= 3 ? 3 : 1);
 
   // Derulare lină către un vehicul specific
   const scrollToVehicle = (index: number) => {
@@ -288,8 +360,13 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
     }
     const vid = videoRef.current;
     if (vid) {
+      isVideoEndedRef.current = false;
+      setIsVideoEnded(false);
       vid.currentTime = 0;
-      vid.play().catch(() => {});
+      const playPromise = vid.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {});
+      }
     }
   }, []);
 
@@ -303,8 +380,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
     const vehicle = VEHICLES[vehicleIndex];
     if (!vehicle) return null;
 
-    const visibilityThresholds = [0.08, 0.30, 0.53, 0.76];
-    const isVisible = isMobileSlot ? true : scrollProgress >= visibilityThresholds[vehicleIndex];
+    const isVisible = isMobileSlot ? true : scrollPhase >= vehicleIndex;
     const isPrimPlan = primPlanIndex === vehicleIndex;
 
     const isLeft = quadrant.includes('left');
@@ -326,7 +402,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
           transition:
             'transform 550ms cubic-bezier(0.16, 1, 0.3, 1), opacity 450ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms ease-out, border-color 250ms ease-out',
         }}
-        className={`group relative rounded-2xl cursor-pointer border shadow-2xl backdrop-blur-md ${
+        className={`group relative rounded-2xl cursor-pointer border shadow-2xl backdrop-blur-sm lg:backdrop-blur-none ${
           isMobileSlot ? 'p-2.5 sm:p-3' : 'p-3 sm:p-3.5'
         } ${
           !isVisible
@@ -335,11 +411,11 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
               } ${isBottom ? 'translate-y-5' : '-translate-y-4'}`
             : isPrimPlan
             ? vehicle.statusColor === 'emerald'
-              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/95 border-emerald-500/90 ring-2 ring-emerald-500/30 shadow-[0_0_35px_rgba(16,185,129,0.25)] z-30'
+              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/98 border-emerald-500/90 ring-2 ring-emerald-500/30 shadow-[0_0_35px_rgba(16,185,129,0.25)] z-30'
               : vehicle.statusColor === 'sky'
-              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/95 border-sky-500/90 ring-2 ring-sky-500/30 shadow-[0_0_35px_rgba(14,165,233,0.25)] z-30'
-              : 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/95 border-amber-500/90 ring-2 ring-amber-500/30 shadow-[0_0_35px_rgba(245,158,11,0.25)] z-30'
-            : 'opacity-90 translate-x-0 translate-y-0 scale-[0.98] bg-[#121215]/90 border-white/15 shadow-xl z-20 hover:opacity-100 hover:scale-[0.99] hover:border-white/30'
+              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/98 border-sky-500/90 ring-2 ring-sky-500/30 shadow-[0_0_35px_rgba(14,165,233,0.25)] z-30'
+              : 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/98 border-amber-500/90 ring-2 ring-amber-500/30 shadow-[0_0_35px_rgba(245,158,11,0.25)] z-30'
+            : 'opacity-90 translate-x-0 translate-y-0 scale-[0.98] bg-[#121215]/95 border-white/15 shadow-xl z-20 hover:opacity-100 hover:scale-[0.99] hover:border-white/30'
         }`}
       >
         {/* Header Card: Status & Preț cu indicator Mock Data * (Alb pur pe fundal Dark Luxury) */}
@@ -440,6 +516,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
   return (
     <section
       ref={containerRef}
+      id="showroom-video-intro"
       aria-label="ParcOS Showroom Digital Autonom"
       className="relative w-full bg-[#09090b] text-white select-none font-sans"
       style={{ height: '230vh' }}
@@ -452,6 +529,9 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
         
         {/* =====================================================================
             LAYER 1: CLIPUL VIDEO 4K CU EFECT DE CAMERA PAN STANGA / DREAPTA
+            - Izolare pe strat GPU dedicat (translate3d, backface-visibility: hidden)
+            - Crossfade fără cusur către cadrul final când videoclipul se termină
+            - Zero seek destructiv la final (elimină riscul de reset la uși închise)
            ===================================================================== */}
         <div 
           className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
@@ -459,40 +539,56 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
             transform: cameraPan,
             transition: 'transform 850ms cubic-bezier(0.16, 1, 0.3, 1)',
             willChange: 'transform',
+            backfaceVisibility: 'hidden',
           }}
         >
           {!videoLoadError ? (
-            <video
-              ref={videoRef}
-              src={videoSrc}
-              poster={posterSrc}
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              onTimeUpdate={handleTimeUpdate}
-              onEnded={() => {
-                const vid = videoRef.current;
-                if (vid && vid.duration) {
-                  vid.currentTime = Math.max(0, vid.duration - 0.05);
-                  vid.pause();
-                }
-              }}
-              onError={() => {
-                setVideoLoadError(true);
-                setIsHeroBannerRevealed(true);
-              }}
-              className="h-full w-full object-cover object-center"
-            />
+            <>
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                playsInline
+                preload="auto"
+                poster={posterSrc}
+                onTimeUpdate={handleTimeUpdate}
+                onEnded={handleVideoEnded}
+                onError={() => {
+                  setVideoLoadError(true);
+                  setIsHeroBannerRevealed(true);
+                }}
+                className={`h-full w-full object-cover object-center transition-opacity duration-300 ${
+                  isVideoEnded ? 'opacity-0' : 'opacity-100'
+                }`}
+                style={{
+                  transform: 'translate3d(0, 0, 0)',
+                  backfaceVisibility: 'hidden',
+                }}
+              >
+                <source src={videoSrc} type="video/mp4" />
+              </video>
+
+              {/* Cadru final de siguranță: devine vizibil la terminarea video-ului,
+                  asigurând că pe monitoare mari 4K browserul nu resetează niciodată la frame 0 */}
+              <img
+                src={lastFrameSrc}
+                alt="ParcOS Showroom Digital"
+                className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-300 ${
+                  isVideoEnded ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                style={{
+                  transform: 'translate3d(0, 0, 0)',
+                  backfaceVisibility: 'hidden',
+                }}
+              />
+            </>
           ) : (
             <div className="relative h-full w-full">
-              {posterSrc && (
-                <img
-                  src={posterSrc}
-                  alt="ParcOS Showroom Pavilion"
-                  className="h-full w-full object-cover object-center"
-                />
-              )}
+              <img
+                src={lastFrameSrc || posterSrc}
+                alt="ParcOS Showroom Pavilion"
+                className="h-full w-full object-cover object-center"
+              />
             </div>
           )}
 
@@ -505,8 +601,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
            ===================================================================== */}
         <div className="pointer-events-none absolute inset-0 z-10">
           {VEHICLES.map((vehicle, index) => {
-            const visibilityThresholds = [0.08, 0.30, 0.53, 0.76];
-            const isVisibleOnScreen = scrollProgress >= visibilityThresholds[index];
+            const isVisibleOnScreen = scrollPhase >= index;
             const isPrimPlan = primPlanIndex === index;
 
             if (!isVisibleOnScreen) return null;
@@ -571,7 +666,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                 'opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1), max-width 500ms cubic-bezier(0.16, 1, 0.3, 1), padding 500ms cubic-bezier(0.16, 1, 0.3, 1)',
               willChange: 'transform, opacity',
             }}
-            className={`mx-auto bg-[#121215]/95 backdrop-blur-md border border-white/15 shadow-2xl overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            className={`mx-auto bg-[#121215]/98 backdrop-blur-sm lg:backdrop-blur-none border border-white/15 shadow-2xl overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
               isCompactHeader
                 ? 'rounded-2xl px-3 py-2 sm:px-5 sm:py-2.5 max-w-4xl shadow-xl'
                 : 'rounded-3xl px-4 py-3.5 sm:px-8 sm:py-5 max-w-3xl shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] text-center'
@@ -681,7 +776,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
               !isCompactHeader ? 'pointer-events-none' : ''
             }`}
           >
-            <div className="bg-[#121215]/95 backdrop-blur-md border border-white/15 rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-1.5 shadow-xl flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+            <div className="bg-[#121215]/98 backdrop-blur-sm lg:backdrop-blur-none border border-white/15 rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-1.5 shadow-xl flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
               <div className="flex items-center gap-1.5 text-[11px] font-bold text-zinc-200 shrink-0">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
                 <span className="hidden sm:inline text-zinc-400">Selector Showroom:</span>
@@ -779,12 +874,12 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
               >
                 {/* Micro-Selector Slot A pe Mobil */}
                 <div className="flex items-center justify-between mb-1 px-1">
-                  <span className="text-[10px] font-mono text-zinc-300 bg-[#121215]/95 backdrop-blur-md px-2.5 py-0.5 rounded-lg border border-white/15 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+                  <span className="text-[10px] font-mono text-zinc-300 bg-[#121215]/95 backdrop-blur-sm px-2.5 py-0.5 rounded-lg border border-white/15 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
                     <span className="text-zinc-400">Flanc Stâng:</span>
                     <strong className="text-white font-black">{VEHICLES[activeSlotACar]?.shortName}</strong>
                   </span>
-                  <div className="flex items-center gap-1 bg-[#121215]/95 backdrop-blur-md border border-white/15 p-0.5 rounded-lg shadow-sm">
+                  <div className="flex items-center gap-1 bg-[#121215]/95 backdrop-blur-sm border border-white/15 p-0.5 rounded-lg shadow-sm">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -826,19 +921,19 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                   transition: 'opacity 500ms ease, transform 500ms ease',
                 }}
                 className={`w-full transition-all duration-500 ${
-                  scrollProgress < 0.30
+                  scrollPhase < 1
                     ? 'opacity-0 pointer-events-none translate-y-3'
                     : 'opacity-100 translate-y-0'
                 }`}
               >
                 {/* Micro-Selector Slot B pe Mobil */}
                 <div className="flex items-center justify-between mb-1 px-1">
-                  <span className="text-[10px] font-mono text-zinc-300 bg-[#121215]/95 backdrop-blur-md px-2.5 py-0.5 rounded-lg border border-white/15 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+                  <span className="text-[10px] font-mono text-zinc-300 bg-[#121215]/95 backdrop-blur-sm px-2.5 py-0.5 rounded-lg border border-white/15 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     <span className="text-zinc-400">Flanc Drept:</span>
                     <strong className="text-white font-black">{VEHICLES[activeSlotBCar]?.shortName}</strong>
                   </span>
-                  <div className="flex items-center gap-1 bg-[#121215]/95 backdrop-blur-md border border-white/15 p-0.5 rounded-lg shadow-sm">
+                  <div className="flex items-center gap-1 bg-[#121215]/95 backdrop-blur-sm border border-white/15 p-0.5 rounded-lg shadow-sm">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -878,7 +973,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
           </div>
 
           {/* ================= SUBSOL CONFORMITATE FISCALĂ & PREZENTARE DEMO ================= */}
-          <div className="mt-1.5 rounded-xl bg-[#121215]/95 border border-white/15 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-md shadow-2xl flex flex-col gap-1 text-[11px] sm:text-xs text-zinc-300">
+          <div className="mt-1.5 rounded-xl bg-[#121215]/98 border border-white/15 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-sm lg:backdrop-blur-none shadow-2xl flex flex-col gap-1 text-[11px] sm:text-xs text-zinc-300">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="flex items-center gap-1.5 sm:gap-2">
                 <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-400 shrink-0" />
