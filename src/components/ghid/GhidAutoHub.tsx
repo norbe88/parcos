@@ -53,6 +53,12 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
   const [selectedCategorySlug, setSelectedCategorySlug] = useState<string | null>(initialCategory || null);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // 🏷️ Asigură tema deschisă luminoasă 'parcos_light' conform paginii principale ParcOS
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', 'parcos_light');
+    document.body.setAttribute('data-theme', 'parcos_light');
+  }, []);
+
   // Sincronizare cu hash-ul din URL pentru navigare directă și deep linking
   useEffect(() => {
     const parseHash = () => {
@@ -99,29 +105,18 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
     setActiveView('article');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (typeof window !== 'undefined') {
-      window.history.pushState(null, '', `#ghid-auto/${slug}`);
+      window.location.hash = `#ghid-auto/${slug}`;
     }
   };
 
-  const handleSelectCategory = (catSlug: string | null) => {
-    setSelectedCategorySlug(catSlug);
+  const handleSelectCategory = (catSlug: string) => {
+    if (selectedCategorySlug === catSlug) {
+      setSelectedCategorySlug(null);
+    } else {
+      setSelectedCategorySlug(catSlug);
+    }
     setActiveView('hub');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (typeof window !== 'undefined') {
-      if (catSlug) {
-        window.history.pushState(null, '', `#ghid-auto/cat-${catSlug}`);
-      } else {
-        window.history.pushState(null, '', `#ghid-auto`);
-      }
-    }
-  };
-
-  const handleOpenCalculator = () => {
-    setActiveView('calculator');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (typeof window !== 'undefined') {
-      window.history.pushState(null, '', `#ghid-auto/calculator-impozit-auto`);
-    }
+    window.scrollTo({ top: 400, behavior: 'smooth' });
   };
 
   const handleBackToHub = () => {
@@ -129,7 +124,15 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
     setSelectedArticleSlug(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (typeof window !== 'undefined') {
-      window.history.pushState(null, '', `#ghid-auto`);
+      window.location.hash = '#ghid-auto';
+    }
+  };
+
+  const handleOpenCalculator = () => {
+    setActiveView('calculator');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof window !== 'undefined') {
+      window.location.hash = '#ghid-auto/calculator-impozit-auto';
     }
   };
 
@@ -139,7 +142,7 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
     return searchArticles(searchQuery);
   }, [searchQuery]);
 
-  // Articole filtrate în funcție de categorie
+  // Articole filtrate pentru lista principală
   const displayedArticles = useMemo(() => {
     if (searchQuery.trim()) {
       return searchResults;
@@ -180,27 +183,27 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 selection:bg-amber-500/30 selection:text-amber-200">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans selection:bg-amber-500/20 selection:text-amber-800">
       
-      {/* 🧭 Navbar Ghid Auto */}
-      <header className="sticky top-0 z-40 w-full bg-zinc-950/85 backdrop-blur-xl border-b border-zinc-800/80 shadow-lg">
+      {/* 🧭 Navbar Tehnic Ghid Auto (Design Curat) */}
+      <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           
           <div className="flex items-center gap-3">
             <button
               onClick={onBackToMain}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Platforma ParcOS</span>
             </button>
 
-            <div className="h-5 w-px bg-zinc-800 hidden sm:block" />
+            <div className="h-5 w-px bg-slate-200 hidden sm:block" />
 
             <div className="flex items-center gap-2">
-              <span className="text-lg">📘</span>
-              <span className="font-display font-black text-base sm:text-lg text-white tracking-tight">
-                Ghid Auto <span className="text-amber-400">2026</span>
+              <span className="text-xl">📘</span>
+              <span className="font-display font-black text-base sm:text-lg text-slate-950 tracking-tight">
+                Ghid Auto <span className="text-amber-600">2026</span>
               </span>
             </div>
           </div>
@@ -208,10 +211,10 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
           <div className="flex items-center gap-3">
             <button
               onClick={handleOpenCalculator}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-amber-300 text-xs font-bold transition-all shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300/80 text-amber-900 text-xs font-bold transition-all shadow-2xs"
             >
-              <Calculator className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Calculator Impozit Auto</span>
+              <Calculator className="w-4 h-4 text-amber-600" />
+              <span className="hidden sm:inline">Calculator Impozit Auto 2026</span>
               <span className="sm:hidden">Calculator</span>
             </button>
           </div>
@@ -219,70 +222,79 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
         </div>
       </header>
 
-      {/* 🌟 Hero Spotlight */}
-      <section className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24 border-b border-zinc-800/80">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent pointer-events-none" />
+      {/* 🌟 Hero Spotlight (Design Curat & Luminos) */}
+      <section className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24 border-b border-slate-200/80 bg-gradient-to-b from-white via-slate-50/80 to-[#f8fafc]">
         
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
           
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 border border-amber-500/30 text-amber-400 mb-6">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Ghidul Oficial Auto & Transport România — Ediția 2026</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-50 border border-amber-200 text-amber-800 mb-6 shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            <span>Ghidul Oficial Auto & Transport România — Ediția Actualizată 2026</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight font-display leading-[1.15] mb-6">
-            Toate procedurile auto din România, explicate <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500">pas cu pas</span>
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-950 tracking-tight font-display leading-[1.15] mb-6">
+            Toate procedurile auto din România, explicate <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-amber-700">clar și pas cu pas</span>
           </h1>
 
-          <p className="text-zinc-400 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
-            Înmatriculare, RCA, CASCO, permis de conducere, ITP, rovinietă, transcriere și fiscalizare. 
-            Acte necesare, costuri exacte și pașii oficiali — fără drumuri inutile la ghișeu.
+          <p className="text-slate-600 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+            Înmatriculări, RAR, rovinietă, permis de conducere, radiere fiscală, contracte de vânzare și scutiri de impozit. 
+            Dosarul complet de acte și costurile oficiale — fără drumuri inutile la ghișeu.
           </p>
 
           {/* Căutare Centrală */}
           <div className="max-w-2xl mx-auto relative">
             <div className="relative flex items-center">
-              <Search className="w-5 h-5 text-zinc-400 absolute left-4 pointer-events-none" />
+              <Search className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Ce procedură cauți? (ex: înmatriculare auto, permis pierdut, impozit...)"
-                className="w-full bg-zinc-900/90 border border-zinc-700/80 hover:border-zinc-600 focus:border-amber-500 rounded-2xl py-3.5 pl-12 pr-10 text-sm sm:text-base text-white placeholder-zinc-500 focus:outline-none focus:ring-4 focus:ring-amber-500/20 shadow-2xl backdrop-blur-md transition-all font-sans"
+                placeholder="Ce procedură cauți? (ex: înmatriculare auto, numere roșii, impozit...)"
+                className="w-full bg-white border border-slate-300 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/15 rounded-2xl pl-12 pr-10 py-4 text-sm sm:text-base text-slate-900 placeholder-slate-400 font-medium shadow-md transition-all outline-none"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3.5 p-1 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-white"
+                  className="absolute right-3.5 text-slate-400 hover:text-slate-600 p-1"
                 >
                   <X className="w-4 h-4" />
                 </button>
               )}
             </div>
 
-            {/* Live Search Dropdown */}
-            {searchQuery.trim().length >= 2 && (
-              <div className="absolute left-0 right-0 top-full mt-2 bg-zinc-900 border border-zinc-800 rounded-2xl p-2 shadow-2xl z-30 max-h-96 overflow-y-auto text-left">
+            {/* Rezultate Autocomplete Live Dropdown */}
+            {searchQuery.trim().length > 0 && (
+              <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200/90 rounded-2xl shadow-xl z-50 max-h-96 overflow-y-auto divide-y divide-slate-100 text-left">
+                <div className="p-3 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                  <span>{searchResults.length} rezultate găsite</span>
+                  <span className="text-[10px] text-slate-400 font-normal">Apasă pentru detalii</span>
+                </div>
                 {searchResults.length === 0 ? (
-                  <div className="py-6 text-center text-xs text-zinc-500">
-                    Niciun ghid găsit pentru "{searchQuery}". Încearcă alți termeni.
+                  <div className="p-6 text-center text-sm text-slate-500">
+                    Nu am găsit niciun ghid pentru „{searchQuery}”. Încearcă un alt termen (ex: <button onClick={() => setSearchQuery('înmatriculare')} className="text-amber-600 underline font-semibold">înmatriculare</button> sau <button onClick={() => setSearchQuery('impozit')} className="text-amber-600 underline font-semibold">impozit</button>).
                   </div>
                 ) : (
-                  searchResults.slice(0, 8).map(art => (
+                  searchResults.map(art => (
                     <button
                       key={art.slug}
                       onClick={() => handleSelectArticle(art.slug)}
-                      className="w-full text-left p-3 rounded-xl hover:bg-zinc-800/80 transition-colors flex items-center justify-between group"
+                      className="w-full p-4 hover:bg-amber-50/50 flex items-start justify-between gap-3 text-left transition-colors group"
                     >
-                      <div className="space-y-0.5 pr-2">
-                        <div className="text-xs font-semibold text-white group-hover:text-amber-400 transition-colors">
+                      <div className="space-y-1 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs px-2 py-0.5 rounded-md font-semibold" style={{ backgroundColor: `${art.category.color}15`, color: art.category.color }}>
+                            {art.category.name}
+                          </span>
+                          <span className="text-xs text-slate-400">{art.readTime}</span>
+                        </div>
+                        <h4 className="text-sm font-bold text-slate-900 group-hover:text-amber-800 transition-colors">
                           {art.title}
-                        </div>
-                        <div className="text-[11px] text-zinc-400">
-                          {art.category.icon} {art.category.name}
-                        </div>
+                        </h4>
+                        <p className="text-xs text-slate-500 line-clamp-1">
+                          {art.metaDescription}
+                        </p>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-amber-400 shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-amber-600 shrink-0 mt-2 group-hover:translate-x-0.5 transition-all" />
                     </button>
                   ))
                 )}
@@ -290,229 +302,196 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
             )}
           </div>
 
-          {/* Stats Bar */}
-          <div className="flex items-center justify-center gap-6 sm:gap-12 mt-8 text-xs font-medium text-zinc-400">
-            <div><strong className="text-white font-mono text-sm sm:text-base">76</strong> proceduri</div>
-            <div className="w-1 h-1 rounded-full bg-zinc-700" />
-            <div><strong className="text-white font-mono text-sm sm:text-base">7</strong> categorii</div>
-            <div className="w-1 h-1 rounded-full bg-zinc-700" />
-            <div><strong className="text-amber-400 font-mono text-sm sm:text-base">2026</strong> informații la zi</div>
+          {/* Quick Pill Filter Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
+            <span className="text-xs font-semibold text-slate-500">Filtre rapide:</span>
+            {GHID_CATEGORIES.slice(0, 5).map(cat => (
+              <button
+                key={cat.slug}
+                onClick={() => handleSelectCategory(cat.slug)}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-all font-medium ${
+                  selectedCategorySlug === cat.slug
+                    ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
+                    : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 shadow-2xs'
+                }`}
+              >
+                <span>{cat.icon} {cat.name}</span>
+              </button>
+            ))}
           </div>
 
         </div>
       </section>
 
-      {/* 🏷️ Grilă Categorii */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      {/* 🚀 Banner Interactiv Calculator Impozit 2026 */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
+        <div className="bg-gradient-to-r from-amber-500/10 via-amber-50/60 to-white border border-amber-300/80 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 text-center md:text-left">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-200 uppercase tracking-wider">
+              <Calculator className="w-3.5 h-3.5 text-amber-700" />
+              <span>Instrument Fiscal 2026</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-950 font-display">
+              Calculează noul impozit auto valabil în 2026
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 max-w-xl leading-relaxed">
+              Algoritm actualizat conform Legii 239/2025 și OUG 78/2025: noile tarife pe fracțiuni de 200 cmc, taxa fixă de 40 lei pentru electrice, tranșele semestriale și bonificația de 10%.
+            </p>
+          </div>
+
+          <button
+            onClick={handleOpenCalculator}
+            className="px-6 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider shrink-0 shadow-md transition-all flex items-center gap-2 group"
+          >
+            <span>Deschide Calculatorul</span>
+            <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
+      </section>
+
+      {/* 🗂️ Categorii Principale (Bento 7 Cards) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-white font-display">
-              Explorează pe Categorii
+            <h2 className="text-xl sm:text-2xl font-black text-slate-950 font-display tracking-tight">
+              Categorii Ghid Auto
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-              Alege domeniul și găsește ghidul pas cu pas de care ai nevoie.
-            </p>
+            <p className="text-xs sm:text-sm text-slate-500">Alege domeniul de interes pentru a naviga prin cele 76 de ghiduri</p>
           </div>
           {selectedCategorySlug && (
             <button
-              onClick={() => handleSelectCategory(null)}
-              className="text-xs text-amber-400 hover:underline flex items-center gap-1"
+              onClick={() => setSelectedCategorySlug(null)}
+              className="text-xs font-bold text-amber-700 hover:text-amber-800 flex items-center gap-1 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200"
             >
-              <span>Arată toate categoriile</span>
+              <span>Resetează filtru categorie</span>
               <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {GHID_CATEGORIES.map(cat => {
             const isSelected = selectedCategorySlug === cat.slug;
             return (
-              <button
+              <div
                 key={cat.slug}
-                onClick={() => handleSelectCategory(isSelected ? null : cat.slug)}
-                className={`text-left p-5 rounded-2xl border transition-all flex flex-col justify-between group ${
-                  isSelected 
-                    ? 'bg-zinc-800/90 border-amber-500 shadow-lg shadow-amber-500/10' 
-                    : 'bg-zinc-900/60 hover:bg-zinc-900 border-zinc-800/90 hover:border-zinc-700'
+                onClick={() => handleSelectCategory(cat.slug)}
+                className={`p-6 rounded-3xl border transition-all cursor-pointer group flex flex-col justify-between ${
+                  isSelected
+                    ? 'bg-amber-50/70 border-amber-400 shadow-sm ring-2 ring-amber-400/20'
+                    : 'bg-white border-slate-200/90 hover:border-amber-400/80 hover:shadow-md'
                 }`}
               >
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-2xl p-2 rounded-xl bg-zinc-950 border border-zinc-800 inline-block">
-                      {cat.icon}
-                    </span>
-                    <span 
-                      className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                      style={{ 
-                        backgroundColor: `${cat.accentColor}20`, 
-                        color: cat.accentColor 
-                      }}
+                  <div className="flex items-center justify-between mb-4">
+                    <div 
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-2xs"
+                      style={{ backgroundColor: `${cat.accentColor}15` }}
                     >
+                      {cat.icon}
+                    </div>
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-mono">
                       {cat.articlesCount} ghiduri
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors mb-1.5 font-display">
+                  <h3 className="text-base font-bold text-slate-900 group-hover:text-amber-800 transition-colors font-display mb-1.5">
                     {cat.name}
                   </h3>
 
-                  <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
                     {cat.description}
                   </p>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-500 group-hover:text-amber-400 transition-colors">
-                  <span>{isSelected ? 'Filtru activ' : 'Vezi procedurile'}</span>
+                <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold" style={{ color: cat.accentColor }}>
+                  <span>{isSelected ? 'Filtru activ' : 'Explorează'}</span>
                   <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
       </section>
 
-      {/* 🧮 Banner Calculator Impozit 2026 */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-amber-500/15 via-zinc-900 to-zinc-950 border border-amber-500/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
-          <div className="flex items-center gap-4 text-left">
-            <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0 shadow-md">
-              <Calculator className="w-7 h-7" />
-            </div>
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 uppercase tracking-wider font-mono">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Instrument Gratuit</span>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-white font-display">
-                Calculator Impozit Auto 2026
-              </h3>
-              <p className="text-xs sm:text-sm text-zinc-400 max-w-xl">
-                Află cât plătești la primărie după capacitatea cilindrică și norma Euro, conform modificărilor din noul Cod fiscal (Art. 470).
-              </p>
-            </div>
+      {/* 📰 Lista Articolelor (Grid Principal) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+        <div className="flex items-center justify-between mb-6 border-b border-slate-200/80 pb-4">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-amber-600" />
+            <h2 className="text-lg sm:text-xl font-bold text-slate-950 font-display">
+              {selectedCategorySlug 
+                ? `Ghiduri în categoria: ${GHID_CATEGORIES.find(c => c.slug === selectedCategorySlug)?.name}`
+                : (searchQuery ? `Rezultate căutare: „${searchQuery}”` : 'Toate Ghidurile Disponibile')}
+            </h2>
+            <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full ml-2">
+              {displayedArticles.length}
+            </span>
           </div>
-
-          <button
-            onClick={handleOpenCalculator}
-            className="w-full md:w-auto px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all shrink-0 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
-          >
-            <span>Deschide Calculatorul</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
         </div>
-      </section>
 
-      {/* 📚 Listă Ghiduri & Sidebar Popular */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Main List (col-span-8) */}
-          <div className="lg:col-span-8 space-y-6">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-display flex items-center gap-2">
-                <span>{selectedCategorySlug ? 'Proceduri din categorie' : (searchQuery ? `Rezultate căutare (${displayedArticles.length})` : 'Ghiduri Recomandate')}</span>
-              </h2>
-              <span className="text-xs text-zinc-500 font-mono">
-                {displayedArticles.length} ghiduri disponibile
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {displayedArticles.map(art => (
-                <button
-                  key={art.slug}
-                  onClick={() => handleSelectArticle(art.slug)}
-                  className="text-left p-5 rounded-2xl bg-zinc-900/60 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition-all flex flex-col justify-between group shadow-sm"
-                >
-                  <div>
-                    <div className="flex items-center gap-2 mb-2.5">
-                      <span 
-                        className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider font-mono"
-                        style={{ 
-                          backgroundColor: `${art.category.color}20`, 
-                          color: art.category.color 
-                        }}
-                      >
-                        {art.category.icon} {art.category.name}
-                      </span>
-                    </div>
-
-                    <h3 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors leading-snug line-clamp-2 mb-2 font-display">
-                      {art.title}
-                    </h3>
-
-                    <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
-                      {art.quickAnswer || art.metaDescription}
-                    </p>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-500">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-zinc-600" />
-                      {art.readTime}
-                    </span>
-                    <span className="text-amber-400/90 group-hover:text-amber-300 font-medium flex items-center gap-0.5">
-                      Citește ghidul
-                      <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Popular Sidebar (col-span-4) */}
-          <aside className="lg:col-span-4 space-y-6">
-            <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 shadow-lg">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-zinc-800 pb-2">
-                <Flame className="w-4 h-4 text-amber-400" />
-                <span>Populare Acum</span>
-              </h3>
-              
-              <div className="space-y-3">
-                {popularArticles.map((pop, idx) => (
-                  <button
-                    key={pop.slug}
-                    onClick={() => handleSelectArticle(pop.slug)}
-                    className="w-full text-left p-3 rounded-xl bg-zinc-950/60 hover:bg-zinc-800/80 border border-zinc-800/70 hover:border-zinc-700 transition-all flex items-start gap-3 group"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {displayedArticles.map(art => (
+            <div
+              key={art.slug}
+              onClick={() => handleSelectArticle(art.slug)}
+              className="bg-white border border-slate-200/90 hover:border-amber-400 hover:shadow-md rounded-2xl p-5 sm:p-6 transition-all cursor-pointer flex flex-col justify-between group"
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span 
+                    className="text-[11px] font-bold px-2.5 py-0.5 rounded-md truncate max-w-[180px]"
+                    style={{ backgroundColor: `${art.category.color}15`, color: art.category.color }}
                   >
-                    <span className="w-6 h-6 rounded-lg bg-zinc-800 text-zinc-400 font-mono font-bold text-xs flex items-center justify-center shrink-0 group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors">
-                      {idx + 1}
-                    </span>
-                    <div className="space-y-1 overflow-hidden">
-                      <h4 className="text-xs font-semibold text-zinc-200 group-hover:text-amber-400 transition-colors line-clamp-2 leading-relaxed">
-                        {pop.title}
-                      </h4>
-                      <span className="text-[10px] text-zinc-500 block">
-                        {pop.category.name}
-                      </span>
-                    </div>
-                  </button>
-                ))}
+                    {art.category.name}
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-medium shrink-0 flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {art.readTime}
+                  </span>
+                </div>
+
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-amber-800 transition-colors font-display mb-2 leading-snug">
+                  {art.title}
+                </h3>
+
+                <p className="text-xs text-slate-500 leading-relaxed line-clamp-3 mb-4">
+                  {art.metaDescription || art.quickAnswer}
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+                <span className="text-[11px] font-medium">{art.updateDate}</span>
+                <span className="font-bold text-amber-700 group-hover:text-amber-800 flex items-center gap-1">
+                  <span>Citește ghidul</span>
+                  <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </span>
               </div>
             </div>
-
-            {/* Link către Showroom / Parcuri Auto */}
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 space-y-3">
-              <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
-                Despre Platforma ParcOS
-              </h4>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                ParcOS este sistemul de operare complet pentru parcurile și dealerii auto din România. Scanare talon CIV, contracte automate și transparență totală.
-              </p>
-              <button
-                onClick={onBackToMain}
-                className="w-full py-2 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1"
-              >
-                <span>Descoperă Funcționalitățile</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </aside>
-
+          ))}
         </div>
       </section>
+
+      {/* 🧭 Footer Ghid Auto */}
+      <footer className="border-t border-slate-200/80 bg-white py-12 text-slate-500 text-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="font-display font-black text-slate-900 text-sm">ParcOS.ro</span>
+            <span>—</span>
+            <span>Ghidul Auto & Legislație Rutieră România 2026</span>
+          </div>
+
+          <div className="flex items-center gap-4 text-xs font-medium">
+            <button onClick={handleOpenCalculator} className="hover:text-slate-900 transition-colors">
+              Calculator Impozit Auto
+            </button>
+            <span>•</span>
+            <button onClick={onBackToMain} className="hover:text-slate-900 transition-colors">
+              Platforma Dealeri
+            </button>
+          </div>
+        </div>
+      </footer>
 
     </div>
   );

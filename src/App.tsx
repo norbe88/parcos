@@ -1815,9 +1815,9 @@ export default function App() {
       {/* ========================================================================= */}
       {viewMode === 'ghid-auto' && (
         <Suspense fallback={
-          <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold animate-pulse">📘</div>
-            <p className="text-xs text-zinc-400 font-mono tracking-wider uppercase">Se încarcă Ghid Auto ParcOS...</p>
+          <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-600 font-bold animate-pulse text-lg shadow-xs">📘</div>
+            <p className="text-xs text-slate-500 font-semibold tracking-wider uppercase">Se încarcă Ghid Auto ParcOS...</p>
           </div>
         }>
           <GhidAutoHub 
