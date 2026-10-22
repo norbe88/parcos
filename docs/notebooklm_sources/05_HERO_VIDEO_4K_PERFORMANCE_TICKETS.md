@@ -65,8 +65,40 @@ Atunci când o platformă web modernă utilizează un clip video cinematic ca fu
 
 ---
 
+### 🎫 TICKET-VID-05: Decuplare Intro Showroom RXM & Izolare Branding ParcOS Admin Gate
+- **Severitate:** Înaltă (Bug UX & Contaminare Branding: intro-ul cinematic cu cortină și logo RXM Automobile apărea la logare pe rutele de administrare ParcOS).
+- **Fișiere Afectate:** `src/App.tsx`, `src/components/admin/AdminLoginGate.tsx`
+- **Cauză Tehnică:**
+  1. În `src/App.tsx`, condiția de afișare pentru `CinematicIntro` era configurată lax: `{viewMode !== 'saas' && ( <CinematicIntro ... /> )}`. În consecință, când se accesa `/admin` sau `/superadmin` (`#admin`, `#superadmin`), `viewMode` fiind `'admin'` / `'superadmin'`, componenta `CinematicIntro` se randa direct peste poarta de logare, afișând animația cu cortină, sigla RXM Automobile Cluj-Napoca și sloganul timp de 2.7s.
+  2. Starea `isRevealed` începea pe `false` pe rutele administrative dacă `rxm_intro_seen` nu fusese setat în sesiune.
+  3. Poarta `AdminLoginGate` primea orbește `dealer={tenant}` (care implicit este `rxm`), afișând `Zonă Securizată • RXM AUTOMOBILE SRL` și butonul `Înapoi la Showroom-ul Public` pe instanțele de administrare ale platformei centrale ParcOS (`parcos.ro` sau `localhost:3001`).
+- **Acțiuni Implementate:**
+  1. **Izolare Strictă Intro:** `CinematicIntro` se randează EXCLUSIV când `viewMode === 'showroom' && (tenantId === 'rxm' || tenant?.slug === 'rxm') && !isParcosDomain(hostname, port)`. Pe orice rută administrativă sau de platformă, intro-ul este complet decuplat.
+  2. **Instant Reveal:** Pe rutele non-showroom (`admin`, `superadmin`, `saas`, etc.) sau pe domeniul/portul ParcOS, `isRevealed` este inițializat imediat pe `true`, eliminând orice flicker sau întârziere la afișarea ecranului de logare.
+  3. **Branding Dinamic Poartă:** Când utilizatorul se află pe domeniul central ParcOS (sau portul 3001 fără dealer specific), `AdminLoginGate` primește entitatea neutră de holding: `ParcOS Platform (Carvana SRL)` (slug `'parcos'`), titlul *ParcOS Admin Hub* și butonul contextual *Înapoi pe ParcOS.ro*.
+  4. **SuperAdmin Routing Failsafe:** Pe portul de dezvoltare 3001 și domeniul central, rutele `/admin` și `#admin` rutează implicit către SuperAdmin Hub dacă nu s-a cerut explicit gestiunea unui dealer (`?dealer=...`).
+
+---
+
+### 🎫 TICKET-VID-06: Restaurare Background Opac pe Cardul Audi R8 & Cardurile în Prim-Plan
+- **Severitate:** Medie (Bug Vizual: ultimul cartonaș cu Audi R8 V10 și cardurile focalizate își pierdeau fundalul, devenind transparente pe desktop și mobil).
+- **Fișiere Afectate:** `src/components/saas/showcase/ShowroomVideoIntro.tsx`, `tailwind.config.js`
+- **Cauză Tehnică:**
+  1. În `renderVehicleQuadrantCard`, pentru starea `isPrimPlan === true`, clasele aplicau `bg-[#141418]/98`. În Tailwind CSS v3, `/98` nu face parte din paleta standard de opacități (0, 5, 10 ... 90, 95, 100), iar Tailwind elimina clasa la compilare (0 reguli generate).
+  2. Când utilizatorul derula la faza 3 (Audi R8 V10) sau selecta mașina, cardul primea `isPrimPlan = true`, pierzându-și clasa de fundal și devenind 100% transparent.
+  3. Pe desktop, cardurile inactive păstrau `bg-[#121215]/95` (opacitate recunoscută), motiv pentru care primele trei carduri erau opace, dar ultimul (Audi R8, aflat în prim-plan) devenea transparent.
+- **Acțiuni Implementate:**
+  1. **Configurare Opacity Stop 98:** S-a adăugat `opacity: { '98': '0.98' }` în `tailwind.config.js` pentru a valida orice opacitate `/98` din proiect.
+  2. **Standardizare pe 95% Opacitate:** În `ShowroomVideoIntro.tsx`, clasele de prim-plan au fost actualizate la `bg-[#141418]/95`, generând regula dedicată `background-color: #141418f2` (95% opacitate Dark Luxury).
+  3. **Restaurare Backdrop Blur:** S-a readus `backdrop-blur-md` pe carduri și containere pentru un contrast WCAG AAA optim peste fundalul video 4K.
+
+---
+
 ## 3. EVALUATION & VALIDATION RUBRIC
 - [x] **Zero Reset la Cadrul 0:** Videoclipul rămâne stabil în hală după terminare, fără să sară la ușile închise.
 - [x] **Smooth 60 FPS Scroll:** Fără blocaje ale firului principal JS la scroll pe monitoare 4K / ultrawide.
+- [x] **Background Opac Card Audi R8:** Cardul 3 (Audi R8 V10) primește `bg-[#141418]/95` și `backdrop-blur-md`, menținând contrastul și lizibilitatea.
+- [x] **Decuplare Totală Intro pe Admin:** Accesul la `#admin` sau `#superadmin` deschide direct poarta de autentificare curată, fără cortină sau logo RXM.
+- [x] **Branding Corect ParcOS Admin:** Poarta afișează *ParcOS Platform (Carvana SRL)* și *Înapoi pe ParcOS.ro*.
 - [x] **TVA 21% & Invariante Active:** Toate etichetele și prețurile respectă `VAT_RATE = 0.21` și terminologia „Garanție de Rezervare”.
 - [x] **Typecheck Curat:** `npx tsc --noEmit` trece cu 0 erori.

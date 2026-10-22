@@ -54,6 +54,11 @@ Pentru ca orice funcționalitate nouă dezvoltată în ParcOS (de exemplu: conec
     - FGO API este forțat strict pe **Test UAT** (`https://api-testuat.fgo.ro/v2`) cu serii `TEST` / `SANDBOX`.
     - Trimiterea în SPV ANAF este **strict interzisă / blocată** pe mediul sandbox.
     - Banner vizual fluorescent în antet: `⚠️ MEDIU SANDBOX DE TEST — PRODUCȚIA RXM ESTE PROTEJATĂ`.
+* **Ticket SA-05 — Decuplare Intro Showroom & Izolare Branding ParcOS Admin Gate:**
+  - **Problemă rezolvată:** La accesarea `/admin` sau `/superadmin` pe ParcOS, se declanșa intro-ul cinematic de showroom cu cortină, sigla RXM Automobile Cluj-Napoca și sloganul „Fiecare drum începe cu alegerea potrivită”, acoperind poarta de logare.
+  - **Decuplare Intro:** `CinematicIntro` este restrâns strict pe showroom-ul public RXM (`viewMode === 'showroom' && tenantId === 'rxm' && !isParcosDomain`). Este 100% dezactivat pe orice ecran de login sau rută administrativă.
+  - **Instant Reveal:** Rutele de administrare setează `isRevealed = true` instantaneu, fără delay sau ecran negru.
+  - **Izolare Branding Poartă:** Pe domeniul/portul central ParcOS, poarta afișează neutrul *ParcOS Platform (Carvana SRL)*, titlul *ParcOS Admin Hub* și butonul *Înapoi pe ParcOS.ro*.
 
 ---
 

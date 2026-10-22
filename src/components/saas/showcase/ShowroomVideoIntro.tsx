@@ -402,7 +402,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
           transition:
             'transform 550ms cubic-bezier(0.16, 1, 0.3, 1), opacity 450ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms ease-out, border-color 250ms ease-out',
         }}
-        className={`group relative rounded-2xl cursor-pointer border shadow-2xl backdrop-blur-sm lg:backdrop-blur-none ${
+        className={`group relative rounded-2xl cursor-pointer border shadow-2xl backdrop-blur-md ${
           isMobileSlot ? 'p-2.5 sm:p-3' : 'p-3 sm:p-3.5'
         } ${
           !isVisible
@@ -411,10 +411,10 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
               } ${isBottom ? 'translate-y-5' : '-translate-y-4'}`
             : isPrimPlan
             ? vehicle.statusColor === 'emerald'
-              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/98 border-emerald-500/90 ring-2 ring-emerald-500/30 shadow-[0_0_35px_rgba(16,185,129,0.25)] z-30'
+              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/95 border-emerald-500/90 ring-2 ring-emerald-500/30 shadow-[0_0_35px_rgba(16,185,129,0.25)] z-30'
               : vehicle.statusColor === 'sky'
-              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/98 border-sky-500/90 ring-2 ring-sky-500/30 shadow-[0_0_35px_rgba(14,165,233,0.25)] z-30'
-              : 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/98 border-amber-500/90 ring-2 ring-amber-500/30 shadow-[0_0_35px_rgba(245,158,11,0.25)] z-30'
+              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/95 border-sky-500/90 ring-2 ring-sky-500/30 shadow-[0_0_35px_rgba(14,165,233,0.25)] z-30'
+              : 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/95 border-amber-500/90 ring-2 ring-amber-500/30 shadow-[0_0_35px_rgba(245,158,11,0.25)] z-30'
             : 'opacity-90 translate-x-0 translate-y-0 scale-[0.98] bg-[#121215]/95 border-white/15 shadow-xl z-20 hover:opacity-100 hover:scale-[0.99] hover:border-white/30'
         }`}
       >
@@ -666,7 +666,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                 'opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1), max-width 500ms cubic-bezier(0.16, 1, 0.3, 1), padding 500ms cubic-bezier(0.16, 1, 0.3, 1)',
               willChange: 'transform, opacity',
             }}
-            className={`mx-auto bg-[#121215]/98 backdrop-blur-sm lg:backdrop-blur-none border border-white/15 shadow-2xl overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            className={`mx-auto bg-[#121215]/95 backdrop-blur-md border border-white/15 shadow-2xl overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
               isCompactHeader
                 ? 'rounded-2xl px-3 py-2 sm:px-5 sm:py-2.5 max-w-4xl shadow-xl'
                 : 'rounded-3xl px-4 py-3.5 sm:px-8 sm:py-5 max-w-3xl shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] text-center'
@@ -776,7 +776,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
               !isCompactHeader ? 'pointer-events-none' : ''
             }`}
           >
-            <div className="bg-[#121215]/98 backdrop-blur-sm lg:backdrop-blur-none border border-white/15 rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-1.5 shadow-xl flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+            <div className="bg-[#121215]/95 backdrop-blur-md border border-white/15 rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-1.5 shadow-xl flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
               <div className="flex items-center gap-1.5 text-[11px] font-bold text-zinc-200 shrink-0">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
                 <span className="hidden sm:inline text-zinc-400">Selector Showroom:</span>
@@ -973,7 +973,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
           </div>
 
           {/* ================= SUBSOL CONFORMITATE FISCALĂ & PREZENTARE DEMO ================= */}
-          <div className="mt-1.5 rounded-xl bg-[#121215]/98 border border-white/15 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-sm lg:backdrop-blur-none shadow-2xl flex flex-col gap-1 text-[11px] sm:text-xs text-zinc-300">
+          <div className="mt-1.5 rounded-xl bg-[#121215]/95 border border-white/15 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-md shadow-2xl flex flex-col gap-1 text-[11px] sm:text-xs text-zinc-300">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="flex items-center gap-1.5 sm:gap-2">
                 <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-400 shrink-0" />

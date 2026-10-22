@@ -219,7 +219,7 @@ export const AdminLoginGate: React.FC<AdminLoginGateProps> = ({
             className="w-full min-h-[42px] rounded-xl bg-white/5 hover:bg-white/10 active:scale-[0.98] text-zinc-300 hover:text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-all border border-white/10 touch-manipulation cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{cancelLabel || 'Înapoi la Showroom-ul Public'}</span>
+            <span>{cancelLabel || (dealer?.slug === 'parcos' ? 'Înapoi pe ParcOS.ro' : 'Înapoi la Showroom-ul Public')}</span>
           </button>
         </form>
 

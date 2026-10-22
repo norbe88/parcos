@@ -17,6 +17,9 @@ export default {
           dark: '#d97706',
         }
       },
+      opacity: {
+        '98': '0.98',
+      },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
         serif: ['"Plus Jakarta Sans"', 'sans-serif'],
