@@ -11,6 +11,7 @@
     "sitemap": "npx tsx scripts/generate_seo_assets.ts",
     "seo": "npx tsx scripts/generate_seo_assets.ts",
     "dealer:wizard": "node scripts/create_dealer_instance.cjs",
+    "favicons": "node scripts/generate_favicons.cjs",
     "start": "node server/api.mjs",
     "api:start": "node server/api.mjs",
     "api:dev": "node server/api.mjs"

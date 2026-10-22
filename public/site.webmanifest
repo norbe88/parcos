@@ -1,7 +1,7 @@
 {
-  "name": "RXM AUTO MOBILE",
-  "short_name": "RXM Auto",
-  "description": "Autovehicule Rulate Premium | Cluj-Napoca",
+  "name": "ParcOS — Dealership Operating System",
+  "short_name": "ParcOS",
+  "description": "Program Complet pentru Parcuri Auto: Site Propriu & Gestiune Vânzări",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#09090b",

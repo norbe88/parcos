@@ -18,3 +18,4 @@ public/rxm/cars/
 backups/
 *.sql.gz
 *.dump
+*.original.mp4

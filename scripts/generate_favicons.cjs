@@ -31,116 +31,84 @@ function createIco(pngBuffers) {
   return Buffer.concat([header, ...dirEntries, ...pngBuffers.map(p => p.buffer)]);
 }
 
-async function buildCircleCarFavicon() {
-  console.log('Building authentic RXM Car-in-Circle Favicon...');
+async function buildParcOSFavicons() {
+  console.log('🚀 Building official ParcOS Favicon suite from public/brand/parcos-app-icon.png...');
 
-  // 1. Extract FULL emblem (bounds: left 0, top 12, width 600, height 564)
-  const rawData = await sharp('public/images/rxm-emblem.png')
-    .extract({ left: 0, top: 12, width: 600, height: 564 })
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-
-  const w = rawData.info.width;
-  const h = rawData.info.height;
-
-  // 2. Morphological dilation to thicken the circle and car lines so they pop on small screens
-  // We dilate by 2 pixels radius
-  const thickened = Buffer.alloc(w * h * 4);
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      let maxA = 0;
-      for (let dy = -2; dy <= 2; dy++) {
-        for (let dx = -2; dx <= 2; dx++) {
-          const ny = y + dy;
-          const nx = x + dx;
-          if (ny >= 0 && ny < h && nx >= 0 && nx < w) {
-            const a = rawData.data[(ny * w + nx) * 4 + 3];
-            if (a > maxA) maxA = a;
-          }
-        }
-      }
-      const idx = (y * w + x) * 4;
-      thickened[idx] = 255;     // Pure White
-      thickened[idx + 1] = 255; // Pure White
-      thickened[idx + 2] = 255; // Pure White
-      thickened[idx + 3] = maxA;
-    }
+  const masterSource = 'public/brand/parcos-app-icon.png';
+  if (!fs.existsSync(masterSource)) {
+    throw new Error(`Master brand source ${masterSource} does not exist!`);
   }
 
-  const thickCircleCarPng = await sharp(thickened, {
-    raw: { width: w, height: h, channels: 4 }
-  }).png().toBuffer();
-
-  // Save reference full-size white circle car
-  fs.writeFileSync('public/images/rxm-emblem-circle-white.png', thickCircleCarPng);
-
-  // 3. Render icon function
-  async function renderIcon(size) {
+  // 1. Render Squircle Icon Function (with transparent rounded corners)
+  async function renderSquircleIcon(size) {
     const cornerRadius = Math.round(size * 0.22);
-    const borderWidth = Math.max(1, Math.round(size * (size <= 32 ? 0.05 : 0.018)));
-    const innerOffset = Math.ceil(borderWidth / 2);
-    const innerSize = size - borderWidth;
+    const maskSvg = Buffer.from(
+      `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+        <rect width="${size}" height="${size}" rx="${cornerRadius}" ry="${cornerRadius}" fill="#ffffff"/>
+      </svg>`
+    );
 
-    // Squircle background with amber accent border
-    const bgSvg = Buffer.from(`
-      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
-        <rect width="${size}" height="${size}" rx="${cornerRadius}" fill="#09090b"/>
-        <rect x="${innerOffset}" y="${innerOffset}" width="${innerSize}" height="${innerSize}" rx="${Math.max(1, cornerRadius - innerOffset)}" fill="none" stroke="#f59e0b" stroke-opacity="0.45" stroke-width="${borderWidth}"/>
-      </svg>
-    `);
+    let pipeline = sharp(masterSource)
+      .resize(size, size, {
+        kernel: size <= 32 ? sharp.kernel.mitchell : sharp.kernel.lanczos3
+      });
 
-    // Scale circle car emblem: fills 82% of size (for 16/32px: 88%)
-    const emblemW = Math.round(size * (size <= 32 ? 0.88 : 0.82));
-    const emblemH = Math.round(emblemW * (h / w));
-
-    let emblemSharp = sharp(thickCircleCarPng).resize(emblemW, emblemH, {
-      fit: 'contain',
-      kernel: size <= 32 ? 'mitchell' : 'lanczos3'
-    });
-
+    // Enhance clarity for tiny sizes (16, 32)
     if (size <= 32) {
-      emblemSharp = emblemSharp.linear(1.3, 0); // Increase brightness/contrast
+      pipeline = pipeline.sharpen({ sigma: 1.0, m1: 1.5, m2: 0.7 });
     }
 
-    const resizedEmblem = await emblemSharp.toBuffer();
-
-    const top = Math.round((size - emblemH) / 2);
-    const left = Math.round((size - emblemW) / 2);
-
-    const result = await sharp(bgSvg)
-      .composite([{ input: resizedEmblem, top, left }])
+    const result = await pipeline
+      .composite([{ input: maskSvg, blend: 'dest-in' }])
       .png({ compressionLevel: 9 })
       .toBuffer();
 
     return result;
   }
 
-  console.log('Rendering 512x512...');
-  const png512 = await renderIcon(512);
+  // 2. Render Full-Bleed Square Icon (for Apple Touch Icon as required by iOS)
+  async function renderSquareIcon(size) {
+    return await sharp(masterSource)
+      .resize(size, size, { kernel: sharp.kernel.lanczos3 })
+      .png({ compressionLevel: 9 })
+      .toBuffer();
+  }
+
+  console.log('  -> Rendering 512x512...');
+  const png512 = await renderSquircleIcon(512);
   fs.writeFileSync('public/favicon-512x512.png', png512);
+  fs.writeFileSync('public/brand/icon-512x512.png', png512);
 
-  console.log('Rendering 192x192...');
-  const png192 = await renderIcon(192);
+  console.log('  -> Rendering 192x192...');
+  const png192 = await renderSquircleIcon(192);
   fs.writeFileSync('public/favicon-192x192.png', png192);
+  fs.writeFileSync('public/brand/icon-192x192.png', png192);
 
-  console.log('Rendering 180x180 (Apple Touch Icon)...');
-  const png180 = await renderIcon(180);
+  console.log('  -> Rendering 180x180 (Apple Touch Icon - Full Bleed)...');
+  const png180 = await renderSquareIcon(180);
   fs.writeFileSync('public/apple-touch-icon.png', png180);
 
-  console.log('Rendering 48x48...');
-  const png48 = await renderIcon(48);
+  console.log('  -> Rendering 64x64...');
+  const png64 = await renderSquircleIcon(64);
+  fs.writeFileSync('public/favicon-64x64.png', png64);
+  fs.writeFileSync('public/brand/icon-64x64.png', png64);
+
+  console.log('  -> Rendering 48x48...');
+  const png48 = await renderSquircleIcon(48);
   fs.writeFileSync('public/favicon-48x48.png', png48);
 
-  console.log('Rendering 32x32...');
-  const png32 = await renderIcon(32);
+  console.log('  -> Rendering 32x32...');
+  const png32 = await renderSquircleIcon(32);
   fs.writeFileSync('public/favicon-32x32.png', png32);
   fs.writeFileSync('public/favicon.png', png32);
+  fs.writeFileSync('public/brand/icon-32x32.png', png32);
 
-  console.log('Rendering 16x16...');
-  const png16 = await renderIcon(16);
+  console.log('  -> Rendering 16x16...');
+  const png16 = await renderSquircleIcon(16);
   fs.writeFileSync('public/favicon-16x16.png', png16);
+  fs.writeFileSync('public/brand/icon-16x16.png', png16);
 
-  console.log('Packaging multi-res favicon.ico...');
+  console.log('  -> Packaging multi-resolution favicon.ico (16x16, 32x32, 48x48)...');
   const icoBuffer = createIco([
     { width: 16, height: 16, buffer: png16 },
     { width: 32, height: 32, buffer: png32 },
@@ -148,27 +116,25 @@ async function buildCircleCarFavicon() {
   ]);
   fs.writeFileSync('public/favicon.ico', icoBuffer);
 
-  console.log('Generating scalable favicon.svg...');
+  console.log('  -> Generating scalable modern favicon.svg...');
   const b64_512 = png512.toString('base64');
   const svgFavicon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
-  <!-- RXM Automobile Official Car-in-Circle Emblem Favicon -->
-  <image href="data:image/png;base64,${b64_512}" x="0" y="0" width="512" height="512"/>
+  <!-- ParcOS Official Brand Logo Favicon -->
+  <defs>
+    <clipPath id="parcos-squircle">
+      <rect width="512" height="512" rx="112" ry="112" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#parcos-squircle)">
+    <image href="data:image/png;base64,${b64_512}" x="0" y="0" width="512" height="512" />
+  </g>
 </svg>`;
   fs.writeFileSync('public/favicon.svg', svgFavicon.trim());
 
-  // Copy to public/rxm/
-  fs.mkdirSync('public/rxm', { recursive: true });
-  fs.copyFileSync('public/favicon.svg', 'public/rxm/favicon.svg');
-  fs.copyFileSync('public/favicon.ico', 'public/rxm/favicon.ico');
-  fs.copyFileSync('public/favicon-32x32.png', 'public/rxm/favicon-32x32.png');
-  fs.copyFileSync('public/favicon-16x16.png', 'public/rxm/favicon-16x16.png');
-  fs.copyFileSync('public/apple-touch-icon.png', 'public/rxm/apple-touch-icon.png');
-  fs.copyFileSync('public/favicon-512x512.png', 'public/rxm/favicon-512x512.png');
-
-  console.log('Authentic RXM Car-in-Circle Favicon successfully built and deployed!');
+  console.log('✅ Official ParcOS Favicon suite successfully generated and deployed to /public!');
 }
 
-buildCircleCarFavicon().catch(err => {
-  console.error('Error building circle car favicon:', err);
+buildParcOSFavicons().catch(err => {
+  console.error('❌ Error building ParcOS favicons:', err);
   process.exit(1);
 });

@@ -60,11 +60,14 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
     document.title = 'ParcOS — Program Complet pentru Parcuri Auto: Site Propriu & Gestiune Vânzări';
     
     // Dynamic favicon swap for ParcOS
-    const faviconLink = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
-    const prevFavicon = faviconLink ? faviconLink.href : '/favicon.ico';
-    if (faviconLink) {
-      faviconLink.href = '/brand/icon-32x32.png';
-    }
+    const faviconLinks = document.querySelectorAll("link[rel*='icon']") as NodeListOf<HTMLLinkElement>;
+    faviconLinks.forEach(link => {
+      if (link.type === 'image/svg+xml') {
+        link.href = '/favicon.svg?v=parcos2026';
+      } else {
+        link.href = '/favicon-32x32.png?v=parcos2026';
+      }
+    });
 
     // Pe pagina de prezentare ParcOS SaaS asigurăm tema luminoasă curată 'parcos_light'
     document.documentElement.setAttribute('data-theme', 'parcos_light');
@@ -72,9 +75,6 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
 
     return () => {
       document.title = prevTitle;
-      if (faviconLink) {
-        faviconLink.href = prevFavicon;
-      }
       document.documentElement.setAttribute('data-theme', 'obsidian_gold');
       document.body.setAttribute('data-theme', 'obsidian_gold');
     };
@@ -108,6 +108,7 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
       <ShowroomVideoIntro 
         onExploreClick={handleScrollToDMS}
         videoSrc="/videos/parcos-showroom-intro.mp4"
+        webmSrc="/videos/parcos-showroom-intro.webm"
         posterSrc="/images/parcos-showroom-hall.jpg"
         scanStartTimestampSec={6.5}
         spawnStartTimestampSec={8.0}

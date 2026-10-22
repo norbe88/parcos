@@ -15,8 +15,10 @@ import {
 } from 'lucide-react';
 
 export interface ShowroomVideoIntroProps {
-  /** Calea către clipul video 4K (ex: "/videos/parcos-showroom-intro.mp4") */
+  /** Calea către clipul video principal (ex: "/videos/parcos-showroom-intro.mp4") */
   videoSrc?: string;
+  /** Calea opțională către versiunea WebM optimizată (ex: "/videos/parcos-showroom-intro.webm") */
+  webmSrc?: string;
   /** Imaginea de poster afișată ca fallback sau înainte de redare */
   posterSrc?: string;
   /** Imaginea de cadru final (showroom deschis cu cele 4 vehicule) afișată după terminare */
@@ -145,6 +147,7 @@ const VEHICLES: ShowroomVehicle[] = [
 
 export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
   videoSrc = '/videos/parcos-showroom-intro.mp4',
+  webmSrc = '/videos/parcos-showroom-intro.webm',
   posterSrc = '/images/parcos-showroom-hall.jpg',
   lastFrameSrc = '/images/parcos-showroom-hall-lastframe.jpg',
   targetSectionId = 'demo-ocr',
@@ -159,6 +162,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
   // Cuantificare pe 5 faze discrete (-1, 0, 1, 2, 3) pentru eliminarea completă a re-randărilor continue la scroll
   const [scrollPhase, setScrollPhase] = useState<-1 | 0 | 1 | 2 | 3>(-1);
   const [videoLoadError, setVideoLoadError] = useState<boolean>(false);
+  const [isVideoBuffered, setIsVideoBuffered] = useState<boolean>(false);
   const [isHeroBannerRevealed, setIsHeroBannerRevealed] = useState<boolean>(false);
   const [isVideoEnded, setIsVideoEnded] = useState<boolean>(false);
 
@@ -235,6 +239,15 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
       }
     }
   }, [videoLoadError]);
+
+  // Siguranță buffer: garantează trecerea de la poster la video în max 1200ms
+  // chiar dacă browserul întârzie emiterea evenimentului onCanPlayThrough
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setIsVideoBuffered(true);
+    }, 1200);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   // IntersectionObserver: Pune pe pauză videoclipul când e derulat în afara ecranului (>230vh)
   // pentru a elibera resursele GPU/VRAM pe monitoare 4K, fără a reseta poziția cadrului.
@@ -379,7 +392,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
     const vehicle = VEHICLES[vehicleIndex];
     if (!vehicle) return null;
 
-    const isVisible = isMobileSlot ? true : scrollPhase >= 0;
+    const isVisible = isMobileSlot ? true : scrollPhase >= vehicleIndex;
     const isPrimPlan = primPlanIndex === vehicleIndex;
     const isLeft = quadrant.includes('left');
     const isBottom = quadrant.includes('bottom');
@@ -535,6 +548,19 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
         >
           {!videoLoadError ? (
             <>
+              {/* Poster de fundal vizibil până când video-ul are date suficiente pentru redare lină */}
+              <img
+                src={posterSrc}
+                alt="ParcOS Showroom Ambient"
+                className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500 ${
+                  !isVideoBuffered && !isVideoEnded ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                style={{
+                  transform: 'translate3d(0, 0, 0)',
+                  backfaceVisibility: 'hidden',
+                }}
+              />
+
               <video
                 ref={videoRef}
                 autoPlay
@@ -542,20 +568,24 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                 playsInline
                 preload="auto"
                 poster={posterSrc}
+                onCanPlay={() => setIsVideoBuffered(true)}
+                onCanPlayThrough={() => setIsVideoBuffered(true)}
+                onPlaying={() => setIsVideoBuffered(true)}
                 onTimeUpdate={handleTimeUpdate}
                 onEnded={handleVideoEnded}
                 onError={() => {
                   setVideoLoadError(true);
                   setIsHeroBannerRevealed(true);
                 }}
-                className={`h-full w-full object-cover object-center transition-opacity duration-300 ${
-                  isVideoEnded ? 'opacity-0' : 'opacity-100'
+                className={`h-full w-full object-cover object-center transition-opacity duration-500 ${
+                  isVideoEnded ? 'opacity-0' : isVideoBuffered ? 'opacity-100' : 'opacity-0'
                 }`}
                 style={{
                   transform: 'translate3d(0, 0, 0)',
                   backfaceVisibility: 'hidden',
                 }}
               >
+                {webmSrc && <source src={webmSrc} type="video/webm" />}
                 <source src={videoSrc} type="video/mp4" />
               </video>
 
@@ -602,7 +632,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
           }}
         >
           {VEHICLES.map((vehicle, index) => {
-            const isVisibleOnScreen = scrollPhase >= 0;
+            const isVisibleOnScreen = scrollPhase >= index;
             const isPrimPlan = primPlanIndex === index;
 
             if (!isVisibleOnScreen) return null;
@@ -819,7 +849,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                   transition: 'opacity 500ms ease, transform 500ms ease',
                 }}
                 className={`w-full transition-all duration-500 ${
-                  !isSelectionActive
+                  scrollPhase < 2
                     ? 'opacity-0 pointer-events-none translate-y-3'
                     : 'opacity-100 translate-y-0'
                 }`}
