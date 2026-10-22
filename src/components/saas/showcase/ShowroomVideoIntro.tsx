@@ -382,66 +382,59 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
 
     const isVisible = isMobileSlot ? true : scrollPhase >= vehicleIndex;
     const isPrimPlan = primPlanIndex === vehicleIndex;
-
     const isLeft = quadrant.includes('left');
     const isBottom = quadrant.includes('bottom');
+
+    // ─── Status-color token map ────────────────────────────────────────────────
+    // Calculat O SINGURĂ DATĂ per render; elimină 4 ternare repetate în JSX.
+    // backdrop-blur-md EXCLUSIV pe cardul activ (isPrimPlan) — economisire GPU
+    // compositor pe 4K per TICKET-VID-03.
+    const statusStyles = isPrimPlan
+      ? ({
+          emerald: {
+            card: 'opacity-100 scale-100 translate-x-0 translate-y-0 bg-[#141418]/95 backdrop-blur-md border-emerald-500/90 ring-2 ring-emerald-500/30 shadow-[0_0_35px_rgba(16,185,129,0.25)] z-30',
+            text: 'text-emerald-400',
+            dot:  'bg-emerald-400 animate-pulse shadow-[0_0_10px_#34d399]',
+          },
+          sky: {
+            card: 'opacity-100 scale-100 translate-x-0 translate-y-0 bg-[#141418]/95 backdrop-blur-md border-sky-500/90 ring-2 ring-sky-500/30 shadow-[0_0_35px_rgba(14,165,233,0.25)] z-30',
+            text: 'text-sky-400',
+            dot:  'bg-sky-400 animate-pulse shadow-[0_0_10px_#38bdf8]',
+          },
+          amber: {
+            card: 'opacity-100 scale-100 translate-x-0 translate-y-0 bg-[#141418]/95 backdrop-blur-md border-amber-500/90 ring-2 ring-amber-500/30 shadow-[0_0_35px_rgba(245,158,11,0.25)] z-30',
+            text: 'text-amber-400',
+            dot:  'bg-amber-400 animate-pulse shadow-[0_0_10px_#fbbf24]',
+          },
+        } as const)[vehicle.statusColor]
+      : {
+          card: 'opacity-90 scale-[0.98] translate-x-0 translate-y-0 bg-[#121215]/95 border-white/15 shadow-xl z-20 hover:opacity-100 hover:scale-[0.99] hover:border-white/30',
+          text: 'text-zinc-300',
+          dot:  'bg-zinc-500',
+        };
+
+    // ─── Visibility entry-animation classes ───────────────────────────────────
+    const visibilityClasses = !isVisible
+      ? `opacity-0 pointer-events-none scale-95 ${isLeft ? '-translate-x-10' : 'translate-x-10'} ${isBottom ? 'translate-y-5' : '-translate-y-4'}`
+      : statusStyles.card;
 
     return (
       <div
         key={vehicle.id}
-        onClick={() => {
-          if (!isPrimPlan) {
-            scrollToVehicle(vehicleIndex);
-          } else {
-            handleExploreDMS();
-          }
-        }}
+        onClick={() => isPrimPlan ? handleExploreDMS() : scrollToVehicle(vehicleIndex)}
         style={{
           transform: 'translateZ(0)',
           willChange: 'transform, opacity',
-          transition:
-            'transform 550ms cubic-bezier(0.16, 1, 0.3, 1), opacity 450ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms ease-out, border-color 250ms ease-out',
+          transition: 'transform 550ms cubic-bezier(0.16,1,0.3,1), opacity 450ms cubic-bezier(0.16,1,0.3,1), box-shadow 350ms ease-out, border-color 250ms ease-out',
         }}
-        className={`group relative rounded-2xl cursor-pointer border shadow-2xl backdrop-blur-md ${
+        className={`group relative rounded-2xl cursor-pointer border shadow-2xl ${
           isMobileSlot ? 'p-2.5 sm:p-3' : 'p-3 sm:p-3.5'
-        } ${
-          !isVisible
-            ? `opacity-0 pointer-events-none scale-95 ${
-                isLeft ? '-translate-x-10' : 'translate-x-10'
-              } ${isBottom ? 'translate-y-5' : '-translate-y-4'}`
-            : isPrimPlan
-            ? vehicle.statusColor === 'emerald'
-              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/95 border-emerald-500/90 ring-2 ring-emerald-500/30 shadow-[0_0_35px_rgba(16,185,129,0.25)] z-30'
-              : vehicle.statusColor === 'sky'
-              ? 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/95 border-sky-500/90 ring-2 ring-sky-500/30 shadow-[0_0_35px_rgba(14,165,233,0.25)] z-30'
-              : 'opacity-100 translate-x-0 translate-y-0 scale-100 bg-[#141418]/95 border-amber-500/90 ring-2 ring-amber-500/30 shadow-[0_0_35px_rgba(245,158,11,0.25)] z-30'
-            : 'opacity-90 translate-x-0 translate-y-0 scale-[0.98] bg-[#121215]/95 border-white/15 shadow-xl z-20 hover:opacity-100 hover:scale-[0.99] hover:border-white/30'
-        }`}
+        } ${visibilityClasses}`}
       >
         {/* Header Card: Status & Preț cu indicator Mock Data * (Alb pur pe fundal Dark Luxury) */}
         <div className="flex items-center justify-between text-xs mb-2 pb-1.5 border-b border-white/10">
-          <span
-            className={`flex items-center gap-1.5 font-bold ${
-              isPrimPlan
-                ? vehicle.statusColor === 'emerald'
-                  ? 'text-emerald-400'
-                  : vehicle.statusColor === 'sky'
-                  ? 'text-sky-400'
-                  : 'text-amber-400'
-                : 'text-zinc-300'
-            }`}
-          >
-            <span
-              className={`h-2 w-2 rounded-full ${
-                isPrimPlan
-                  ? vehicle.statusColor === 'emerald'
-                    ? 'bg-emerald-400 animate-pulse shadow-[0_0_10px_#34d399]'
-                    : vehicle.statusColor === 'sky'
-                    ? 'bg-sky-400 animate-pulse shadow-[0_0_10px_#38bdf8]'
-                    : 'bg-amber-400 animate-pulse shadow-[0_0_10px_#fbbf24]'
-                  : 'bg-zinc-500'
-              }`}
-            />
+          <span className={`flex items-center gap-1.5 font-bold ${statusStyles.text}`}>
+            <span className={`h-2 w-2 rounded-full ${statusStyles.dot}`} />
             {vehicle.statusBadge}
           </span>
           <span className="text-white font-mono font-black text-xs sm:text-sm tracking-tight drop-shadow-sm">
@@ -474,9 +467,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
             {/* Inset Tile Întunecat de Mare Contrast pentru Funcționalitate DMS */}
             <div className="p-1.5 rounded-lg bg-white/[0.05] border border-white/10">
               <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-amber-300">
-                {React.createElement(vehicle.Icon, {
-                  className: 'h-3.5 w-3.5 text-amber-400 shrink-0',
-                })}
+                {React.createElement(vehicle.Icon, { className: 'h-3.5 w-3.5 text-amber-400 shrink-0' })}
                 <span className="truncate">{vehicle.featureTitle}</span>
               </div>
               <div className="text-[9px] sm:text-[10px] text-zinc-300 mt-0.5 truncate leading-tight">
