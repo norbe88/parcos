@@ -196,21 +196,28 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
               setIsHeroBannerRevealed(true);
             }
 
-            // Calcul praguri discrete:
-            // -1: Hero Extins (0 .. 0.08)
-            //  0: Porsche Cayenne GTS (0.08 .. 0.30)
-            //  1: Mercedes-AMG GT (0.30 .. 0.53)
-            //  2: Audi RS7 Sportback (0.53 .. 0.76)
-            //  3: Audi R8 V10 (>= 0.76)
-            let newPhase: -1 | 0 | 1 | 2 | 3 = -1;
-            if (progress >= 0.76) {
-              newPhase = 3;
-            } else if (progress >= 0.53) {
-              newPhase = 2;
-            } else if (progress >= 0.30) {
-              newPhase = 1;
-            } else if (progress >= 0.08) {
-              newPhase = 0;
+            // Calcul praguri discrete cu hysterază direcțională (elimină complet tremurul și micro-oscilațiile la limită):
+            // -1: Hero Extins
+            //  0: Porsche Cayenne GTS (milestone 0.18)
+            //  1: Mercedes-Benz Clasa E (milestone 0.41)
+            //  2: Audi RS7 Sportback (milestone 0.64)
+            //  3: BMW X5 xDrive40d (milestone 0.86)
+            const currentPhase = currentPhaseRef.current;
+            let newPhase: -1 | 0 | 1 | 2 | 3 = currentPhase;
+
+            if (currentPhase === -1) {
+              if (progress >= 0.08) newPhase = 0;
+            } else if (currentPhase === 0) {
+              if (progress < 0.05) newPhase = -1;
+              else if (progress >= 0.31) newPhase = 1;
+            } else if (currentPhase === 1) {
+              if (progress < 0.27) newPhase = 0;
+              else if (progress >= 0.54) newPhase = 2;
+            } else if (currentPhase === 2) {
+              if (progress < 0.50) newPhase = 1;
+              else if (progress >= 0.77) newPhase = 3;
+            } else if (currentPhase === 3) {
+              if (progress < 0.73) newPhase = 2;
             }
 
             if (newPhase !== currentPhaseRef.current) {
@@ -437,7 +444,8 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
         style={{
           transform: 'translateZ(0)',
           willChange: 'transform, opacity',
-          transition: 'transform 550ms cubic-bezier(0.16,1,0.3,1), opacity 450ms cubic-bezier(0.16,1,0.3,1), box-shadow 350ms ease-out, border-color 250ms ease-out',
+          transition:
+            'transform 680ms cubic-bezier(0.22, 1, 0.36, 1), opacity 580ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 650ms cubic-bezier(0.22, 1, 0.36, 1), border-color 450ms ease-out',
         }}
         className={`group relative rounded-2xl cursor-pointer border shadow-2xl ${
           isMobileSlot ? 'p-2.5 sm:p-3' : 'p-3 sm:p-3.5'
@@ -540,7 +548,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
           className="pointer-events-none absolute -inset-[2%] sm:inset-0 z-0 overflow-hidden"
           style={{
             transform: cameraPan,
-            transition: 'transform 950ms cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'transform 800ms cubic-bezier(0.22, 1, 0.36, 1)',
             willChange: 'transform',
             transformOrigin: 'center center',
             backfaceVisibility: 'hidden',
@@ -625,7 +633,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
           className="hidden lg:block pointer-events-none absolute -inset-[2%] sm:inset-0 z-10 overflow-hidden"
           style={{
             transform: cameraPan,
-            transition: 'transform 950ms cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'transform 800ms cubic-bezier(0.22, 1, 0.36, 1)',
             willChange: 'transform',
             transformOrigin: 'center center',
             backfaceVisibility: 'hidden',
@@ -847,8 +855,8 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                 const VehicleIcon = vehicle.Icon;
 
                 // Calcul stil stivă conform cerinței:
-                // - Cardul văzut anterior (diff < 0) nu dispare, ci urcă mai sus cu mai mult fade-out
-                // - Rămâne selectabil și vine în față când se dă click pe el
+                // - Cardul văzut anterior (diff < 0) nu dispare, ci urcă progresiv cu mai mult fade-out în stivă
+                // - Rămâne selectabil și vine în față lin când se dă click pe el
                 let cardTransform = '';
                 let cardOpacity = 0;
                 let cardZIndex = 10;
@@ -856,7 +864,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
 
                 if (scrollPhase < 0) {
                   // Înainte de intrarea în showroom (bannerul hero este afișat)
-                  cardTransform = 'translateY(30px) scale(0.95)';
+                  cardTransform = 'translateY(24px) scale(0.96)';
                   cardOpacity = 0;
                   cardZIndex = 10;
                 } else if (isCurrent) {
@@ -865,11 +873,11 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                   cardOpacity = 1;
                   cardZIndex = 40;
                 } else if (diff < 0) {
-                  // CARDURI DEJA VĂZUTE (Urcă mai sus cu mai mult fade-out, tab-ul rămâne vizibil și selectabil)
+                  // CARDURI DEJA VĂZUTE (Urcă progresiv cu fade-out în stivă, tab-ul rămâne vizibil și selectabil)
                   isClickableToSelect = true;
                   if (diff === -1) {
                     cardTransform = 'translateY(-38px) scale(0.95)';
-                    cardOpacity = 0.62;
+                    cardOpacity = 0.65;
                     cardZIndex = 30;
                   } else if (diff === -2) {
                     cardTransform = 'translateY(-72px) scale(0.90)';
@@ -882,25 +890,18 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                     isClickableToSelect = false;
                   }
                 } else {
-                  // CARDURI VIITOARE (diff > 0)
-                  if (index <= scrollPhase) {
-                    // Deblocat anterior de scroll, dar utilizatorul a dat click pe o mașină precedentă
-                    isClickableToSelect = true;
-                    if (diff === 1) {
-                      cardTransform = 'translateY(28px) scale(0.96)';
-                      cardOpacity = 0.45;
-                      cardZIndex = 35;
-                    } else {
-                      cardTransform = 'translateY(48px) scale(0.92)';
-                      cardOpacity = 0;
-                      cardZIndex = 15;
-                      isClickableToSelect = false;
-                    }
+                  // CARDURI VIITOARE (diff > 0): coboară lin spre fundal cu fade-out
+                  if (diff === 1) {
+                    const isUnlocked = index <= scrollPhase;
+                    isClickableToSelect = isUnlocked;
+                    cardTransform = 'translateY(32px) scale(0.96)';
+                    cardOpacity = isUnlocked ? 0.40 : 0;
+                    cardZIndex = 25;
                   } else {
-                    // Mașină viitoare neatinsă la scroll
-                    cardTransform = 'translateY(25px) scale(0.96)';
+                    cardTransform = 'translateY(56px) scale(0.92)';
                     cardOpacity = 0;
-                    cardZIndex = 10;
+                    cardZIndex = 15;
+                    isClickableToSelect = false;
                   }
                 }
 
@@ -919,23 +920,33 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                     key={vehicle.id}
                     onClick={handleMobileCardClick}
                     style={{
-                      transform: cardTransform,
+                      transform: `${cardTransform} translateZ(0)`,
                       opacity: cardOpacity,
                       zIndex: cardZIndex,
                       transformOrigin: 'top center',
-                      transition:
-                        'transform 550ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms cubic-bezier(0.16, 1, 0.3, 1)',
-                      willChange: 'transform, opacity',
-                    }}
-                    className={`col-start-1 row-start-1 w-full bg-[#121215]/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-4 shadow-[0_25px_60px_rgba(0,0,0,0.95)] flex flex-col gap-2.5 transition-all ${
-                      isCurrent
-                        ? 'border border-amber-400/30 shadow-[0_25px_60px_rgba(0,0,0,0.95)] pointer-events-auto cursor-pointer active:scale-[0.99]'
+                      boxShadow: isCurrent
+                        ? '0 25px 60px rgba(0,0,0,0.95), 0 0 30px rgba(245,158,11,0.15)'
                         : isClickableToSelect
-                        ? 'border border-white/20 hover:border-amber-400/50 shadow-[0_15px_35px_rgba(0,0,0,0.8)] pointer-events-auto cursor-pointer'
-                        : 'border border-white/10 pointer-events-none'
+                        ? '0 15px 35px rgba(0,0,0,0.8)'
+                        : '0 5px 15px rgba(0,0,0,0.5)',
+                      borderColor: isCurrent
+                        ? 'rgba(251, 191, 36, 0.35)'
+                        : isClickableToSelect
+                        ? 'rgba(255, 255, 255, 0.20)'
+                        : 'rgba(255, 255, 255, 0.10)',
+                      transition:
+                        'transform 680ms cubic-bezier(0.22, 1, 0.36, 1), opacity 580ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 650ms cubic-bezier(0.22, 1, 0.36, 1), border-color 450ms ease-out',
+                      willChange: 'transform, opacity, box-shadow',
+                    }}
+                    className={`col-start-1 row-start-1 w-full bg-[#121215]/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-4 border flex flex-col gap-2.5 ${
+                      isCurrent
+                        ? 'pointer-events-auto cursor-pointer active:scale-[0.99]'
+                        : isClickableToSelect
+                        ? 'pointer-events-auto cursor-pointer hover:border-amber-400/50'
+                        : 'pointer-events-none'
                     }`}
                   >
-                    {/* Header Card: Fază (01/04), Titlu & Badge Stivă Interactiv */}
+                    {/* Header Card: Fază (01/04), Nume Stabil & Badge Stivă Interactiv cu Crossfade */}
                     <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="font-mono font-black text-amber-400 text-xs bg-amber-400/10 border border-amber-400/30 px-2.5 py-0.5 rounded-md shrink-0">
@@ -951,25 +962,42 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                                 : 'bg-amber-400'
                             }`}
                           />
-                          <span className="text-xs font-semibold text-zinc-300 truncate">
-                            {isCurrent ? vehicle.statusBadge : vehicle.shortName}
+                          <span className="text-xs font-bold text-zinc-200 truncate">
+                            {vehicle.shortName}
                           </span>
+                          {isCurrent && (
+                            <span className="text-[11px] font-medium text-zinc-400 hidden sm:inline truncate">
+                              • {vehicle.statusBadge}
+                            </span>
+                          )}
                         </div>
                       </div>
 
-                      {!isCurrent ? (
-                        <div className="flex items-center gap-1 shrink-0 px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-[10px] font-mono font-bold text-amber-300 animate-pulse">
-                          <span>Apasă pentru detalii</span>
-                          <ArrowUpRight className="w-3 h-3" />
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 shrink-0 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                      <div className="relative shrink-0 flex items-center">
+                        <div
+                          className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/20 transition-all duration-300 ${
+                            isCurrent
+                              ? 'opacity-100 scale-100 pointer-events-auto'
+                              : 'opacity-0 scale-95 pointer-events-none absolute right-0'
+                          }`}
+                        >
                           <VehicleIcon className="w-3.5 h-3.5 text-amber-400" />
                           <span className="text-[10px] font-mono font-bold text-amber-300 uppercase tracking-wider">
                             ParcOS DMS
                           </span>
                         </div>
-                      )}
+
+                        <div
+                          className={`flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-[10px] font-mono font-bold text-amber-300 transition-all duration-300 ${
+                            !isCurrent
+                              ? 'opacity-100 scale-100 pointer-events-auto'
+                              : 'opacity-0 scale-95 pointer-events-none absolute right-0'
+                          }`}
+                        >
+                          <span>Apasă pentru detalii</span>
+                          <ArrowUpRight className="w-3 h-3" />
+                        </div>
+                      </div>
                     </div>
 
                     {/* Body Card: Imagine mare + Detalii Tehnice & Preț cu TVA inclus */}
