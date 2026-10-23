@@ -164,7 +164,15 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
     setActiveView('article');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (typeof window !== 'undefined') {
-      window.location.hash = `#ghid-auto/${slug}`;
+      if (window.location.pathname.startsWith('/ghid-auto')) {
+        window.history.pushState(null, '', `/ghid-auto/${slug}`);
+      } else {
+        window.location.hash = `#ghid-auto/${slug}`;
+      }
+      const art = getArticleBySlug(slug);
+      if (art) {
+        document.title = `${art.title} — Ghid Auto 2026 | ParcOS`;
+      }
     }
   };
 
@@ -183,7 +191,12 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
     setSelectedArticleSlug(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (typeof window !== 'undefined') {
-      window.location.hash = '#ghid-auto';
+      if (window.location.pathname.startsWith('/ghid-auto')) {
+        window.history.pushState(null, '', '/ghid-auto');
+      } else {
+        window.location.hash = '#ghid-auto';
+      }
+      document.title = 'Ghid Auto 2026 — Toate procedurile auto din România pas cu pas | ParcOS';
     }
   };
 
@@ -191,7 +204,12 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
     setActiveView('calculator');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (typeof window !== 'undefined') {
-      window.location.hash = '#ghid-auto/calculator-impozit-auto';
+      if (window.location.pathname.startsWith('/ghid-auto')) {
+        window.history.pushState(null, '', '/ghid-auto/calculator-impozit-auto');
+      } else {
+        window.location.hash = '#ghid-auto/calculator-impozit-auto';
+      }
+      document.title = 'Calculator Impozit Auto 2026 — Tarife Oficiale & Bonificație 10% | ParcOS';
     }
   };
 
