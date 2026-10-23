@@ -336,10 +336,6 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
     cameraPan = 'translate3d(8%, 1%, 0) scale(1.26)';
   }
 
-  // Calcul mașină activă în Slot A (Flanc Stâng: Card 2: Audi RS7 / Card 3: BMW X5) și Slot B (Flanc Drept: Card 0: Porsche / Card 1: Mercedes) pe mobil
-  const activeSlotACar: 2 | 3 = manualSlotA ?? (scrollPhase === 3 ? 3 : 2);
-  const activeSlotBCar: 0 | 1 = manualSlotB ?? (scrollPhase === 1 ? 1 : 0);
-
   // Derulare lină către un vehicul specific
   const scrollToVehicle = (index: number) => {
     if (index === 2 || index === 3) setManualSlotA(index as 2 | 3);
@@ -698,7 +694,11 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                 'opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1)',
               willChange: 'transform, opacity',
             }}
-            className="mx-auto bg-[#121215]/95 backdrop-blur-md border border-white/15 shadow-2xl overflow-hidden rounded-3xl px-4 py-3 sm:px-7 sm:py-4.5 max-w-3xl shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] text-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            className={`mx-auto bg-[#121215]/95 backdrop-blur-md border border-white/15 shadow-2xl overflow-hidden rounded-3xl px-4 py-3 sm:px-7 sm:py-4.5 max-w-3xl shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] text-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              scrollPhase >= 0
+                ? 'max-lg:opacity-0 max-lg:pointer-events-none max-lg:scale-95 max-lg:max-h-0 max-lg:p-0 max-lg:my-0 max-lg:border-0'
+                : 'max-lg:max-h-[500px]'
+            }`}
           >
             <div className="transition-all duration-400 ease-out">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.06] border border-white/15 px-3 py-0.5 sm:px-3.5 sm:py-1 text-[11px] sm:text-xs font-semibold text-zinc-200 mb-1.5 sm:mb-2">
@@ -749,7 +749,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
             </div>
           </div>
 
-          {/* BARA SELECTOR VEHICULE DEDICATĂ — Apare direct SUB cartonașul principal când începe explorarea */}
+          {/* BARA SELECTOR VEHICULE DEDICATĂ — Apare direct SUB cartonașul principal când începe explorarea (Desktop only) */}
           <div
             style={{
               opacity: scrollPhase >= 0 ? 1 : 0,
@@ -759,7 +759,7 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
                 'opacity 450ms ease-out, transform 450ms ease-out, max-height 450ms ease-out',
               willChange: 'transform, opacity',
             }}
-            className={`mt-1.5 sm:mt-2 mx-auto max-w-3xl overflow-hidden pointer-events-auto ${
+            className={`hidden lg:block mt-1.5 sm:mt-2 mx-auto max-w-3xl overflow-hidden pointer-events-auto ${
               scrollPhase < 0 ? 'pointer-events-none' : ''
             }`}
           >
@@ -836,127 +836,85 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
               </div>
             </div>
 
-            {/* 📱 VARIANTA B: MOBIL / TABLETĂ (< lg) — 2 SLOTURI SUPRAPUSE CU COMUTARE */}
-            <div
-              className={`grid lg:hidden w-full grid-cols-1 gap-2.5 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                !isSelectionActive
-                  ? 'opacity-0 translate-y-10 pointer-events-none scale-[0.97]'
-                  : 'opacity-100 translate-y-0 pointer-events-auto scale-100'
-              }`}
-            >
-              {/* SLOTUL A (Flanc Stâng: Card 2: Audi RS7 & Card 3: BMW X5) */}
-              <div
-                style={{
-                  transition: 'opacity 500ms ease, transform 500ms ease',
-                }}
-                className={`w-full transition-all duration-500 ${
-                  scrollPhase < 2
-                    ? 'opacity-0 pointer-events-none translate-y-3'
-                    : 'opacity-100 translate-y-0'
-                }`}
-              >
-                {/* Micro-Selector Slot A pe Mobil */}
-                <div className="flex items-center justify-between mb-1 px-1">
-                  <span className="text-[10px] font-mono text-zinc-300 bg-[#121215]/95 backdrop-blur-sm px-2.5 py-0.5 rounded-lg border border-white/15 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-                    <span className="text-zinc-400">Flanc Stâng:</span>
-                    <strong className="text-white font-black">{VEHICLES[activeSlotACar]?.shortName}</strong>
-                  </span>
-                  <div className="flex items-center gap-1 bg-[#121215]/95 backdrop-blur-sm border border-white/15 p-0.5 rounded-lg shadow-sm">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setManualSlotA(2);
-                      }}
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
-                        activeSlotACar === 2
-                          ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
-                          : 'text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      {VEHICLES[2].shortName}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setManualSlotA(3);
-                      }}
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
-                        activeSlotACar === 3
-                          ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
-                          : 'text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      {VEHICLES[3].shortName}
-                    </button>
+            {/* 📱 VARIANTA B: MOBIL / TABLETĂ (< lg) — PURE CINEMATIC SCROLLYTELLING STORY HUD */}
+            <div className="lg:hidden w-full flex flex-col items-center justify-end pointer-events-auto pb-1">
+              {isSelectionActive && scrollPhase >= 0 && VEHICLES[scrollPhase] && (
+                <div 
+                  onClick={handleExploreDMS}
+                  className="w-full max-w-sm mx-auto p-2.5 rounded-2xl bg-[#121215]/90 backdrop-blur-xl border border-white/20 shadow-[0_12px_40px_rgba(0,0,0,0.85)] flex items-center justify-between gap-3 active:scale-[0.98] transition-all cursor-pointer animate-in fade-in slide-in-from-bottom-2 duration-300"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-white/20 bg-zinc-900">
+                      <img 
+                        src={VEHICLES[scrollPhase].imageUrl} 
+                        alt={VEHICLES[scrollPhase].shortName} 
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center pb-0.5">
+                        <span className="text-[8px] font-mono font-black text-amber-400">
+                          0{scrollPhase + 1}/04
+                        </span>
+                      </div>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          VEHICLES[scrollPhase].statusColor === 'emerald' ? 'bg-emerald-400' :
+                          VEHICLES[scrollPhase].statusColor === 'sky' ? 'bg-sky-400' : 'bg-amber-400'
+                        } animate-pulse`} />
+                        <span className="text-[9.5px] text-zinc-400 font-semibold truncate">
+                          {VEHICLES[scrollPhase].statusBadge}
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-black text-white truncate leading-tight mt-0.5">
+                        {VEHICLES[scrollPhase].shortName}
+                      </h4>
+                      <p className="text-[10.5px] font-mono font-bold text-amber-400 leading-tight">
+                        {VEHICLES[scrollPhase].priceGross}
+                      </p>
+                    </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExploreDMS();
+                    }}
+                    className="shrink-0 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black font-black text-xs flex items-center gap-1 shadow-lg shadow-amber-500/25 active:scale-95 transition-all"
+                  >
+                    <span>DMS</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
+              )}
 
-                {/* Randare Card Activ în Slotul A */}
-                {renderVehicleQuadrantCard(activeSlotACar, 'bottom-left', true)}
-              </div>
-
-              {/* SLOTUL B (Flanc Drept: Card 0: Porsche Cayenne & Card 1: Mercedes-Benz) */}
-              <div
-                style={{
-                  transition: 'opacity 500ms ease, transform 500ms ease',
-                }}
-                className={`w-full transition-all duration-500 ${
-                  scrollPhase < 0
-                    ? 'opacity-0 pointer-events-none translate-y-3'
-                    : 'opacity-100 translate-y-0'
-                }`}
-              >
-                {/* Micro-Selector Slot B pe Mobil */}
-                <div className="flex items-center justify-between mb-1 px-1">
-                  <span className="text-[10px] font-mono text-zinc-300 bg-[#121215]/95 backdrop-blur-sm px-2.5 py-0.5 rounded-lg border border-white/15 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-zinc-400">Flanc Drept:</span>
-                    <strong className="text-white font-black">{VEHICLES[activeSlotBCar]?.shortName}</strong>
-                  </span>
-                  <div className="flex items-center gap-1 bg-[#121215]/95 backdrop-blur-sm border border-white/15 p-0.5 rounded-lg shadow-sm">
+              {/* Indicator Puncte Progres Scrollytelling pe Mobil */}
+              {isSelectionActive && (
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  {VEHICLES.map((_, i) => (
                     <button
+                      key={i}
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setManualSlotB(0);
+                        scrollToVehicle(i);
                       }}
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
-                        activeSlotBCar === 0
-                          ? 'bg-sky-500 text-slate-950 shadow-sm font-black'
-                          : 'text-zinc-400 hover:text-white'
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        scrollPhase === i 
+                          ? 'w-6 bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]' 
+                          : 'w-1.5 bg-white/30 hover:bg-white/50'
                       }`}
-                    >
-                      {VEHICLES[0].shortName}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setManualSlotB(1);
-                      }}
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
-                        activeSlotBCar === 1
-                          ? 'bg-emerald-500 text-slate-950 shadow-sm font-black'
-                          : 'text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      {VEHICLES[1].shortName}
-                    </button>
-                  </div>
+                      aria-label={`Sari la vehiculul ${i + 1}`}
+                    />
+                  ))}
                 </div>
-
-                {/* Randare Card Activ în Slotul B */}
-                {renderVehicleQuadrantCard(activeSlotBCar, 'bottom-right', true)}
-              </div>
-
+              )}
             </div>
           </div>
 
-          {/* ================= SUBSOL CONFORMITATE FISCALĂ & PREZENTARE DEMO ================= */}
-          <div className="mt-1.5 rounded-xl bg-[#121215]/95 border border-white/15 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-md shadow-2xl flex flex-col gap-1 text-[11px] sm:text-xs text-zinc-300">
+          {/* ================= SUBSOL CONFORMITATE FISCALĂ & PREZENTARE DEMO (Desktop Only) ================= */}
+          <div className="hidden lg:flex mt-1.5 rounded-xl bg-[#121215]/95 border border-white/15 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-md shadow-2xl flex-col gap-1 text-[11px] sm:text-xs text-zinc-300">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="flex items-center gap-1.5 sm:gap-2">
                 <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-400 shrink-0" />

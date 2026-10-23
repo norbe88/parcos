@@ -54,32 +54,34 @@ export const CookieConsentBanner: React.FC<CookieConsentBannerProps> = ({
     const checkScrollPosition = () => {
       if (hasTriggered) return;
 
-      const heroEl = document.getElementById('hero') || document.querySelector('[data-non-interactive-start="true"]');
-      const videoIntroEl = document.getElementById('showroom-video-intro') || 
-                           document.querySelector('[aria-label="ParcOS Showroom Digital Autonom"]');
+      // 🎯 Regula: Pop-up-ul apare mult mai jos în pagină, când utilizatorul chiar a ajuns la conținut
+      const deepTriggerElement = isSaasViewWithVideo
+        ? (document.getElementById('oferte-whatsapp') || 
+           document.getElementById('module') || 
+           document.getElementById('teme') ||
+           document.getElementById('comparatie'))
+        : (document.getElementById('catalog') || 
+           document.getElementById('finantare') || 
+           document.getElementById('recenzii') ||
+           document.querySelector('footer'));
 
-      let hasPassedVideo = false;
+      let hasReachedDeepSection = false;
 
-      // 1. Verificare primară: Secțiunea de conținut non-interactiv (#hero) a intrat în viewport
-      if (heroEl) {
-        const rect = heroEl.getBoundingClientRect();
-        if (rect.top <= window.innerHeight * 0.85) {
-          hasPassedVideo = true;
+      if (deepTriggerElement) {
+        const rect = deepTriggerElement.getBoundingClientRect();
+        // Apare când secțiunea adâncă pătrunde în mod clar în viewport (top <= 75% din înălțimea ferestrei)
+        if (rect.top <= window.innerHeight * 0.75) {
+          hasReachedDeepSection = true;
         }
-      } 
-      // 2. Verificare secundară: Containerul video intro a fost depășit la scroll (bottom < viewport)
-      else if (videoIntroEl) {
-        const rect = videoIntroEl.getBoundingClientRect();
-        if (rect.bottom <= window.innerHeight + 80) {
-          hasPassedVideo = true;
+      } else {
+        // Fallback: dacă elementele țintă nu sunt găsite, cerem o derulare profundă de cel puțin 45% din pagină
+        const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (scrollableHeight > 800 && window.scrollY >= scrollableHeight * 0.45) {
+          hasReachedDeepSection = true;
         }
-      } 
-      // 3. Fallback bazat pe înălțimea de derulare (dacă video-ul are 230vh)
-      else if (window.scrollY > window.innerHeight * 1.1) {
-        hasPassedVideo = true;
       }
 
-      if (hasPassedVideo) {
+      if (hasReachedDeepSection) {
         hasTriggered = true;
         setIsVisible(true);
         window.removeEventListener('scroll', handleScroll);
@@ -96,21 +98,22 @@ export const CookieConsentBanner: React.FC<CookieConsentBannerProps> = ({
       }
     };
 
-    // Dacă NU suntem pe vederea SaaS cu video intro, afișăm după un scurt timer discret
-    if (!isSaasViewWithVideo) {
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-
-    // În vederea SaaS cu video intro: ascultăm scroll-ul utilizatorului
+    // Ascultăm scroll-ul utilizatorului pentru apariție contextuală la adâncime
     window.addEventListener('scroll', handleScroll, { passive: true });
-    // Verificăm imediat (ex: refresh când pagina este deja parțial derulată)
+    // Verificăm imediat doar în caz de reload când pagina este deja derulată adânc
     checkScrollPosition();
+
+    // Timer de siguranță foarte relaxat (30s): doar dacă utilizatorul rămâne pe pagină fără să deruleze deloc
+    const fallbackTimer = setTimeout(() => {
+      if (!hasTriggered) {
+        hasTriggered = true;
+        setIsVisible(true);
+      }
+    }, 30000);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      clearTimeout(fallbackTimer);
     };
   }, [viewMode]);
 
