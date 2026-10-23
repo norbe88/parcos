@@ -13,6 +13,7 @@ import {
   ArrowUpRight,
   ChevronDown,
 } from 'lucide-react';
+import { getCdnMediaUrl } from '../../../utils/mediaCdn';
 
 export interface ShowroomVideoIntroProps {
   /** Calea către clipul video principal (ex: "/videos/parcos-showroom-intro.mp4") */
@@ -71,7 +72,7 @@ const VEHICLES: ShowroomVehicle[] = [
     priceGross: '108.900 € (TVA inclus)*',
     statusBadge: 'În Stoc • Livrare Imediată',
     statusColor: 'sky',
-    imageUrl: '/images/showcase/porsche-cayenne-showcase.jpg',
+    imageUrl: getCdnMediaUrl('/images/showcase/porsche-cayenne-showcase.jpg'),
     anchorX: '79%',
     anchorY: '65%',
     featureTitle: 'Scanare CIV cu AI • e-Factura SPV',
@@ -91,7 +92,7 @@ const VEHICLES: ShowroomVehicle[] = [
     priceGross: '79.900 € (TVA inclus)*',
     statusBadge: 'Rezervare Online • WhatsApp',
     statusColor: 'emerald',
-    imageUrl: '/images/showcase/mercedes-e-class-showcase.jpg',
+    imageUrl: getCdnMediaUrl('/images/showcase/mercedes-e-class-showcase.jpg'),
     anchorX: '65%',
     anchorY: '59%',
     featureTitle: 'Ofertă pe WhatsApp • Garanție Rezervare',
@@ -111,7 +112,7 @@ const VEHICLES: ShowroomVehicle[] = [
     priceGross: '114.900 € (TVA inclus)*',
     statusBadge: 'Verificat Tehnic • Raport RAR',
     statusColor: 'amber',
-    imageUrl: '/images/showcase/audi-rs7-showcase.jpg',
+    imageUrl: getCdnMediaUrl('/images/showcase/audi-rs7-showcase.jpg'),
     anchorX: '23%',
     anchorY: '64%',
     featureTitle: 'Contract Vânzare & Înstrăinare DRPCIV',
@@ -131,7 +132,7 @@ const VEHICLES: ShowroomVehicle[] = [
     priceGross: '89.900 € (TVA inclus)*',
     statusBadge: 'Sincronizat Live • Multi-Canal',
     statusColor: 'emerald',
-    imageUrl: '/images/showcase/bmw-x5-showcase.jpg',
+    imageUrl: getCdnMediaUrl('/images/showcase/bmw-x5-showcase.jpg'),
     anchorX: '36%',
     anchorY: '58%',
     featureTitle: 'Stoc Sincronizat pe Autovit & OLX',
@@ -146,10 +147,10 @@ const VEHICLES: ShowroomVehicle[] = [
 ];
 
 export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
-  videoSrc = '/videos/parcos-showroom-intro.mp4',
-  webmSrc = '/videos/parcos-showroom-intro.webm',
-  posterSrc = '/images/parcos-showroom-hall.jpg',
-  lastFrameSrc = '/images/parcos-showroom-hall-lastframe.jpg',
+  videoSrc = getCdnMediaUrl('/videos/parcos-showroom-intro.mp4'),
+  webmSrc = getCdnMediaUrl('/videos/parcos-showroom-intro.webm'),
+  posterSrc = getCdnMediaUrl('/images/parcos-showroom-hall.jpg'),
+  lastFrameSrc = getCdnMediaUrl('/images/parcos-showroom-hall-lastframe.jpg'),
   targetSectionId = 'demo-ocr',
   onExploreClick,
 }) => {

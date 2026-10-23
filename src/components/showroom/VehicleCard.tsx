@@ -126,9 +126,15 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
               </span>
             )}
             {car.vatDeductible && (
-              <span className="flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-emerald-600/95 backdrop-blur-md text-white font-extrabold text-[9px] sm:text-[10px] tracking-wide uppercase border border-emerald-400/40 shadow-lg shadow-emerald-950/50 select-none">
+              <span className="hidden sm:flex items-center gap-1 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-emerald-600/95 backdrop-blur-md text-white font-extrabold text-[9px] sm:text-[10px] tracking-wide uppercase border border-emerald-400/40 shadow-lg shadow-emerald-950/50 select-none">
                 <Building2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                 <span>TVA DEDUCTIBIL • FACTURĂ FIRMĂ</span>
+              </span>
+            )}
+            {car.vatDeductible && !isDeal && (
+              <span className="sm:hidden flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-600/95 backdrop-blur-md text-white font-bold text-[9px] uppercase border border-emerald-400/40 shadow-md select-none">
+                <Building2 className="w-2.5 h-2.5 shrink-0" />
+                <span>TVA Deductibil</span>
               </span>
             )}
           </div>
@@ -171,7 +177,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
       </div>
 
       {/* Detalii Card */}
-      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+      <div className="p-3.5 sm:p-5 flex-1 flex flex-col justify-between">
         <div>
           {/* Header Card: Brand + Model (Stânga) & Preț Tag (Dreapta) */}
           <div className="flex items-start justify-between gap-3">
@@ -225,7 +231,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
           </div>
 
           {/* Specificații Mini */}
-          <div className="flex items-center justify-between gap-1.5 sm:gap-2 my-3 pt-3 border-t border-white/[0.06] text-[10.5px] sm:text-[11px] text-zinc-300">
+          <div className="flex items-center justify-between gap-1.5 sm:gap-2 my-2.5 sm:my-3 pt-2.5 sm:pt-3 border-t border-white/[0.06] text-[10.5px] sm:text-[11px] text-zinc-300">
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 whitespace-nowrap">
               <Clock className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
               <span className="font-medium text-zinc-200">{car.year}</span>
@@ -264,9 +270,9 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
             </div>
           </div>
 
-          {/* Badge Economisești (dacă există discount) & Notă Omnibus */}
+          {/* Badge Economisești (dacă există discount) & Notă Omnibus — vizibil pe desktop */}
           {hasDiscount && (
-            <div className="mb-2.5 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/25">
+            <div className="hidden sm:block mb-2.5 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/25">
               <div className="flex items-center gap-1.5 text-[11px] text-emerald-300 font-semibold">
                 <Tag className="w-3 h-3 shrink-0" />
                 <span>Economisești {savings.toLocaleString('ro-RO')} € față de prețul anterior</span>
@@ -277,16 +283,39 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
             </div>
           )}
 
-          {/* Badge B2B Fiscal (dacă TVA este deductibil) */}
+          {/* Badge B2B Fiscal (dacă TVA este deductibil) — vizibil pe desktop */}
           {car.vatDeductible && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-[11px] text-emerald-300 font-semibold mb-2.5">
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-[11px] text-emerald-300 font-semibold mb-2.5">
               <Building2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               <span>TVA Deductibil 21% • Factură fiscală B2B (SRL / Leasing)</span>
             </div>
           )}
 
-          {/* Estimare Rata Lunară cu CTA Finanțare */}
-          <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-xs flex items-center justify-between gap-2">
+          {/* 📱 Estimare Rata Lunară — Format Simplificat & Aerisit pe Mobil */}
+          <div className="sm:hidden flex items-center justify-between text-xs py-1.5 px-2.5 rounded-lg bg-white/[0.03] border border-white/[0.06] mb-3">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Calculator className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="text-[11px] text-zinc-400 shrink-0">Rată de la:</span>
+              <span className="text-amber-400 font-mono font-bold text-xs truncate">
+                {calculateRate(car.priceEur, 15, 48)} €<span className="text-[10px] text-zinc-400 font-sans font-normal">/lună</span>
+              </span>
+            </div>
+            {currentStatus !== 'sold' && (
+              <a
+                href={getWhatsAppFinanceUrl(car, dealer.whatsappFinance || '40758042979', 15, 48, 'TBI Bank', calculateRate(car.priceEur, 15, 48))}
+                target="_blank" 
+                rel="noopener noreferrer"
+                aria-label={`Rate TBI — Solicită finanțare în rate prin TBI Bank pentru ${car.brand} ${car.model}`}
+                className="text-[10.5px] font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 shrink-0 px-2 py-0.5 rounded bg-amber-400/10 hover:bg-amber-400/20 transition-colors"
+              >
+                <span>Rate TBI</span>
+                <span>→</span>
+              </a>
+            )}
+          </div>
+
+          {/* 🖥️ Estimare Rata Lunară cu CTA Finanțare — Format Extins pe Desktop */}
+          <div className="hidden sm:flex p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-xs items-center justify-between gap-2">
             <div>
               <span className="text-zinc-400 text-[10px] uppercase tracking-wider font-medium">Rată lunară de la:</span>
               <div className="text-amber-400 font-mono font-bold leading-tight text-sm">
@@ -312,7 +341,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
         </div>
 
         {/* Butoane Acțiune Card */}
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-2">
           <button 
             type="button"
             aria-label={`Deschide fișa completă cu detalii pentru ${car.brand} ${car.model}`}

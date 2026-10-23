@@ -36,6 +36,7 @@ import { WhatsAppQuoteSimulator } from './showcase/WhatsAppQuoteSimulator';
 import { DealerRoiCalculator } from './showcase/DealerRoiCalculator';
 import { ComparisonAndOnboarding } from './showcase/ComparisonAndOnboarding';
 import { MobileStickyDock } from './showcase/MobileStickyDock';
+import { getCdnMediaUrl } from '../../utils/mediaCdn';
 
 interface ParcOSSaaSPageProps {
   onSwitchToDealer?: (slug: string) => void;
@@ -107,9 +108,10 @@ export const ParcOSSaaSPage: React.FC<ParcOSSaaSPageProps> = ({
       {/* 0. 4K Cinematic Showroom Intro cu Dolly-in & Telemetrie HUD Flancuri */}
       <ShowroomVideoIntro 
         onExploreClick={handleScrollToDMS}
-        videoSrc="/videos/parcos-showroom-intro.mp4"
-        webmSrc="/videos/parcos-showroom-intro.webm"
-        posterSrc="/images/parcos-showroom-hall.jpg"
+        videoSrc={getCdnMediaUrl('/videos/parcos-showroom-intro.mp4')}
+        webmSrc={getCdnMediaUrl('/videos/parcos-showroom-intro.webm')}
+        posterSrc={getCdnMediaUrl('/images/parcos-showroom-hall.jpg')}
+        lastFrameSrc={getCdnMediaUrl('/images/parcos-showroom-hall-lastframe.jpg')}
         scanStartTimestampSec={6.5}
         spawnStartTimestampSec={8.0}
         targetSectionId="demo-ocr"
