@@ -30,6 +30,7 @@ interface GhidAutoArticleViewProps {
   onSelectArticle?: (slug: string) => void;
   onSelectCategory?: (categorySlug: string) => void;
   onOpenCalculator?: () => void;
+  onExploreParcOS?: () => void;
 }
 
 export const GhidAutoArticleView: React.FC<GhidAutoArticleViewProps> = ({
@@ -37,12 +38,22 @@ export const GhidAutoArticleView: React.FC<GhidAutoArticleViewProps> = ({
   onBack,
   onSelectArticle,
   onSelectCategory,
-  onOpenCalculator
+  onOpenCalculator,
+  onExploreParcOS
 }) => {
   const [activeSection, setActiveSection] = useState<string>('sinteza');
   const [copied, setCopied] = useState<boolean>(false);
   const [checklistCopied, setChecklistCopied] = useState<boolean>(false);
   const [checkedDocs, setCheckedDocs] = useState<Record<number, boolean>>({});
+
+  // 🏷️ Sincronizare titlu pagină cu numele articolului pentru SEO și tab-ul browserului
+  useEffect(() => {
+    const prevTitle = document.title;
+    document.title = `${article.title} — Ghid Auto 2026 | ParcOS`;
+    return () => {
+      document.title = prevTitle;
+    };
+  }, [article.title]);
 
   // Secțiuni pentru Table of Contents (TOC)
   const sections = [
@@ -539,7 +550,7 @@ export const GhidAutoArticleView: React.FC<GhidAutoArticleViewProps> = ({
                 </p>
               </div>
               <button
-                onClick={onBack}
+                onClick={onExploreParcOS || onBack}
                 className="px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider shrink-0 transition-colors shadow-sm"
               >
                 Explorează ParcOS
@@ -614,7 +625,7 @@ export const GhidAutoArticleView: React.FC<GhidAutoArticleViewProps> = ({
                 Site propriu pe domeniu dedicat, publicare 1-click pe OLX & Autovit și contracte gata completate.
               </p>
               <button
-                onClick={onBack}
+                onClick={onExploreParcOS || onBack}
                 className="w-full mt-2 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-colors"
               >
                 Află mai multe

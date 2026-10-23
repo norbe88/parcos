@@ -425,6 +425,9 @@ export default function App() {
   // Verificare dacă ruta accesată este pagina de prezentare SaaS (parcos.ro, /saas, #saas sau ?saas)
   const checkIsSaasPath = () => {
     if (typeof window === 'undefined') return false;
+    // 🛡️ Invariantă Rutare: Rutele de Ghid Auto nu sunt NICIODATĂ pagina de prezentare SaaS
+    if (checkIsGhidAutoPath()) return false;
+
     const hostname = window.location.hostname.toLowerCase();
     const path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();

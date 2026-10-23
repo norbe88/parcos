@@ -37,20 +37,82 @@ export interface GhidAutoHubProps {
   onBackToMain?: () => void;
 }
 
+// Helper robust de parsare sincronă a URL-ului (Hash + HTML5 Path + Query params)
+function parseGhidRouteFromUrl(initialSlug?: string, initialCategory?: string, initialView?: string): {
+  view: 'hub' | 'article' | 'calculator';
+  articleSlug: string | null;
+  categorySlug: string | null;
+} {
+  if (initialView === 'calculator' || initialSlug === 'calculator-impozit-auto') {
+    return { view: 'calculator', articleSlug: null, categorySlug: null };
+  }
+  if (initialView === 'article' && initialSlug) {
+    return { view: 'article', articleSlug: initialSlug, categorySlug: null };
+  }
+
+  if (typeof window === 'undefined') {
+    return { view: 'hub', articleSlug: null, categorySlug: initialCategory || null };
+  }
+
+  const hash = window.location.hash.replace(/^#\/?/, '').trim();
+  const path = window.location.pathname.replace(/^\//, '').trim();
+
+  // Preferă hash dacă începe cu ghid, altfel fallback pe pathname
+  let target = '';
+  if (hash.startsWith('ghid-auto') || hash.startsWith('ghid')) {
+    target = hash;
+  } else if (path.startsWith('ghid-auto') || path.startsWith('ghid')) {
+    target = path;
+  }
+
+  // Verificare calculator
+  if (target.includes('calculator')) {
+    return { view: 'calculator', articleSlug: null, categorySlug: null };
+  }
+
+  // Parsare categorie din query params (?cat=...) din search sau hash
+  let catParam: string | null = initialCategory || null;
+  if (window.location.search) {
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.has('cat')) catParam = sp.get('cat');
+  }
+  if (window.location.hash.includes('?')) {
+    const hashQuery = window.location.hash.split('?')[1];
+    const hp = new URLSearchParams(hashQuery);
+    if (hp.has('cat')) catParam = hp.get('cat');
+  }
+
+  // Parsare articol din sub-rută (ex: ghid-auto/inmatriculare-auto sau ghid-auto/inmatriculare-auto/)
+  if (target.includes('/')) {
+    const cleanTarget = target.split('?')[0].replace(/\/+$/, '');
+    const parts = cleanTarget.split('/').filter(Boolean);
+    const slug = parts[1];
+    if (slug) {
+      if (slug.startsWith('categorie-') || slug.startsWith('cat-')) {
+        const cat = slug.replace(/^(categorie-|cat-)/, '');
+        return { view: 'hub', articleSlug: null, categorySlug: cat };
+      }
+      const cleanSlug = slug.split('?')[0].split('#')[0];
+      const art = getArticleBySlug(cleanSlug);
+      if (art) {
+        return { view: 'article', articleSlug: cleanSlug, categorySlug: null };
+      }
+    }
+  }
+
+  return { view: 'hub', articleSlug: null, categorySlug: catParam };
+}
+
 export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
   initialSlug,
   initialCategory,
   initialView = 'hub',
   onBackToMain
 }) => {
-  const [activeView, setActiveView] = useState<'hub' | 'article' | 'calculator'>(() => {
-    if (initialView === 'calculator' || initialSlug === 'calculator-impozit-auto') return 'calculator';
-    if (initialView === 'article' && initialSlug) return 'article';
-    return 'hub';
-  });
-
-  const [selectedArticleSlug, setSelectedArticleSlug] = useState<string | null>(initialSlug || null);
-  const [selectedCategorySlug, setSelectedCategorySlug] = useState<string | null>(initialCategory || null);
+  const initialRoute = useMemo(() => parseGhidRouteFromUrl(initialSlug, initialCategory, initialView), []);
+  const [activeView, setActiveView] = useState<'hub' | 'article' | 'calculator'>(initialRoute.view);
+  const [selectedArticleSlug, setSelectedArticleSlug] = useState<string | null>(initialRoute.articleSlug);
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState<string | null>(initialRoute.categorySlug);
   const [searchQuery, setSearchQuery] = useState('');
 
   // 🏷️ Asigură tema deschisă luminoasă 'parcos_light' conform paginii principale ParcOS
@@ -59,46 +121,43 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
     document.body.setAttribute('data-theme', 'parcos_light');
   }, []);
 
-  // Sincronizare cu hash-ul din URL pentru navigare directă și deep linking
+  // 🏷️ Sincronizare dinamică titlu document
   useEffect(() => {
-    const parseHash = () => {
-      if (typeof window === 'undefined') return;
-      const hash = window.location.hash.replace(/^#\/?/, '');
-      const path = window.location.pathname.replace(/^\//, '');
+    const prevTitle = document.title;
+    if (activeView === 'calculator') {
+      document.title = 'Calculator Impozit Auto 2026 — Tarife Oficiale & Bonificație 10% | ParcOS';
+    } else if (activeView === 'article' && selectedArticleSlug) {
+      const art = getArticleBySlug(selectedArticleSlug);
+      if (art) {
+        document.title = `${art.title} — Ghid Auto 2026 | ParcOS`;
+      }
+    } else {
+      document.title = 'Ghid Auto 2026 — Toate procedurile auto din România pas cu pas | ParcOS';
+    }
 
-      // Verifică hash sau pathname
-      const target = hash.startsWith('ghid-auto') ? hash : (path.startsWith('ghid-auto') ? path : '');
+    return () => {
+      document.title = prevTitle;
+    };
+  }, [activeView, selectedArticleSlug]);
 
-      if (target.includes('calculator')) {
-        setActiveView('calculator');
-        setSelectedArticleSlug(null);
-      } else if (target.includes('ghid-auto/')) {
-        const parts = target.split('/');
-        const slug = parts[1];
-        if (slug) {
-          if (slug.startsWith('categorie-') || slug.startsWith('cat-')) {
-            const cat = slug.replace(/^(categorie-|cat-)/, '');
-            setSelectedCategorySlug(cat);
-            setActiveView('hub');
-          } else {
-            const art = getArticleBySlug(slug);
-            if (art) {
-              setSelectedArticleSlug(slug);
-              setActiveView('article');
-            }
-          }
-        }
+  // Sincronizare bidirecțională cu istoricul browserului (Back / Forward / HashChange / PopState)
+  useEffect(() => {
+    const syncRouteFromHistory = () => {
+      const parsed = parseGhidRouteFromUrl(initialSlug, initialCategory, initialView);
+      setActiveView(parsed.view);
+      setSelectedArticleSlug(parsed.articleSlug);
+      if (parsed.categorySlug) {
+        setSelectedCategorySlug(parsed.categorySlug);
       }
     };
 
-    parseHash();
-    window.addEventListener('popstate', parseHash);
-    window.addEventListener('hashchange', parseHash);
+    window.addEventListener('popstate', syncRouteFromHistory);
+    window.addEventListener('hashchange', syncRouteFromHistory);
     return () => {
-      window.removeEventListener('popstate', parseHash);
-      window.removeEventListener('hashchange', parseHash);
+      window.removeEventListener('popstate', syncRouteFromHistory);
+      window.removeEventListener('hashchange', syncRouteFromHistory);
     };
-  }, []);
+  }, [initialSlug, initialCategory, initialView]);
 
   const handleSelectArticle = (slug: string) => {
     setSelectedArticleSlug(slug);
@@ -177,6 +236,7 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
           onSelectArticle={handleSelectArticle}
           onSelectCategory={handleSelectCategory}
           onOpenCalculator={handleOpenCalculator}
+          onExploreParcOS={onBackToMain}
         />
       );
     }
