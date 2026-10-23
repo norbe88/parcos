@@ -156,11 +156,11 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
     setIsScanning(true);
     setScanProgress(0);
     setTelemetryLogs([
-      `> [AI-OCR 3.8] Inițializare cameră & decodare cadru...`,
+      `> [AI-OCR 3.5] Inițializare cameră & decodare cadru...`,
     ]);
 
     const startTime = Date.now();
-    const duration = 1800; // strictly 1.8 seconds
+    const duration = 1200; // strictly 1.2 seconds for ultra-fast UX
 
     scanTimerRef.current = setInterval(() => {
       const elapsed = Date.now() - startTime;
@@ -170,7 +170,7 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
       if (progress >= 25 && progress < 50) {
         setTelemetryLogs((prev) => 
           prev.length === 1 
-            ? [...prev, `> [VISION 3.8] Corecție perspectivă & orientare unghi... [OK]`]
+            ? [...prev, `> [VISION 3.5] Corecție perspectivă & orientare unghi... [OK]`]
             : prev
         );
       } else if (progress >= 50 && progress < 75) {
@@ -193,10 +193,10 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
         setIsScanning(false);
         setTelemetryLogs((prev) => [
           ...prev,
-          `> [SUCCESS] Fişă tehnică extrasă în 1.8s • Încredere AI: 99.4%`
+          `> [SUCCESS] Fişă tehnică extrasă în 1.2s • Încredere AI: 99.4%`
         ]);
       }
-    }, 50);
+    }, 40);
   };
 
   useEffect(() => {
@@ -242,9 +242,9 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
     setCustomImage(previewUrl);
 
     setTelemetryLogs([
-      `> [PARCOS AI 3.8] Document încărcat: ${file.name} (${Math.round(file.size / 1024)} KB)`,
-      `> [PARCOS AI 3.8] Cota test pe acest dispozitiv: ${quota.remaining}/${DEMO_MAX_SCANS} scanări rămase`,
-      `> [VISION 3.8] Optimizare cadru & recunoaștere optică europeană...`
+      `> [PARCOS AI 3.5] Document încărcat: ${file.name} (${Math.round(file.size / 1024)} KB)`,
+      `> [PARCOS AI 3.5] Cota test pe acest dispozitiv: ${quota.remaining}/${DEMO_MAX_SCANS} scanări rămase`,
+      `> [VISION 3.5] Optimizare cadru & recunoaștere optică europeană...`
     ]);
 
     const result = await scanDemoVehicleDocument(file, (progress, message) => {

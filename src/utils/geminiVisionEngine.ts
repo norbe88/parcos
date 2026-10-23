@@ -15,9 +15,10 @@ const DEFAULT_GEMINI_KEYS: string[] = (
 
 // Modele rapide multimodale Gemini (cu fallback în cascadă)
 export const GEMINI_MODELS = [
+  'gemini-3.5-flash-lite',
+  'gemini-3.5-flash',
   'gemini-3.8-flash',
-  'gemini-2.5-flash',
-  'gemini-flash-latest'
+  'gemini-2.5-flash'
 ];
 
 let currentKeyIndex = 0;

@@ -1659,7 +1659,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       const availableKeys = getResolvedGeminiKeys();
-      const candidateModels = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+      const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-2.5-flash'];
       let lastError = null;
       let extractedData = null;
 

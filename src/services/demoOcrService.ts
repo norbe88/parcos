@@ -255,7 +255,7 @@ export async function scanDemoVehicleDocument(
   onProgress?.(15, '> [PARCOS] Optimizare cadru & compresie adaptivă HD...');
   const { base64Data, mimeType } = await optimizeDocumentImage(fileOrBlob);
 
-  onProgress?.(35, '> [AI-OCR 3.8] Conexiune securizată către Gateway ParcOS...');
+  onProgress?.(35, '> [AI-OCR 3.5] Conexiune securizată către Gateway ParcOS...');
   const deviceToken = getOrCreateDeviceToken();
 
   try {

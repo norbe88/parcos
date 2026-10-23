@@ -244,7 +244,7 @@ Strict Rules:
 3. For Austria: Field B gives Erstmalige Zulassung, P.1 Hubraum, P.2 Leistung (kW), P.3 Antriebsart.
 4. Return null for unreadable fields. Strictly output JSON with no fences.`;
 
-    const candidateModels = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+    const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-2.5-flash'];
     let extracted: any = null;
 
     try {
