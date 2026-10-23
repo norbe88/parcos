@@ -340,7 +340,18 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
   // Actualizare dinamică document.title, atribute HTML și injectare CSS variables în :root
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      document.title = `${tenant.name} — Autovehicule Rulate Premium | Cluj-Napoca`;
+      const path = (window.location.pathname || '').toLowerCase();
+      const hash = (window.location.hash || '').toLowerCase();
+      const isSpecialPage = 
+        path.startsWith('/ghid-auto') || hash.includes('ghid-auto') ||
+        path.startsWith('/saas') || hash.includes('saas') ||
+        path.startsWith('/termeni-si-conditii') || hash.includes('termeni-si-conditii') ||
+        path.startsWith('/politica-cookie') || hash.includes('politica-cookie') ||
+        path.startsWith('/livrare-nationala') || hash.includes('livrare-nationala');
+
+      if (!isSpecialPage) {
+        document.title = `${tenant.name} — Autovehicule Rulate Premium | Cluj-Napoca`;
+      }
       const activeTheme = tenant.themePreset || 'obsidian_gold';
       document.documentElement.setAttribute('data-theme', activeTheme);
       document.body.setAttribute('data-theme', activeTheme);
