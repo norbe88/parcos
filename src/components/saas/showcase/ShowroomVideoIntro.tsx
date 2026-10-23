@@ -836,80 +836,143 @@ export const ShowroomVideoIntro: React.FC<ShowroomVideoIntroProps> = ({
               </div>
             </div>
 
-            {/* 📱 VARIANTA B: MOBIL / TABLETĂ (< lg) — PURE CINEMATIC SCROLLYTELLING STORY HUD */}
-            <div className="lg:hidden w-full flex flex-col items-center justify-end pointer-events-auto pb-1">
-              {isSelectionActive && scrollPhase >= 0 && VEHICLES[scrollPhase] && (
-                <div 
-                  onClick={handleExploreDMS}
-                  className="w-full max-w-sm mx-auto p-2.5 rounded-2xl bg-[#121215]/90 backdrop-blur-xl border border-white/20 shadow-[0_12px_40px_rgba(0,0,0,0.85)] flex items-center justify-between gap-3 active:scale-[0.98] transition-all cursor-pointer animate-in fade-in slide-in-from-bottom-2 duration-300"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-white/20 bg-zinc-900">
-                      <img 
-                        src={VEHICLES[scrollPhase].imageUrl} 
-                        alt={VEHICLES[scrollPhase].shortName} 
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center pb-0.5">
-                        <span className="text-[8px] font-mono font-black text-amber-400">
-                          0{scrollPhase + 1}/04
+            {/* 📱 VARIANTA B: MOBIL / TABLETĂ (< lg) — CINEMATIC ALTERNATING SLIDE SCROLLYTELLING CARDS */}
+            <div className="lg:hidden w-full overflow-hidden relative max-w-sm sm:max-w-md mx-auto grid grid-cols-1 grid-rows-1 items-end justify-center pointer-events-auto pb-1">
+              {VEHICLES.map((vehicle, index) => {
+                const isCurrent = scrollPhase === index;
+                const isEven = index % 2 === 0;
+
+                // Calcul transformare intrare/ieșire laterală alternată (ba din stânga, ba din dreapta)
+                let slideTransform = '';
+                let opacityScale = '';
+                let pointerEvents = '';
+
+                if (scrollPhase < 0) {
+                  // Înainte de intrarea în faza de scrollytelling
+                  slideTransform = isEven ? '-translate-x-[110%]' : 'translate-x-[110%]';
+                  opacityScale = 'opacity-0 scale-95';
+                  pointerEvents = 'pointer-events-none';
+                } else if (isCurrent) {
+                  // Cardul vehiculului curent activ: centrat, 100% vizibil și interactiv
+                  slideTransform = 'translate-x-0';
+                  opacityScale = 'opacity-100 scale-100';
+                  pointerEvents = 'pointer-events-auto';
+                } else if (scrollPhase < index) {
+                  // Vehicul viitor: așteaptă în lateral pe partea sa dedicată (par = stânga, impar = dreapta)
+                  slideTransform = isEven ? '-translate-x-[110%]' : 'translate-x-[110%]';
+                  opacityScale = 'opacity-0 scale-95';
+                  pointerEvents = 'pointer-events-none';
+                } else {
+                  // Vehicul depășit: a glisat afară pe partea opusă pentru continuitate vizuală
+                  slideTransform = isEven ? 'translate-x-[110%]' : '-translate-x-[110%]';
+                  opacityScale = 'opacity-0 scale-95';
+                  pointerEvents = 'pointer-events-none';
+                }
+
+                const VehicleIcon = vehicle.Icon;
+
+                return (
+                  <div
+                    key={vehicle.id}
+                    onClick={handleExploreDMS}
+                    style={{
+                      transition:
+                        'transform 650ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms ease, scale 650ms cubic-bezier(0.16, 1, 0.3, 1)',
+                      willChange: 'transform, opacity',
+                    }}
+                    className={`col-start-1 row-start-1 w-full bg-[#121215]/95 backdrop-blur-2xl border border-white/20 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex flex-col gap-2.5 active:scale-[0.99] cursor-pointer ${slideTransform} ${opacityScale} ${pointerEvents}`}
+                  >
+                    {/* Header Card: Fază (01/04), Status Badge & Feature Icon */}
+                    <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-mono font-black text-amber-400 text-[10px] bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded-md shrink-0">
+                          0{index + 1} / 04
                         </span>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span
+                            className={`w-2 h-2 rounded-full shrink-0 ${
+                              vehicle.statusColor === 'emerald'
+                                ? 'bg-emerald-400'
+                                : vehicle.statusColor === 'sky'
+                                ? 'bg-sky-400'
+                                : 'bg-amber-400'
+                            } animate-pulse`}
+                          />
+                          <span className="text-[10px] font-semibold text-zinc-300 truncate">
+                            {vehicle.statusBadge}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[9.5px] font-mono text-zinc-400 hidden xs:inline">
+                          {isEven ? 'Flanc Stâng' : 'Flanc Drept'}
+                        </span>
+                        <div className="w-6 h-6 rounded-lg bg-white/[0.06] border border-white/10 flex items-center justify-center">
+                          <VehicleIcon className="w-3.5 h-3.5 text-amber-400" />
+                        </div>
                       </div>
                     </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          VEHICLES[scrollPhase].statusColor === 'emerald' ? 'bg-emerald-400' :
-                          VEHICLES[scrollPhase].statusColor === 'sky' ? 'bg-sky-400' : 'bg-amber-400'
-                        } animate-pulse`} />
-                        <span className="text-[9.5px] text-zinc-400 font-semibold truncate">
-                          {VEHICLES[scrollPhase].statusBadge}
-                        </span>
+
+                    {/* Body Card: Imagine mare + Detalii Tehnice & Preț cu TVA inclus */}
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 border border-white/20 bg-zinc-900 shadow-md">
+                        <img
+                          src={vehicle.imageUrl}
+                          alt={vehicle.shortName}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center pb-1">
+                          <span className="text-[9px] font-mono font-bold text-zinc-300">
+                            ParcOS Live
+                          </span>
+                        </div>
                       </div>
-                      <h4 className="text-xs font-black text-white truncate leading-tight mt-0.5">
-                        {VEHICLES[scrollPhase].shortName}
-                      </h4>
-                      <p className="text-[10.5px] font-mono font-bold text-amber-400 leading-tight">
-                        {VEHICLES[scrollPhase].priceGross}
-                      </p>
+
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-sm font-black text-white leading-tight truncate">
+                          {vehicle.vehicleName}
+                        </h4>
+                        <p className="text-[11px] text-zinc-400 font-medium line-clamp-1 mt-0.5">
+                          {vehicle.trim}
+                        </p>
+                        <div className="mt-1 px-2 py-0.5 rounded-md bg-white/[0.05] border border-white/10 inline-flex items-center gap-1.5 max-w-full">
+                          <span className="text-[10px] font-bold text-amber-300 truncate">
+                            {vehicle.featureTitle}
+                          </span>
+                        </div>
+                        <p className="text-sm sm:text-base font-mono font-black text-amber-400 leading-tight mt-1.5">
+                          {vehicle.priceGross}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Subsol Card: Telemetrie RAR/SPV + Buton Acțiune DMS */}
+                    <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/10">
+                      <div className="min-w-0 text-[10px] text-zinc-400 flex items-center gap-1.5 truncate">
+                        <span className="text-zinc-500 font-medium">
+                          {vehicle.telemetry[0]?.label}:
+                        </span>
+                        <strong className="text-zinc-200 font-bold truncate">
+                          {vehicle.telemetry[0]?.value}
+                        </strong>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleExploreDMS();
+                        }}
+                        className="shrink-0 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black font-black text-xs flex items-center gap-1.5 shadow-lg shadow-amber-500/25 active:scale-95 transition-all"
+                      >
+                        <span>Explorează în DMS</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleExploreDMS();
-                    }}
-                    className="shrink-0 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black font-black text-xs flex items-center gap-1 shadow-lg shadow-amber-500/25 active:scale-95 transition-all"
-                  >
-                    <span>DMS</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
-
-              {/* Indicator Puncte Progres Scrollytelling pe Mobil */}
-              {isSelectionActive && (
-                <div className="flex items-center justify-center gap-2 mt-2">
-                  {VEHICLES.map((_, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        scrollToVehicle(i);
-                      }}
-                      className={`h-1.5 rounded-full transition-all duration-300 ${
-                        scrollPhase === i 
-                          ? 'w-6 bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]' 
-                          : 'w-1.5 bg-white/30 hover:bg-white/50'
-                      }`}
-                      aria-label={`Sari la vehiculul ${i + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
+                );
+              })}
             </div>
           </div>
 
