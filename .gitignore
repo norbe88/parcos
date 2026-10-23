@@ -19,3 +19,4 @@ backups/
 *.sql.gz
 *.dump
 *.original.mp4
+*.bak

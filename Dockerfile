@@ -4,7 +4,7 @@
 # ══════════════════════════════════════════════════════════════════
 
 # ── Stage 1: Build Frontend Assets ──
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 ENV NODE_ENV=development
 WORKDIR /app
@@ -20,7 +20,7 @@ COPY . .
 RUN npm run build
 
 # ── Stage 2: Production Server ──
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 

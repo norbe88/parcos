@@ -1,9 +1,9 @@
 # ══════════════════════════════════════════════════════════════════
 # RXM Automobile — Micro-API Container (Coolify VPS)
-# Node 20 Alpine • Drizzle ORM • Local Disk Media Storage
+# Node 22 Alpine LTS • Drizzle ORM • Local Disk Media Storage
 # ══════════════════════════════════════════════════════════════════
 
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 
