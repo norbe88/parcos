@@ -6,6 +6,9 @@ import {
 } from 'lucide-react';
 import { useTenant } from '../../hooks/useTenant';
 import { getAdminAuthHeaders } from '../../utils/adminAuth';
+import { getSuperAdminHeaders } from '../../utils/superAdminApi';
+import { DealerProfile, SEED_DEALER } from '../../db/seed';
+import { DealerThemePreset } from '../../db/types';
 
 interface SuperAdminOnboardingModalProps {
   isOpen: boolean;
@@ -66,7 +69,7 @@ export const SuperAdminOnboardingModal: React.FC<SuperAdminOnboardingModalProps>
   onClose,
   showToast,
 }) => {
-  const { setTenantId } = useTenant();
+  const { setTenantId, registerTenant, refreshTenantsFromBackend } = useTenant();
 
   const [step, setStep] = useState<number>(1);
   const [isQueryingAnaf, setIsQueryingAnaf] = useState(false);
@@ -112,7 +115,13 @@ export const SuperAdminOnboardingModal: React.FC<SuperAdminOnboardingModalProps>
 
     setIsQueryingAnaf(true);
     try {
-      const res = await fetch(`/api/anaf/${clean}`);
+      const res = await fetch(`/api/anaf/${clean}`, {
+        headers: {
+          'Accept': 'application/json',
+          ...getAdminAuthHeaders(),
+          ...getSuperAdminHeaders(),
+        }
+      });
       if (res.ok) {
         const json = await res.json();
         if (json.success) {
@@ -124,19 +133,19 @@ export const SuperAdminOnboardingModal: React.FC<SuperAdminOnboardingModalProps>
           }
           if (json.phone) setPhone(json.phone);
 
-          // Generare slug implicit din nume dacă lipsește
+          // Generare slug URL-friendly din nume dacă lipsește
           if (!slug && json.name) {
             const autoSlug = json.name
               .toLowerCase()
               .replace(/[^a-z0-9]+/g, '_')
               .replace(/^_+|_+$/g, '')
-              .slice(0, 20);
+              .slice(0, 24);
             setSlug(autoSlug);
             setDomain(`${autoSlug}.ro`);
             setEmail(`contact@${autoSlug}.ro`);
           }
 
-          showToast(`✓ Date preluate din registrul ANAF: ${json.name}`);
+          showToast(`✓ Date preluate din registrul oficial ANAF: ${json.name}`);
         }
       } else {
         showToast('ℹ️ CUI-ul nu a fost găsit în ANAF. Puteți completa manual datele.');
@@ -172,64 +181,72 @@ export const SuperAdminOnboardingModal: React.FC<SuperAdminOnboardingModalProps>
     setIsSubmitting(true);
     try {
       const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9_]/g, '_').trim();
-      const payload = {
+      const enrichedCui = cui.toUpperCase().startsWith('RO') ? cui.toUpperCase() : `RO${cui.trim()}`;
+
+      const newTenantProfile: DealerProfile = {
+        ...SEED_DEALER,
         name,
         slug: cleanSlug,
         domain: domain || `${cleanSlug}.ro`,
         phonePrimary: phone || '0740 000 000',
         phoneSecondary: phone || '',
+        phoneFinance: phone || '0740 000 000',
         whatsappNumber: phone.replace(/\D/g, '') || '40740000000',
+        whatsappFinance: phone.replace(/\D/g, '') || '40740000000',
         email: email || `contact@${domain || `${cleanSlug}.ro`}`,
-        addressStreet: showroomAddress || legalAddress || 'Cluj-Napoca, jud. Cluj',
-        city: city || 'Cluj-Napoca',
-        county: 'Cluj',
-        vatNumber: cui.toUpperCase().startsWith('RO') ? cui.toUpperCase() : `RO${cui}`,
+        address: showroomAddress || legalAddress || 'Cluj-Napoca, jud. Cluj',
+        showroomAddress: showroomAddress || legalAddress || 'Cluj-Napoca, jud. Cluj',
+        legalAddress: legalAddress || showroomAddress || 'Cluj-Napoca, jud. Cluj',
+        cui: enrichedCui,
+        regCom: regCom || '',
+        bankName: 'Banca Transilvania',
+        ibanRon: ibanRon,
         openingHours: 'Luni - Vineri 09:00 - 18:00 | Sâmbătă 10:00 - 14:00',
-        isActive: true,
+        tier: 'starter',
+        status: 'active',
+        maxVehiclesQuota: 25,
+        themePreset: themePreset as DealerThemePreset,
+        features: {
+          ocrCivTalon: Boolean(modules.scannerOcr),
+          fgoInvoicing: false,
+          salesDocsEngine: true,
+          tikTokStudio: true,
+          olxStockSync: Boolean(modules.stockSync),
+          financingCalculator: Boolean(modules.financeCalc),
+          windowStickersQr: Boolean(modules.windowStickers),
+          whatsappLeadsBot: true,
+          autolicitPush: false
+        },
         config: {
           themePreset,
           vatRate: 0.21, // Invariant strict 21%
-          partnerTier: 'FOUNDER_VIP',
-          isVip: true,
-          freeListing: true,
-          freeRelist: true,
-          autoRelist: true,
           bank: {
             name: 'Banca Transilvania',
             warrantyTerm: 'Cont de Garanție',
             reservationTerm: 'Garanție de Rezervare/Participare',
-            ibanRon: ibanRon,
+            ibanRon: ibanRon
           },
           layout: {
-            sectionsOrder: sections.filter((s) => s.enabled).map((s) => s.key),
-          },
-          modules,
-        },
+            sectionsOrder: sections.filter(s => s.enabled).map(s => s.key)
+          }
+        }
       };
 
-      const res = await fetch('/api/dealers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...getAdminAuthHeaders(),
-        },
-        body: JSON.stringify(payload),
-      });
+      // 1. Înrolare în registrul local și sincronizare PostgreSQL SuperAdmin API
+      registerTenant(newTenantProfile);
 
-      if (res.ok) {
-        setTenantId(cleanSlug);
-        setSuccessResult({
-          slug: cleanSlug,
-          domain: payload.domain,
-          name: payload.name,
-        });
-        showToast(`🎉 Showroom-ul ${name} a fost lansat cu succes!`);
-      } else {
-        const errJson = await res.json().catch(() => ({}));
-        showToast(`❌ Eroare la înrolare: ${errJson.error || 'Server error'}`);
-      }
+      // 2. Reîmprospătare dinamică din PostgreSQL
+      await refreshTenantsFromBackend().catch(() => {});
+
+      setTenantId(cleanSlug);
+      setSuccessResult({
+        slug: cleanSlug,
+        domain: newTenantProfile.domain || `${cleanSlug}.ro`,
+        name: newTenantProfile.name,
+      });
+      showToast(`🎉 Showroom-ul ${name} a fost înrolat și lansat cu succes!`);
     } catch (err: any) {
-      showToast(`❌ Eroare rețea: ${err.message}`);
+      showToast(`❌ Eroare la înrolare: ${err.message}`);
     } finally {
       setIsSubmitting(false);
     }

@@ -1,7 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode, useCallback } from 'react';
 import { DealerProfile, SEED_DEALER, TENANT_DEALERS, DEFAULT_TENANT_FEATURES } from '../db/seed';
 import { TenantFeatures, TenantTier, TenantStatus } from '../db/types';
 import { getThemeConfig, ThemeConfig } from '../utils/themePresets';
+import {
+  fetchTenantsFromBackend,
+  saveTenantFeaturesToBackend,
+  saveTenantProfileToBackend,
+  saveTenantStatusToBackend,
+  registerTenantBackend
+} from '../utils/superAdminApi';
 
 export interface TenantInfo {
   id: string;
@@ -24,6 +31,7 @@ export interface TenantContextType {
   setTenantId: (id: string) => void;
   availableTenants: TenantInfo[];
   allTenants: Record<string, DealerProfile>;
+  refreshTenantsFromBackend: () => Promise<void>;
   updateTenantFeatures: (tenantId: string, features: Partial<TenantFeatures>) => void;
   updateTenantStatus: (tenantId: string, status: TenantStatus) => void;
   updateTenantProfile: (tenantId: string, partialProfile: Partial<DealerProfile>) => void;
@@ -204,6 +212,38 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     }
   };
 
+  // Reîmprospătare dinamică a listei de chiriași direct din PostgreSQL via SuperAdmin API
+  const refreshTenantsFromBackend = useCallback(async (): Promise<void> => {
+    try {
+      const backendTenants = await fetchTenantsFromBackend();
+      if (backendTenants && backendTenants.length > 0) {
+        setTenantsMap(prev => {
+          const updated: Record<string, DealerProfile> = { ...prev };
+          backendTenants.forEach(t => {
+            const slug = t.slug || resolveTenantKey(t.name);
+            updated[slug] = {
+              ...(prev[slug] || {}),
+              ...t
+            };
+          });
+          try {
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('parcos_tenants_map', JSON.stringify(updated));
+            }
+          } catch {}
+          return updated;
+        });
+      }
+    } catch (err) {
+      console.warn('⚠️ [TenantContext] Refresh din backend indisponibil (se folosește fallback local):', err);
+    }
+  }, []);
+
+  // Reîmprospătare automată din backend la inițializare
+  useEffect(() => {
+    refreshTenantsFromBackend();
+  }, [refreshTenantsFromBackend]);
+
   // Modificare granulară a feature flags per tenant (SuperAdmin Master Control)
   const updateTenantFeatures = (tId: string, features: Partial<TenantFeatures>) => {
     const resolved = resolveTenantKey(tId);
@@ -224,6 +264,11 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       } catch {}
       return nextMap;
     });
+
+    // Sincronizare asincronă cu PostgreSQL backend
+    saveTenantFeaturesToBackend(resolved, features).catch(err => {
+      console.warn(`[TenantContext] Salvare features în backend pentru ${resolved} eșuată:`, err.message);
+    });
   };
 
   // Modificare stare tenant (Activ / Suspendat / Demo)
@@ -242,6 +287,11 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         }
       } catch {}
       return nextMap;
+    });
+
+    // Sincronizare asincronă cu PostgreSQL backend
+    saveTenantStatusToBackend(resolved, status).catch(err => {
+      console.warn(`[TenantContext] Salvare status în backend pentru ${resolved} eșuată:`, err.message);
     });
   };
 
@@ -266,6 +316,11 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       } catch {}
       return nextMap;
     });
+
+    // Sincronizare asincronă cu PostgreSQL backend
+    saveTenantProfileToBackend(resolved, partialProfile).catch(err => {
+      console.warn(`[TenantContext] Salvare profil în backend pentru ${resolved} eșuată:`, err.message);
+    });
   };
 
   // Înrolare tenant nou de către SuperAdmin
@@ -287,6 +342,11 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         }
       } catch {}
       return nextMap;
+    });
+
+    // Sincronizare asincronă cu PostgreSQL backend
+    registerTenantBackend(enriched).catch(err => {
+      console.warn(`[TenantContext] Înrolare tenant în backend pentru ${slug} eșuată:`, err.message);
     });
   };
 
@@ -405,6 +465,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         setTenantId,
         availableTenants,
         allTenants: tenantsMap,
+        refreshTenantsFromBackend,
         updateTenantFeatures,
         updateTenantStatus,
         updateTenantProfile,
@@ -443,6 +504,7 @@ export const useTenantContext = (): TenantContextType => {
         maxVehiclesQuota: 100
       }],
       allTenants: TENANT_DEALERS,
+      refreshTenantsFromBackend: async () => {},
       updateTenantFeatures: () => {},
       updateTenantStatus: () => {},
       updateTenantProfile: () => {},

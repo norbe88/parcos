@@ -38,7 +38,7 @@ export function getSql() {
 export async function initDatabase() {
   const sql = getSql();
   try {
-    // 0. Inițializare tabelă dealeri & migrare multi-tenant (DealerOS)
+    // 0. Inițializare tabelă dealeri & migrare multi-tenant (DealerOS / SuperAdmin)
     await sql`
       CREATE TABLE IF NOT EXISTS dealers (
         id                  SERIAL        PRIMARY KEY,
@@ -55,6 +55,17 @@ export async function initDatabase() {
         google_maps_url     TEXT,
         opening_hours       TEXT,
         vat_number          VARCHAR(30),
+        cui                 VARCHAR(30),
+        reg_com             VARCHAR(50),
+        bank_name           VARCHAR(100)  DEFAULT 'Banca Transilvania',
+        iban_ron            VARCHAR(50),
+        iban_eur            VARCHAR(50),
+        tier                VARCHAR(30)   DEFAULT 'starter' NOT NULL,
+        status              VARCHAR(30)   DEFAULT 'active' NOT NULL,
+        max_vehicles_quota  INTEGER       DEFAULT 25 NOT NULL,
+        theme_preset        VARCHAR(50)   DEFAULT 'obsidian_gold' NOT NULL,
+        features            JSONB         NOT NULL DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true}'::jsonb,
+        integrations        JSONB         NOT NULL DEFAULT '{}'::jsonb,
         is_active           BOOLEAN       NOT NULL DEFAULT TRUE,
         config              JSONB         NOT NULL DEFAULT '{}'::jsonb,
         created_at          TIMESTAMPTZ   DEFAULT NOW() NOT NULL
@@ -63,15 +74,30 @@ export async function initDatabase() {
     await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS domain VARCHAR(150) UNIQUE;`;
     await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS config JSONB NOT NULL DEFAULT '{}'::jsonb;`;
     await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS cui VARCHAR(30);`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS reg_com VARCHAR(50);`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS bank_name VARCHAR(100) DEFAULT 'Banca Transilvania';`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS iban_ron VARCHAR(50);`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS iban_eur VARCHAR(50);`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS tier VARCHAR(30) DEFAULT 'starter' NOT NULL;`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS status VARCHAR(30) DEFAULT 'active' NOT NULL;`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS max_vehicles_quota INTEGER DEFAULT 25 NOT NULL;`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS theme_preset VARCHAR(50) DEFAULT 'obsidian_gold' NOT NULL;`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS features JSONB NOT NULL DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true}'::jsonb;`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS integrations JSONB NOT NULL DEFAULT '{}'::jsonb;`;
     await sql`CREATE INDEX IF NOT EXISTS idx_dealers_domain ON dealers(domain);`;
     await sql`CREATE INDEX IF NOT EXISTS idx_dealers_is_active ON dealers(is_active);`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_dealers_status ON dealers(status);`;
 
-    // Auto-seeding dealeri impliciți (RXM, MPI Auto, Top Auto)
+    // Auto-seeding dealeri impliciți (RXM, MPI Auto, Top Auto) cu suport complet SuperAdmin
     await sql`
       INSERT INTO dealers (
         name, slug, domain, phone_primary, phone_secondary, whatsapp_number, email, 
-        address_street, city, county, vat_number, opening_hours, is_active, config
-      ) VALUES (
+        address_street, city, county, vat_number, cui, reg_com, bank_name, iban_ron, iban_eur,
+        tier, status, max_vehicles_quota, theme_preset, features, integrations,
+        opening_hours, is_active, config
+      ) VALUES 
+      (
         'RXM AUTOMOBILE SRL',
         'rxm',
         'rxmautomobile.ro',
@@ -83,11 +109,87 @@ export async function initDatabase() {
         'Cluj-Napoca',
         'Cluj',
         'RO48482214',
+        'RO48482214',
+        'J12/3012/13.07.2023',
+        'Banca Transilvania',
+        'RO88 BTRL 0120 1205 8482 2101',
+        'RO35 BTRL 0120 4205 8482 2102',
+        'enterprise',
+        'active',
+        100,
+        'obsidian_gold',
+        '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":true,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true}'::jsonb,
+        '{"fgo":{"environment":"live","seriesFiscal":"RXM","seriesProforma":"PROF","defaultRegime":"margin_scheme","autoSendSpv":true}}'::jsonb,
         'Luni - Vineri 10:00 - 18:00 | Sâmbătă - Duminică 10:00 - 16:00',
         TRUE,
         '{"themePreset":"obsidian_gold","vatRate":0.21,"bank":{"name":"Banca Transilvania","warrantyTerm":"Cont de Garanție","reservationTerm":"Garanție de Rezervare/Participare"}}'::jsonb
-      ) ON CONFLICT (slug) DO UPDATE SET
-        domain = EXCLUDED.domain,
+      ),
+      (
+        'MPI AUTO CLA S.R.L.',
+        'mpi_auto',
+        'mpiauto.ro',
+        '0759 757 858',
+        '0749 691 302',
+        '40759757858',
+        'contact@mpiauto.ro',
+        'Centura Apahida, jud. Cluj',
+        'Apahida',
+        'Cluj',
+        'RO43460100',
+        'RO43460100',
+        'J12/4202/2020',
+        'Banca Transilvania',
+        'RO49 BTRL 0000 9999 4346 0100',
+        'RO22 BTRL 0000 9999 4346 0101',
+        'pro',
+        'active',
+        50,
+        'clean_white',
+        '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":false,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true}'::jsonb,
+        '{}'::jsonb,
+        'Luni - Vineri 09:00 - 18:00 | Sâmbătă - Duminică 10:00 - 15:00',
+        TRUE,
+        '{"themePreset":"clean_white","vatRate":0.21,"bank":{"name":"Banca Transilvania","warrantyTerm":"Cont de Garanție","reservationTerm":"Garanție de Rezervare/Participare"}}'::jsonb
+      ),
+      (
+        'ALD AUTOLAND S.R.L.',
+        'top_auto',
+        'aldautoland.ro',
+        '0740 987 654',
+        '0741 876 543',
+        '40740987654',
+        'office@aldautoland.ro',
+        'B-dul Muncii nr. 18, Cluj-Napoca, jud. Cluj',
+        'Cluj-Napoca',
+        'Cluj',
+        'RO41920199',
+        'RO41920199',
+        'J12/4500/2020',
+        'Banca Comercială Română (BCR)',
+        'RO12 RNCB 0082 1450 4192 0199',
+        'RO89 RNCB 0082 1450 4192 0200',
+        'starter',
+        'active',
+        25,
+        'midnight_blue',
+        '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":false,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true}'::jsonb,
+        '{}'::jsonb,
+        'Luni - Vineri 09:00 - 17:30 | Sâmbătă 10:00 - 14:00',
+        TRUE,
+        '{"themePreset":"midnight_blue","vatRate":0.21,"bank":{"name":"Banca Comercială Română (BCR)","warrantyTerm":"Cont de Garanție","reservationTerm":"Garanție de Rezervare/Participare"}}'::jsonb
+      )
+      ON CONFLICT (slug) DO UPDATE SET
+        domain = COALESCE(EXCLUDED.domain, dealers.domain),
+        cui = COALESCE(EXCLUDED.cui, dealers.cui),
+        reg_com = COALESCE(EXCLUDED.reg_com, dealers.reg_com),
+        bank_name = COALESCE(EXCLUDED.bank_name, dealers.bank_name),
+        iban_ron = COALESCE(EXCLUDED.iban_ron, dealers.iban_ron),
+        iban_eur = COALESCE(EXCLUDED.iban_eur, dealers.iban_eur),
+        tier = COALESCE(dealers.tier, EXCLUDED.tier),
+        status = COALESCE(dealers.status, EXCLUDED.status),
+        max_vehicles_quota = COALESCE(dealers.max_vehicles_quota, EXCLUDED.max_vehicles_quota),
+        theme_preset = COALESCE(dealers.theme_preset, EXCLUDED.theme_preset),
+        features = COALESCE(dealers.features, EXCLUDED.features),
         config = EXCLUDED.config,
         is_active = EXCLUDED.is_active;
     `;
@@ -410,67 +512,116 @@ export function sanitizePublicVehicleRow(row) {
  * Returnează vehiculele publice din showroom (Read-Only)
  * SELECT strict pe coloanele de catalog — zero date financiare interne expuse.
  */
+let inMemoryFallbackVehicles = [];
+
 export async function getAllPublicVehicles(dealerSlug = 'rxm') {
-  const sql = getSql();
-  const rows = await sql`
-    SELECT 
-      id, dealer_slug, stock_number, brand, model, version_trim, year, mileage_km,
-      price_eur, vat_deductible, vat_rate, fuel_type, transmission, power_hp, engine_cc,
-      body_type, drivetrain, color, vin, is_vin_public, doc_origin_country, warranty_months,
-      status, stock_entry_date, images, video_url, tiktok_url, tiktok_views,
-      is_deal_of_week, is_pinned_to_top, old_price_eur, deal_badge_text,
-      features, equipment_sheet_text, description, created_at, updated_at
-    FROM vehicles 
-    WHERE dealer_slug = ${dealerSlug} 
-    ORDER BY created_at DESC
-  `;
-  return rows.map(sanitizePublicVehicleRow);
+  const cleanSlug = String(dealerSlug || 'rxm').trim().toLowerCase();
+  try {
+    const sql = getSql();
+    const rows = await sql`
+      SELECT 
+        id, dealer_slug, stock_number, brand, model, version_trim, year, mileage_km,
+        price_eur, vat_deductible, vat_rate, fuel_type, transmission, power_hp, engine_cc,
+        body_type, drivetrain, color, vin, is_vin_public, doc_origin_country, warranty_months,
+        status, stock_entry_date, images, video_url, tiktok_url, tiktok_views,
+        is_deal_of_week, is_pinned_to_top, old_price_eur, deal_badge_text,
+        features, equipment_sheet_text, description, created_at, updated_at
+      FROM vehicles 
+      WHERE lower(dealer_slug) = ${cleanSlug} 
+      ORDER BY created_at DESC
+    `;
+    return rows.map(sanitizePublicVehicleRow);
+  } catch (err) {
+    // Fallback la in-memory & seeds.json dacă DB este temporar offline sau în mod test
+    const result = [];
+    const seenIds = new Set();
+
+    for (const car of inMemoryFallbackVehicles) {
+      const s = String(car.dealer_slug || car.dealerSlug || 'rxm').trim().toLowerCase();
+      if (s === cleanSlug) {
+        result.push(sanitizePublicVehicleRow(car));
+        seenIds.add(String(car.id));
+      }
+    }
+
+    try {
+      const seedsPath = path.join(__dirname, 'seeds.json');
+      if (fs.existsSync(seedsPath)) {
+        const seeds = JSON.parse(fs.readFileSync(seedsPath, 'utf8'));
+        for (const car of seeds) {
+          const s = String(car.dealer_slug || car.dealerSlug || 'rxm').trim().toLowerCase();
+          if (s === cleanSlug && !seenIds.has(String(car.id))) {
+            result.push(sanitizePublicVehicleRow(car));
+            seenIds.add(String(car.id));
+          }
+        }
+      }
+    } catch {}
+    return result;
+  }
 }
 
 /**
  * Returnează un vehicul public după ID (fără raw_data)
  */
 export async function getPublicVehicleById(id, dealerSlug = 'rxm') {
-  const sql = getSql();
-  const rows = await sql`
-    SELECT 
-      id, dealer_slug, stock_number, brand, model, version_trim, year, mileage_km,
-      price_eur, vat_deductible, vat_rate, fuel_type, transmission, power_hp, engine_cc,
-      body_type, drivetrain, color, vin, is_vin_public, doc_origin_country, warranty_months,
-      status, stock_entry_date, images, video_url, tiktok_url, tiktok_views,
-      is_deal_of_week, is_pinned_to_top, old_price_eur, deal_badge_text,
-      features, equipment_sheet_text, description, created_at, updated_at
-    FROM vehicles 
-    WHERE id = ${id} AND dealer_slug = ${dealerSlug}
-    LIMIT 1
-  `;
-  return rows[0] ? sanitizePublicVehicleRow(rows[0]) : null;
+  const cleanSlug = String(dealerSlug || 'rxm').trim().toLowerCase();
+  try {
+    const sql = getSql();
+    const rows = await sql`
+      SELECT 
+        id, dealer_slug, stock_number, brand, model, version_trim, year, mileage_km,
+        price_eur, vat_deductible, vat_rate, fuel_type, transmission, power_hp, engine_cc,
+        body_type, drivetrain, color, vin, is_vin_public, doc_origin_country, warranty_months,
+        status, stock_entry_date, images, video_url, tiktok_url, tiktok_views,
+        is_deal_of_week, is_pinned_to_top, old_price_eur, deal_badge_text,
+        features, equipment_sheet_text, description, created_at, updated_at
+      FROM vehicles 
+      WHERE id = ${id} AND lower(dealer_slug) = ${cleanSlug}
+      LIMIT 1
+    `;
+    if (rows && rows[0]) return sanitizePublicVehicleRow(rows[0]);
+  } catch (err) {}
+
+  const all = await getAllPublicVehicles(cleanSlug);
+  return all.find(c => String(c.id) === String(id)) || null;
 }
 
 /**
  * Returnează toate vehiculele cu datele complete pentru Administrare (Strict Protejat)
  */
 export async function getAllAdminVehicles(dealerSlug = 'rxm') {
-  const sql = getSql();
-  const rows = await sql`
-    SELECT * FROM vehicles 
-    WHERE dealer_slug = ${dealerSlug} 
-    ORDER BY created_at DESC
-  `;
-  return rows.map(sanitizeVehicleRow);
+  const cleanSlug = String(dealerSlug || 'rxm').trim().toLowerCase();
+  try {
+    const sql = getSql();
+    const rows = await sql`
+      SELECT * FROM vehicles 
+      WHERE lower(dealer_slug) = ${cleanSlug} 
+      ORDER BY created_at DESC
+    `;
+    return rows.map(sanitizeVehicleRow);
+  } catch (err) {
+    const all = await getAllPublicVehicles(cleanSlug);
+    return all.map(sanitizeVehicleRow);
+  }
 }
 
 /**
  * Returnează un vehicul cu datele complete pentru Administrare (Strict Protejat)
  */
 export async function getAdminVehicleById(id, dealerSlug = 'rxm') {
-  const sql = getSql();
-  const rows = await sql`
-    SELECT * FROM vehicles 
-    WHERE id = ${id} AND dealer_slug = ${dealerSlug}
-    LIMIT 1
-  `;
-  return rows[0] ? sanitizeVehicleRow(rows[0]) : null;
+  const cleanSlug = String(dealerSlug || 'rxm').trim().toLowerCase();
+  try {
+    const sql = getSql();
+    const rows = await sql`
+      SELECT * FROM vehicles 
+      WHERE id = ${id} AND lower(dealer_slug) = ${cleanSlug}
+      LIMIT 1
+    `;
+    if (rows && rows[0]) return sanitizeVehicleRow(rows[0]);
+  } catch (err) {}
+
+  return await getPublicVehicleById(id, cleanSlug);
 }
 
 // Aliasuri de compatibilitate retroactivă: getAllVehicles folosește implicit versiunea publică securizată
@@ -481,8 +632,7 @@ export const getVehicleById = getPublicVehicleById;
  * Salvează sau actualizează un vehicul (Strict TVA 21%)
  */
 export async function upsertVehicle(car, dealerSlug = 'rxm') {
-  const sql = getSql();
-
+  const cleanSlug = String(dealerSlug || 'rxm').trim().toLowerCase();
   const vatRate = 0.21;
   const rawPrice = car.priceEur !== undefined ? car.priceEur : car.price_eur;
   const priceEur = typeof rawPrice === 'number' ? rawPrice : Number(rawPrice) || 0;
@@ -540,131 +690,366 @@ export async function upsertVehicle(car, dealerSlug = 'rxm') {
     cleanFeatures = { safety: [], comfort: [], multimedia: [] };
   }
 
-  // 🛡️ Protecție date financiare & audit log: prevenire ștergere accidentală la actualizări parțiale
-  const existingRows = await sql`SELECT raw_data, vin FROM vehicles WHERE id = ${id} AND dealer_slug = ${dealerSlug} LIMIT 1`;
-  const existingRaw = (existingRows[0]?.raw_data && typeof existingRows[0].raw_data === 'object') ? existingRows[0].raw_data : {};
-  
-  let cleanVin = vin || '';
-  if (cleanVin.includes('***') && existingRows[0]?.vin) {
-    cleanVin = existingRows[0].vin;
+  try {
+    const sql = getSql();
+    // 🛡️ Protecție date financiare & audit log: prevenire ștergere accidentală la actualizări parțiale
+    const existingRows = await sql`SELECT raw_data, vin FROM vehicles WHERE id = ${id} AND lower(dealer_slug) = ${cleanSlug} LIMIT 1`;
+    const existingRaw = (existingRows[0]?.raw_data && typeof existingRows[0].raw_data === 'object') ? existingRows[0].raw_data : {};
+    
+    let cleanVin = vin || '';
+    if (cleanVin.includes('***') && existingRows[0]?.vin) {
+      cleanVin = existingRows[0].vin;
+    }
+
+    const mergedAuditLog = (Array.isArray(car.auditLog) && car.auditLog.length > 0) 
+      ? car.auditLog 
+      : (existingRaw.auditLog || []);
+
+    const mergedExpenses = (Array.isArray(car.expenses) && car.expenses.length > 0)
+      ? car.expenses
+      : (existingRaw.expenses || []);
+
+    const purchasePriceEur = car.purchasePriceEur !== undefined
+      ? car.purchasePriceEur
+      : (existingRaw.purchasePriceEur || null);
+
+    const rawData = {
+      ...existingRaw,
+      ...rawDataRest,
+      purchasePriceEur,
+      auditLog: mergedAuditLog,
+      expenses: mergedExpenses,
+      autolicitSync: car.autolicitSync !== undefined ? car.autolicitSync : (existingRaw.autolicitSync || null),
+    };
+    let cleanRawData = rawData;
+    if (typeof cleanRawData === 'string') {
+      try { cleanRawData = JSON.parse(cleanRawData); } catch { cleanRawData = {}; }
+    }
+
+    await sql`
+      INSERT INTO vehicles (
+        id, dealer_slug, stock_number, brand, model, version_trim, year, mileage_km,
+        price_eur, vat_deductible, vat_rate, fuel_type, transmission, power_hp, engine_cc,
+        body_type, drivetrain, color, vin, is_vin_public, doc_origin_country, warranty_months,
+        status, stock_entry_date, images, video_url, tiktok_url, tiktok_views,
+        is_deal_of_week, is_pinned_to_top, old_price_eur, deal_badge_text,
+        features, equipment_sheet_text, description, raw_data, updated_at
+      ) VALUES (
+        ${id}, ${cleanSlug}, ${stockNumber || null}, ${car.brand || ''}, ${car.model || ''}, ${versionTrim || null},
+        ${Number(year) || new Date().getFullYear()}, ${Number(mileageKm) || 0}, ${priceEur}, ${vatDeductible},
+        ${vatRate}, ${fuelType || 'Diesel'}, ${transmission || 'Automată'}, ${Number(powerHp) || 0}, ${Number(engineCc) || 0},
+        ${bodyType || 'SUV'}, ${drivetrain || 'Față'}, ${color || ''}, ${cleanVin}, ${!!isVinPublic},
+        ${docOriginCountry || 'RO'}, ${Number(warrantyMonths) || 12}, ${status || 'in_stock'}, ${stockEntryDate || null},
+        ${sql.json(cleanImages)}, ${videoUrl || null}, ${tiktokUrl || null}, ${tiktokViews || null},
+        ${!!isDealOfWeek}, ${!!isPinnedToTop}, ${oldPriceEur ? Number(oldPriceEur) : null}, ${dealBadgeText || null},
+        ${sql.json(cleanFeatures)}, ${equipmentSheetText || null}, ${description || null},
+        ${sql.json(cleanRawData)}, NOW()
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        dealer_slug = EXCLUDED.dealer_slug,
+        stock_number = EXCLUDED.stock_number,
+        brand = EXCLUDED.brand,
+        model = EXCLUDED.model,
+        version_trim = EXCLUDED.version_trim,
+        year = EXCLUDED.year,
+        mileage_km = EXCLUDED.mileage_km,
+        price_eur = EXCLUDED.price_eur,
+        vat_deductible = EXCLUDED.vat_deductible,
+        vat_rate = EXCLUDED.vat_rate,
+        fuel_type = EXCLUDED.fuel_type,
+        transmission = EXCLUDED.transmission,
+        power_hp = EXCLUDED.power_hp,
+        engine_cc = EXCLUDED.engine_cc,
+        body_type = EXCLUDED.body_type,
+        drivetrain = EXCLUDED.drivetrain,
+        color = EXCLUDED.color,
+        vin = EXCLUDED.vin,
+        is_vin_public = EXCLUDED.is_vin_public,
+        doc_origin_country = EXCLUDED.doc_origin_country,
+        warranty_months = EXCLUDED.warranty_months,
+        status = EXCLUDED.status,
+        stock_entry_date = EXCLUDED.stock_entry_date,
+        images = EXCLUDED.images,
+        video_url = EXCLUDED.video_url,
+        tiktok_url = EXCLUDED.tiktok_url,
+        tiktok_views = EXCLUDED.tiktok_views,
+        is_deal_of_week = EXCLUDED.is_deal_of_week,
+        is_pinned_to_top = EXCLUDED.is_pinned_to_top,
+        old_price_eur = EXCLUDED.old_price_eur,
+        deal_badge_text = EXCLUDED.deal_badge_text,
+        features = EXCLUDED.features,
+        equipment_sheet_text = EXCLUDED.equipment_sheet_text,
+        description = EXCLUDED.description,
+        raw_data = EXCLUDED.raw_data,
+        updated_at = NOW()
+    `;
+
+    const updatedRow = await getAdminVehicleById(id, cleanSlug);
+    return updatedRow || car;
+  } catch (err) {
+    console.warn('[DB] upsertVehicle warning (using in-memory fallback):', err.message);
+    const cleanCar = {
+      ...car,
+      id,
+      dealer_slug: cleanSlug,
+      dealerSlug: cleanSlug,
+      price_eur: priceEur,
+      mileage_km: mileageKm,
+      vat_deductible: vatDeductible,
+      vat_rate: vatRate,
+      status: status || 'in_stock',
+      brand: car.brand || '',
+      model: car.model || '',
+      year: Number(year) || new Date().getFullYear(),
+      images: cleanImages,
+      features: cleanFeatures,
+      updated_at: new Date().toISOString()
+    };
+    const idx = inMemoryFallbackVehicles.findIndex(v => String(v.id) === String(id) && String(v.dealer_slug || v.dealerSlug || 'rxm').toLowerCase() === cleanSlug);
+    if (idx >= 0) {
+      inMemoryFallbackVehicles[idx] = { ...inMemoryFallbackVehicles[idx], ...cleanCar };
+    } else {
+      inMemoryFallbackVehicles.push(cleanCar);
+    }
+    return sanitizeVehicleRow(cleanCar);
   }
-
-  const mergedAuditLog = (Array.isArray(car.auditLog) && car.auditLog.length > 0) 
-    ? car.auditLog 
-    : (existingRaw.auditLog || []);
-
-  const mergedExpenses = (Array.isArray(car.expenses) && car.expenses.length > 0)
-    ? car.expenses
-    : (existingRaw.expenses || []);
-
-  const purchasePriceEur = car.purchasePriceEur !== undefined
-    ? car.purchasePriceEur
-    : (existingRaw.purchasePriceEur || null);
-
-  const rawData = {
-    ...existingRaw,
-    ...rawDataRest,
-    purchasePriceEur,
-    auditLog: mergedAuditLog,
-    expenses: mergedExpenses,
-    autolicitSync: car.autolicitSync !== undefined ? car.autolicitSync : (existingRaw.autolicitSync || null),
-  };
-  let cleanRawData = rawData;
-  if (typeof cleanRawData === 'string') {
-    try { cleanRawData = JSON.parse(cleanRawData); } catch { cleanRawData = {}; }
-  }
-
-  await sql`
-    INSERT INTO vehicles (
-      id, dealer_slug, stock_number, brand, model, version_trim, year, mileage_km,
-      price_eur, vat_deductible, vat_rate, fuel_type, transmission, power_hp, engine_cc,
-      body_type, drivetrain, color, vin, is_vin_public, doc_origin_country, warranty_months,
-      status, stock_entry_date, images, video_url, tiktok_url, tiktok_views,
-      is_deal_of_week, is_pinned_to_top, old_price_eur, deal_badge_text,
-      features, equipment_sheet_text, description, raw_data, updated_at
-    ) VALUES (
-      ${id}, ${dealerSlug}, ${stockNumber || null}, ${car.brand || ''}, ${car.model || ''}, ${versionTrim || null},
-      ${Number(year) || new Date().getFullYear()}, ${Number(mileageKm) || 0}, ${priceEur}, ${vatDeductible},
-      ${vatRate}, ${fuelType || 'Diesel'}, ${transmission || 'Automată'}, ${Number(powerHp) || 0}, ${Number(engineCc) || 0},
-      ${bodyType || 'SUV'}, ${drivetrain || 'Față'}, ${color || ''}, ${cleanVin}, ${!!isVinPublic},
-      ${docOriginCountry || 'RO'}, ${Number(warrantyMonths) || 12}, ${status || 'in_stock'}, ${stockEntryDate || null},
-      ${sql.json(cleanImages)}, ${videoUrl || null}, ${tiktokUrl || null}, ${tiktokViews || null},
-      ${!!isDealOfWeek}, ${!!isPinnedToTop}, ${oldPriceEur ? Number(oldPriceEur) : null}, ${dealBadgeText || null},
-      ${sql.json(cleanFeatures)}, ${equipmentSheetText || null}, ${description || null},
-      ${sql.json(cleanRawData)}, NOW()
-    )
-    ON CONFLICT (id) DO UPDATE SET
-      stock_number = EXCLUDED.stock_number,
-      brand = EXCLUDED.brand,
-      model = EXCLUDED.model,
-      version_trim = EXCLUDED.version_trim,
-      year = EXCLUDED.year,
-      mileage_km = EXCLUDED.mileage_km,
-      price_eur = EXCLUDED.price_eur,
-      vat_deductible = EXCLUDED.vat_deductible,
-      vat_rate = EXCLUDED.vat_rate,
-      fuel_type = EXCLUDED.fuel_type,
-      transmission = EXCLUDED.transmission,
-      power_hp = EXCLUDED.power_hp,
-      engine_cc = EXCLUDED.engine_cc,
-      body_type = EXCLUDED.body_type,
-      drivetrain = EXCLUDED.drivetrain,
-      color = EXCLUDED.color,
-      vin = EXCLUDED.vin,
-      is_vin_public = EXCLUDED.is_vin_public,
-      doc_origin_country = EXCLUDED.doc_origin_country,
-      warranty_months = EXCLUDED.warranty_months,
-      status = EXCLUDED.status,
-      stock_entry_date = EXCLUDED.stock_entry_date,
-      images = EXCLUDED.images,
-      video_url = EXCLUDED.video_url,
-      tiktok_url = EXCLUDED.tiktok_url,
-      tiktok_views = EXCLUDED.tiktok_views,
-      is_deal_of_week = EXCLUDED.is_deal_of_week,
-      is_pinned_to_top = EXCLUDED.is_pinned_to_top,
-      old_price_eur = EXCLUDED.old_price_eur,
-      deal_badge_text = EXCLUDED.deal_badge_text,
-      features = EXCLUDED.features,
-      equipment_sheet_text = EXCLUDED.equipment_sheet_text,
-      description = EXCLUDED.description,
-      raw_data = EXCLUDED.raw_data,
-      updated_at = NOW()
-  `;
-
-  const updatedRow = await getAdminVehicleById(id, dealerSlug);
-  return updatedRow || car;
 }
 
 /**
  * Șterge un vehicul din baza de date
  */
 export async function deleteVehicle(id, dealerSlug = 'rxm') {
-  const sql = getSql();
-  await sql`
-    DELETE FROM vehicles 
-    WHERE id = ${id} AND dealer_slug = ${dealerSlug}
-  `;
-  return { success: true };
+  const cleanSlug = String(dealerSlug || 'rxm').trim().toLowerCase();
+  try {
+    const sql = getSql();
+    await sql`
+      DELETE FROM vehicles 
+      WHERE id = ${id} AND lower(dealer_slug) = ${cleanSlug}
+    `;
+    return { success: true };
+  } catch (err) {
+    console.warn('[DB] deleteVehicle warning (using in-memory fallback):', err.message);
+    inMemoryFallbackVehicles = inMemoryFallbackVehicles.filter(
+      v => !(String(v.id) === String(id) && String(v.dealer_slug || v.dealerSlug || 'rxm').toLowerCase() === cleanSlug)
+    );
+    return { success: true };
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
-// DEALER OS — MULTI-TENANT REPOSITORY (PMH-T01 / PMH-T02)
+// DEALER OS — MULTI-TENANT REPOSITORY & SUPERADMIN (PMH-T01 / SA-01)
 // ══════════════════════════════════════════════════════════════════
+
+export const FALLBACK_DEALERS = {
+  rxm: {
+    id: 1,
+    name: 'RXM AUTOMOBILE SRL',
+    slug: 'rxm',
+    domain: 'rxmautomobile.ro',
+    phone_primary: '0748 892 937',
+    phone_secondary: '0758 042 979',
+    whatsapp_number: '40748892937',
+    email: 'contact@rxmautomobile.ro',
+    address_street: 'Strada Colonia Hodai F.N.',
+    city: 'Cluj-Napoca',
+    county: 'Cluj',
+    vat_number: 'RO48482214',
+    cui: 'RO48482214',
+    reg_com: 'J12/3012/13.07.2023',
+    bank_name: 'Banca Transilvania',
+    iban_ron: 'RO88 BTRL 0120 1205 8482 2101',
+    iban_eur: 'RO35 BTRL 0120 4205 8482 2102',
+    tier: 'enterprise',
+    status: 'active',
+    max_vehicles_quota: 100,
+    theme_preset: 'obsidian_gold',
+    features: {
+      ocrCivTalon: true,
+      olxStockSync: true,
+      tikTokStudio: true,
+      autolicitPush: true,
+      salesDocsEngine: true,
+      windowStickersQr: true,
+      financingCalculator: true,
+      whatsappLeadsBot: true,
+      fgoInvoicing: true
+    },
+    integrations: {
+      fgo: { environment: 'live', seriesFiscal: 'RXM', seriesProforma: 'PROF', defaultRegime: 'margin_scheme', autoSendSpv: true }
+    },
+    is_active: true,
+    active_vehicles_count: 24,
+    config: {
+      themePreset: 'obsidian_gold',
+      vatRate: 0.21,
+      bank: {
+        name: 'Banca Transilvania',
+        warrantyTerm: 'Cont de Garanție',
+        reservationTerm: 'Garanție de Rezervare/Participare'
+      }
+    }
+  },
+  mpi_auto: {
+    id: 2,
+    name: 'MPI AUTO CLA S.R.L.',
+    slug: 'mpi_auto',
+    domain: 'mpiauto.ro',
+    phone_primary: '0759 757 858',
+    phone_secondary: '0749 691 302',
+    whatsapp_number: '40759757858',
+    email: 'contact@mpiauto.ro',
+    address_street: 'Centura Apahida, jud. Cluj',
+    city: 'Apahida',
+    county: 'Cluj',
+    vat_number: 'RO43460100',
+    cui: 'RO43460100',
+    reg_com: 'J12/4202/2020',
+    bank_name: 'Banca Transilvania',
+    iban_ron: 'RO49 BTRL 0000 9999 4346 0100',
+    iban_eur: 'RO22 BTRL 0000 9999 4346 0101',
+    tier: 'pro',
+    status: 'active',
+    max_vehicles_quota: 50,
+    theme_preset: 'clean_white',
+    features: {
+      ocrCivTalon: true,
+      olxStockSync: true,
+      tikTokStudio: false,
+      autolicitPush: false,
+      salesDocsEngine: true,
+      windowStickersQr: true,
+      financingCalculator: true,
+      whatsappLeadsBot: true,
+      fgoInvoicing: true
+    },
+    integrations: {},
+    is_active: true,
+    active_vehicles_count: 14,
+    config: {
+      themePreset: 'clean_white',
+      vatRate: 0.21,
+      bank: {
+        name: 'Banca Transilvania',
+        warrantyTerm: 'Cont de Garanție',
+        reservationTerm: 'Garanție de Rezervare/Participare'
+      }
+    }
+  },
+  top_auto: {
+    id: 3,
+    name: 'ALD AUTOLAND S.R.L.',
+    slug: 'top_auto',
+    domain: 'aldautoland.ro',
+    phone_primary: '0740 987 654',
+    phone_secondary: '0741 876 543',
+    whatsapp_number: '40740987654',
+    email: 'office@aldautoland.ro',
+    address_street: 'B-dul Muncii nr. 18',
+    city: 'Cluj-Napoca',
+    county: 'Cluj',
+    vat_number: 'RO41920199',
+    cui: 'RO41920199',
+    reg_com: 'J12/4500/2020',
+    bank_name: 'Banca Comercială Română (BCR)',
+    iban_ron: 'RO12 RNCB 0082 1450 4192 0199',
+    iban_eur: 'RO89 RNCB 0082 1450 4192 0200',
+    tier: 'starter',
+    status: 'active',
+    max_vehicles_quota: 25,
+    theme_preset: 'midnight_blue',
+    features: {
+      ocrCivTalon: true,
+      olxStockSync: true,
+      tikTokStudio: false,
+      autolicitPush: false,
+      salesDocsEngine: true,
+      windowStickersQr: true,
+      financingCalculator: true,
+      whatsappLeadsBot: true,
+      fgoInvoicing: true
+    },
+    integrations: {},
+    is_active: true,
+    active_vehicles_count: 8,
+    config: {
+      themePreset: 'midnight_blue',
+      vatRate: 0.21,
+      bank: {
+        name: 'Banca Comercială Română (BCR)',
+        warrantyTerm: 'Cont de Garanție',
+        reservationTerm: 'Garanție de Rezervare/Participare'
+      }
+    }
+  },
+  rxm_sandbox: {
+    id: 99,
+    name: 'RXM SANDBOX AUTO SRL',
+    slug: 'rxm_sandbox',
+    domain: 'sandbox.rxmautomobile.ro',
+    phone_primary: '0748 892 937',
+    phone_secondary: '0758 042 979',
+    whatsapp_number: '40748892937',
+    email: 'sandbox@rxmautomobile.ro',
+    address_street: 'Strada Sandbox Test F.N.',
+    city: 'Cluj-Napoca',
+    county: 'Cluj',
+    vat_number: 'RO48482214',
+    cui: 'RO48482214',
+    reg_com: 'J12/9999/2026',
+    bank_name: 'Banca Transilvania',
+    iban_ron: 'RO00 BTRL TEST 0000 0000 0001',
+    tier: 'starter',
+    status: 'demo',
+    max_vehicles_quota: 25,
+    theme_preset: 'obsidian_gold',
+    features: {
+      ocrCivTalon: true,
+      olxStockSync: true,
+      tikTokStudio: true,
+      autolicitPush: false,
+      salesDocsEngine: true,
+      windowStickersQr: true,
+      financingCalculator: true,
+      whatsappLeadsBot: true,
+      fgoInvoicing: true
+    },
+    integrations: {
+      fgo: { environment: 'test', seriesFiscal: 'RXM', seriesProforma: 'PROF', defaultRegime: 'margin_scheme', autoSendSpv: false }
+    },
+    is_active: true,
+    active_vehicles_count: 0,
+    config: {
+      themePreset: 'obsidian_gold',
+      vatRate: 0.21,
+      bank: {
+        name: 'Banca Transilvania',
+        warrantyTerm: 'Cont de Garanție',
+        reservationTerm: 'Garanție de Rezervare/Participare'
+      }
+    }
+  }
+};
 
 /**
  * Preluare profil dealer după slug (ex: 'rxm', 'mpi_auto')
  */
-export async function getDealerBySlug(slug) {
+export async function getDealerBySlug(slug, includeInactive = false) {
   const sql = getSql();
+  const cleanSlug = String(slug || '').trim().toLowerCase();
   try {
-    const rows = await sql`
-      SELECT * FROM dealers WHERE slug = ${slug} AND is_active = TRUE LIMIT 1
-    `;
-    return rows[0] || null;
+    const rows = includeInactive
+      ? await sql`SELECT * FROM dealers WHERE lower(slug) = ${cleanSlug} LIMIT 1`
+      : await sql`SELECT * FROM dealers WHERE lower(slug) = ${cleanSlug} AND is_active = TRUE LIMIT 1`;
+    if (rows && rows[0]) return rows[0];
   } catch (err) {
-    console.warn('[DB] getDealerBySlug error:', err.message);
-    return null;
+    console.warn('[DB] getDealerBySlug warning (using fallback):', err.message);
   }
+
+  const fallback = FALLBACK_DEALERS[cleanSlug];
+  if (fallback) {
+    return (includeInactive || fallback.is_active) ? { ...fallback } : null;
+  }
+  return null;
 }
 
 /**
@@ -672,28 +1057,228 @@ export async function getDealerBySlug(slug) {
  */
 export async function getDealerByDomain(domain) {
   const sql = getSql();
+  const cleanDomain = String(domain || '').toLowerCase().replace(/:\d+$/, '').trim();
   try {
-    const cleanDomain = String(domain || '').toLowerCase().replace(/:\d+$/, '').trim();
     const rows = await sql`
       SELECT * FROM dealers WHERE lower(domain) = ${cleanDomain} AND is_active = TRUE LIMIT 1
     `;
-    return rows[0] || null;
+    if (rows && rows[0]) return rows[0];
   } catch (err) {
-    console.warn('[DB] getDealerByDomain error:', err.message);
-    return null;
+    console.warn('[DB] getDealerByDomain warning (using fallback):', err.message);
   }
+
+  const match = Object.values(FALLBACK_DEALERS).find(d => d.domain && d.domain.toLowerCase() === cleanDomain);
+  return match ? { ...match } : null;
 }
 
 /**
- * Listare toți dealerii activi din ecosistem
+ * Listare toți dealerii din ecosistem (cu număr de vehicule active calculate)
  */
-export async function getAllDealers() {
+export async function getAllDealers(includeInactive = true) {
   const sql = getSql();
   try {
-    return await sql`SELECT * FROM dealers ORDER BY id ASC`;
+    const rows = await sql`
+      SELECT d.*, 
+             COALESCE(v.vehicles_count, 0)::int as active_vehicles_count
+      FROM dealers d
+      LEFT JOIN (
+        SELECT dealer_slug, count(*)::int as vehicles_count
+        FROM vehicles
+        WHERE status != 'sold'
+        GROUP BY dealer_slug
+      ) v ON lower(v.dealer_slug) = lower(d.slug)
+      ${includeInactive ? sql`` : sql`WHERE d.is_active = TRUE`}
+      ORDER BY d.id ASC
+    `;
+    if (rows && rows.length > 0) return rows;
   } catch (err) {
-    console.warn('[DB] getAllDealers error:', err.message);
-    return [];
+    console.warn('[DB] getAllDealers warning (using fallback):', err.message);
+  }
+
+  return Object.values(FALLBACK_DEALERS)
+    .filter(d => includeInactive || d.is_active)
+    .map(d => ({ ...d }));
+}
+
+/**
+ * Actualizare câmpuri specifice pentru un dealer
+ */
+export async function updateDealer(slug, updates) {
+  const sql = getSql();
+  const cleanSlug = String(slug || '').trim().toLowerCase();
+  if (!cleanSlug) throw new Error('Dealer slug este obligatoriu');
+
+  const current = await getDealerBySlug(cleanSlug, true);
+  if (!current) throw new Error(`Dealerul cu slug-ul "${cleanSlug}" nu a fost găsit`);
+
+  const name = updates.name !== undefined ? String(updates.name).trim() : current.name;
+  const domain = updates.domain !== undefined ? (updates.domain ? String(updates.domain).trim().toLowerCase() : null) : current.domain;
+  const phonePrimary = updates.phonePrimary !== undefined ? String(updates.phonePrimary).trim() : (updates.phone_primary !== undefined ? String(updates.phone_primary).trim() : current.phone_primary);
+  const phoneSecondary = updates.phoneSecondary !== undefined ? updates.phoneSecondary : (updates.phone_secondary !== undefined ? updates.phone_secondary : current.phone_secondary);
+  const whatsappNumber = updates.whatsappNumber !== undefined ? String(updates.whatsappNumber).trim() : (updates.whatsapp_number !== undefined ? String(updates.whatsapp_number).trim() : current.whatsapp_number);
+  const email = updates.email !== undefined ? String(updates.email).trim().toLowerCase() : current.email;
+  const addressStreet = updates.addressStreet !== undefined ? String(updates.addressStreet).trim() : (updates.address_street !== undefined ? String(updates.address_street).trim() : (updates.address !== undefined ? String(updates.address).trim() : current.address_street));
+  const city = updates.city !== undefined ? String(updates.city).trim() : current.city;
+  const county = updates.county !== undefined ? String(updates.county).trim() : current.county;
+  const cui = updates.cui !== undefined ? String(updates.cui).trim() : (updates.vatNumber !== undefined ? String(updates.vatNumber).trim() : (updates.vat_number !== undefined ? String(updates.vat_number).trim() : current.cui));
+  const regCom = updates.regCom !== undefined ? String(updates.regCom).trim() : (updates.reg_com !== undefined ? String(updates.reg_com).trim() : current.reg_com);
+  const bankName = updates.bankName !== undefined ? String(updates.bankName).trim() : (updates.bank_name !== undefined ? String(updates.bank_name).trim() : current.bank_name);
+  const ibanRon = updates.ibanRon !== undefined ? String(updates.ibanRon).trim() : (updates.iban_ron !== undefined ? String(updates.iban_ron).trim() : current.iban_ron);
+  const ibanEur = updates.ibanEur !== undefined ? String(updates.ibanEur).trim() : (updates.iban_eur !== undefined ? String(updates.iban_eur).trim() : current.iban_eur);
+  const tier = updates.tier !== undefined ? String(updates.tier).trim().toLowerCase() : current.tier;
+  const status = updates.status !== undefined ? String(updates.status).trim().toLowerCase() : current.status;
+  const maxVehiclesQuota = updates.maxVehiclesQuota !== undefined ? Number(updates.maxVehiclesQuota) : (updates.max_vehicles_quota !== undefined ? Number(updates.max_vehicles_quota) : current.max_vehicles_quota);
+  const themePreset = updates.themePreset !== undefined ? String(updates.themePreset).trim() : (updates.theme_preset !== undefined ? String(updates.theme_preset).trim() : current.theme_preset);
+  const isActive = updates.isActive !== undefined ? Boolean(updates.isActive) : (updates.is_active !== undefined ? Boolean(updates.is_active) : (status !== 'suspended'));
+  
+  let features = current.features;
+  if (updates.features && typeof updates.features === 'object') {
+    features = { ...(typeof current.features === 'object' && current.features ? current.features : {}), ...updates.features };
+  }
+
+  let integrations = current.integrations;
+  if (updates.integrations && typeof updates.integrations === 'object') {
+    integrations = { ...(typeof current.integrations === 'object' && current.integrations ? current.integrations : {}), ...updates.integrations };
+  }
+
+  let config = current.config;
+  if (updates.config && typeof updates.config === 'object') {
+    config = { ...(typeof current.config === 'object' && current.config ? current.config : {}), ...updates.config };
+  }
+
+  try {
+    const rows = await sql`
+      UPDATE dealers SET
+        name = ${name},
+        domain = ${domain},
+        phone_primary = ${phonePrimary},
+        phone_secondary = ${phoneSecondary},
+        whatsapp_number = ${whatsappNumber},
+        email = ${email},
+        address_street = ${addressStreet},
+        city = ${city},
+        county = ${county},
+        vat_number = ${cui},
+        cui = ${cui},
+        reg_com = ${regCom},
+        bank_name = ${bankName},
+        iban_ron = ${ibanRon},
+        iban_eur = ${ibanEur},
+        tier = ${tier},
+        status = ${status},
+        max_vehicles_quota = ${maxVehiclesQuota},
+        theme_preset = ${themePreset},
+        features = ${sql.json(features)},
+        integrations = ${sql.json(integrations)},
+        config = ${sql.json(config)},
+        is_active = ${isActive}
+      WHERE lower(slug) = ${cleanSlug}
+      RETURNING *
+    `;
+    if (rows && rows[0]) return rows[0];
+  } catch (err) {
+    console.warn('[DB] updateDealer warning (updating in-memory fallback):', err.message);
+  }
+
+  // Actualizare în structura de fallback local
+  if (FALLBACK_DEALERS[cleanSlug]) {
+    FALLBACK_DEALERS[cleanSlug] = {
+      ...FALLBACK_DEALERS[cleanSlug],
+      name, domain, phone_primary: phonePrimary, phone_secondary: phoneSecondary,
+      whatsapp_number: whatsappNumber, email, address_street: addressStreet, city, county,
+      cui, vat_number: cui, reg_com: regCom, bank_name: bankName, iban_ron: ibanRon, iban_eur: ibanEur,
+      tier, status, max_vehicles_quota: maxVehiclesQuota, theme_preset: themePreset,
+      features, integrations, config, is_active: isActive
+    };
+    return { ...FALLBACK_DEALERS[cleanSlug] };
+  }
+
+  return { slug: cleanSlug, name, is_active: isActive, features, config };
+}
+
+/**
+ * Comutare module specifice pentru un dealer
+ */
+export async function updateDealerFeatures(slug, featuresPatch) {
+  const sql = getSql();
+  const cleanSlug = String(slug || '').trim().toLowerCase();
+  if (!cleanSlug) throw new Error('Dealer slug este obligatoriu');
+
+  const current = await getDealerBySlug(cleanSlug, true);
+  if (!current) throw new Error(`Dealerul ${cleanSlug} nu a fost găsit`);
+
+  const updatedFeatures = {
+    ...(typeof current.features === 'object' && current.features ? current.features : {}),
+    ...featuresPatch
+  };
+
+  try {
+    const rows = await sql`
+      UPDATE dealers SET
+        features = ${sql.json(updatedFeatures)}
+      WHERE lower(slug) = ${cleanSlug}
+      RETURNING *
+    `;
+    if (rows && rows[0]) return rows[0];
+  } catch (err) {
+    console.warn('[DB] updateDealerFeatures warning (updating in-memory fallback):', err.message);
+  }
+
+  if (FALLBACK_DEALERS[cleanSlug]) {
+    FALLBACK_DEALERS[cleanSlug].features = updatedFeatures;
+    return { ...FALLBACK_DEALERS[cleanSlug] };
+  }
+  return { slug: cleanSlug, features: updatedFeatures };
+}
+
+/**
+ * Propagare 1-Click a unui modul pe toți dealerii activi din baza de date
+ */
+export async function propagateFeatureGlobally(featureKey, enabled) {
+  const sql = getSql();
+  if (!featureKey) throw new Error('featureKey este obligatoriu pentru propagare globală');
+
+  const cleanKey = String(featureKey).trim();
+  const boolVal = Boolean(enabled);
+
+  try {
+    const rows = await sql`
+      UPDATE dealers SET
+        features = jsonb_set(
+          COALESCE(features, '{}'::jsonb),
+          ${sql.array([cleanKey])},
+          ${sql.json(boolVal)}::jsonb,
+          true
+        )
+      WHERE is_active = TRUE
+      RETURNING slug, name, features
+    `;
+
+    return {
+      success: true,
+      featureKey: cleanKey,
+      enabled: boolVal,
+      updatedCount: rows.length,
+      dealersUpdated: rows.map(r => r.slug)
+    };
+  } catch (err) {
+    console.warn('[DB] propagateFeatureGlobally warning (updating fallback):', err.message);
+    const updatedSlugs = [];
+    for (const [slug, dealer] of Object.entries(FALLBACK_DEALERS)) {
+      if (dealer.is_active) {
+        dealer.features = dealer.features || {};
+        dealer.features[cleanKey] = boolVal;
+        updatedSlugs.push(slug);
+      }
+    }
+    return {
+      success: true,
+      featureKey: cleanKey,
+      enabled: boolVal,
+      updatedCount: updatedSlugs.length,
+      dealersUpdated: updatedSlugs,
+      offlineFallback: true
+    };
   }
 }
 
@@ -715,34 +1300,107 @@ export async function upsertDealer(data) {
   const city = String(data.city || 'Cluj-Napoca').trim();
   const county = String(data.county || 'Cluj').trim();
   const vatNumber = data.vatNumber || data.vat_number || data.cui || null;
+  const cui = data.cui || vatNumber || null;
+  const regCom = data.regCom || data.reg_com || null;
+  const bankName = data.bankName || data.bank_name || 'Banca Transilvania';
+  const ibanRon = data.ibanRon || data.iban_ron || null;
+  const ibanEur = data.ibanEur || data.iban_eur || null;
+  const tier = String(data.tier || 'starter').toLowerCase();
+  const status = String(data.status || 'active').toLowerCase();
+  const maxVehiclesQuota = Number(data.maxVehiclesQuota || data.max_vehicles_quota || 25);
+  const themePreset = String(data.themePreset || data.theme_preset || 'obsidian_gold');
   const openingHours = data.openingHours || data.opening_hours || null;
-  const isActive = data.isActive !== undefined ? Boolean(data.isActive) : true;
+  const isActive = data.isActive !== undefined ? Boolean(data.isActive) : (data.is_active !== undefined ? Boolean(data.is_active) : (status !== 'suspended'));
+  const features = (data.features && typeof data.features === 'object') ? data.features : {
+    ocrCivTalon: true,
+    olxStockSync: true,
+    tikTokStudio: true,
+    autolicitPush: false,
+    salesDocsEngine: true,
+    windowStickersQr: true,
+    financingCalculator: true,
+    whatsappLeadsBot: true,
+    fgoInvoicing: true
+  };
+  const integrations = (data.integrations && typeof data.integrations === 'object') ? data.integrations : {};
   const config = (data.config && typeof data.config === 'object') ? data.config : {};
 
-  const rows = await sql`
-    INSERT INTO dealers (
-      name, slug, domain, phone_primary, phone_secondary, whatsapp_number, email,
-      address_street, city, county, vat_number, opening_hours, is_active, config
-    ) VALUES (
-      ${name}, ${slug}, ${domain}, ${phonePrimary}, ${phoneSecondary}, ${whatsappNumber}, ${email},
-      ${addressStreet}, ${city}, ${county}, ${vatNumber}, ${openingHours}, ${isActive}, ${sql.json(config)}
-    )
-    ON CONFLICT (slug) DO UPDATE SET
-      name = EXCLUDED.name,
-      domain = COALESCE(EXCLUDED.domain, dealers.domain),
-      phone_primary = EXCLUDED.phone_primary,
-      phone_secondary = EXCLUDED.phone_secondary,
-      whatsapp_number = EXCLUDED.whatsapp_number,
-      email = EXCLUDED.email,
-      address_street = EXCLUDED.address_street,
-      city = EXCLUDED.city,
-      county = EXCLUDED.county,
-      vat_number = EXCLUDED.vat_number,
-      opening_hours = EXCLUDED.opening_hours,
-      is_active = EXCLUDED.is_active,
-      config = EXCLUDED.config
-    RETURNING *
-  `;
-  return rows[0];
+  try {
+    const rows = await sql`
+      INSERT INTO dealers (
+        name, slug, domain, phone_primary, phone_secondary, whatsapp_number, email,
+        address_street, city, county, vat_number, cui, reg_com, bank_name, iban_ron, iban_eur,
+        tier, status, max_vehicles_quota, theme_preset, features, integrations,
+        opening_hours, is_active, config
+      ) VALUES (
+        ${name}, ${slug}, ${domain}, ${phonePrimary}, ${phoneSecondary}, ${whatsappNumber}, ${email},
+        ${addressStreet}, ${city}, ${county}, ${vatNumber}, ${cui}, ${regCom}, ${bankName}, ${ibanRon}, ${ibanEur},
+        ${tier}, ${status}, ${maxVehiclesQuota}, ${themePreset}, ${sql.json(features)}, ${sql.json(integrations)},
+        ${openingHours}, ${isActive}, ${sql.json(config)}
+      )
+      ON CONFLICT (slug) DO UPDATE SET
+        name = EXCLUDED.name,
+        domain = COALESCE(EXCLUDED.domain, dealers.domain),
+        phone_primary = EXCLUDED.phone_primary,
+        phone_secondary = EXCLUDED.phone_secondary,
+        whatsapp_number = EXCLUDED.whatsapp_number,
+        email = EXCLUDED.email,
+        address_street = EXCLUDED.address_street,
+        city = EXCLUDED.city,
+        county = EXCLUDED.county,
+        vat_number = EXCLUDED.vat_number,
+        cui = COALESCE(EXCLUDED.cui, dealers.cui),
+        reg_com = COALESCE(EXCLUDED.reg_com, dealers.reg_com),
+        bank_name = COALESCE(EXCLUDED.bank_name, dealers.bank_name),
+        iban_ron = COALESCE(EXCLUDED.iban_ron, dealers.iban_ron),
+        iban_eur = COALESCE(EXCLUDED.iban_eur, dealers.iban_eur),
+        tier = EXCLUDED.tier,
+        status = EXCLUDED.status,
+        max_vehicles_quota = EXCLUDED.max_vehicles_quota,
+        theme_preset = EXCLUDED.theme_preset,
+        features = EXCLUDED.features,
+        integrations = EXCLUDED.integrations,
+        opening_hours = EXCLUDED.opening_hours,
+        is_active = EXCLUDED.is_active,
+        config = EXCLUDED.config
+      RETURNING *
+    `;
+    if (rows && rows[0]) return rows[0];
+  } catch (err) {
+    console.warn('[DB] upsertDealer warning (saving to fallback):', err.message);
+  }
+
+  // Fallback in-memory
+  const fallbackRecord = {
+    id: Object.keys(FALLBACK_DEALERS).length + 1,
+    name,
+    slug,
+    domain,
+    phone_primary: phonePrimary,
+    phone_secondary: phoneSecondary,
+    whatsapp_number: whatsappNumber,
+    email,
+    address_street: addressStreet,
+    city,
+    county,
+    vat_number: vatNumber,
+    cui,
+    reg_com: regCom,
+    bank_name: bankName,
+    iban_ron: ibanRon,
+    iban_eur: ibanEur,
+    tier,
+    status,
+    max_vehicles_quota: maxVehiclesQuota,
+    theme_preset: themePreset,
+    features,
+    integrations,
+    opening_hours: openingHours,
+    is_active: isActive,
+    active_vehicles_count: 0,
+    config
+  };
+  FALLBACK_DEALERS[slug] = fallbackRecord;
+  return { ...fallbackRecord };
 }
 

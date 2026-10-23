@@ -227,6 +227,7 @@ export interface DealerProfile {
   tier?: TenantTier;
   status?: TenantStatus;
   maxVehiclesQuota?: number;
+  activeVehiclesCount?: number;
   // Integrare Social Media & Meta Graph API (Ticket 04)
   socialIntegration?: DealerSocialIntegration;
 }

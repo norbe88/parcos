@@ -149,6 +149,31 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     return { totalVehicles, inStock, reserved, sold, pinnedHero, totalValueEur, discrepanciesCount };
   }, [cars]);
 
+  // 🛡️ Alocator Cote Stoc (Ticket 02) & Abonament SaaS (Ticket 03)
+  const quota = activeDealer?.maxVehiclesQuota || 25;
+  const activeVehiclesCount = useMemo(() => {
+    return cars.filter(c => c.status !== 'sold').length;
+  }, [cars]);
+  const isEnterprise = activeDealer?.tier === 'enterprise' || quota >= 999;
+  const isQuotaExceeded = !isEnterprise && activeVehiclesCount >= quota;
+  const isQuotaNearLimit = !isEnterprise && !isQuotaExceeded && activeVehiclesCount >= Math.floor(quota * 0.85);
+
+  const isSuspended = activeDealer?.status === 'suspended';
+  const billingConfig = (activeDealer?.config as any)?.billing;
+  const isInGracePeriod = !isSuspended && billingConfig?.subscriptionStatus === 'in_grace_period';
+
+  const handleGuardedOpenAddModal = () => {
+    if (isSuspended) {
+      showToast('🚫 Contul este suspendat temporar pentru factură restantă. Efectuați plata în Contul de Garanție BT pentru deblocare.');
+      return;
+    }
+    if (isQuotaExceeded) {
+      showToast(`⚠️ Cotă stoc atinsă (${activeVehiclesCount}/${quota} vehicule active). Pentru a adăuga mai multe vehicule, contactați echipa ParcOS pentru upgrade de pachet.`);
+      return;
+    }
+    onOpenAddModal();
+  };
+
   return (
 
     <div className="min-h-screen bg-[#0c0c0e] text-zinc-100 flex flex-col md:flex-row no-print">
@@ -181,9 +206,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           )}
           <button
             type="button"
-            onClick={onOpenAddModal}
-            className="p-1.5 rounded-lg bg-amber-500 text-black font-bold shadow-md shadow-amber-500/20 cursor-pointer"
-            title="Adaugă Mașină"
+            onClick={handleGuardedOpenAddModal}
+            className={`p-1.5 rounded-lg font-bold shadow-md cursor-pointer ${
+              isQuotaExceeded ? 'bg-red-500 text-white' : 'bg-amber-500 text-black shadow-amber-500/20'
+            }`}
+            title={isQuotaExceeded ? 'Cotă stoc atinsă (Adăugare blocată)' : 'Adaugă Mașină'}
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -203,7 +230,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           discrepanciesCount: adminStats.discrepanciesCount,
           pinnedHero: adminStats.pinnedHero
         }}
-        onOpenAddModal={onOpenAddModal}
+        onOpenAddModal={handleGuardedOpenAddModal}
         onOpenShowroom={onBackToShowroom}
         onOpenHelp={() => setIsHelpOpen(true)}
         onLogout={onLogout}
@@ -266,12 +293,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             {/* Buton Adaugă Mașină Nouă */}
             <button 
               type="button"
-              onClick={onOpenAddModal}
-              className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs sm:text-sm h-10 px-4 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-95 touch-manipulation cursor-pointer shrink-0"
-              title="Adaugă mașină nouă în showroom prin scanare CIV/Talon sau manual"
+              onClick={handleGuardedOpenAddModal}
+              className={`inline-flex items-center justify-center gap-2 font-bold text-xs sm:text-sm h-10 px-4 rounded-xl shadow-lg transition-all active:scale-95 touch-manipulation cursor-pointer shrink-0 ${
+                isQuotaExceeded 
+                  ? 'bg-red-500/20 border border-red-500/40 text-red-300 hover:bg-red-500/30' 
+                  : 'bg-amber-500 hover:bg-amber-400 text-black shadow-amber-500/20'
+              }`}
+              title={isQuotaExceeded ? `Cotă stoc atinsă (${activeVehiclesCount}/${quota} active)` : "Adaugă mașină nouă în showroom prin scanare CIV/Talon sau manual"}
             >
               <Plus className="w-4 h-4" />
-              <span>Adaugă Mașină</span>
+              <span>{isQuotaExceeded ? 'Cotă Stoc Atinsă' : 'Adaugă Mașină'}</span>
             </button>
 
             {onLogout && (
@@ -328,6 +359,84 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         {/* 1. Operațiuni Stoc: Stoc & Inventar */}
         {activeAdminTab === 'inventory' && (
           <div className="space-y-6">
+            {/* 💳 Banner Stare Abonament SaaS & Grace Period (Ticket 03) */}
+            {(isSuspended || isInGracePeriod) && (
+              <div className={`p-4 rounded-2xl border transition-all ${
+                isSuspended 
+                  ? 'bg-red-500/15 border-red-500/40 text-red-200 shadow-lg shadow-red-500/10' 
+                  : 'bg-amber-500/15 border-amber-500/40 text-amber-200 shadow-lg shadow-amber-500/10'
+              }`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-start sm:items-center gap-3">
+                    <AlertTriangle className={`w-5 h-5 shrink-0 mt-0.5 sm:mt-0 ${isSuspended ? 'text-red-400' : 'text-amber-400'}`} />
+                    <div>
+                      <div className="font-bold text-xs sm:text-sm text-white flex items-center gap-2">
+                        <span>{isSuspended ? 'Showroom Suspendat — Factură Neachitată' : 'Atenționare Scadență Abonament ParcOS'}</span>
+                        <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-black/40 border border-white/10">
+                          {isSuspended ? 'Blocat' : 'Termen Grație 14 Zile'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] sm:text-xs text-zinc-300 mt-0.5">
+                        {isSuspended
+                          ? 'Perioada de grație de 14 zile a expirat. Vă rugăm să efectuați plata abonamentului în Contul de Garanție CARVANA SRL (Banca Transilvania) pentru reactivarea imediată a contului.'
+                          : 'Abonamentul dumneavoastră lunar este scadent. Vă rugăm să achitați factura fiscală pentru a preveni suspendarea automată a showroom-ului.'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => showToast('Informații plată: CARVANA SRL • IBAN EUR: RO12BTRL01304205P88888XX • Banca Transilvania (Cont de Garanție)')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 ${
+                      isSuspended
+                        ? 'bg-red-500 hover:bg-red-400 text-white shadow-lg shadow-red-500/20'
+                        : 'bg-amber-500 hover:bg-amber-400 text-black shadow-lg shadow-amber-500/20'
+                    }`}
+                  >
+                    Detalii Plată BT
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 🛡️ Alocator Cote Stoc: Banner Avertizare Ocupare / Depășire Cotă (Ticket 02) */}
+            {(isQuotaExceeded || isQuotaNearLimit) && (
+              <div className={`p-4 rounded-2xl border transition-all ${
+                isQuotaExceeded 
+                  ? 'bg-red-500/10 border-red-500/30 text-red-200' 
+                  : 'bg-amber-500/10 border-amber-500/30 text-amber-200'
+              }`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-start sm:items-center gap-3">
+                    <AlertTriangle className={`w-5 h-5 shrink-0 mt-0.5 sm:mt-0 ${isQuotaExceeded ? 'text-red-400' : 'text-amber-400'}`} />
+                    <div>
+                      <div className="font-bold text-xs sm:text-sm text-white flex items-center gap-2">
+                        <span>{isQuotaExceeded ? 'Cotă Stoc Atinsă' : 'Avertizare Ocupare Cotă Stoc'}</span>
+                        <span className="font-mono text-xs px-2 py-0.5 rounded bg-black/40 border border-white/10">
+                          {activeVehiclesCount} / {quota} vehicule active
+                        </span>
+                      </div>
+                      <p className="text-[11px] sm:text-xs text-zinc-300 mt-0.5">
+                        {isQuotaExceeded
+                          ? `Ați atins limita pachetului dumneavoastră (${activeDealer?.tier?.toUpperCase() || 'STARTER'} - max ${quota} mașini). Adăugarea de vehicule noi este blocată temporar.`
+                          : `Ați utilizat ${Math.round((activeVehiclesCount / quota) * 100)}% din capacitatea pachetului curent (${activeDealer?.tier?.toUpperCase() || 'STARTER'}).`}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => showToast('Pentru upgrade de pachet, contactați echipa ParcOS la contact@parcos.ro')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 ${
+                      isQuotaExceeded
+                        ? 'bg-red-500 hover:bg-red-400 text-white shadow-lg shadow-red-500/20'
+                        : 'bg-amber-500 hover:bg-amber-400 text-black shadow-lg shadow-amber-500/20'
+                    }`}
+                  >
+                    Upgrade Pachet ParcOS
+                  </button>
+                </div>
+              </div>
+            )}
+
             <FleetDeadlinesWidget 
               cars={cars}
               onUpdatePlateExpiry={onUpdatePlateExpiry}
@@ -350,7 +459,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               onUpdatePrice={onUpdatePrice}
               onEditCar={onEditCar}
               showToast={showToast}
-              onOpenAddModal={onOpenAddModal}
+              onOpenAddModal={handleGuardedOpenAddModal}
               onOpenComparator={(car) => {
                 setEvaluatingCar(car);
                 setIsComparatorOpen(true);

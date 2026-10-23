@@ -518,6 +518,7 @@ export default function App() {
 
   const [viewMode, setViewMode] = useState<'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' | 'ghid-auto'>(getInitialViewMode);
   const [isMasquerading, setIsMasquerading] = useState<boolean>(false);
+  const [originalSuperAdminSession, setOriginalSuperAdminSession] = useState<boolean>(false);
   const [isCookiePreferencesOpen, setIsCookiePreferencesOpen] = useState(false);
 
   // 🔐 Verificare Sesiune Administrator pe Server
@@ -527,7 +528,7 @@ export default function App() {
 
   // Validare activă pe server a token-ului de sesiune (dacă expiră pe server, delogăm imediat clientul)
   useEffect(() => {
-    if (isAdminAuthenticated) {
+    if (isAdminAuthenticated && !isMasquerading) {
       fetch('/api/auth/verify', {
         headers: getAdminAuthHeaders()
       }).then(res => {
@@ -538,7 +539,7 @@ export default function App() {
         }
       }).catch(() => {});
     }
-  }, [isAdminAuthenticated]);
+  }, [isAdminAuthenticated, isMasquerading]);
 
   // La autentificarea administratorului, revalidăm inventarul din /api/admin/vehicles pentru a prelua datele financiare
   useEffect(() => {
@@ -1529,21 +1530,55 @@ export default function App() {
 
       {/* 👑 BANNER SUPERADMIN MASQUERADE */}
       {isMasquerading && (
-        <div className="sticky top-0 z-50 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-black px-4 py-2 text-xs font-bold flex items-center justify-between shadow-lg">
-          <div className="flex items-center gap-2">
-            <span>👑 Sesiune SuperAdmin Masquerade:</span>
-            <span className="font-mono bg-black/15 px-2 py-0.5 rounded text-black font-extrabold">{tenant.name}</span>
-            <span className="text-[11px] opacity-80 hidden sm:inline">(Vizualizezi spațiul acestui dealer)</span>
+        <div className="sticky top-0 z-50 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-black px-4 py-2.5 text-xs font-bold flex flex-wrap items-center justify-between gap-3 shadow-xl border-b border-amber-600/40 animate-in slide-in-from-top-2 duration-150">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="flex items-center gap-1.5 font-black uppercase tracking-wide shrink-0">
+              <span>👁️</span>
+              <span>MOD ASISTENȚĂ SUPERADMIN ACTIV — Ești conectat ca administrator pentru</span>
+            </span>
+            <span className="font-mono bg-black/20 text-black px-2.5 py-0.5 rounded-md font-black text-xs truncate">
+              {tenant.name}
+            </span>
+            {tenant.slug === 'rxm_sandbox' && (
+              <span className="px-2 py-0.5 rounded bg-orange-600 text-white text-[10px] font-black uppercase tracking-wider shrink-0">
+                🧪 SANDBOX ACTIV (SPV BLOCAT)
+              </span>
+            )}
+            <span className="text-[11px] font-medium opacity-90 hidden lg:inline shrink-0">
+              ({viewMode === 'admin' ? 'Panou DMS Gestiune' : 'Showroom Public'})
+            </span>
           </div>
-          <button
-            onClick={() => {
-              setIsMasquerading(false);
-              handleSetViewMode('superadmin');
-            }}
-            className="px-3 py-1 rounded-lg bg-black text-amber-400 hover:bg-zinc-900 transition-colors cursor-pointer text-xs font-bold flex items-center gap-1.5"
-          >
-            ← Înapoi în SuperAdmin Hub
-          </button>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {viewMode === 'showroom' ? (
+              <button
+                type="button"
+                onClick={() => handleSetViewMode('admin')}
+                className="px-2.5 py-1 rounded-lg bg-black/15 hover:bg-black/25 text-black border border-black/20 transition-all cursor-pointer text-xs font-bold"
+              >
+                ⚙️ Vezi DMS / Admin
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleSetViewMode('showroom')}
+                className="px-2.5 py-1 rounded-lg bg-black/15 hover:bg-black/25 text-black border border-black/20 transition-all cursor-pointer text-xs font-bold"
+              >
+                🚗 Vezi Showroom Public
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsMasquerading(false);
+                handleSetViewMode('superadmin');
+              }}
+              className="px-3.5 py-1 rounded-lg bg-black text-amber-400 hover:bg-zinc-900 transition-all cursor-pointer text-xs font-black shadow-md flex items-center gap-1.5"
+            >
+              ← Înapoi în SuperAdmin Control Plane
+            </button>
+          </div>
         </div>
       )}
 
@@ -1623,7 +1658,9 @@ export default function App() {
               onImpersonateTenant={(slug) => {
                 setTenantId(slug);
                 setIsMasquerading(true);
-                handleSetViewMode('showroom');
+                setOriginalSuperAdminSession(true);
+                setIsAdminAuthenticated(true);
+                handleSetViewMode('admin');
               }}
               showToast={showToast}
             />
@@ -1641,7 +1678,7 @@ export default function App() {
             <p className="text-xs text-zinc-400 font-mono tracking-wider uppercase">Se încarcă consola de gestiune...</p>
           </div>
         }>
-          {!isAdminAuthenticated ? (
+          {(!isAdminAuthenticated && !isMasquerading) ? (
             <AdminLoginGate 
               dealer={isParcosDomain(window.location.hostname, window.location.port) ? { name: 'ParcOS Platform (Carvana SRL)', slug: 'parcos' } : tenant}
               title={isParcosDomain(window.location.hostname, window.location.port) ? 'ParcOS Admin Hub' : undefined}

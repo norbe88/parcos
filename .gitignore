@@ -11,6 +11,8 @@ dist/
 .DS_Store
 Thumbs.db
 .scratch/
+scratch/
+
 .vscode/
 __pycache__/
 *.pyc

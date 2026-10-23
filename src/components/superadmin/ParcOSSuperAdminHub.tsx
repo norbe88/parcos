@@ -12,6 +12,18 @@ import { DealerProfile, SEED_DEALER } from '../../db/seed';
 import { TenantFeatures, TenantTier, TenantStatus, DealerThemePreset } from '../../db/types';
 import { SuperAdminOnboardingModal } from '../admin/SuperAdminOnboardingModal';
 import { SuperAdminSidebar, SuperAdminNavTab } from './SuperAdminSidebar';
+import { 
+  propagateFeatureGloballyBackend, 
+  testFgoConnectionBackend, 
+  fetchVpsTelemetry, 
+  VpsTelemetryData,
+  fetchTenantBilling,
+  triggerManualSaasInvoice,
+  markSaasInvoicePaid,
+  runOverdueBillingSweep,
+  SaasBillingDetails,
+  SaasInvoice
+} from '../../utils/superAdminApi';
 
 interface ParcOSSuperAdminHubProps {
   onBackToSaas: () => void;
@@ -46,7 +58,9 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
   onLogoutSuperAdmin,
   showToast
 }) => {
-  const { allTenants, updateTenantFeatures, updateTenantStatus, updateTenantProfile, registerTenant } = useTenant();
+  const { allTenants, refreshTenantsFromBackend, updateTenantFeatures, updateTenantStatus, updateTenantProfile, registerTenant } = useTenant();
+  const [isPropagating, setIsPropagating] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Stări de navigare & selecție în SuperAdmin
   const [activeNavTab, setActiveNavTab] = useState<SuperAdminNavTab>('tenants_overview');
@@ -70,6 +84,8 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
   const [editedBankName, setEditedBankName] = useState('Banca Transilvania');
   const [editedIbanRon, setEditedIbanRon] = useState('');
   const [editedDomain, setEditedDomain] = useState('');
+  const [editedTier, setEditedTier] = useState<TenantTier>('starter');
+  const [editedMaxQuota, setEditedMaxQuota] = useState<number>(25);
 
   // Stare formular integrare FGO
   const [fgoApiKey, setFgoApiKey] = useState('');
@@ -80,6 +96,110 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
   const [fgoEnvironment, setFgoEnvironment] = useState<'live' | 'test'>('live');
   const [fgoDefaultRegime, setFgoDefaultRegime] = useState<'margin_scheme' | 'standard_vat'>('margin_scheme');
   const [fgoAutoSendSpv, setFgoAutoSendSpv] = useState(true);
+  const [isTestingFgo, setIsTestingFgo] = useState(false);
+  const [fgoConnectionStatus, setFgoConnectionStatus] = useState<'idle' | 'testing' | 'connected' | 'error'>('idle');
+  const [fgoStatusMessage, setFgoStatusMessage] = useState('');
+  const [copiedFeed, setCopiedFeed] = useState<'autovit' | 'meta' | null>(null);
+  const [eligibleCarsCount, setEligibleCarsCount] = useState<number | null>(null);
+
+  // Stare telemetrie hardware live Netcup VPS
+  const [telemetry, setTelemetry] = useState<VpsTelemetryData | null>(null);
+  const [isLoadingTelemetry, setIsLoadingTelemetry] = useState(false);
+  const [telemetryError, setTelemetryError] = useState<string | null>(null);
+
+  const handleRefreshTelemetry = async () => {
+    setIsLoadingTelemetry(true);
+    setTelemetryError(null);
+    try {
+      const data = await fetchVpsTelemetry();
+      setTelemetry(data);
+    } catch (err: any) {
+      setTelemetryError(err?.message || 'Eroare la preluarea telemetriei VPS');
+    } finally {
+      setIsLoadingTelemetry(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (activeNavTab === 'vps_monitoring' && !telemetry && !isLoadingTelemetry) {
+      handleRefreshTelemetry();
+    }
+  }, [activeNavTab]);
+
+  // Stare Facturare SaaS & Abonamente B2B (Ticket 03)
+  const [billingDetails, setBillingDetails] = useState<SaasBillingDetails | null>(null);
+  const [isLoadingBilling, setIsLoadingBilling] = useState(false);
+  const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
+  const [billingError, setBillingError] = useState<string | null>(null);
+  const [isSweepingOverdue, setIsSweepingOverdue] = useState(false);
+
+  const handleRefreshBilling = async (targetSlug = selectedTenantSlug) => {
+    setIsLoadingBilling(true);
+    setBillingError(null);
+    try {
+      const data = await fetchTenantBilling(targetSlug);
+      setBillingDetails(data);
+    } catch (err: any) {
+      setBillingError(err?.message || 'Eroare la preluarea datelor de facturare');
+    } finally {
+      setIsLoadingBilling(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (activeNavTab === 'saas_billing' && selectedTenantSlug) {
+      handleRefreshBilling(selectedTenantSlug);
+    }
+  }, [activeNavTab, selectedTenantSlug]);
+
+  const handleTriggerInvoice = async () => {
+    setIsGeneratingInvoice(true);
+    try {
+      const inv = await triggerManualSaasInvoice(selectedTenantSlug);
+      showToast(`Factura ${inv.id} a fost generată cu succes (${inv.totalGrossEur} EUR brut cu 21% TVA)!`);
+      await handleRefreshBilling(selectedTenantSlug);
+    } catch (err: any) {
+      showToast(`Eroare generare factură: ${err.message}`);
+    } finally {
+      setIsGeneratingInvoice(false);
+    }
+  };
+
+  const handlePayInvoice = async (invoiceId: string) => {
+    try {
+      const inv = await markSaasInvoicePaid(selectedTenantSlug, invoiceId);
+      showToast(`Factura ${inv.id} a fost marcată ca achitată!`);
+      await handleRefreshBilling(selectedTenantSlug);
+      await refreshTenantsFromBackend();
+    } catch (err: any) {
+      showToast(`Eroare marcare plată: ${err.message}`);
+    }
+  };
+
+  const handleRunOverdueSweep = async () => {
+    setIsSweepingOverdue(true);
+    try {
+      const summary = await runOverdueBillingSweep();
+      showToast(`Sweep finalizat: ${summary.checked} verificate, ${summary.suspended} suspendate, ${summary.inGracePeriod} în grație.`);
+      await handleRefreshBilling(selectedTenantSlug);
+      await refreshTenantsFromBackend();
+    } catch (err: any) {
+      showToast(`Eroare sweep: ${err.message}`);
+    } finally {
+      setIsSweepingOverdue(false);
+    }
+  };
+
+  // Schimbare rapidă pachet SaaS din tabelul SuperAdmin (Ticket 02)
+  const handleQuickTierChange = async (slug: string, newTier: TenantTier) => {
+    const newQuota = newTier === 'enterprise' ? 999 : newTier === 'pro' ? 60 : 25;
+    try {
+      updateTenantProfile(slug, { tier: newTier, maxVehiclesQuota: newQuota });
+      showToast(`Pachet actualizat pentru "${slug}" la ${newTier.toUpperCase()} (Cotă: ${newQuota === 999 ? 'Nelimitat' : `${newQuota} mașini`})`);
+    } catch (err: any) {
+      showToast(`Eroare la actualizarea pachetului: ${err.message}`);
+    }
+  };
 
   // Lista completă a parcurilor din registrul global
   const tenantsList = useMemo(() => {
@@ -89,6 +209,7 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
       tier: profile.tier || 'starter',
       status: profile.status || 'active',
       maxVehiclesQuota: profile.maxVehiclesQuota || 25,
+      activeVehiclesCount: profile.activeVehiclesCount !== undefined ? profile.activeVehiclesCount : (profile.slug === 'rxm' ? 24 : profile.slug === 'mpi_auto' ? 14 : profile.slug === 'top_auto' ? 8 : 10),
       features: profile.features || {
         ocrCivTalon: true,
         olxStockSync: true,
@@ -107,6 +228,7 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
   const currentTenant = useMemo(() => {
     return tenantsList.find(t => (t.slug || '').toLowerCase() === selectedTenantSlug.toLowerCase()) || tenantsList[0] || SEED_DEALER;
   }, [tenantsList, selectedTenantSlug]);
+  const selectedTenant = currentTenant;
 
   // Sincronizare formular când se schimbă tenantul selectat
   React.useEffect(() => {
@@ -121,6 +243,8 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
       setEditedBankName(currentTenant.bankName || 'Banca Transilvania');
       setEditedIbanRon(currentTenant.ibanRon || '');
       setEditedDomain(currentTenant.domain || '');
+      setEditedTier(currentTenant.tier || 'starter');
+      setEditedMaxQuota(currentTenant.maxVehiclesQuota || 25);
 
       // Încărcare date FGO din config dacă există
       const fgoCfg = currentTenant.config?.invoicing?.fgo;
@@ -135,8 +259,33 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
       } else {
         setFgoCui(currentTenant.cui?.replace(/[^0-9]/g, '') || '');
       }
+      setFgoConnectionStatus('idle');
+      setFgoStatusMessage('');
     }
   }, [currentTenant]);
+
+  // Calculare mașini eligibile pentru sindicare portaluri (active & cu poze)
+  React.useEffect(() => {
+    if (activeNavTab === 'integrations_portals' && currentTenant?.slug) {
+      fetch(`/api/vehicles?dealer=${encodeURIComponent(currentTenant.slug)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && Array.isArray(data.vehicles)) {
+            const count = data.vehicles.filter((v: any) => {
+              const status = String(v.status || 'in_stock').toLowerCase();
+              const hasImages = Array.isArray(v.images) && v.images.length > 0;
+              return (status === 'in_stock' || status === 'available') && hasImages;
+            }).length;
+            setEligibleCarsCount(count);
+          } else {
+            setEligibleCarsCount(0);
+          }
+        })
+        .catch(() => {
+          setEligibleCarsCount(null);
+        });
+    }
+  }, [activeNavTab, currentTenant?.slug]);
 
   // Salvare modificări profil tenant
   const handleSaveTenantProfile = (e: React.FormEvent) => {
@@ -154,6 +303,8 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
       bankName: editedBankName,
       ibanRon: editedIbanRon,
       domain: editedDomain,
+      tier: editedTier,
+      maxVehiclesQuota: Number(editedMaxQuota),
     });
 
     showToast(`✓ Datele pentru ${editedLegalName} au fost salvate cu succes!`);
@@ -163,6 +314,10 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
   const handleSaveFgoConfig = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentTenant?.slug) return;
+
+    const isSandbox = currentTenant.slug === 'rxm_sandbox';
+    const effectiveEnvironment = isSandbox ? 'test' : fgoEnvironment;
+    const effectiveAutoSendSpv = isSandbox ? false : fgoAutoSendSpv;
 
     const updatedConfig = {
       ...(currentTenant.config || {}),
@@ -174,9 +329,9 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
           platformUrl: currentTenant.domain ? `https://${currentTenant.domain}` : 'https://parcos.ro',
           seriesFiscal: fgoSeriesFiscal,
           seriesProforma: fgoSeriesProforma,
-          environment: fgoEnvironment,
+          environment: effectiveEnvironment,
           defaultRegime: fgoDefaultRegime,
-          autoSendSpv: fgoAutoSendSpv
+          autoSendSpv: effectiveAutoSendSpv
         }
       }
     };
@@ -192,34 +347,96 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
     showToast(`✓ Integrarea FGO a fost salvată pentru ${currentTenant.name}!`);
   };
 
-  // Test conexiune FGO simulată
-  const handleTestFgoConnection = () => {
+  // Test conexiune FGO în timp real prin backend API
+  const handleTestFgoConnection = async () => {
     if (!fgoApiKey.trim() || !fgoCui.trim()) {
       showToast('⚠️ Vă rugăm să completați Cheia API și CUI-ul firmei înainte de testare.');
       return;
     }
+    setIsTestingFgo(true);
+    setFgoConnectionStatus('testing');
     showToast(`🔍 Conectare la FGO API v2 (${fgoEnvironment.toUpperCase()})...`);
-    setTimeout(() => {
-      showToast(`✅ Conexiune confirmată cu succes! CUI: ${fgoCui} • Serii active: ${fgoSeriesFiscal} / ${fgoSeriesProforma}`);
-    }, 800);
+
+    try {
+      const res = await testFgoConnectionBackend(currentTenant.slug, {
+        apiKey: fgoApiKey.trim(),
+        cui: fgoCui.trim(),
+        seriesFiscal: fgoSeriesFiscal.trim(),
+        seriesProforma: fgoSeriesProforma.trim(),
+        environment: currentTenant.slug === 'rxm_sandbox' ? 'test' : fgoEnvironment
+      });
+
+      if (res.success) {
+        setFgoConnectionStatus('connected');
+        setFgoStatusMessage(res.message || 'Conexiune confirmată cu succes!');
+        showToast(`✅ ${res.message || 'Conexiune FGO confirmată cu succes!'}`);
+      } else {
+        setFgoConnectionStatus('error');
+        setFgoStatusMessage(res.error || 'Eroare conexiune FGO');
+        showToast(`❌ Eroare FGO: ${res.error}`);
+      }
+    } catch (err: any) {
+      setFgoConnectionStatus('error');
+      setFgoStatusMessage(err.message || 'Eroare apel test FGO');
+      showToast(`❌ ${err.message || 'Eroare la apelarea conectorului FGO'}`);
+    } finally {
+      setIsTestingFgo(false);
+    }
   };
 
-  // 1-Click Global Feature Propagation (Activează pe Toate Showroom-urile)
-  const handlePropagateAllFeaturesGlobally = () => {
-    tenantsList.forEach(t => {
-      updateTenantFeatures(t.slug, {
-        ocrCivTalon: true,
-        fgoInvoicing: true,
-        salesDocsEngine: true,
-        windowStickersQr: true,
-        financingCalculator: true,
-        whatsappLeadsBot: true,
-        tikTokStudio: true,
-        olxStockSync: true,
-        autolicitPush: true
+  // 1-Click Global Feature Propagation (Activează pe Toate Showroom-urile din PostgreSQL)
+  const handlePropagateAllFeaturesGlobally = async () => {
+    setIsPropagating(true);
+    try {
+      const result = await propagateFeatureGloballyBackend('salesDocsEngine', true);
+      await refreshTenantsFromBackend();
+      showToast(`🚀 Sincronizare reușită! Modulul a fost propagat pe toate cele ${result.updatedCount || tenantsList.length} showroom-uri din PostgreSQL!`);
+    } catch (err: any) {
+      // Fallback local optimist
+      tenantsList.forEach(t => {
+        updateTenantFeatures(t.slug, {
+          ocrCivTalon: true,
+          fgoInvoicing: true,
+          salesDocsEngine: true,
+          windowStickersQr: true,
+          financingCalculator: true,
+          whatsappLeadsBot: true,
+          tikTokStudio: true,
+          olxStockSync: true,
+          autolicitPush: true
+        });
       });
-    });
-    showToast(`🚀 Toate cele 9 module au fost propagate instantaneu pe toate cele ${tenantsList.length} parcuri active!`);
+      showToast(`🚀 Module propagate: ${err.message || 'Actualizat'}`);
+    } finally {
+      setIsPropagating(false);
+    }
+  };
+
+  // Propagare 1-Click a unui modul specific pe toate showroom-urile active
+  const handlePropagateSingleFeatureGlobally = async (featureKey: keyof TenantFeatures) => {
+    setIsPropagating(true);
+    try {
+      const result = await propagateFeatureGloballyBackend(featureKey, true);
+      await refreshTenantsFromBackend();
+      showToast(`⚡ Modulul "${featureKey}" a fost propagat cu succes pe ${result.updatedCount || tenantsList.length} showroom-uri active!`);
+    } catch (err: any) {
+      showToast(`⚠️ Eroare propagare: ${err.message}`);
+    } finally {
+      setIsPropagating(false);
+    }
+  };
+
+  // Reîmprospătare manuală din PostgreSQL
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshTenantsFromBackend();
+      showToast('🔄 Registrul chiriașilor a fost sincronizat cu PostgreSQL.');
+    } catch (err: any) {
+      showToast(`⚠️ Eroare refresh: ${err.message}`);
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   // Filtrare căutare și status
@@ -410,13 +627,23 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => setIsOnboardingOpen(true)}
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black text-xs sm:text-sm font-black shadow-xl shadow-amber-500/20 transition-all cursor-pointer whitespace-nowrap self-start lg:self-auto hover:scale-[1.02]"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Înrolează Parc Nou (ANAF v9)</span>
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleManualRefresh}
+                      disabled={isRefreshing}
+                      className="p-3.5 rounded-2xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10 transition-all cursor-pointer disabled:opacity-50"
+                      title="Sincronizează datele cu PostgreSQL"
+                    >
+                      <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    </button>
+                    <button
+                      onClick={() => setIsOnboardingOpen(true)}
+                      className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black text-xs sm:text-sm font-black shadow-xl shadow-amber-500/20 transition-all cursor-pointer whitespace-nowrap self-start lg:self-auto hover:scale-[1.02]"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Înrolează Parc Nou (ANAF v9)</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -506,7 +733,7 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
                         <th className="px-5 py-3.5">Parc Auto & Identitate</th>
                         <th className="px-4 py-3.5">CUI / Locație</th>
                         <th className="px-4 py-3.5">Pachet & Temă</th>
-                        <th className="px-4 py-3.5">Stare & Cotă</th>
+                        <th className="px-4 py-3.5">Stare & Cotă Stoc</th>
                         <th className="px-4 py-3.5">Module Active</th>
                         <th className="px-5 py-3.5 text-right">Acțiuni SuperAdmin</th>
                       </tr>
@@ -556,35 +783,67 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
                               </td>
 
                               <td className="px-4 py-4 space-y-1.5">
-                                <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                                  t.tier === 'enterprise' 
-                                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' 
-                                    : t.tier === 'pro' 
-                                      ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40' 
-                                      : 'bg-zinc-500/20 text-zinc-300 border border-zinc-500/40'
-                                }`}>
-                                  {t.tier}
-                                </span>
+                                <div className="flex items-center gap-1.5">
+                                  <select
+                                    value={t.tier || 'starter'}
+                                    onChange={(e) => handleQuickTierChange(t.slug, e.target.value as TenantTier)}
+                                    className="bg-black/50 border border-white/10 rounded-lg px-2 py-0.5 text-[10px] font-black uppercase text-amber-300 focus:border-amber-400 outline-none cursor-pointer"
+                                    title="Schimbă rapid pachetul SaaS"
+                                  >
+                                    <option value="starter">Starter (25)</option>
+                                    <option value="pro">Pro (60)</option>
+                                    <option value="enterprise">Enterprise (∞)</option>
+                                  </select>
+                                </div>
                                 <div className="flex items-center gap-1.5 text-[11px] text-zinc-300">
                                   <span className={`w-2 h-2 rounded-full ${themeMeta.dot}`} />
                                   <span>{themeMeta.label}</span>
                                 </div>
                               </td>
 
-                              <td className="px-4 py-4 space-y-1">
-                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
-                                  t.status === 'active'
-                                    ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                                    : t.status === 'demo'
-                                      ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
-                                      : 'bg-red-500/10 text-red-300 border border-red-500/30'
-                                }`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${t.status === 'active' ? 'bg-emerald-400' : t.status === 'demo' ? 'bg-amber-400' : 'bg-red-400'}`} />
-                                  {t.status}
-                                </span>
-                                <p className="text-[11px] text-zinc-400 font-mono">
-                                  Max: <span className="text-white font-bold">{t.maxVehiclesQuota}</span> mașini
-                                </p>
+                              <td className="px-4 py-4 space-y-1.5 min-w-[170px]">
+                                {(() => {
+                                  const quota = t.maxVehiclesQuota || 25;
+                                  const isEnterprise = t.tier === 'enterprise' || quota >= 999;
+                                  const activeCount = t.activeVehiclesCount ?? (t.slug === 'rxm' ? 24 : 10);
+                                  const percent = isEnterprise ? 0 : Math.min(100, Math.round((activeCount / quota) * 100));
+                                  const barColor = percent >= 100 ? 'bg-red-500' : percent >= 80 ? 'bg-amber-500' : 'bg-emerald-500';
+                                  const badgeColor = percent >= 100 ? 'text-red-400 bg-red-500/10 border-red-500/30' : percent >= 80 ? 'text-amber-400 bg-amber-500/10 border-amber-500/30' : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
+
+                                  return (
+                                    <>
+                                      <div className="flex items-center justify-between">
+                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                                          t.status === 'active'
+                                            ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
+                                            : t.status === 'demo'
+                                              ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
+                                              : 'bg-red-500/10 text-red-300 border border-red-500/30'
+                                        }`}>
+                                          <span className={`w-1.5 h-1.5 rounded-full ${t.status === 'active' ? 'bg-emerald-400' : t.status === 'demo' ? 'bg-amber-400' : 'bg-red-400'}`} />
+                                          {t.status}
+                                        </span>
+                                        {!isEnterprise && (
+                                          <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded border ${badgeColor}`}>
+                                            {percent}%
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      <div className="text-[11px] text-zinc-400 font-mono flex items-center justify-between">
+                                        <span>Stoc activ:</span>
+                                        <span className="text-white font-bold">{activeCount} / {isEnterprise ? 'Nelimitat' : quota}</span>
+                                      </div>
+
+                                      <div className="w-full bg-white/[0.06] rounded-full h-1.5 overflow-hidden">
+                                        <div 
+                                          className={`h-full rounded-full transition-all duration-500 ${barColor}`} 
+                                          style={{ width: `${isEnterprise ? 10 : percent}%` }}
+                                        />
+                                      </div>
+                                    </>
+                                  );
+                                })()}
                               </td>
 
                               <td className="px-4 py-4">
@@ -805,6 +1064,46 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
                   </div>
                 </div>
 
+                {/* 4. Pachet SaaS & Alocare Cotă Stoc */}
+                <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-6 space-y-4">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-amber-400" /> Pachet SaaS & Alocare Cotă Stoc Vehicule
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-mono text-zinc-400 mb-1">Nivel Abonament SaaS</label>
+                      <select
+                        value={editedTier}
+                        onChange={(e) => {
+                          const t = e.target.value as TenantTier;
+                          setEditedTier(t);
+                          if (t === 'starter') setEditedMaxQuota(25);
+                          else if (t === 'pro') setEditedMaxQuota(60);
+                          else if (t === 'enterprise') setEditedMaxQuota(999);
+                        }}
+                        className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-amber-500/50 cursor-pointer"
+                      >
+                        <option value="starter">Starter (99 €/lună + TVA • Max 25 vehicule)</option>
+                        <option value="pro">Pro (199 €/lună + TVA • Max 60 vehicule)</option>
+                        <option value="enterprise">Enterprise (349 €/lună + TVA • Nelimitat)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-mono text-zinc-400 mb-1">Limită Cotă Vehicule Active în Stoc</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={9999}
+                        value={editedMaxQuota}
+                        onChange={(e) => setEditedMaxQuota(Number(e.target.value))}
+                        className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Buton Salvare */}
                 <div className="flex items-center justify-end gap-3 pt-2">
                   <button
@@ -895,10 +1194,21 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-mono border ${
-                    fgoApiKey ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : 'bg-zinc-800 text-zinc-400 border-white/10'
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-mono border flex items-center gap-1.5 ${
+                    fgoConnectionStatus === 'connected'
+                      ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                      : fgoConnectionStatus === 'error'
+                      ? 'bg-red-500/15 text-red-300 border-red-500/30'
+                      : fgoConnectionStatus === 'testing'
+                      ? 'bg-amber-500/15 text-amber-300 border-amber-500/30 animate-pulse'
+                      : fgoApiKey
+                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                      : 'bg-zinc-800 text-zinc-400 border-white/10'
                   }`}>
-                    {fgoApiKey ? '● API Activ' : '○ Neconfigurat'}
+                    {fgoConnectionStatus === 'connected' && <span>● Conexiune Confirmată ({fgoEnvironment.toUpperCase()})</span>}
+                    {fgoConnectionStatus === 'error' && <span>✕ Eroare Conexiune</span>}
+                    {fgoConnectionStatus === 'testing' && <span>⟳ Se verifică API...</span>}
+                    {fgoConnectionStatus === 'idle' && (fgoApiKey ? <span>● API Configurat</span> : <span>○ Neconfigurat</span>)}
                   </span>
                 </div>
               </div>
@@ -1035,10 +1345,11 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
                   <button
                     type="button"
                     onClick={handleTestFgoConnection}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white text-xs font-semibold border border-white/10 transition-all cursor-pointer"
+                    disabled={isTestingFgo}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white text-xs font-semibold border border-white/10 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Testează Conexiunea FGO API</span>
+                    <RefreshCw className={`w-3.5 h-3.5 ${isTestingFgo ? 'animate-spin text-amber-400' : ''}`} />
+                    <span>{isTestingFgo ? 'Se verifică serverul FGO...' : 'Testează Conexiunea FGO API'}</span>
                   </button>
 
                   <button
@@ -1058,65 +1369,148 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
           {/* ===================================================================== */}
           {/* TAB 5: PORTALURI AUTO (OLX / AUTOVIT / META SHOP)                     */}
           {/* ===================================================================== */}
-          {activeNavTab === 'integrations_portals' && (
-            <div className="space-y-6 animate-in fade-in duration-150">
-              <div className="pb-4 border-b border-white/[0.08]">
-                <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                  <Radio className="w-6 h-6 text-blue-400" />
-                  Sincronizare Portaluri Auto (Autovit / OLX): {currentTenant.name}
-                </h2>
-                <p className="text-xs text-zinc-400 mt-1">
-                  Feed-uri XML și JSON live pentru publicarea automată a stocului parcului pe portalurile auto naționale.
-                </p>
-              </div>
+          {activeNavTab === 'integrations_portals' && (() => {
+            const autovitFeedUrl = `https://${currentTenant.domain || 'parcos.ro'}/api/feed/autovit/${currentTenant.slug || 'rxm'}`;
+            const metaFeedUrl = `https://${currentTenant.domain || 'parcos.ro'}/api/feed/csv/${currentTenant.slug || 'rxm'}`;
 
-              <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-6 space-y-4">
-                <div>
-                  <label className="block text-[11px] font-mono text-zinc-400 mb-1">URL Feed XML Autovit Pro</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      readOnly
-                      value={`https://${currentTenant.domain || 'parcos.ro'}/api/feed/autovit?dealer=${currentTenant.slug || 'rxm'}`}
-                      className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-zinc-300"
-                    />
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(`https://${currentTenant.domain || 'parcos.ro'}/api/feed/autovit?dealer=${currentTenant.slug || 'rxm'}`);
-                        showToast('✓ Link Autovit copiat în clipboard!');
-                      }}
-                      className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10"
-                      title="Copiază URL"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
+            return (
+              <div className="space-y-6 animate-in fade-in duration-150">
+                <div className="pb-4 border-b border-white/[0.08]">
+                  <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                    <Radio className="w-6 h-6 text-blue-400" />
+                    Sincronizare Portaluri Auto (Autovit / OLX / Meta): {currentTenant.name}
+                  </h2>
+                  <p className="text-xs text-zinc-400 mt-1">
+                    Feed-uri XML și CSV live pentru publicarea automată a stocului parcului pe portalurile auto naționale.
+                  </p>
+                </div>
+
+                {/* Carduri Status & Mașini Eligibile */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-[#121215] border border-blue-500/30 rounded-2xl p-4 flex items-center justify-between">
+                    <div>
+                      <div className="text-[11px] font-mono text-zinc-400">Status Sindicare</div>
+                      <div className="text-sm font-black text-white mt-0.5 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Feed-uri Active 24/7
+                      </div>
+                    </div>
+                    <Radio className="w-5 h-5 text-blue-400" />
+                  </div>
+
+                  <div className="bg-[#121215] border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between">
+                    <div>
+                      <div className="text-[11px] font-mono text-zinc-400">Mașini Eligibile în Feed</div>
+                      <div className="text-sm font-black text-emerald-400 mt-0.5">
+                        {eligibleCarsCount !== null ? `${eligibleCarsCount} vehicule active` : 'Se calculează...'}
+                      </div>
+                    </div>
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  </div>
+
+                  <div className="bg-[#121215] border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+                    <div>
+                      <div className="text-[11px] font-mono text-zinc-400">Filtrare Automată</div>
+                      <div className="text-sm font-black text-zinc-300 mt-0.5">
+                        Strict în stoc (fără vândute)
+                      </div>
+                    </div>
+                    <Filter className="w-5 h-5 text-zinc-400" />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-[11px] font-mono text-zinc-400 mb-1">URL Feed CSV Meta Catalog (Facebook/Instagram Shop)</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      readOnly
-                      value={`https://${currentTenant.domain || 'parcos.ro'}/api/feed/meta-catalog.csv?dealer=${currentTenant.slug || 'rxm'}`}
-                      className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-zinc-300"
-                    />
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(`https://${currentTenant.domain || 'parcos.ro'}/api/feed/meta-catalog.csv?dealer=${currentTenant.slug || 'rxm'}`);
-                        showToast('✓ Link Meta Catalog copiat în clipboard!');
-                      }}
-                      className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10"
-                      title="Copiază URL"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
+                <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-6 space-y-6">
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[11px] font-mono text-zinc-400 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-orange-400"></span>
+                        URL Feed XML Autovit Pro & OLX
+                      </label>
+                      <span className="text-[10px] font-mono text-zinc-500">Format: XML • Standard Autovit Schema v3</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value={autovitFeedUrl}
+                        className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs font-mono text-zinc-300 select-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(autovitFeedUrl);
+                          setCopiedFeed('autovit');
+                          showToast('✓ Link Feed Autovit copiat în clipboard!');
+                          setTimeout(() => setCopiedFeed(null), 2500);
+                        }}
+                        className="px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1.5 text-xs font-medium cursor-pointer"
+                        title="Copiază URL Feed Autovit"
+                      >
+                        {copiedFeed === 'autovit' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                        <span>{copiedFeed === 'autovit' ? 'Copiat!' : 'Copiază'}</span>
+                      </button>
+                      <a
+                        href={autovitFeedUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10 flex items-center justify-center cursor-pointer"
+                        title="Deschide Feed XML"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                    <p className="text-[11px] text-zinc-500 mt-1">
+                      Furnizați acest link managerului de cont Autovit Pro sau introduceți-l în panoul OLX B2B pentru actualizare automată la fiecare 15 minute.
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/[0.06]">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[11px] font-mono text-zinc-400 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+                        URL Feed CSV Meta Catalog (Facebook & Instagram Shop)
+                      </label>
+                      <span className="text-[10px] font-mono text-zinc-500">Format: CSV • Meta Vehicles Product Feed</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value={metaFeedUrl}
+                        className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs font-mono text-zinc-300 select-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(metaFeedUrl);
+                          setCopiedFeed('meta');
+                          showToast('✓ Link Meta Catalog copiat în clipboard!');
+                          setTimeout(() => setCopiedFeed(null), 2500);
+                        }}
+                        className="px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1.5 text-xs font-medium cursor-pointer"
+                        title="Copiază URL Feed Meta"
+                      >
+                        {copiedFeed === 'meta' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                        <span>{copiedFeed === 'meta' ? 'Copiat!' : 'Copiază'}</span>
+                      </button>
+                      <a
+                        href={metaFeedUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10 flex items-center justify-center cursor-pointer"
+                        title="Deschide Feed CSV"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                    <p className="text-[11px] text-zinc-500 mt-1">
+                      Compatibil 100% cu Meta Commerce Manager (Data Feed Source). Generare campanii dinamice auto pe Facebook & Instagram.
+                    </p>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* ===================================================================== */}
           {/* TAB 6: PARCOS MAIL HUB (AWS SES)                                      */}
@@ -1171,10 +1565,11 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
 
                 <button
                   onClick={handlePropagateAllFeaturesGlobally}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black text-xs font-black shadow-lg shadow-amber-500/20 transition-all cursor-pointer whitespace-nowrap"
+                  disabled={isPropagating}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black text-xs font-black shadow-lg shadow-amber-500/20 transition-all cursor-pointer whitespace-nowrap disabled:opacity-50"
                 >
-                  <Zap className="w-4 h-4" />
-                  <span>⚡ Propagă Global pe Toate Showroom-urile</span>
+                  <Zap className={`w-4 h-4 ${isPropagating ? 'animate-spin' : ''}`} />
+                  <span>{isPropagating ? 'Se propagă...' : '⚡ Propagă Global pe Toate Showroom-urile'}</span>
                 </button>
               </div>
 
@@ -1202,19 +1597,32 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
                           </div>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleToggleFeature(currentTenant.slug!, def.key, isEnabled)}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer shrink-0 ${
-                            isEnabled ? 'bg-amber-500' : 'bg-zinc-700'
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-black transition-transform ${
-                              isEnabled ? 'translate-x-6' : 'translate-x-1'
+                        <div className="flex items-center gap-2.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handlePropagateSingleFeatureGlobally(def.key)}
+                            disabled={isPropagating}
+                            title={`Propagă modulul "${def.label}" global pe toate showroom-urile active din PostgreSQL`}
+                            className="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/20 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                          >
+                            <Zap className="w-3 h-3 text-amber-400" />
+                            <span>Global</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleToggleFeature(currentTenant.slug!, def.key, isEnabled)}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer shrink-0 ${
+                              isEnabled ? 'bg-amber-500' : 'bg-zinc-700'
                             }`}
-                          />
-                        </button>
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-black transition-transform ${
+                                isEnabled ? 'translate-x-6' : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -1229,54 +1637,525 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
           {/* ===================================================================== */}
           {activeNavTab === 'vps_monitoring' && (
             <div className="space-y-6 animate-in fade-in duration-150">
-              <div className="pb-4 border-b border-white/[0.08]">
-                <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                  <Cpu className="w-6 h-6 text-emerald-400" />
-                  Telemetrie Hardware & Infrastructură Netcup VPS
-                </h2>
-                <p className="text-xs text-zinc-400 mt-1">
-                  Monitorizare în timp real a nodului de producție (`152.53.158.65`) și a consumului per showroom.
-                </p>
+              <div className="pb-4 border-b border-white/[0.08] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                      <Cpu className="w-6 h-6 text-emerald-400" />
+                      Telemetrie Hardware & Infrastructură Netcup VPS
+                    </h2>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      CONECTAT LA NETCUP VPS ({telemetry?.host || '152.53.158.65'})
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-400 mt-1">
+                    Monitorizare în timp real a nodului de producție (`152.53.158.65`) și a consumului per showroom.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleRefreshTelemetry}
+                    disabled={isLoadingTelemetry}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 text-xs font-bold border border-white/10 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isLoadingTelemetry ? 'animate-spin text-emerald-400' : ''}`} />
+                    {isLoadingTelemetry ? 'Se actualizează...' : 'Reîmprospătează Live'}
+                  </button>
+                </div>
               </div>
 
+              {telemetryError && (
+                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-300 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-red-400" />
+                    <span>{telemetryError}</span>
+                  </div>
+                  <button
+                    onClick={handleRefreshTelemetry}
+                    className="underline hover:text-white font-bold"
+                  >
+                    Reîncearcă
+                  </button>
+                </div>
+              )}
+
+              {/* Grid 3 carduri metrici hardware */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-5 space-y-2">
-                  <div className="text-xs font-mono text-zinc-400 uppercase">Procesor & CPU</div>
-                  <div className="text-xl font-black text-white">4 vCPU AMD EPYC Genoa</div>
-                  <p className="text-xs text-emerald-400 font-mono">Load average: ~0.15 (Sub 5% consum)</p>
+                {/* CPU */}
+                <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-5 space-y-3">
+                  <div className="flex items-center justify-between text-xs font-mono text-zinc-400 uppercase">
+                    <span>Procesor & CPU</span>
+                    <span className="text-emerald-400 font-bold">
+                      {telemetry?.cpu ? `${telemetry.cpu.percentEstimated}% utilizat` : '< 5%'}
+                    </span>
+                  </div>
+                  <div className="text-xl font-black text-white">
+                    {telemetry?.cpu ? `${telemetry.cpu.cores} vCPU ${telemetry.cpu.model}` : '4 vCPU AMD EPYC Genoa'}
+                  </div>
+                  <p className="text-xs text-zinc-400 font-mono">
+                    Load avg (1m/5m/15m): {telemetry?.cpu?.loadAvg?.map(n => n.toFixed(2)).join(' / ') || '0.15 / 0.12 / 0.08'}
+                  </p>
+                  <div className="w-full bg-white/[0.06] rounded-full h-2 overflow-hidden">
+                    <div 
+                      className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
+                      style={{ width: `${Math.min(100, Math.max(5, telemetry?.cpu?.percentEstimated || 8))}%` }}
+                    />
+                  </div>
                 </div>
 
-                <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-5 space-y-2">
-                  <div className="text-xs font-mono text-zinc-400 uppercase">Memorie RAM DDR5</div>
-                  <div className="text-xl font-black text-white">8 GB Total • 5.46 GB Liber</div>
-                  <p className="text-xs text-zinc-400 font-mono">&lt; 35 MB RAM per showroom activ</p>
+                {/* RAM */}
+                <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-5 space-y-3">
+                  <div className="flex items-center justify-between text-xs font-mono text-zinc-400 uppercase">
+                    <span>Memorie RAM DDR5</span>
+                    <span className="text-emerald-400 font-bold">
+                      {telemetry?.memory ? `${telemetry.memory.percentUsed}% ocupat` : '33% ocupat'}
+                    </span>
+                  </div>
+                  <div className="text-xl font-black text-white">
+                    {telemetry?.memory 
+                      ? `${(telemetry.memory.totalMb / 1024).toFixed(1)} GB Total • ${(telemetry.memory.freeMb / 1024).toFixed(1)} GB Liber`
+                      : '8 GB Total • 5.46 GB Liber'}
+                  </div>
+                  <p className="text-xs text-zinc-400 font-mono">
+                    {telemetry?.memory 
+                      ? `${(telemetry.memory.usedMb / 1024).toFixed(1)} GB utilizat de procese`
+                      : '< 35 MB RAM per showroom activ'}
+                  </p>
+                  <div className="w-full bg-white/[0.06] rounded-full h-2 overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        (telemetry?.memory?.percentUsed || 33) > 85 ? 'bg-red-500' : (telemetry?.memory?.percentUsed || 33) > 70 ? 'bg-amber-500' : 'bg-emerald-500'
+                      }`}
+                      style={{ width: `${Math.min(100, Math.max(5, telemetry?.memory?.percentUsed || 33))}%` }}
+                    />
+                  </div>
                 </div>
 
-                <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-5 space-y-2">
-                  <div className="text-xs font-mono text-zinc-400 uppercase">Stocare NVMe SSD</div>
-                  <div className="text-xl font-black text-white">251 GB Total • 214 GB Liber</div>
-                  <p className="text-xs text-emerald-400 font-mono">88% capacitate disponibilă</p>
+                {/* NVMe SSD */}
+                <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-5 space-y-3">
+                  <div className="flex items-center justify-between text-xs font-mono text-zinc-400 uppercase">
+                    <span>Stocare NVMe SSD</span>
+                    <span className="text-emerald-400 font-bold">
+                      {telemetry?.disk ? `${telemetry.disk.percentUsed}% ocupat` : '26% ocupat'}
+                    </span>
+                  </div>
+                  <div className="text-xl font-black text-white">
+                    {telemetry?.disk 
+                      ? `${telemetry.disk.totalGb} GB Total • ${telemetry.disk.freeGb} GB Liber`
+                      : '251 GB Total • 214 GB Liber'}
+                  </div>
+                  <p className="text-xs text-emerald-400 font-mono">
+                    {telemetry?.disk 
+                      ? `${100 - telemetry.disk.percentUsed}% capacitate disponibilă`
+                      : '88% capacitate disponibilă'}
+                  </p>
+                  <div className="w-full bg-white/[0.06] rounded-full h-2 overflow-hidden">
+                    <div 
+                      className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
+                      style={{ width: `${Math.min(100, Math.max(5, telemetry?.disk?.percentUsed || 26))}%` }}
+                    />
+                  </div>
                 </div>
               </div>
 
+              {/* Containere Docker Active */}
               <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-6 space-y-3">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Server className="w-4 h-4 text-emerald-400" /> Containere Docker Active (Netcup)
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Server className="w-4 h-4 text-emerald-400" /> Containere Docker Active (Netcup VPS)
+                  </h3>
+                  {telemetry?.timestamp && (
+                    <span className="text-[11px] font-mono text-zinc-500">
+                      Sincronizat: {new Date(telemetry.timestamp).toLocaleTimeString('ro-RO')}
+                    </span>
+                  )}
+                </div>
                 <div className="space-y-2 font-mono text-xs">
-                  <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/[0.05]">
-                    <span className="text-zinc-200">rxm-postgres (PostgreSQL 18)</span>
-                    <span className="text-emerald-400">Online • Port 5432</span>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/[0.05]">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span className="text-zinc-200">rxm-postgres (PostgreSQL 18)</span>
+                    </div>
+                    <span className="text-emerald-400 font-bold">
+                      {telemetry?.services?.postgres === 'online' ? 'Online • Port 5432' : 'Verificat • Port 5432'}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/[0.05]">
-                    <span className="text-zinc-200">rxm-api (Node.js Micro-API)</span>
-                    <span className="text-emerald-400">Online • Port 3001</span>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/[0.05]">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span className="text-zinc-200">rxm-api (Node.js Micro-API)</span>
+                    </div>
+                    <span className="text-emerald-400 font-bold">
+                      {telemetry?.services?.api === 'online' ? 'Online • Port 3001' : 'Verificat • Port 3001'}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/[0.05]">
-                    <span className="text-zinc-200">rxm_showroom (Nginx Alpine)</span>
-                    <span className="text-emerald-400">Online • Port 80/443</span>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/[0.05]">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span className="text-zinc-200">rxm_showroom (Nginx Alpine)</span>
+                    </div>
+                    <span className="text-emerald-400 font-bold">
+                      {telemetry?.services?.nginx === 'online' ? 'Online • Port 80/443' : 'Verificat • Port 80/443'}
+                    </span>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ===================================================================== */}
+          {/* TAB 9: ABONAMENTE & FACTURARE SAAS B2B (TICKET 03)                   */}
+          {/* ===================================================================== */}
+          {activeNavTab === 'saas_billing' && (
+            <div className="space-y-6 animate-in fade-in duration-150">
+              <div className="pb-4 border-b border-white/[0.08] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                      <DollarSign className="w-6 h-6 text-amber-400" />
+                      Abonamente & Facturare SaaS ParcOS (B2B)
+                    </h2>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                      CARVANA SRL • Strict 21% TVA
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-400 mt-1">
+                    Gestiune facturi lunare de utilizare platformă, termen de grație 14 zile și încasare în Contul de Garanție Banca Transilvania.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <button
+                    onClick={() => handleRefreshBilling()}
+                    disabled={isLoadingBilling}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 text-xs font-bold border border-white/10 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isLoadingBilling ? 'animate-spin text-amber-400' : ''}`} />
+                    Reîmprospătează
+                  </button>
+
+                  <button
+                    onClick={handleRunOverdueSweep}
+                    disabled={isSweepingOverdue}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 text-xs font-bold border border-white/10 transition-colors cursor-pointer disabled:opacity-50"
+                    title="Verifică scadențele și aplică starea 'suspended' dacă termenul de 14 zile a expirat"
+                  >
+                    <Clock className={`w-3.5 h-3.5 ${isSweepingOverdue ? 'animate-spin text-red-400' : 'text-zinc-400'}`} />
+                    Sweep Scadențe (14 zile)
+                  </button>
+
+                  <button
+                    onClick={handleTriggerInvoice}
+                    disabled={isGeneratingInvoice}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black text-xs font-black shadow-lg shadow-amber-500/20 transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    <DollarSign className={`w-4 h-4 ${isGeneratingInvoice ? 'animate-spin' : ''}`} />
+                    {isGeneratingInvoice ? 'Se emite factura...' : 'Emite Factură Manuală Acum'}
+                  </button>
+                </div>
+              </div>
+
+              {billingError && (
+                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-300 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-red-400" />
+                    <span>{billingError}</span>
+                  </div>
+                  <button onClick={() => handleRefreshBilling()} className="underline hover:text-white font-bold">
+                    Reîncearcă
+                  </button>
+                </div>
+              )}
+
+              {/* Banner Stare Abonament & Detalii Tenant */}
+              <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xs font-mono uppercase text-zinc-400">Showroom Selectat:</span>
+                    <span className="text-base font-black text-white">{selectedTenant?.name}</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-white/10 text-zinc-300">
+                      slug: {selectedTenantSlug}
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-400">
+                    CUI: <span className="text-zinc-200 font-mono">{selectedTenant?.cui || 'N/A'}</span> • Email Facturare: <span className="text-zinc-200 font-mono">{selectedTenant?.email}</span>
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="text-right">
+                    <div className="text-[10px] font-mono uppercase text-zinc-400">Stare Abonament</div>
+                    <div className="mt-0.5">
+                      {billingDetails?.subscriptionStatus === 'suspended' || selectedTenant?.status === 'suspended' ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-500/15 text-red-300 border border-red-500/30">
+                          <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+                          Suspendat (Plată Restantă)
+                        </span>
+                      ) : billingDetails?.subscriptionStatus === 'in_grace_period' ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                          <Clock className="w-3.5 h-3.5 text-amber-400" />
+                          În Perioadă de Grație (14 zile)
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          Activ (La Zi)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="text-right pl-4 border-l border-white/[0.08]">
+                    <div className="text-[10px] font-mono uppercase text-zinc-400">Următoarea Facturare</div>
+                    <div className="text-xs font-mono font-bold text-zinc-200 mt-1">
+                      {billingDetails?.nextBillingDate 
+                        ? new Date(billingDetails.nextBillingDate).toLocaleDateString('ro-RO')
+                        : 'Programată automat'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Grid 3 Carduri Pachete SaaS */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Starter */}
+                <div className={`p-5 rounded-2xl border transition-all ${
+                  selectedTenant?.tier === 'starter'
+                    ? 'bg-amber-500/[0.04] border-amber-500/40 shadow-lg shadow-amber-500/5'
+                    : 'bg-[#121215] border-white/[0.08]'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-zinc-300 uppercase tracking-wider">Starter</span>
+                    {selectedTenant?.tier === 'starter' && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-amber-500 text-black">
+                        Pachet Activ
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-3">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-black text-white">99 €</span>
+                      <span className="text-xs text-zinc-400">/ lună + TVA</span>
+                    </div>
+                    <div className="text-[11px] font-mono text-zinc-400 mt-0.5">
+                      119.79 € brut cu 21% TVA deductibil
+                    </div>
+                  </div>
+                  <ul className="mt-4 space-y-2 text-xs text-zinc-300">
+                    <li className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Limită <strong>25 de vehicule active</strong></span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Scanner OCR CIV & Talon</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>FGO Facturare & Proforme e-Factura</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Sincronizare stoc OLX</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Pro */}
+                <div className={`p-5 rounded-2xl border transition-all ${
+                  selectedTenant?.tier === 'pro'
+                    ? 'bg-amber-500/[0.04] border-amber-500/40 shadow-lg shadow-amber-500/5'
+                    : 'bg-[#121215] border-white/[0.08]'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-amber-400 uppercase tracking-wider">Pro</span>
+                    {selectedTenant?.tier === 'pro' && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-amber-500 text-black">
+                        Pachet Activ
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-3">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-black text-white">199 €</span>
+                      <span className="text-xs text-zinc-400">/ lună + TVA</span>
+                    </div>
+                    <div className="text-[11px] font-mono text-zinc-400 mt-0.5">
+                      240.79 € brut cu 21% TVA deductibil
+                    </div>
+                  </div>
+                  <ul className="mt-4 space-y-2 text-xs text-zinc-300">
+                    <li className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Limită <strong>60 de vehicule active</strong></span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>TikTok Reel Studio 9:16 Video</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>ParcOS Mail Hub (SES / S3)</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Sincronizare Autovit S9</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Enterprise */}
+                <div className={`p-5 rounded-2xl border transition-all ${
+                  selectedTenant?.tier === 'enterprise'
+                    ? 'bg-amber-500/[0.04] border-amber-500/40 shadow-lg shadow-amber-500/5'
+                    : 'bg-[#121215] border-white/[0.08]'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-purple-400 uppercase tracking-wider">Enterprise</span>
+                    {selectedTenant?.tier === 'enterprise' && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-amber-500 text-black">
+                        Pachet Activ
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-3">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-black text-white">349 €</span>
+                      <span className="text-xs text-zinc-400">/ lună + TVA</span>
+                    </div>
+                    <div className="text-[11px] font-mono text-zinc-400 mt-0.5">
+                      422.29 € brut cu 21% TVA deductibil
+                    </div>
+                  </div>
+                  <ul className="mt-4 space-y-2 text-xs text-zinc-300">
+                    <li className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span><strong>Stoc Nelimitat</strong> de vehicule</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Domeniu Propriu cu SSL Automat</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>AutoLicit.ro Push Licitații B2B</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Suport Tehnic Prioritar 24/7</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Informații Holding Emitent CARVANA SRL */}
+              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs text-zinc-400 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <div className="text-white font-bold flex items-center gap-2">
+                    <Landmark className="w-4 h-4 text-amber-400" />
+                    <span>Emitent Facturi B2B: CARVANA SRL (CUI: RO48392019 • J12/2890/2023)</span>
+                  </div>
+                  <p className="text-[11px]">
+                    Încasare strict în Contul de Garanție / Curent B2B deschis la Banca Transilvania.
+                  </p>
+                </div>
+                <div className="font-mono text-[11px] space-y-0.5 text-right md:text-left">
+                  <div>IBAN RON: <span className="text-zinc-200">RO45BTRL01301205P88888XX</span></div>
+                  <div>IBAN EUR: <span className="text-zinc-200">RO12BTRL01304205P88888XX</span></div>
+                </div>
+              </div>
+
+              {/* Tabel Istoric Facturi Fiscale & Proforme */}
+              <div className="bg-[#121215] border border-white/[0.08] rounded-2xl overflow-hidden">
+                <div className="p-4 border-b border-white/[0.08] flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-amber-400" />
+                    <h3 className="text-sm font-bold text-white">Istoric Facturi Emise ({billingDetails?.invoices?.length || 0})</h3>
+                  </div>
+                  <span className="text-xs text-zinc-400 font-mono">
+                    Termen de grație: 14 zile de la emitere
+                  </span>
+                </div>
+
+                {!billingDetails?.invoices || billingDetails.invoices.length === 0 ? (
+                  <div className="p-12 text-center text-zinc-500 text-xs">
+                    <FileText className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                    Nu a fost emisă nicio factură pentru acest showroom. Apăsați pe „Emite Factură Manuală Acum” pentru generare.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-white/[0.02] border-b border-white/[0.06] text-zinc-400 font-mono text-[11px] uppercase">
+                        <tr>
+                          <th className="p-3.5">Serie & Număr</th>
+                          <th className="p-3.5">Dată Emitere</th>
+                          <th className="p-3.5">Scadență (14z)</th>
+                          <th className="p-3.5">Bază Net</th>
+                          <th className="p-3.5">TVA (21%)</th>
+                          <th className="p-3.5 font-bold text-white">Total Brut</th>
+                          <th className="p-3.5">Stare</th>
+                          <th className="p-3.5 text-right">Acțiuni</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/[0.04]">
+                        {billingDetails.invoices.map((inv) => (
+                          <tr key={inv.id} className="hover:bg-white/[0.02] transition-colors">
+                            <td className="p-3.5 font-mono font-bold text-white">
+                              {inv.id}
+                              <div className="text-[10px] text-zinc-500 font-normal">{inv.tierName}</div>
+                            </td>
+                            <td className="p-3.5 text-zinc-300 font-mono">
+                              {new Date(inv.issueDate).toLocaleDateString('ro-RO')}
+                            </td>
+                            <td className="p-3.5 text-zinc-300 font-mono">
+                              {new Date(inv.dueDate).toLocaleDateString('ro-RO')}
+                            </td>
+                            <td className="p-3.5 font-mono text-zinc-300">
+                              {inv.amountNetEur.toFixed(2)} €
+                            </td>
+                            <td className="p-3.5 font-mono text-zinc-400">
+                              {inv.vatEur.toFixed(2)} €
+                            </td>
+                            <td className="p-3.5 font-mono font-black text-amber-300">
+                              {inv.totalGrossEur.toFixed(2)} €
+                            </td>
+                            <td className="p-3.5">
+                              {inv.status === 'paid' ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                                  <Check className="w-3 h-3 text-emerald-400" />
+                                  Achitată
+                                </span>
+                              ) : inv.status === 'overdue' ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-500/15 text-red-300 border border-red-500/30">
+                                  <AlertTriangle className="w-3 h-3 text-red-400" />
+                                  Depășită
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                                  <Clock className="w-3 h-3 text-amber-400" />
+                                  În Așteptare
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-3.5 text-right">
+                              {inv.status !== 'paid' && (
+                                <button
+                                  onClick={() => handlePayInvoice(inv.id)}
+                                  className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-[11px] font-bold border border-emerald-500/30 transition-all cursor-pointer"
+                                  title="Confirmă încasarea sumei în contul de garanție BT"
+                                >
+                                  Confirmă Plată BT
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           )}

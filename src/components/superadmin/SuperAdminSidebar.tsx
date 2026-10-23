@@ -12,6 +12,7 @@ export type SuperAdminNavTab =
   | 'tenants_overview'     // 🏢 Registru Parcuri & Flotă
   | 'tenant_profile'       // ⚙️ Profil & Date Fiscale (CUI, Adresă, Cont de Garanție)
   | 'tenant_branding'      // 🎨 Design & Teme (Obsidian Gold, Clean White etc.)
+  | 'saas_billing'         // 💳 Facturare B2B & Abonamente SaaS (99€ / 199€ / 349€)
   | 'integrations_fgo'     // 🧾 FGO Facturare & Proforme (API v2 / e-Factura)
   | 'integrations_portals' // 📡 Sincronizare OLX & Autovit
   | 'integrations_mail'    // 📧 ParcOS Mail Hub (SES / Inbound)
@@ -90,6 +91,18 @@ export const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
           icon: Palette,
           badge: currentTenant?.themePreset || 'Temă',
           badgeColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30'
+        }
+      ]
+    },
+    {
+      group: 'MONETIZARE & FACTURARE SAAS',
+      items: [
+        {
+          id: 'saas_billing' as SuperAdminNavTab,
+          label: 'Abonamente & Facturare B2B',
+          icon: DollarSign,
+          badge: 'TVA 21%',
+          badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
         }
       ]
     },
