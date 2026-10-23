@@ -162,7 +162,8 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         }
       }
 
-      // 3. Subdomeniu (ex: mpi.carmatik.ro sau top.autolicit.ro)
+      // 3. Subdomeniu (ex: sandbox.parcos.ro, mpi.carmatik.ro sau top.autolicit.ro)
+      if (hostname.includes('sandbox.') || hostname.includes('test.') || hostname.startsWith('sandbox') || hostname.startsWith('test')) return 'rxm_sandbox';
       if (hostname.includes('mpi.') || hostname.includes('mpiauto')) return 'mpi_auto';
       if (hostname.includes('top.') || hostname.includes('topauto')) return 'top_auto';
       if (hostname.includes('autonord.')) return 'autonord_cluj';
