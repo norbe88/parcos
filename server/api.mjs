@@ -741,7 +741,9 @@ async function renderDynamicHtml(html, req, urlObj) {
     ogType = 'website';
     ogTitle = title;
     ogDescription = description;
-    ogImage = 'https://parcos.ro/brand/parcos-og-card.png';
+    ogImage = 'https://parcos.ro/brand/parcos-og-icon.png';
+    ogImageWidth = '600';
+    ogImageHeight = '600';
     ogImageAlt = 'ParcOS — Dealership Operating System';
     ogUrl = canonicalUrl;
 
@@ -754,8 +756,8 @@ async function renderDynamicHtml(html, req, urlObj) {
       "operatingSystem": "Web, Cloud SaaS",
       "description": description,
       "url": "https://parcos.ro/",
-      "logo": "https://parcos.ro/brand/parcos-app-icon.png",
-      "image": "https://parcos.ro/brand/parcos-og-card.png",
+      "logo": "https://parcos.ro/brand/parcos-og-icon.png",
+      "image": "https://parcos.ro/brand/parcos-og-icon.png",
       "publisher": {
         "@type": "Organization",
         "name": "CARVANA SRL",

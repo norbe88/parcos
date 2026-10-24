@@ -138,7 +138,7 @@ async function generateOgCard() {
     </svg>
   `);
 
-  // 3. Randare compoziție cu Sharp
+  // 3. Randare compoziție banner 1200x630 cu Sharp
   await sharp(svgOverlay)
     .composite([
       {
@@ -151,9 +151,28 @@ async function generateOgCard() {
     .toFile(targetPng);
 
   console.log(`✅ [ParcOS OG Card] Banner creat cu succes la: ${targetPng}`);
+
+  // 4. Generare Icon Pătrat 600x600 dedicat pentru WhatsApp, iMessage & Carduri compacte
+  const targetSquarePng = path.resolve(__dirname, '..', 'public', 'brand', 'parcos-og-icon.png');
+  const targetSquareJpg = path.resolve(__dirname, '..', 'public', 'brand', 'parcos-og-icon.jpg');
+
+  await sharp(iconSource)
+    .resize(600, 600, { kernel: sharp.kernel.lanczos3 })
+    .sharpen({ sigma: 0.8, m1: 1.2, m2: 0.5 })
+    .png({ quality: 85, compressionLevel: 9, palette: true })
+    .toFile(targetSquarePng);
+
+  await sharp(iconSource)
+    .resize(600, 600, { kernel: sharp.kernel.lanczos3 })
+    .sharpen({ sigma: 0.8, m1: 1.2, m2: 0.5 })
+    .jpeg({ quality: 93, mozjpeg: true })
+    .toFile(targetSquareJpg);
+
+  console.log(`✅ [ParcOS OG Icon] Embleme 600x600 create cu succes (PNG & JPG): ${targetSquarePng}`);
 }
 
 generateOgCard().catch(err => {
   console.error('❌ Eroare la generarea cardului OG:', err);
   process.exit(1);
 });
+
