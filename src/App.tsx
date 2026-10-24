@@ -491,9 +491,16 @@ export default function App() {
 
     // 2. Pe domeniul central ParcOS (parcos.ro) sau portul 3001, /admin sau #admin este implicit SuperAdmin
     // (cu excepția cazului în care s-a cerut explicit gestiunea unui dealer: ?dealer=...)
+    const cleanPath = path.replace(/\/+$/, '');
+    const cleanHash = hash.replace(/\/+$/, '');
     if (
       (isParcosDomain(hostname, port) || port === '3001') && 
-      (path.endsWith('/admin') || path === '/admin' || hash === '#admin' || hash === '#portal' || path.endsWith('/portal') || path === '/portal')
+      (
+        cleanPath.endsWith('/admin') || cleanPath === '/admin' || 
+        cleanHash === '#admin' || cleanHash === '#/admin' || 
+        cleanHash === '#portal' || cleanHash === '#/portal' ||
+        cleanPath.endsWith('/portal') || cleanPath === '/portal'
+      )
     ) {
       const urlParams = new URLSearchParams(search);
       const targetDealer = urlParams.get('dealer');
@@ -592,12 +599,13 @@ export default function App() {
 
   // Sincronizare URL la comutarea viewMode
   const handleSetViewMode = (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' | 'ghid-auto') => {
-    setViewMode(mode);
-    if (mode !== 'showroom') {
-      setIsRevealed(true);
-    }
     const basePath = window.location.pathname.startsWith('/rxm') ? '/rxm' : '';
     const isParcos = typeof window !== 'undefined' && isParcosDomain(window.location.hostname, window.location.port);
+    const resolvedMode = (mode === 'admin' && isParcos && !isMasquerading) ? 'superadmin' : mode;
+    setViewMode(resolvedMode);
+    if (resolvedMode !== 'showroom') {
+      setIsRevealed(true);
+    }
 
     if (mode === 'ghid-auto') {
       const target = '#ghid-auto';
@@ -1685,10 +1693,28 @@ export default function App() {
               subtitle={isParcosDomain(window.location.hostname, window.location.port) ? 'Acces securizat în panoul de gestiune al platformei ParcOS. Introduceți parola autorizată.' : undefined}
               onAuthenticated={() => {
                 setIsAdminAuthenticated(true);
-                showToast('🔓 Autentificare reușită! Bine ați venit în panoul de gestiune.');
+                if (isParcosDomain(window.location.hostname, window.location.port)) {
+                  handleSetViewMode('superadmin');
+                  showToast('👑 Consola SuperAdmin ParcOS deblocată cu succes.');
+                } else {
+                  showToast('🔓 Autentificare reușită! Bine ați venit în panoul de gestiune.');
+                }
               }}
               onCancel={() => handleSetViewMode(isParcosDomain(window.location.hostname, window.location.port) ? 'saas' : 'showroom')}
               cancelLabel={isParcosDomain(window.location.hostname, window.location.port) ? 'Înapoi pe ParcOS.ro' : 'Înapoi la Showroom-ul Public'}
+            />
+          ) : (isParcosDomain(window.location.hostname, window.location.port) && !isMasquerading) ? (
+            <ParcOSSuperAdminHub 
+              onBackToSaas={() => handleSetViewMode('saas')}
+              onLogoutSuperAdmin={handleLogoutAdmin}
+              onImpersonateTenant={(slug) => {
+                setTenantId(slug);
+                setIsMasquerading(true);
+                setOriginalSuperAdminSession(true);
+                setIsAdminAuthenticated(true);
+                handleSetViewMode('admin');
+              }}
+              showToast={showToast}
             />
           ) : (
             <>
