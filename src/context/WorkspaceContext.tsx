@@ -23,10 +23,13 @@ export interface WorkspaceColumnVisibility {
   deadlines: boolean;
 }
 
+export type AdminDisplayMode = 'dark' | 'light';
+
 export interface WorkspaceSettings {
   density: 'compact' | 'comfortable';
   currency: 'EUR' | 'RON';
   autoScanDocuments: boolean; // 🚀 Scanare automată CIV / Talon la încărcare document
+  displayMode: AdminDisplayMode; // 🌙 Mod Nocturn Întunecat vs ☀️ Mod Diurn Luminos
   visibleColumns: WorkspaceColumnVisibility;
 }
 
@@ -34,6 +37,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   density: 'comfortable',
   currency: 'EUR',
   autoScanDocuments: true, // Implicit activat (recomandat dealer)
+  displayMode: 'dark', // Implicit Dark Luxury
   visibleColumns: {
     specs: true,
     pricing: true,
@@ -53,6 +57,8 @@ export interface WorkspaceContextType {
   toggleColumn: (columnKey: keyof WorkspaceColumnVisibility) => void;
   setDensity: (density: 'compact' | 'comfortable') => void;
   setCurrency: (currency: 'EUR' | 'RON') => void;
+  setDisplayMode: (mode: AdminDisplayMode) => void;
+  toggleDisplayMode: () => void;
   resetSettings: () => void;
   invariants: typeof CARVANA_INVARIANTS;
 }
@@ -70,6 +76,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({ children 
           density: parsed.density === 'compact' ? 'compact' : 'comfortable',
           currency: parsed.currency === 'RON' ? 'RON' : 'EUR',
           autoScanDocuments: parsed.autoScanDocuments !== undefined ? Boolean(parsed.autoScanDocuments) : DEFAULT_WORKSPACE_SETTINGS.autoScanDocuments,
+          displayMode: parsed.displayMode === 'light' ? 'light' : 'dark',
           visibleColumns: {
             ...DEFAULT_WORKSPACE_SETTINGS.visibleColumns,
             ...(parsed.visibleColumns || {})
@@ -89,6 +96,20 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({ children 
       console.warn('Eroare la salvarea setărilor de workspace:', e);
     }
   }, [settings]);
+
+  // Sincronizare atribut data-admin-mode și clasă admin-light-mode în DOM
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-admin-mode', settings.displayMode);
+      if (settings.displayMode === 'light') {
+        document.documentElement.classList.add('admin-light-mode');
+        document.body.classList.add('admin-light-mode');
+      } else {
+        document.documentElement.classList.remove('admin-light-mode');
+        document.body.classList.remove('admin-light-mode');
+      }
+    }
+  }, [settings.displayMode]);
 
   const updateSettings = (newSettings: Partial<WorkspaceSettings>) => {
     setSettings(prev => ({
@@ -123,6 +144,14 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({ children 
     updateSettings({ currency });
   };
 
+  const setDisplayMode = (mode: AdminDisplayMode) => {
+    updateSettings({ displayMode: mode });
+  };
+
+  const toggleDisplayMode = () => {
+    updateSettings({ displayMode: settings.displayMode === 'light' ? 'dark' : 'light' });
+  };
+
   const resetSettings = () => {
     setSettings(DEFAULT_WORKSPACE_SETTINGS);
   };
@@ -136,6 +165,8 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({ children 
         toggleColumn,
         setDensity,
         setCurrency,
+        setDisplayMode,
+        toggleDisplayMode,
         resetSettings,
         invariants: CARVANA_INVARIANTS
       }}
@@ -155,6 +186,8 @@ export const useWorkspace = (): WorkspaceContextType => {
       toggleColumn: () => {},
       setDensity: () => {},
       setCurrency: () => {},
+      setDisplayMode: () => {},
+      toggleDisplayMode: () => {},
       resetSettings: () => {},
       invariants: CARVANA_INVARIANTS
     };

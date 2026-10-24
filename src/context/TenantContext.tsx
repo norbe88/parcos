@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode, useCallback } from 'react';
 import { DealerProfile, SEED_DEALER, TENANT_DEALERS, DEFAULT_TENANT_FEATURES } from '../db/seed';
-import { TenantFeatures, TenantTier, TenantStatus } from '../db/types';
+import { TenantFeatures, TenantTier, TenantStatus, DealerLandingConfig } from '../db/types';
 import { getThemeConfig, ThemeConfig } from '../utils/themePresets';
 import {
   fetchTenantsFromBackend,
@@ -316,6 +316,10 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       } catch {}
       return nextMap;
     });
+
+    if (resolved === tenantId) {
+      setDynamicConfig(prev => prev ? { ...prev, ...partialProfile } : partialProfile);
+    }
 
     // Sincronizare asincronă cu PostgreSQL backend
     saveTenantProfileToBackend(resolved, partialProfile).catch(err => {

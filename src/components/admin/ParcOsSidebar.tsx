@@ -2,9 +2,11 @@ import React from 'react';
 import { 
   Car, Users, FileText, Radio, QrCode, Share2, BarChart3, 
   Settings, Plus, ExternalLink, HelpCircle, LogOut, X, 
-  ShieldCheck, Layers, Building2, ChevronRight, CheckCircle2, DollarSign, Mail, Database
+  ShieldCheck, Layers, Building2, ChevronRight, CheckCircle2, DollarSign, Mail, Database,
+  Sun, Moon
 } from 'lucide-react';
 import { DealerProfile, SEED_DEALER } from '../../db/seed';
+import { useWorkspace } from '../../context/WorkspaceContext';
 
 export type AdminTabType = 
   | 'inventory'       // 🚗 Stoc & Inventar
@@ -54,6 +56,8 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
   isMobileOpen = false,
   onCloseMobile
 }) => {
+  const { settings, toggleDisplayMode } = useWorkspace();
+  const displayMode = settings.displayMode;
   const handleSelectTab = (tab: AdminTabType) => {
     onTabChange(tab);
     if (onCloseMobile) onCloseMobile();
@@ -267,6 +271,37 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
 
       {/* 4. Footer Sidebar: Telemetrie & Acțiuni Suport */}
       <div className="pt-4 border-t border-white/[0.08] space-y-2">
+                {/* Comutator Ergonomic Mod Diurn / Nocturn (OP2) */}
+        <button
+          type="button"
+          onClick={toggleDisplayMode}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all border cursor-pointer touch-manipulation select-none ${
+            displayMode === 'light'
+              ? 'bg-amber-500/10 text-amber-900 border-amber-500/30 hover:bg-amber-500/15 font-semibold'
+              : 'bg-white/[0.03] text-zinc-300 border-white/[0.08] hover:bg-white/[0.08] hover:text-white'
+          }`}
+          title="Comută mod diurn / nocturn pentru ecran"
+          aria-label="Comută mod diurn / nocturn"
+        >
+          <div className="flex items-center gap-2">
+            {displayMode === 'light' ? (
+              <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            ) : (
+              <Moon className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            )}
+            <span className="font-medium text-[11.5px]">
+              {displayMode === 'light' ? 'Mod Diurn (Luminos)' : 'Mod Nocturn (Dark)'}
+            </span>
+          </div>
+          <span className={`text-[9.5px] font-mono px-1.5 py-0.5 rounded border shrink-0 ${
+            displayMode === 'light'
+              ? 'bg-amber-500/15 text-amber-800 border-amber-500/30 font-bold'
+              : 'bg-white/[0.05] text-zinc-400 border-white/[0.08]'
+          }`}>
+            {displayMode === 'light' ? '☀️ DIURN' : '🌙 NOCTURN'}
+          </span>
+        </button>
+
         {/* Status Sistem & Nod Edge */}
         <div className="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] text-[10.5px]">
           <div className="flex items-center justify-between text-zinc-400 mb-1 font-mono">

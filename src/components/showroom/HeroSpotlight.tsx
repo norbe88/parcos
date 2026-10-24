@@ -1,63 +1,19 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { 
   ArrowRight, Truck, Play, Pause, Shield, 
-  Calculator, CheckCircle2, Car, ExternalLink, ChevronLeft, ChevronRight, Volume2, X,
-  ChevronUp, ChevronDown
+  Calculator, CheckCircle2, Car, ExternalLink, ChevronLeft, ChevronRight, Volume2
 } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../db/seed';
+import { DealerProfile } from '../../db/types';
 import { parseTikTokUrl, isTikTokVideoUrl, initializeTikTokVolume, sendTikTokPlayerVolume, formatMileage, normalizeCarImageUrl } from '../../utils/helpers';
 import { WatermarkOverlay } from '../common/WatermarkOverlay';
-
-// 🎰 Facilități Showroom pentru Slot Machine Turner (rotire automată verticală)
-const FACILITY_ITEMS = [
-  {
-    id: 'garantie',
-    icon: Shield,
-    iconColor: 'text-emerald-400',
-    title: 'Garanție Scrisă până la 36 Luni',
-    actionHref: '#why-us'
-  },
-  {
-    id: 'rate',
-    icon: Calculator,
-    iconColor: 'text-amber-400',
-    title: 'Finanțare Rate (0% Avans, Aprobare Rapidă)',
-    actionHref: '#finantare'
-  },
-  {
-    id: 'buyback',
-    icon: Car,
-    iconColor: 'text-amber-400',
-    title: 'Buy-Back & Schimb Auto pe Loc',
-    actionHref: '#buyback'
-  },
-  {
-    id: 'comanda',
-    icon: Truck,
-    iconColor: 'text-amber-400',
-    title: 'Mașini la Comandă (Import UE 5-7 Zile)',
-    actionHref: '#comanda'
-  },
-  {
-    id: 'livrare',
-    icon: Truck,
-    iconColor: 'text-amber-400',
-    title: 'Livrare pe Platformă în Toată România',
-    actionHref: '#comanda'
-  },
-  {
-    id: 'tiktok',
-    icon: Play,
-    iconColor: 'text-[#fe2c55] fill-[#fe2c55]',
-    title: 'Prezentări Video HD Transparente pe TikTok',
-    isPopoutTrigger: true
-  }
-];
+import { ShowroomFacilitiesReel } from './ShowroomFacilitiesReel';
+import { MobileTikTokPlayerModal } from '../modals/MobileTikTokPlayerModal';
 
 interface HeroSpotlightProps {
   cars: VehicleItem[];
   onSelectCar: (car: VehicleItem) => void;
-  dealer?: typeof SEED_DEALER;
+  dealer?: DealerProfile;
   isRevealed?: boolean;
 }
 
@@ -69,67 +25,8 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
 }) => {
   const [spotlightCarIndex, setSpotlightCarIndex] = useState<number>(0);
   const [isSpotlightPlaying, setIsSpotlightPlaying] = useState<boolean>(false);
-  const [activeFacilityIndex, setActiveFacilityIndex] = useState<number>(0);
-  const [isInitialSpinning, setIsInitialSpinning] = useState<boolean>(true);
-  const [hasShimmerGlow, setHasShimmerGlow] = useState<boolean>(true);
   const [isMobileTikTokModalOpen, setIsMobileTikTokModalOpen] = useState<boolean>(false);
   const spotlightIframeRef = useRef<HTMLIFrameElement>(null);
-  const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Funcție de resetare a timer-ului de auto-rotire la interacțiune manuală
-  const resetAutoTimer = () => {
-    if (autoTimerRef.current) clearInterval(autoTimerRef.current);
-    autoTimerRef.current = setInterval(() => {
-      setActiveFacilityIndex(prev => (prev + 1) % FACILITY_ITEMS.length);
-    }, 3500);
-  };
-
-  const handleNextFacility = () => {
-    setActiveFacilityIndex(prev => (prev + 1) % FACILITY_ITEMS.length);
-    resetAutoTimer();
-  };
-
-  const handlePrevFacility = () => {
-    setActiveFacilityIndex(prev => (prev - 1 + FACILITY_ITEMS.length) % FACILITY_ITEMS.length);
-    resetAutoTimer();
-  };
-
-  // 🎰 Spin inițial complet la montare + Efect de strălucire (Shimmer Glow) ce face fade-out
-  useEffect(() => {
-    let step = 0;
-    const initialSpin = setInterval(() => {
-      step++;
-      setActiveFacilityIndex(step % FACILITY_ITEMS.length);
-      if (step >= FACILITY_ITEMS.length) {
-        clearInterval(initialSpin);
-        setActiveFacilityIndex(0);
-        setIsInitialSpinning(false);
-
-        // Fade-out la strălucire după ce s-a oprit pe prima facilitate
-        setTimeout(() => {
-          setHasShimmerGlow(false);
-        }, 900);
-
-        // Pornire timer regulat de rotație
-        resetAutoTimer();
-      }
-    }, 140);
-
-    return () => {
-      clearInterval(initialSpin);
-      if (autoTimerRef.current) clearInterval(autoTimerRef.current);
-    };
-  }, []);
-
-  // Închidere modal TikTok pe Escape
-  useEffect(() => {
-    if (!isMobileTikTokModalOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsMobileTikTokModalOpen(false);
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isMobileTikTokModalOpen]);
 
   // Inițializare automată volum 60% și sunet activ la pornirea redării în Hero Spotlight
   useEffect(() => {
@@ -211,7 +108,7 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
               isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
           >
-            La RXM Automobile eliminăm promisiunile grăbite. Îți prezentăm fiecare mașină transparent în format video pe TikTok, cu rulaj garantat pe factură fiscală, consultanță gratuită pentru înmatriculare și garanție scrisă până la 36 luni în Cluj-Napoca.
+            La {dealer.name} eliminăm promisiunile grăbite. Îți prezentăm fiecare mașină transparent în format video pe TikTok, cu rulaj garantat pe factură fiscală, consultanță gratuită pentru înmatriculare și garanție scrisă până la 36 luni în {dealer.address || 'România'}.
           </p>
 
           {/* Subtitle mobil — compact, direct pe stoc */}
@@ -220,105 +117,11 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
               isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
           >
-            Parc auto verificat Cluj-Napoca · Km garantat pe factură · Garanție scrisă
+            {dealer.showroomAddress || dealer.address || 'Parc auto verificat'} · Km garantat pe factură · Garanție scrisă
           </p>
 
-          {/* 🎰 Slot Machine Turner — Facilități Showroom (Centrat matematic, Spin inițial + Shimmer Glow, Rotație manuală) */}
-          <div className="lg:hidden mt-3 mb-2">
-            <div className="relative h-11 w-full rounded-2xl bg-[#121215] border border-white/10 overflow-hidden shadow-lg shadow-black/50 group select-none">
-              
-              {/* Shimmer / Glow Light Beam on Initial Spin */}
-              <div 
-                className={`absolute inset-0 pointer-events-none transition-opacity duration-1000 z-20 ${
-                  hasShimmerGlow ? 'opacity-100' : 'opacity-0'
-                }`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/20 to-transparent -translate-x-full animate-slot-shimmer" />
-                <div className="absolute inset-0 border border-amber-400/40 rounded-2xl shadow-[inset_0_0_12px_rgba(251,191,36,0.2)]" />
-              </div>
-
-              {/* Reel Container — 44px exact per item, mathematical centering */}
-              <div 
-                className={`w-full transition-transform ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                  isInitialSpinning ? 'duration-150' : 'duration-500'
-                }`}
-                style={{ transform: `translateY(-${activeFacilityIndex * 44}px)` }}
-              >
-                {FACILITY_ITEMS.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <div 
-                      key={item.id} 
-                      className="h-11 w-full flex items-center justify-between px-3.5 touch-manipulation active:bg-white/[0.04] transition-colors cursor-pointer"
-                      onClick={() => {
-                        if (item.isPopoutTrigger) {
-                          setIsMobileTikTokModalOpen(true);
-                        } else if (item.actionHref) {
-                          const target = document.querySelector(item.actionHref);
-                          if (target) {
-                            target.scrollIntoView({ behavior: 'smooth' });
-                          }
-                        }
-                      }}
-                    >
-                      {/* Stânga: Icon + Text centrat vertical fără deformare */}
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
-                        <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                          <Icon className={`w-3.5 h-3.5 ${item.iconColor}`} />
-                        </span>
-                        <span className="text-xs font-semibold text-zinc-200 truncate leading-none">
-                          {item.title}
-                        </span>
-                      </div>
-
-                      {/* Spacer pentru a nu se suprapune cu butoanele de control din dreapta */}
-                      <div className="w-20 shrink-0" />
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Dreapta Fixat: Interactive Stepper & Counter (Tap pentru a roti la facilitatea dorită) */}
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 z-30 flex items-center gap-1 bg-[#18181b]/95 border border-white/10 rounded-xl px-1.5 py-0.5 shadow-md">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handlePrevFacility();
-                  }}
-                  className="p-1 hover:bg-white/10 active:scale-90 text-zinc-400 hover:text-white rounded transition-all touch-manipulation"
-                  aria-label="Facilitatea anterioară"
-                >
-                  <ChevronUp className="w-3.5 h-3.5" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleNextFacility();
-                  }}
-                  className="font-mono text-[10.5px] font-bold text-amber-400 min-w-[24px] text-center hover:text-amber-300 transition-colors cursor-pointer touch-manipulation"
-                  title="Apasă pentru următoarea facilitate"
-                >
-                  {activeFacilityIndex + 1}/{FACILITY_ITEMS.length}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleNextFacility();
-                  }}
-                  className="p-1 hover:bg-white/10 active:scale-90 text-zinc-400 hover:text-white rounded transition-all touch-manipulation"
-                  aria-label="Următoarea facilitate"
-                >
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-            </div>
-          </div>
+          {/* 🎰 Slot Machine Turner — Facilități Showroom */}
+          <ShowroomFacilitiesReel onTriggerTikTokModal={() => setIsMobileTikTokModalOpen(true)} />
 
           {/* Butoane Acțiune Primară */}
           <div 
@@ -391,8 +194,8 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
 
             <div className="p-3 rounded-xl bg-[#121215]/80 border border-white/[0.06]">
               <Car className="w-5 h-5 text-amber-400 mb-1.5" />
-              <div className="font-bold text-white text-xs">Test Drive Cluj</div>
-              <p className="text-[10px] text-zinc-400 mt-0.5">Colonia Hodai F.N.</p>
+              <div className="font-bold text-white text-xs">Test Drive {dealer.serviceLocation || 'Showroom'}</div>
+              <p className="text-[10px] text-zinc-400 mt-0.5 truncate">{dealer.showroomAddress || dealer.address || 'Showroom Auto'}</p>
             </div>
           </div>
         </div>
@@ -710,97 +513,14 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
       </div>
 
       {/* 📱 Pop-Out Modal TikTok (Mobile & On-Demand) */}
-      {isMobileTikTokModalOpen && (
-        <div 
-          className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200 no-print"
-          onClick={() => setIsMobileTikTokModalOpen(false)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-sm max-h-[92dvh] bg-[#121215] border border-white/15 rounded-3xl p-4 shadow-2xl shadow-black relative flex flex-col items-center animate-in zoom-in-95 duration-200"
-          >
-            {/* Buton Închidere */}
-            <button
-              type="button"
-              onClick={() => setIsMobileTikTokModalOpen(false)}
-              className="absolute right-3 top-3 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white min-w-[40px] min-h-[40px] flex items-center justify-center z-30 touch-manipulation cursor-pointer active:scale-95 transition-all"
-              aria-label="Închide video TikTok"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* Header Pop-out */}
-            <div className="w-full flex items-center gap-2 mb-3 pr-10">
-              <div className="w-7 h-7 rounded-full bg-[#fe2c55]/20 border border-[#fe2c55]/40 flex items-center justify-center shrink-0">
-                <Play className="w-3.5 h-3.5 fill-[#fe2c55] text-[#fe2c55]" />
-              </div>
-              <div className="min-w-0">
-                <h4 className="text-xs font-bold text-white truncate">
-                  {currentSpotlightCar ? `${currentSpotlightCar.brand} ${currentSpotlightCar.model} (${currentSpotlightCar.year})` : 'RXM Automobile Showroom'}
-                </h4>
-                <p className="text-[10px] text-zinc-400 font-mono">
-                  {dealer.tiktokHandle} · Prezentare Video HD
-                </p>
-              </div>
-            </div>
-
-            {/* Frame Video 9:16 */}
-            <div className="relative w-full aspect-[9/16] max-h-[62dvh] rounded-2xl overflow-hidden bg-black border border-white/10">
-              {currentSpotlightTt.videoId ? (
-                <iframe
-                  src={`https://www.tiktok.com/player/v1/${currentSpotlightTt.videoId}?embed_from=oembed&autoplay=1&music_info=1&description=1&volume_control=1`}
-                  title={`TikTok RXM Automobile - ${currentSpotlightCar?.brand} ${currentSpotlightCar?.model}`}
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
-                  <Play className="w-12 h-12 text-[#fe2c55] fill-[#fe2c55]/20 mb-3" />
-                  <p className="text-sm font-semibold text-white mb-1">Clipul se deschide în TikTok</p>
-                  <p className="text-xs text-zinc-400 mb-4">Urmărește prezentările complete ale parcului auto</p>
-                  <a
-                    href={dealer.tiktokUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2.5 rounded-xl bg-[#fe2c55] text-white font-bold text-xs"
-                  >
-                    Deschide pe TikTok
-                  </a>
-                </div>
-              )}
-            </div>
-
-            {/* Butoane Acțiune Pop-out */}
-            <div className="w-full mt-3 flex items-center justify-between gap-2 pt-2 border-t border-white/08">
-              <a
-                href={currentSpotlightCar?.tiktokUrl || dealer.tiktokUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[11px] font-semibold text-zinc-300 hover:text-white flex items-center gap-1 active:scale-95 transition-all"
-              >
-                <span>Deschide în App TikTok</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-
-              {currentSpotlightCar && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsMobileTikTokModalOpen(false);
-                    onSelectCar(currentSpotlightCar);
-                  }}
-                  className="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-bold active:scale-95 transition-all"
-                >
-                  Vezi Mașina ({currentSpotlightCar.priceEur.toLocaleString('ro-RO')} €)
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <MobileTikTokPlayerModal
+        isOpen={isMobileTikTokModalOpen}
+        onClose={() => setIsMobileTikTokModalOpen(false)}
+        car={currentSpotlightCar}
+        videoId={currentSpotlightTt.videoId}
+        dealer={dealer}
+        onSelectCar={onSelectCar}
+      />
     </section>
   );
 };

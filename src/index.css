@@ -519,3 +519,175 @@ img[src*="/cars/"],
 .animate-slot-shimmer {
   animation: slotShimmer 1.2s ease-in-out infinite;
 }
+
+/* ==========================================================================
+   ☀️ PARCOS ADMIN — DUAL THEME ENGINE (LIGHT MODE OVERRIDES & WCAG AA)
+   ========================================================================== */
+
+/* 1. Global Light Canvas */
+body.admin-light-mode,
+html.admin-light-mode,
+[data-admin-mode="light"] {
+  background-color: #f8fafc !important; /* Slate 50 */
+  color: #0f172a !important;            /* Slate 900 */
+  color-scheme: light;
+}
+
+/* 2. Admin Root Container */
+.admin-light-mode,
+[data-admin-mode="light"] {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* 3. Surface Inversion: Dark Charcoal -> Pure White / Slate 50 */
+.admin-light-mode aside,
+.admin-light-mode .bg-\[\#09090b\],
+.admin-light-mode .bg-\[\#0c0c0e\],
+.admin-light-mode .bg-\[\#121215\],
+.admin-light-mode .bg-\[\#141417\],
+.admin-light-mode .bg-\[\#18181b\],
+[data-admin-mode="light"] aside,
+[data-admin-mode="light"] .bg-\[\#09090b\],
+[data-admin-mode="light"] .bg-\[\#0c0c0e\],
+[data-admin-mode="light"] .bg-\[\#121215\],
+[data-admin-mode="light"] .bg-\[\#141417\],
+[data-admin-mode="light"] .bg-\[\#18181b\],
+[data-admin-mode="light"] .bg-zinc-950,
+[data-admin-mode="light"] .bg-zinc-900,
+[data-admin-mode="light"] .bg-zinc-900\/50,
+[data-admin-mode="light"] .bg-zinc-900\/40,
+[data-admin-mode="light"] .bg-zinc-900\/30,
+[data-admin-mode="light"] .bg-black\/40,
+[data-admin-mode="light"] .bg-black\/50,
+[data-admin-mode="light"] .bg-black\/60 {
+  background-color: #ffffff !important;
+}
+
+/* Sub-card tinted surfaces / Subtle backgrounds */
+[data-admin-mode="light"] .bg-zinc-900\/20,
+[data-admin-mode="light"] .bg-zinc-900\/10,
+[data-admin-mode="light"] .bg-white\/\[0\.02\],
+[data-admin-mode="light"] .bg-white\/\[0\.03\],
+[data-admin-mode="light"] .bg-white\/\[0\.04\] {
+  background-color: #f8fafc !important;
+}
+
+/* 4. Borders Inversion: Hairline White -> Clean Slate 200 */
+[data-admin-mode="light"] .border-white\/\[0\.08\],
+[data-admin-mode="light"] .border-white\/\[0\.06\],
+[data-admin-mode="light"] .border-white\/\[0\.05\],
+[data-admin-mode="light"] .border-white\/\[0\.04\],
+[data-admin-mode="light"] .border-white\/10,
+[data-admin-mode="light"] .border-white\/20,
+[data-admin-mode="light"] .border-zinc-800,
+[data-admin-mode="light"] .border-zinc-800\/80,
+[data-admin-mode="light"] .border-zinc-800\/60,
+[data-admin-mode="light"] .border-zinc-800\/50,
+[data-admin-mode="light"] .border-zinc-800\/40,
+[data-admin-mode="light"] .border-zinc-700,
+[data-admin-mode="light"] .border-zinc-700\/50,
+[data-admin-mode="light"] .divide-zinc-800 > :not([hidden]) ~ :not([hidden]),
+[data-admin-mode="light"] .divide-white\/\[0\.08\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0 !important; /* Slate 200 */
+}
+
+/* 5. Typography Hierarchy & Contrast (WCAG AA Compliance) */
+[data-admin-mode="light"] .text-white,
+[data-admin-mode="light"] .text-zinc-100 {
+  color: #0f172a !important; /* Slate 900 */
+}
+
+[data-admin-mode="light"] .text-zinc-200 {
+  color: #1e293b !important; /* Slate 800 */
+}
+
+[data-admin-mode="light"] .text-zinc-300 {
+  color: #334155 !important; /* Slate 700 */
+}
+
+[data-admin-mode="light"] .text-zinc-400 {
+  color: #64748b !important; /* Slate 500 */
+}
+
+[data-admin-mode="light"] .text-zinc-500 {
+  color: #94a3b8 !important; /* Slate 400 */
+}
+
+/* 6. Form Controls: Inputs, Selects, Textareas */
+[data-admin-mode="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-admin-mode="light"] select,
+[data-admin-mode="light"] textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-admin-mode="light"] input::placeholder,
+[data-admin-mode="light"] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* 7. Hover and Interactive Elements */
+[data-admin-mode="light"] .hover\:bg-white\/\[0\.04\]:hover,
+[data-admin-mode="light"] .hover\:bg-white\/\[0\.05\]:hover,
+[data-admin-mode="light"] .hover\:bg-white\/\[0\.06\]:hover,
+[data-admin-mode="light"] .hover\:bg-white\/\[0\.08\]:hover,
+[data-admin-mode="light"] .hover\:bg-white\/10:hover,
+[data-admin-mode="light"] .hover\:bg-zinc-800:hover,
+[data-admin-mode="light"] .hover\:bg-zinc-800\/50:hover {
+  background-color: #f1f5f9 !important; /* Slate 100 */
+}
+
+/* 8. Badge and Pill Contrast Harmonization */
+[data-admin-mode="light"] .text-emerald-300,
+[data-admin-mode="light"] .text-emerald-400 {
+  color: #059669 !important; /* Emerald 600 */
+}
+
+[data-admin-mode="light"] .bg-emerald-500\/10,
+[data-admin-mode="light"] .bg-emerald-500\/15 {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+}
+
+[data-admin-mode="light"] .text-amber-300,
+[data-admin-mode="light"] .text-amber-400 {
+  color: #d97706 !important; /* Amber 600 */
+}
+
+[data-admin-mode="light"] .text-blue-300,
+[data-admin-mode="light"] .text-blue-400 {
+  color: #2563eb !important; /* Blue 600 */
+}
+
+[data-admin-mode="light"] .bg-blue-500\/10,
+[data-admin-mode="light"] .bg-blue-500\/15 {
+  background-color: #eff6ff !important;
+  border-color: #bfdbfe !important;
+}
+
+[data-admin-mode="light"] .text-rose-300,
+[data-admin-mode="light"] .text-rose-400 {
+  color: #e11d48 !important; /* Rose 600 */
+}
+
+[data-admin-mode="light"] .bg-rose-500\/10,
+[data-admin-mode="light"] .bg-rose-500\/15 {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+}
+
+/* 9. Scrollbars in Light Mode */
+.admin-light-mode ::-webkit-scrollbar-track,
+[data-admin-mode="light"] ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.admin-light-mode ::-webkit-scrollbar-thumb,
+[data-admin-mode="light"] ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+.admin-light-mode ::-webkit-scrollbar-thumb:hover,
+[data-admin-mode="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

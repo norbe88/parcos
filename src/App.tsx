@@ -9,23 +9,15 @@ import { Footer } from './components/layout/Footer';
 import { FloatingWhatsApp } from './components/layout/FloatingWhatsApp';
 import { FloatingBackToTop } from './components/layout/FloatingBackToTop';
 
-// Componente Showroom
+// Componente Showroom & Orchestrator
 import { CinematicIntro } from './components/CinematicIntro';
-import { HeroSpotlight } from './components/showroom/HeroSpotlight';
-import { VehicleCatalog } from './components/showroom/VehicleCatalog';
-import { WhyChooseUs } from './components/showroom/WhyChooseUs';
-import { FinancingSection } from './components/showroom/FinancingSection';
-import { BuyBackSection } from './components/showroom/BuyBackSection';
-import { CustomOrderSection } from './components/showroom/CustomOrderSection';
-import { GoogleReviewsSection } from './components/showroom/GoogleReviewsSection';
+import { LandingSectionOrchestrator } from './components/showroom/LandingSectionOrchestrator';
 
 // Modale & Admin (Lazy Loaded on Demand for Ultra-Fast Initial Bundle)
-const VehicleDetailModal = lazy(() => import('./components/modals/VehicleDetailModal').then(m => ({ default: m.VehicleDetailModal })));
+import { AppModalContainer } from './components/modals/AppModalContainer';
 const AdminPortal = lazy(() => import('./components/admin/AdminPortal').then(m => ({ default: m.AdminPortal })));
 const AdminLoginGate = lazy(() => import('./components/admin/AdminLoginGate').then(m => ({ default: m.AdminLoginGate })));
 const AddVehicleModal = lazy(() => import('./components/admin/AddVehicleModal').then(m => ({ default: m.AddVehicleModal })));
-
-const PrintableVehicleSheet = lazy(() => import('./components/print/PrintableVehicleSheet').then(m => ({ default: m.PrintableVehicleSheet })));
 const TermsAndConditionsPage = lazy(() => import('./components/legal/TermsAndConditionsPage').then(m => ({ default: m.TermsAndConditionsPage })));
 const NationalDeliveryPage = lazy(() => import('./components/delivery/NationalDeliveryPage').then(m => ({ default: m.NationalDeliveryPage })));
 const CookiePolicyPage = lazy(() => import('./components/legal/CookiePolicyPage').then(m => ({ default: m.CookiePolicyPage })));
@@ -1771,73 +1763,20 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* 🚗 VEDEREA 2: SHOWROOM PUBLIC (DYNAMIC SECTION REGISTRY & ORDERING) */}
+      {/* 🚗 VEDEREA 2: SHOWROOM PUBLIC (DECLARATIVE SECTION ORCHESTRATOR)          */}
       {/* ========================================================================= */}
       {viewMode === 'showroom' && (
-        <main className="no-print">
-          {(() => {
-            const defaultOrder = [
-              'HERO_SPOTLIGHT',
-              'VEHICLE_CATALOG',
-              'FINANCING',
-              'BUY_BACK',
-              'GOOGLE_REVIEWS',
-              'WHY_CHOOSE_US',
-              'CUSTOM_ORDER',
-            ];
-            const activeOrder = (tenant.config as any)?.layout?.sectionsOrder || defaultOrder;
-            
-            const registry: Record<string, React.ReactNode> = {
-              HERO_SPOTLIGHT: (
-                <HeroSpotlight 
-                  key="HERO_SPOTLIGHT"
-                  cars={publicCars}
-                  onSelectCar={(car) => handleSelectCar(car, 'specs')}
-                  dealer={tenant}
-                  isRevealed={isRevealed}
-                />
-              ),
-              VEHICLE_CATALOG: (
-                <VehicleCatalog 
-                  key="VEHICLE_CATALOG"
-                  cars={publicCars}
-                  onSelectCar={handleSelectCar}
-                  dealer={tenant}
-                />
-              ),
-              FINANCING: (
-                <FinancingSection 
-                  key="FINANCING"
-                  cars={publicCars}
-                  dealer={tenant}
-                />
-              ),
-              BUY_BACK: (
-                <BuyBackSection 
-                  key="BUY_BACK"
-                  cars={publicCars}
-                  dealer={tenant}
-                  showToast={showToast}
-                />
-              ),
-              GOOGLE_REVIEWS: (
-                <GoogleReviewsSection key="GOOGLE_REVIEWS" />
-              ),
-              WHY_CHOOSE_US: (
-                <WhyChooseUs key="WHY_CHOOSE_US" />
-              ),
-              CUSTOM_ORDER: (
-                <CustomOrderSection 
-                  key="CUSTOM_ORDER"
-                  dealer={tenant}
-                  showToast={showToast}
-                />
-              ),
-            };
-
-            return activeOrder.map((sectionKey: string) => registry[sectionKey] || null);
-          })()}
-        </main>
+        <Suspense fallback={<div className="min-h-screen bg-[#09090b]" />}>
+          <LandingSectionOrchestrator
+            dealer={tenant}
+            landingConfig={tenant.landingConfig}
+            vehicles={cars}
+            publicVehicles={publicCars}
+            onSelectCar={handleSelectCar}
+            showToast={showToast}
+            isRevealed={isRevealed}
+          />
+        </Suspense>
       )}
 
       {/* ========================================================================= */}
@@ -1898,58 +1837,45 @@ export default function App() {
       )}
 
       {/* ========================================================================= */}
-      {/* 🔍 MODAL DETALII MAȘINĂ (FOTO, RATE, TIKTOK EMBED & TEST DRIVE) */}
+      {/* 🔍 MODALE APLICAȚIE (DETALII VEHICUL & FIȘĂ OFICIALĂ PDF PRINT)          */}
       {/* ========================================================================= */}
-      <Suspense fallback={null}>
-        {safeSelectedCar && (
-          <VehicleDetailModal 
-            selectedCar={safeSelectedCar}
-            initialTab={modalTab}
-            initialVideoFormat={videoFormat}
-            onClose={handleCloseDetailModal}
-            onPrint={() => {
-              if (safeSelectedCar) {
-                const fn = getStandardDocumentFileName({
-                  docType: 'vehicle_sheet',
-                  brand: safeSelectedCar.brand,
-                  model: safeSelectedCar.model,
-                  stockNumber: safeSelectedCar.stockNumber,
-                  vin: safeSelectedCar.vin
-                });
-                printWithDocumentTitle(fn);
-                showToast(`Pregătit pentru print / Salvare: "${fn}.pdf"`);
-              } else {
-                window.print();
-              }
-            }}
-            showToast={showToast}
-            dealer={tenant}
-            viewMode={viewMode === 'admin' ? 'admin' : 'showroom'}
-            onAddExpense={handleAddExpense}
-            onDeleteExpense={handleDeleteExpense}
-            onUpdatePurchasePrice={handleUpdatePurchasePrice}
-            onUpdateSaleInfo={handleUpdateSaleInfo}
-            onUpdateVehicleDeadlines={handleUpdateVehicleDeadlines}
-            onToggleVatDeductible={handleToggleVatDeductible}
-            onUpdateDescription={handleUpdateDescription}
-            onEditCar={(car) => {
-              handleCloseDetailModal();
-              setEditingCar(car);
-              setIsAddModalOpen(true);
-            }}
-          />
-        )}
-      </Suspense>
-
-      {/* ========================================================================= */}
-      {/* 🖨️ FIȘĂ AUTO OFICIALĂ PENTRU TIPĂRIRE / SALVARE PDF (@media print)       */}
-      {/* ========================================================================= */}
-      <Suspense fallback={null}>
-        <PrintableVehicleSheet 
-          selectedCar={selectedCar}
-          dealer={tenant}
-        />
-      </Suspense>
+      <AppModalContainer
+        safeSelectedCar={safeSelectedCar}
+        selectedCar={selectedCar}
+        modalTab={modalTab}
+        videoFormat={videoFormat}
+        viewMode={viewMode}
+        tenant={tenant}
+        showToast={showToast}
+        onCloseDetailModal={handleCloseDetailModal}
+        onPrintVehicleSheet={() => {
+          if (safeSelectedCar) {
+            const fn = getStandardDocumentFileName({
+              docType: 'vehicle_sheet',
+              brand: safeSelectedCar.brand,
+              model: safeSelectedCar.model,
+              stockNumber: safeSelectedCar.stockNumber,
+              vin: safeSelectedCar.vin
+            });
+            printWithDocumentTitle(fn);
+            showToast(`Pregătit pentru print / Salvare: "${fn}.pdf"`);
+          } else {
+            window.print();
+          }
+        }}
+        onAddExpense={handleAddExpense}
+        onDeleteExpense={handleDeleteExpense}
+        onUpdatePurchasePrice={handleUpdatePurchasePrice}
+        onUpdateSaleInfo={handleUpdateSaleInfo}
+        onUpdateVehicleDeadlines={handleUpdateVehicleDeadlines}
+        onToggleVatDeductible={handleToggleVatDeductible}
+        onUpdateDescription={handleUpdateDescription}
+        onEditCar={(car) => {
+          handleCloseDetailModal();
+          setEditingCar(car);
+          setIsAddModalOpen(true);
+        }}
+      />
 
       {/* 📌 FOOTER: Legal & Contact */}
       {viewMode !== 'saas' && viewMode !== 'superadmin' && viewMode !== 'admin' && viewMode !== 'ghid-auto' && (

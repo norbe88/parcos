@@ -1,4 +1,4 @@
-import { DealerProfile, TenantFeatures } from './types';
+import { DealerProfile, TenantFeatures, DealerLandingConfig } from './types';
 
 export const DEFAULT_TENANT_FEATURES: TenantFeatures = {
   ocrCivTalon: true,
@@ -9,6 +9,22 @@ export const DEFAULT_TENANT_FEATURES: TenantFeatures = {
   windowStickersQr: true,
   financingCalculator: true,
   whatsappLeadsBot: true,
+};
+
+// ─── Config Landing Default (fallback sigur pentru orice dealer nou) ──────────
+export const DEFAULT_LANDING_CONFIG: DealerLandingConfig = {
+  layoutVariant: 'luxury_cinematic',
+  hero: { type: 'video_loop' },
+  visibleSections: {
+    heroCinematic: true,
+    vehicleCatalog: true,
+    whyChooseUs: true,
+    financingSection: true,
+    buyBackSection: true,
+    customOrderSection: true,
+    googleReviewsSection: true,
+  },
+  customBadges: ['Garanție 24 Luni', 'TVA Deductibil 21%', 'Livrare Națională'],
 };
 
 /**
@@ -65,7 +81,8 @@ export const SEED_DEALER: DealerProfile = {
     facebookPageId: "61550788350781",
     instagramBusinessAccountId: "",
     autoAddWatermarkPlates: true
-  }
+  },
+  landingConfig: DEFAULT_LANDING_CONFIG
 };
 
 export const DEALER_MPI_AUTO: DealerProfile = {
@@ -107,6 +124,20 @@ export const DEALER_MPI_AUTO: DealerProfile = {
     ...DEFAULT_TENANT_FEATURES,
     tikTokStudio: false,
     autolicitPush: false,
+  },
+  landingConfig: {
+    layoutVariant: 'compact_inventory',
+    hero: { type: 'spotlight', headline: 'MPI Auto Cluj — Stoc Rotit Săptămânal' },
+    visibleSections: {
+      heroCinematic: true,
+      vehicleCatalog: true,
+      whyChooseUs: true,
+      financingSection: true,
+      buyBackSection: true,
+      customOrderSection: false,
+      googleReviewsSection: false,
+    },
+    customBadges: ['Garanție 12 Luni', 'Rate BT / TBI'],
   }
 };
 
@@ -149,6 +180,20 @@ export const DEALER_TOP_AUTO: DealerProfile = {
     olxStockSync: false,
     tikTokStudio: false,
     autolicitPush: false,
+  },
+  landingConfig: {
+    layoutVariant: 'nordic_clean',
+    hero: { type: 'spotlight', headline: 'ALD Autoland Cluj — Vehicule Corporate Verificate' },
+    visibleSections: {
+      heroCinematic: true,
+      vehicleCatalog: true,
+      whyChooseUs: true,
+      financingSection: true,
+      buyBackSection: false,
+      customOrderSection: false,
+      googleReviewsSection: false,
+    },
+    customBadges: ['Garanție 12 Luni', 'Ideal Flotă B2B'],
   }
 };
 
@@ -188,7 +233,8 @@ export const DEALER_AUTONORD_CLUJ: DealerProfile = {
   features: {
     ...DEFAULT_TENANT_FEATURES,
     autolicitPush: false,
-  }
+  },
+  landingConfig: DEFAULT_LANDING_CONFIG
 };
 
 export const DEALER_RXM_SANDBOX: DealerProfile = {

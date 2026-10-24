@@ -172,6 +172,44 @@ export type DealerThemePreset =
   | 'carbon_red'        // 🏎️ Sport Crimson / Dynamic Red (Stil Audi S-Line / Cupra)
   | 'emerald_prestige'; // 🌿 British Green / Eco Luxury (Stil Aston Martin / Alpina)
 
+// ─── Landing Page Config ───────────────────────────────────────────────────
+export type DealerHeroType =
+  | 'video_loop'   // ShowroomVideoIntro 4K (curent RXM)
+  | 'spotlight'    // HeroSpotlight — mașină vedetă pe piedestal
+  | 'banner';      // DealerBannerHero — compact, axat pe stoc
+
+export type DealerLayoutVariant =
+  | 'luxury_cinematic'   // Dark, animat, video loop (RXM Classic)
+  | 'nordic_clean'       // Alb, minimalist (stil Polestar)
+  | 'compact_inventory'  // Filtre dense, viteza > estetic (stil AutoHero)
+  | 'corporate_fleet';   // Corporativ, sobru (flote B2B)
+
+export interface DealerHeroConfig {
+  type: DealerHeroType;
+  headline?: string;        // ex: "Autovehicule Rulate Premium • Cluj-Napoca"
+  subheadline?: string;
+  videoUrl?: string;        // folosit DOAR dacă type === 'video_loop'
+  posterUrl?: string;
+  primaryCtaText?: string;  // ex: "Explorează Stocul" (default dacă gol)
+}
+
+export interface DealerLandingSections {
+  heroCinematic: boolean;        // HeroSpotlight / ShowroomVideoIntro / DealerBannerHero
+  vehicleCatalog: boolean;       // VehicleCatalog (#stoc)
+  whyChooseUs: boolean;          // WhyChooseUs (#why-us)
+  financingSection: boolean;     // FinancingSection (#finantare)
+  buyBackSection: boolean;       // BuyBackSection (#buyback)
+  customOrderSection: boolean;   // CustomOrderSection (#comanda)
+  googleReviewsSection: boolean; // GoogleReviewsSection (#recenzii)
+}
+
+export interface DealerLandingConfig {
+  layoutVariant: DealerLayoutVariant;
+  hero: DealerHeroConfig;
+  visibleSections: DealerLandingSections;
+  customBadges: string[]; // ex: ["Garanție 24 Luni", "TVA Deductibil 21%"]
+}
+
 export interface TenantFeatures {
   ocrCivTalon: boolean;         // Scanare automată CIV & Talon OCR v9
   olxStockSync: boolean;        // Sincronizare automată stoc OLX / Autovit
@@ -230,6 +268,8 @@ export interface DealerProfile {
   activeVehiclesCount?: number;
   // Integrare Social Media & Meta Graph API (Ticket 04)
   socialIntegration?: DealerSocialIntegration;
+  // Configurare Landing Page Dinamică (Wave 1)
+  landingConfig?: DealerLandingConfig;
 }
 
 export interface DealerSocialIntegration {

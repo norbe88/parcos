@@ -36,6 +36,7 @@ import { MailboxLayout } from '../../modules/mail/MailboxLayout';
 import { convertEurToRon } from '../../utils/currencyEngine';
 import { DealPricingData } from './DealPriceModal';
 import { BackupRollbackManager } from './BackupRollbackManager';
+import { useWorkspace } from '../../context/WorkspaceContext';
 
 interface AdminPortalProps {
   cars: VehicleItem[];
@@ -103,6 +104,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   onEditCar
 }) => {
   const { tenant } = useTenant();
+  const { settings } = useWorkspace();
   const activeDealer = dealer || tenant;
 
   const [activeAdminTab, setActiveAdminTab] = useState<AdminTabType>('inventory');
@@ -176,7 +178,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
   return (
 
-    <div className="min-h-screen bg-[#0c0c0e] text-zinc-100 flex flex-col md:flex-row no-print">
+    <div 
+      data-admin-mode={settings.displayMode}
+      className={`min-h-screen flex flex-col md:flex-row no-print transition-colors duration-200 ${
+        settings.displayMode === 'light' 
+          ? 'admin-light-mode bg-[#f8fafc] text-slate-900' 
+          : 'bg-[#0c0c0e] text-zinc-100'
+      }`}
+    >
       {/* Topbar mobil cu trigger hamburger */}
       <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[#121215] border-b border-white/[0.08] sticky top-0 z-30">
         <div className="flex items-center gap-2">
