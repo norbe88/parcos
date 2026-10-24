@@ -120,9 +120,10 @@ async function runTests() {
       assert(res.body.includes('property="og:title" content="ParcOS — Program Complet pentru Parcuri Auto: Site Propriu &amp; Gestiune Vânzări"') ||
              res.body.includes('property="og:title" content="ParcOS — Program Complet pentru Parcuri Auto: Site Propriu & Gestiune Vânzări"'),
              'og:title trebuie să fie cel dedicat ParcOS');
-      assert(res.body.includes('property="og:image" content="https://parcos.ro/brand/parcos-og-icon.png"') ||
-             res.body.includes('property="og:image" content="https://parcos.ro/brand/parcos-og-card.png"'),
-             'og:image trebuie să conțină asset-ul de brand ParcOS');
+      assert(res.body.includes('property="og:image" content="https://parcos.ro/brand/parcos-og-icon.png"'),
+             'og:image trebuie să trimită strict la https://parcos.ro/brand/parcos-og-icon.png');
+      assert(!res.body.includes('property="og:image" content="https://parcos.ro/brand/parcos-og-card.png"'),
+             'NU trebuie să existe al doilea og:image cu bannerul orizontal');
       assert(res.body.includes('property="og:url" content="https://parcos.ro/"'),
              'og:url trebuie să fie https://parcos.ro/');
 

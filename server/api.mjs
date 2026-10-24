@@ -902,6 +902,9 @@ async function renderDynamicHtml(html, req, urlObj) {
     output = output.replace('</head>', `  <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />\n</head>`);
   }
 
+  // Curățare deterministă a tuturor tag-urilor og:image existente din template pentru a evita dublurile în crawlerele Meta/WhatsApp
+  output = output.replace(/<meta\s+property=["']og:image[^"']*["'][^>]*>\s*/gi, '');
+
   // Actualizare Open Graph Tags
   const ogReplacements = [
     { property: 'og:site_name', content: ogSiteName },
