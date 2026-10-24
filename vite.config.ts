@@ -426,6 +426,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/api/superadmin': {
+        target: process.env.VITE_API_TARGET || 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
       '/api/admin': {
         target: process.env.VITE_API_TARGET || 'https://rxmautomobile.ro',
         changeOrigin: true,

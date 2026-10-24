@@ -395,8 +395,8 @@ const financingAccordionCode = readFile('src/components/showroom/FinancingRequir
 assert(financingAccordionCode.includes('persoane-fizice') && financingAccordionCode.includes('persoane-juridice') && financingAccordionCode.includes('diaspora'), 'FinancingRequirementsAccordion acoperă Persoane Fizice, Firme și Diaspora');
 
 // T07 & T10: Securitate Admin Hash & Mascare Date Sensibile
-const loginGateCode = readFile('src/components/admin/AdminLoginGate.tsx');
-assert(loginGateCode.includes('dbc1d0952684f4b89cc86bc7ffdd52cacc2a79e667b7e0765953069e05bb6589'), 'AdminLoginGate verifică hash-ul SHA-256 criptografic pentru Luna.RXM');
+const serverApiCode = readFile('server/api.mjs');
+assert(serverApiCode.includes('e180c917ef121846cee6c6b488b9d7a159c12c96880c1901b5a309ca66efb7c2'), 'server/api.mjs verifică hash-ul SHA-256 criptografic pentru Olaf.0311');
 assert(appTsxCode.includes('publicCars') && appTsxCode.includes('purchasePriceEur: undefined'), 'App.tsx maschează prețurile de achiziție și datele sensibile pentru vizitatori publici');
 
 // ==========================================

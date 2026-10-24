@@ -28,7 +28,7 @@ function assert(condition, testName) {
 }
 
 const rootDir = path.resolve(__dirname, '..');
-const ADMIN_PASSWORD_HASH = 'dbc1d0952684f4b89cc86bc7ffdd52cacc2a79e667b7e0765953069e05bb6589';
+const ADMIN_PASSWORD_HASH = 'e180c917ef121846cee6c6b488b9d7a159c12c96880c1901b5a309ca66efb7c2';
 
 // -----------------------------------------------------------------------------
 // TEST SUITE 1: Dicționar de Parole Comune & Atac Brute-Force Extern
@@ -58,21 +58,21 @@ assert(allCommonRejected, `Niciuna din cele ${commonPasswords.length} parole uzu
 // -----------------------------------------------------------------------------
 console.log('\n🔍 [SUITE 2] Validare Criptografică Parolă Autorizată');
 
-const authorizedPassword = 'Luna.RXM';
+const authorizedPassword = 'Olaf.0311';
 const authorizedHash = crypto.createHash('sha256').update(authorizedPassword).digest('hex');
-assert(authorizedHash === ADMIN_PASSWORD_HASH, 'Parola autorizată oficială (Luna.RXM) produce hash-ul SHA-256 autorizat');
+assert(authorizedHash === ADMIN_PASSWORD_HASH, 'Parola autorizată oficială (Olaf.0311) produce hash-ul SHA-256 autorizat');
 
 // Verificare variații (Case-sensitivity)
-const lowercaseHash = crypto.createHash('sha256').update('luna.rxm').digest('hex');
-const uppercaseHash = crypto.createHash('sha256').update('LUNA.RXM').digest('hex');
-const partialHash = crypto.createHash('sha256').update('Luna.rxm').digest('hex');
+const lowercaseHash = crypto.createHash('sha256').update('olaf.0311').digest('hex');
+const uppercaseHash = crypto.createHash('sha256').update('OLAF.0311').digest('hex');
+const partialHash = crypto.createHash('sha256').update('olaf.0311'.trim()).digest('hex');
 
-assert(lowercaseHash !== ADMIN_PASSWORD_HASH, 'Parola cu minuscule ("luna.rxm") este categoric respinsă');
-assert(uppercaseHash !== ADMIN_PASSWORD_HASH, 'Parola cu majuscule ("LUNA.RXM") este categoric respinsă');
-assert(partialHash !== ADMIN_PASSWORD_HASH, 'Parola cu sufix minuscul ("Luna.rxm") este categoric respinsă');
+assert(lowercaseHash !== ADMIN_PASSWORD_HASH, 'Parola cu minuscule ("olaf.0311") este categoric respinsă');
+assert(uppercaseHash !== ADMIN_PASSWORD_HASH, 'Parola cu majuscule ("OLAF.0311") este categoric respinsă');
+assert(crypto.createHash('sha256').update('Olaf.0312').digest('hex') !== ADMIN_PASSWORD_HASH, 'Parola cu cifre modificate este categoric respinsă');
 
 // Verificare whitespace trimming
-const trimmedHash = crypto.createHash('sha256').update('  Luna.RXM  '.trim()).digest('hex');
+const trimmedHash = crypto.createHash('sha256').update('  Olaf.0311  '.trim()).digest('hex');
 assert(trimmedHash === ADMIN_PASSWORD_HASH, 'Parola autorizată cu spații accidentale la început/sfârșit este curățată (trim) corect');
 
 // -----------------------------------------------------------------------------

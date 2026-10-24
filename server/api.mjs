@@ -664,6 +664,326 @@ export async function resolveTenant(req, urlObj) {
 }
 
 /**
+ * ══════════════════════════════════════════════════════════════════
+ * SSR DYNAMIC OPEN GRAPH & METADATA INJECTION ENGINE
+ * Asigură că partajarea link-urilor (WhatsApp, Facebook, LinkedIn,
+ * Twitter/X, Telegram, iMessage) reflectă domeniul corect:
+ *  - parcos.ro -> ParcOS SaaS Dealership Operating System
+ *  - rxmautomobile.ro -> RXM Automobile Showroom Cluj
+ *  - ?car=XYZ -> Card dedicat vehicul cu foto primară și specificații
+ * ══════════════════════════════════════════════════════════════════
+ */
+
+let cachedHtmlTemplate = null;
+let cachedHtmlMtime = 0;
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+async function getOrLoadHtmlTemplate(htmlFilePath) {
+  try {
+    const stat = fs.statSync(htmlFilePath);
+    if (!cachedHtmlTemplate || stat.mtimeMs > cachedHtmlMtime) {
+      cachedHtmlTemplate = fs.readFileSync(htmlFilePath, 'utf8');
+      cachedHtmlMtime = stat.mtimeMs;
+    }
+    return cachedHtmlTemplate;
+  } catch (err) {
+    if (cachedHtmlTemplate) return cachedHtmlTemplate;
+    throw err;
+  }
+}
+
+async function renderDynamicHtml(html, req, urlObj) {
+  const rawHost = (req?.headers?.['x-forwarded-host'] || req?.headers?.['host'] || '').split(',')[0].split(':')[0].toLowerCase().trim();
+  const host = rawHost.replace(/^www\./, '');
+  const pathname = (urlObj?.pathname || '/').toLowerCase();
+  const searchParams = urlObj?.searchParams || new URLSearchParams();
+  const queryDealer = searchParams.get('dealer') || searchParams.get('dealer_slug');
+
+  const isParcos = host === 'parcos.ro' || 
+                   host === 'parcos.local' || 
+                   host.includes('parcos') || 
+                   pathname.startsWith('/saas') || 
+                   searchParams.has('saas') ||
+                   queryDealer === 'parcos';
+
+  let title = '';
+  let description = '';
+  let keywords = '';
+  let canonicalUrl = '';
+  let ogTitle = '';
+  let ogDescription = '';
+  let ogImage = '';
+  let ogImageWidth = '1200';
+  let ogImageHeight = '630';
+  let ogImageAlt = '';
+  let ogUrl = '';
+  let ogSiteName = '';
+  let ogType = 'website';
+  let twitterCard = 'summary_large_image';
+  let jsonLdSchema = null;
+
+  if (isParcos) {
+    // 🏷️ PARCOS — Multi-Tenant Dealership Operating System (SaaS)
+    title = 'ParcOS — Program Complet pentru Parcuri Auto: Site Propriu & Gestiune Vânzări';
+    description = 'Platformă completă de gestiune și showroom digital pentru parcuri auto rulate. Scanare automată CIV & Talon cu AI, generare contracte DITL pe loc, sincronizare stoc și facturare fiscală.';
+    keywords = 'program parc auto, soft gestiune parc auto, site parc auto, software vanzari auto, scanare civ talon, contracte auto, fgo facturare, dms auto romania, parcos, carvana';
+    canonicalUrl = `https://parcos.ro${pathname === '/index.html' || pathname === '/' ? '/' : pathname}`;
+    ogSiteName = 'ParcOS';
+    ogType = 'website';
+    ogTitle = title;
+    ogDescription = description;
+    ogImage = 'https://parcos.ro/brand/parcos-og-card.png';
+    ogImageAlt = 'ParcOS — Dealership Operating System';
+    ogUrl = canonicalUrl;
+
+    jsonLdSchema = {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ParcOS",
+      "alternateName": "ParcOS — Dealership Operating System",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web, Cloud SaaS",
+      "description": description,
+      "url": "https://parcos.ro/",
+      "logo": "https://parcos.ro/brand/parcos-app-icon.png",
+      "image": "https://parcos.ro/brand/parcos-og-card.png",
+      "publisher": {
+        "@type": "Organization",
+        "name": "CARVANA SRL",
+        "url": "https://parcos.ro/"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "description": "Pachete Starter, Pro și Enterprise pentru parcuri auto rulate"
+      }
+    };
+  } else {
+    // 🚗 DEALER SHOWROOM (RXM Automobile sau Tenant Specific)
+    const isRxm = host.includes('rxmautomobile.ro') || (!isParcos && (host === 'localhost' || host === '127.0.0.1'));
+    const carId = searchParams.get('car') || pathname.match(/^\/(?:cars|masini)\/([^\/]+)/)?.[1];
+
+    let vehicle = null;
+    if (carId) {
+      try {
+        vehicle = await getPublicVehicleById(carId);
+      } catch (e) {
+        // Ignoră eroare DB temporară
+      }
+      if (!vehicle) {
+        try {
+          const seedsPath = path.resolve('server/seeds.json');
+          if (fs.existsSync(seedsPath)) {
+            const seeds = JSON.parse(fs.readFileSync(seedsPath, 'utf8'));
+            vehicle = seeds.find(c => c.id === carId || c.stockNumber === carId);
+          }
+        } catch {}
+      }
+    }
+
+    if (vehicle) {
+      // 🚘 Partajare Link Dedicat Mașină
+      const dealerBrand = isRxm ? 'RXM Automobile Cluj-Napoca' : (DEFAULT_DEALER_PROFILES[host]?.name || 'Dealer Auto');
+      const domainName = isRxm ? 'rxmautomobile.ro' : (host || 'rxmautomobile.ro');
+      const formattedPrice = Number(vehicle.priceEur || vehicle.price_eur || 0).toLocaleString('ro-RO');
+      const mileageStr = Number(vehicle.mileage || vehicle.mileage_km || 0).toLocaleString('ro-RO');
+
+      title = `${vehicle.brand} ${vehicle.model} ${vehicle.year} • ${formattedPrice} € — ${dealerBrand}`;
+      description = `De vânzare la ${dealerBrand}: ${vehicle.brand} ${vehicle.model} (${vehicle.year}), ${mileageStr} km, motorizare ${vehicle.fuel || vehicle.fuel_type || ''} ${vehicle.transmission || ''}. Garanție 12-24 luni, revizie gratuită, finanțare rapidă cu 0% avans.`;
+      canonicalUrl = `https://${domainName}/?car=${encodeURIComponent(carId)}`;
+      ogSiteName = dealerBrand;
+      ogType = 'article';
+      ogTitle = title;
+      ogDescription = description;
+      ogUrl = canonicalUrl;
+
+      let rawImg = (vehicle.images && vehicle.images[0]) || vehicle.main_image || '/rxm/images/rxm-emblem.png';
+      if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
+        ogImage = rawImg;
+      } else {
+        const cleanPath = rawImg.startsWith('/') ? rawImg : `/${rawImg}`;
+        ogImage = `https://${domainName}${cleanPath}`;
+      }
+      ogImageAlt = `${vehicle.brand} ${vehicle.model} ${vehicle.year}`;
+    } else {
+      // 🏢 Pagină Principală Dealer
+      if (isRxm) {
+        title = 'RXM AUTO MOBILE — Autovehicule Rulate Premium | Cluj-Napoca';
+        description = 'Dealer auto Cluj-Napoca. Mașini rulate atent selectate, cu garanție 12-24 luni, kilometraj certificat și finanțare rapidă cu 0% avans.';
+        keywords = 'parc auto cluj, masini rulate cluj-napoca, dealer auto cluj, garantie auto 12 luni, finantare auto 0 avans, autovehicule rulate cluj, rxm automobile';
+        canonicalUrl = 'https://rxmautomobile.ro/';
+        ogSiteName = 'RXM AUTO MOBILE';
+        ogType = 'website';
+        ogTitle = title;
+        ogDescription = description;
+        ogImage = 'https://rxmautomobile.ro/rxm/images/rxm-emblem.png';
+        ogImageAlt = 'RXM AUTO MOBILE Cluj-Napoca';
+        ogUrl = 'https://rxmautomobile.ro/';
+
+        jsonLdSchema = {
+          "@context": "https://schema.org",
+          "@type": "AutoDealer",
+          "name": "RXM AUTO MOBILE",
+          "legalName": "RXM AUTO MOBILE SRL",
+          "description": description,
+          "url": "https://rxmautomobile.ro/",
+          "logo": "https://rxmautomobile.ro/rxm/images/rxm-emblem.png",
+          "image": "https://rxmautomobile.ro/rxm/images/rxm-emblem.png",
+          "telephone": "+40748892937",
+          "email": "contact@rxmautomobile.ro",
+          "priceRange": "€€€",
+          "currenciesAccepted": "EUR, RON",
+          "paymentAccepted": "Transfer bancar, Finanțare rate fixe, Leasing, Buy-Back",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Strada Colonia Hodai F.N.",
+            "addressLocality": "Cluj-Napoca",
+            "addressRegion": "Cluj",
+            "postalCode": "400000",
+            "addressCountry": "RO"
+          }
+        };
+      } else {
+        const tenant = (await resolveTenant(req, urlObj)) || DEFAULT_DEALER_PROFILES.rxm;
+        title = `${tenant.name} — Autovehicule Rulate Verificate`;
+        description = `Parc auto autorizat ${tenant.city || 'România'}. Garanție extinsă, kilometri certificați și rate fixe fără avans.`;
+        canonicalUrl = `https://${host}/`;
+        ogSiteName = tenant.name;
+        ogType = 'website';
+        ogTitle = title;
+        ogDescription = description;
+        ogImage = `https://${host}/rxm/images/rxm-emblem.png`;
+        ogUrl = canonicalUrl;
+      }
+    }
+  }
+
+  let output = html;
+
+  // Actualizare <title>
+  if (/<title>[\s\S]*?<\/title>/i.test(output)) {
+    output = output.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(title)}</title>`);
+  } else {
+    output = output.replace('</head>', `  <title>${escapeHtml(title)}</title>\n</head>`);
+  }
+
+  // Actualizare <meta name="description">
+  if (/<meta\s+name=["']description["'][^>]*>/i.test(output)) {
+    output = output.replace(/<meta\s+name=["']description["'][^>]*>/i, `<meta name="description" content="${escapeHtml(description)}" />`);
+  } else {
+    output = output.replace('</head>', `  <meta name="description" content="${escapeHtml(description)}" />\n</head>`);
+  }
+
+  // Actualizare <meta name="keywords">
+  if (keywords) {
+    if (/<meta\s+name=["']keywords["'][^>]*>/i.test(output)) {
+      output = output.replace(/<meta\s+name=["']keywords["'][^>]*>/i, `<meta name="keywords" content="${escapeHtml(keywords)}" />`);
+    } else {
+      output = output.replace('</head>', `  <meta name="keywords" content="${escapeHtml(keywords)}" />\n</head>`);
+    }
+  }
+
+  // Actualizare <link rel="canonical">
+  if (/<link\s+rel=["']canonical["'][^>]*>/i.test(output)) {
+    output = output.replace(/<link\s+rel=["']canonical["'][^>]*>/i, `<link rel="canonical" href="${escapeHtml(canonicalUrl)}" />`);
+  } else {
+    output = output.replace('</head>', `  <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />\n</head>`);
+  }
+
+  // Actualizare Open Graph Tags
+  const ogReplacements = [
+    { property: 'og:site_name', content: ogSiteName },
+    { property: 'og:type', content: ogType },
+    { property: 'og:title', content: ogTitle },
+    { property: 'og:description', content: ogDescription },
+    { property: 'og:image', content: ogImage },
+    { property: 'og:image:secure_url', content: ogImage },
+    { property: 'og:image:width', content: ogImageWidth },
+    { property: 'og:image:height', content: ogImageHeight },
+    { property: 'og:image:alt', content: ogImageAlt },
+    { property: 'og:url', content: ogUrl },
+    { property: 'og:locale', content: 'ro_RO' },
+  ];
+
+  for (const { property, content } of ogReplacements) {
+    if (!content) continue;
+    const regex = new RegExp(`<meta\\s+property=["']${property}["'][^>]*>`, 'i');
+    const newTag = `<meta property="${property}" content="${escapeHtml(content)}" />`;
+    if (regex.test(output)) {
+      output = output.replace(regex, newTag);
+    } else {
+      output = output.replace('</head>', `  ${newTag}\n</head>`);
+    }
+  }
+
+  // Actualizare Twitter Card Tags
+  const twitterReplacements = [
+    { name: 'twitter:card', content: twitterCard },
+    { name: 'twitter:title', content: ogTitle },
+    { name: 'twitter:description', content: ogDescription },
+    { name: 'twitter:image', content: ogImage },
+  ];
+
+  for (const { name, content } of twitterReplacements) {
+    if (!content) continue;
+    const regex = new RegExp(`<meta\\s+name=["']${name}["'][^>]*>`, 'i');
+    const newTag = `<meta name="${name}" content="${escapeHtml(content)}" />`;
+    if (regex.test(output)) {
+      output = output.replace(regex, newTag);
+    } else {
+      output = output.replace('</head>', `  ${newTag}\n</head>`);
+    }
+  }
+
+  // Actualizare Schema.org JSON-LD
+  if (jsonLdSchema) {
+    const jsonLdTag = `<script type="application/ld+json">\n${JSON.stringify(jsonLdSchema, null, 2)}\n    </script>`;
+    if (/<script\s+type=["']application\/ld\+json["']>[\s\S]*?<\/script>/i.test(output)) {
+      output = output.replace(/<script\s+type=["']application\/ld\+json["']>[\s\S]*?<\/script>/i, jsonLdTag);
+    } else {
+      output = output.replace('</head>', `  ${jsonLdTag}\n</head>`);
+    }
+  }
+
+  return output;
+}
+
+async function serveHtmlWithDynamicMeta(req, res, htmlFilePath, urlObj) {
+  try {
+    const rawTemplate = await getOrLoadHtmlTemplate(htmlFilePath);
+    const rendered = await renderDynamicHtml(rawTemplate, req, urlObj);
+
+    res.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-cache',
+      'Content-Length': Buffer.byteLength(rendered, 'utf8'),
+      ...SECURITY_HEADERS
+    });
+    if (req.method === 'HEAD') return res.end();
+    return res.end(rendered);
+  } catch (err) {
+    console.error('[HTML SSR Error]', err);
+    res.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-cache',
+      ...SECURITY_HEADERS
+    });
+    if (req.method === 'HEAD') return res.end();
+    return fs.createReadStream(htmlFilePath).pipe(res);
+  }
+}
+
+/**
  * Trimite un răspuns JSON structurat cu CORS securizat
  */
 function sendJson(res, statusCode, data) {
@@ -1600,7 +1920,7 @@ export const server = http.createServer(async (req, res) => {
       }
 
       const inputHash = crypto.createHash('sha256').update(password).digest('hex');
-      const targetHash = process.env.ADMIN_PASSWORD_HASH || 'dbc1d0952684f4b89cc86bc7ffdd52cacc2a79e667b7e0765953069e05bb6589';
+      const targetHash = process.env.ADMIN_PASSWORD_HASH || 'e180c917ef121846cee6c6b488b9d7a159c12c96880c1901b5a309ca66efb7c2';
 
       let match = false;
       try {
@@ -2873,6 +3193,68 @@ export const server = http.createServer(async (req, res) => {
     const DIST_DIR = path.resolve('dist');
     const PUBLIC_DIR = path.resolve('public');
     if ((fs.existsSync(DIST_DIR) || fs.existsSync(PUBLIC_DIR)) && (req.method === 'GET' || req.method === 'HEAD') && !pathname.startsWith('/api/')) {
+      // 🗺️ Sitemap Dinamic diferențiat per domeniu (parcos.ro vs rxmautomobile.ro)
+      if (pathname === '/sitemap.xml') {
+        const rawHost = (req.headers['x-forwarded-host'] || req.headers['host'] || '').split(',')[0].split(':')[0].toLowerCase().trim().replace(/^www\./, '');
+        if (rawHost === 'parcos.ro' || rawHost === 'parcos.local' || rawHost.includes('parcos')) {
+          const parcosSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://parcos.ro/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://parcos.ro/#demo-ocr</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://parcos.ro/#pricing</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://parcos.ro/#calculator-roi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://parcos.ro/#teme</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://parcos.ro/#whatsapp-quote</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://parcos.ro/#ghid-auto</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://parcos.ro/termeni-si-conditii</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://parcos.ro/politica-de-cookies</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>`;
+          res.writeHead(200, {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Cache-Control': 'public, max-age=86400',
+            'X-Content-Type-Options': 'nosniff'
+          });
+          if (req.method === 'HEAD') return res.end();
+          return res.end(parcosSitemap);
+        }
+      }
+
       const sanitizedPath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
       let potentialFile = path.join(DIST_DIR, sanitizedPath);
 
@@ -2909,11 +3291,15 @@ export const server = http.createServer(async (req, res) => {
         };
         const contentType = mimeTypes[ext] || 'application/octet-stream';
         const isHtml = ext === '.html';
+
+        if (isHtml) {
+          return await serveHtmlWithDynamicMeta(req, res, potentialFile, urlObj);
+        }
+
         const headers = {
           'Content-Type': contentType,
-          'Cache-Control': isHtml ? 'no-cache' : 'public, max-age=31536000, immutable',
-          'X-Content-Type-Options': 'nosniff',
-          ...(isHtml ? SECURITY_HEADERS : {})
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          'X-Content-Type-Options': 'nosniff'
         };
         res.writeHead(200, headers);
         if (req.method === 'HEAD') return res.end();
@@ -2946,16 +3332,15 @@ export const server = http.createServer(async (req, res) => {
         return res.end(JSON.stringify({ success: false, error: 'Asset static inexistent' }));
       }
 
-      // SPA Fallback: dacă nu este fișier static și nu e rută de API, servim dist/index.html cu toate antetele de securitate
-      const indexHtmlPath = path.join(DIST_DIR, 'index.html');
+      // SPA Fallback: dacă nu este fișier static și nu e rută de API, servim dist/index.html cu meta tag-uri SSR dinamice
+      const indexHtmlPath = fs.existsSync(path.join(DIST_DIR, 'index.html'))
+        ? path.join(DIST_DIR, 'index.html')
+        : (fs.existsSync(path.join(PUBLIC_DIR, 'index.html'))
+          ? path.join(PUBLIC_DIR, 'index.html')
+          : path.resolve('index.html'));
+
       if (fs.existsSync(indexHtmlPath)) {
-        res.writeHead(200, {
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-cache',
-          ...SECURITY_HEADERS
-        });
-        if (req.method === 'HEAD') return res.end();
-        return fs.createReadStream(indexHtmlPath).pipe(res);
+        return await serveHtmlWithDynamicMeta(req, res, indexHtmlPath, urlObj);
       }
     }
 
