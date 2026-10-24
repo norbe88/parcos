@@ -422,12 +422,12 @@ export default defineConfig({
         secure: false,
       },
       '/api/auth': {
-        target: process.env.VITE_API_TARGET || 'https://rxmautomobile.ro',
+        target: process.env.VITE_API_TARGET || 'https://parcos.ro',
         changeOrigin: true,
         secure: false,
       },
       '/api/superadmin': {
-        target: process.env.VITE_API_TARGET || 'http://localhost:3000',
+        target: process.env.VITE_API_TARGET || 'https://parcos.ro',
         changeOrigin: true,
         secure: false,
       },
