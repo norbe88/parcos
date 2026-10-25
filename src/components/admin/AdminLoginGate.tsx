@@ -92,10 +92,11 @@ export const AdminLoginGate: React.FC<AdminLoginGateProps> = ({
     (async () => {
       try {
         const trimmed = password.trim();
+        const targetTenant = dealer?.slug || (typeof window !== 'undefined' && window.location.hostname.toLowerCase().includes('parcos.ro') ? 'parcos' : 'rxm');
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: trimmed }),
+          body: JSON.stringify({ password: trimmed, tenantId: targetTenant }),
         });
 
         const data = await res.json().catch(() => ({}));
@@ -104,6 +105,11 @@ export const AdminLoginGate: React.FC<AdminLoginGateProps> = ({
           try {
             sessionStorage.removeItem(LOCKOUT_KEY_COUNT);
             sessionStorage.removeItem(LOCKOUT_KEY_TIMESTAMP);
+            if (data.role === 'superadmin' || targetTenant === 'parcos') {
+              sessionStorage.setItem('parcos_superadmin_key', data.token);
+              localStorage.setItem('parcos_superadmin_key', data.token);
+              sessionStorage.setItem('parcos_admin_authenticated', 'true');
+            }
             sessionStorage.setItem('rxm_admin_authenticated', 'true');
             sessionStorage.setItem('rxm_admin_session_token', data.token);
           } catch {}

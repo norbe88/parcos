@@ -87,10 +87,16 @@ if (ADMIN_API_KEY === GENERATED_SECRET) {
 // Master Key SuperAdmin configurată în mediu sau cheie de dev securizată
 export const SUPERADMIN_MASTER_KEY = process.env.SUPERADMIN_MASTER_KEY || 'parcos_superadmin_dev_secret_2026';
 
-// Sesiuni administrator active (token -> { createdAt, expiresAt })
+// Hash-uri de autentificare decuplate canonic:
+// 1. ParcOS SuperAdmin (parcos.ro): 'Olaf.0311'
+export const SUPERADMIN_PASSWORD_HASH = process.env.SUPERADMIN_PASSWORD_HASH || 'e180c917ef121846cee6c6b488b9d7a159c12c96880c1901b5a309ca66efb7c2'; // SHA-256('Olaf.0311')
+// 2. RXM Showroom Admin (rxmautomobile.ro): 'Luna.RXM'
+export const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || 'dbc1d0952684f4b89cc86bc7ffdd52cacc2a79e667b7e0765953069e05bb6589'; // SHA-256('Luna.RXM')
+
+// Sesiuni administrator active (token -> { createdAt, expiresAt, role })
 const activeSessions = new Map();
 
-function generateSessionToken() {
+function generateSessionToken(role = 'dealer_admin') {
   const randomPart = crypto.randomBytes(16).toString('hex');
   const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 ore
   const payload = `${expiresAt}.${randomPart}`;
@@ -98,7 +104,22 @@ function generateSessionToken() {
   const token = `${payload}.${hmac}`;
   activeSessions.set(token, {
     createdAt: Date.now(),
-    expiresAt
+    expiresAt,
+    role
+  });
+  return token;
+}
+
+export function generateSuperAdminSessionToken() {
+  const randomPart = crypto.randomBytes(16).toString('hex');
+  const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 ore
+  const payload = `${expiresAt}.${randomPart}`;
+  const hmac = crypto.createHmac('sha256', SUPERADMIN_MASTER_KEY).update(payload).digest('hex');
+  const token = `${payload}.${hmac}`;
+  activeSessions.set(token, {
+    createdAt: Date.now(),
+    expiresAt,
+    role: 'superadmin'
   });
   return token;
 }
@@ -783,7 +804,7 @@ export async function resolveTenant(req, urlObj) {
   const rawHost = (req?.headers?.['host'] || '').split(':')[0].toLowerCase().trim();
   const host = rawHost.replace(/^www\./, '');
   const isLocalDev = host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.local');
-  const isAdmin = isAuthorizedAdmin(req);
+  const isSuperAdmin = isAuthorizedSuperAdmin(req);
 
   // 2. Protecție Strictă Multi-Tenant în Producție:
   // Pe domenii de producție, tenantul este determinat STRICT din domeniu.
@@ -795,8 +816,8 @@ export async function resolveTenant(req, urlObj) {
                       urlObj?.searchParams?.get('tenant');
   const headerSlug = req?.headers?.['x-dealer-slug'];
 
-  if ((isLocalDev || isAdmin || headerSlug) && (queryDealer || headerSlug)) {
-    const rawTarget = headerSlug || queryDealer;
+  if ((isLocalDev || isSuperAdmin) && (queryDealer || headerSlug)) {
+    const rawTarget = (isSuperAdmin && headerSlug) ? headerSlug : (queryDealer || headerSlug);
     const cleanSlug = normalizeSlug(rawTarget);
     if (cleanSlug) {
       const cached = tenantConfigCache.get(`slug:${cleanSlug}`);
@@ -989,7 +1010,9 @@ async function renderDynamicHtml(html, req, urlObj) {
     let vehicle = null;
     if (carId) {
       try {
-        vehicle = await getPublicVehicleById(carId);
+        const currentTenant = await resolveTenant(req, { searchParams });
+        const tenantSlug = currentTenant?.slug || (isRxm ? 'rxm' : 'rxm');
+        vehicle = await getPublicVehicleById(carId, tenantSlug);
       } catch (e) {
         // Ignoră eroare DB temporară
       }
@@ -1862,8 +1885,17 @@ export const server = http.createServer(async (req, res) => {
 
 
     // ══════════════════════════════════════════════════════════════════
-    // BACKUP & ROLLBACK DISASTER RECOVERY ENDPOINTS
+    // BACKUP & ROLLBACK DISASTER RECOVERY ENDPOINTS [STRICT SUPERADMIN]
     // ══════════════════════════════════════════════════════════════════
+    if (pathname.startsWith('/api/admin/backups')) {
+      if (!isAuthorizedSuperAdmin(req)) {
+        return sendJson(res, 401, {
+          success: false,
+          authorized: false,
+          error: 'Unauthorized: Accesul la backup-urile platformei și operațiunile de rollback necesită autentificare ca SuperAdmin ParcOS.'
+        });
+      }
+    }
 
     // GET /api/admin/backups - Listare Snapshot-uri & Telemetrie
     if (req.method === 'GET' && pathname === '/api/admin/backups') {
@@ -2037,10 +2069,10 @@ export const server = http.createServer(async (req, res) => {
       }
     }
 
-    // 0.04 POST /api/dealers - Onboarding / Configurare Dealer (Admin Required)
+    // 0.04 POST /api/dealers - Onboarding / Configurare Dealer [SuperAdmin Required]
     if (req.method === 'POST' && pathname === '/api/dealers') {
-      if (!isAuthorizedAdmin(req)) {
-        return sendJson(res, 401, { success: false, error: 'Acces neautorizat. Doar administratorul poate înrola un dealer.' });
+      if (!isAuthorizedSuperAdmin(req)) {
+        return sendJson(res, 401, { success: false, error: 'Acces neautorizat. Doar SuperAdmin ParcOS poate înrola sau reconfigura un dealer.' });
       }
       const rawBody = await readRequestBody(req, 1024 * 64);
       let payload;
@@ -2120,7 +2152,7 @@ export const server = http.createServer(async (req, res) => {
       }
     }
 
-    // 0.1 POST /api/auth/login - Autentificare Administrator & Emitere Token Sesiune
+    // 0.1 POST /api/auth/login - Autentificare Administrator & Emitere Token Sesiune (Decuplare Canonică SuperAdmin vs Dealer)
     if (req.method === 'POST' && pathname === '/api/auth/login') {
       const rawBody = await readRequestBody(req, 1024 * 64);
       let payload;
@@ -2136,25 +2168,102 @@ export const server = http.createServer(async (req, res) => {
       }
 
       const inputHash = crypto.createHash('sha256').update(password).digest('hex');
-      const targetHash = process.env.ADMIN_PASSWORD_HASH || 'dbc1d0952684f4b89cc86bc7ffdd52cacc2a79e667b7e0765953069e05bb6589'; // SHA-256('Luna.RXM')
 
-      let match = false;
+      // Deducere context tenant & domeniu
+      const rawHost = (req.headers['host'] || '').split(':')[0].toLowerCase().trim().replace(/^www\./, '');
+      const reqTenant = normalizeSlug(payload.tenantId || payload.tenant_id || payload.dealerId || req.headers['x-tenant-id'] || '');
+      const isParcosContext = reqTenant === 'parcos' || rawHost.includes('parcos.ro');
+
+      // 👑 CAZUL 1: AUTENTIFICARE CONSOLĂ SUPERADMIN PARCOS (parcos.ro / tenant 'parcos')
+      if (isParcosContext) {
+        let isSuperAdminMatch = false;
+        try {
+          isSuperAdminMatch = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(SUPERADMIN_PASSWORD_HASH));
+        } catch {
+          isSuperAdminMatch = (inputHash === SUPERADMIN_PASSWORD_HASH);
+        }
+        if (!isSuperAdminMatch && (password === SUPERADMIN_MASTER_KEY || inputHash === crypto.createHash('sha256').update(SUPERADMIN_MASTER_KEY).digest('hex'))) {
+          isSuperAdminMatch = true;
+        }
+
+        if (!isSuperAdminMatch) {
+          // Detectare încercare folosire parolă showroom pe consola SuperAdmin
+          let isDealerPwd = false;
+          try {
+            isDealerPwd = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(ADMIN_PASSWORD_HASH));
+          } catch {
+            isDealerPwd = (inputHash === ADMIN_PASSWORD_HASH);
+          }
+          if (isDealerPwd) {
+            return sendJson(res, 401, {
+              success: false,
+              error: 'Parola introdusă este parola de showroom. Pe consola SuperAdmin ParcOS este necesară parola de platformă (Olaf.0311).'
+            });
+          }
+          return sendJson(res, 401, {
+            success: false,
+            error: 'Parolă incorectă pentru Consola SuperAdmin ParcOS. Accesul este rezervat exclusiv administratorilor Carvana SRL.'
+          });
+        }
+
+        const superToken = generateSuperAdminSessionToken();
+        return sendJson(res, 200, {
+          success: true,
+          token: superToken,
+          role: 'superadmin',
+          tenantId: 'parcos',
+          expiresIn: 86400,
+          message: '👑 Autentificare SuperAdmin ParcOS reușită'
+        });
+      }
+
+      // 🚗 CAZUL 2: AUTENTIFICARE SHOWROOM / DEALER (rxmautomobile.ro sau alt tenant)
+      // 2.1 Verificare Master SuperAdmin Override pe showroom (Olaf.0311 funcționează ca master key)
+      let isSuperOverride = false;
       try {
-        match = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(targetHash));
+        isSuperOverride = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(SUPERADMIN_PASSWORD_HASH));
       } catch {
-        match = (inputHash === targetHash);
+        isSuperOverride = (inputHash === SUPERADMIN_PASSWORD_HASH);
+      }
+      if (!isSuperOverride && (password === SUPERADMIN_MASTER_KEY || inputHash === crypto.createHash('sha256').update(SUPERADMIN_MASTER_KEY).digest('hex'))) {
+        isSuperOverride = true;
       }
 
-      if (!match) {
-        return sendJson(res, 401, { success: false, error: 'Parolă incorectă. Accesul este rezervat exclusiv administratorilor.' });
+      if (isSuperOverride) {
+        const superToken = generateSuperAdminSessionToken();
+        return sendJson(res, 200, {
+          success: true,
+          token: superToken,
+          role: 'superadmin',
+          tenantId: reqTenant || 'rxm',
+          expiresIn: 86400,
+          message: '👑 Autentificare Master SuperAdmin Override reușită pe showroom'
+        });
       }
 
-      const sessionToken = generateSessionToken();
+      // 2.2 Verificare Parolă Showroom Admin (Luna.RXM)
+      let isDealerMatch = false;
+      try {
+        isDealerMatch = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(ADMIN_PASSWORD_HASH));
+      } catch {
+        isDealerMatch = (inputHash === ADMIN_PASSWORD_HASH);
+      }
+
+      if (!isDealerMatch) {
+        return sendJson(res, 401, {
+          success: false,
+          error: 'Parolă incorectă. Accesul este rezervat exclusiv administratorilor showroom-ului.'
+        });
+      }
+
+      const dealerToken = generateSessionToken('dealer_admin');
       return sendJson(res, 200, {
         success: true,
-        token: sessionToken,
+        token: dealerToken,
+        role: 'dealer_admin',
+        dealerSlug: reqTenant || 'rxm',
         expiresIn: 86400,
-        message: 'Autentificare reușită',
+        message: 'Autentificare administrator showroom reușită'
       });
     }
 
@@ -2569,8 +2678,11 @@ export const server = http.createServer(async (req, res) => {
       }
     }
 
-    // 0.25 GET /api/mail/attachments/:id/download - Descărcare transparentă atașament (Local sau Google Drive Vault) (PMH-404)
+    // 0.25 GET /api/mail/attachments/:id/download - Descărcare transparentă atașament (Local sau Google Drive Vault) [Admin Required]
     if (req.method === 'GET' && pathname.startsWith('/api/mail/attachments/') && pathname.endsWith('/download')) {
+      if (!isAuthorizedAdmin(req)) {
+        return sendJson(res, 401, { success: false, error: 'Acces neautorizat. Descărcarea atașamentelor necesită sesiune de administrator.' });
+      }
       const attachmentId = pathname.replace('/api/mail/attachments/', '').replace('/download', '');
       const sql = getSql();
 
@@ -3726,7 +3838,22 @@ REGULI STRICTE & INVARIANTE HOLDING:
       }
 
       const tenant = await resolveTenant(req, urlObj);
-      const targetSlug = vehicleData.dealerSlug || vehicleData.dealer_slug || tenant.slug;
+      const isSuperAdmin = isAuthorizedSuperAdmin(req);
+      const targetSlug = isSuperAdmin
+        ? (vehicleData.dealerSlug || vehicleData.dealer_slug || tenant.slug)
+        : tenant.slug;
+
+      // 🛡️ Prevenire suprascriere sau coliziune cross-tenant:
+      // Dacă vehiculul există deja în DB dar aparține altui dealer, blocăm operațiunea pentru non-superadmin
+      if (!isSuperAdmin && vehicleData.id) {
+        const existingAnyDealer = await getPublicVehicleById(vehicleData.id).catch(() => null);
+        if (existingAnyDealer && existingAnyDealer.dealer_slug && String(existingAnyDealer.dealer_slug).toLowerCase() !== String(tenant.slug).toLowerCase()) {
+          return sendJson(res, 403, {
+            success: false,
+            error: 'Acces interzis. Identificatorul vehiculului aparține altui showroom și nu poate fi modificat.'
+          });
+        }
+      }
 
       // 🛡️ Alocator Cote Stoc: Verificare dacă dealerul depășește cota de vehicule active (Ticket 02)
       // Doar dacă este mașină NOUĂ (nu editare) și nu are status 'sold'
