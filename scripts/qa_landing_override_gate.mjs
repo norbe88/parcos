@@ -93,6 +93,14 @@ server.listen(TEST_PORT, '127.0.0.1', async () => {
       done();
     });
 
+    await it('STAGING: GET / pe staging.parcos.ro servește landing v5 curat (200 OK)', async (done) => {
+      const res = await requestHttp('/', { Host: 'staging.parcos.ro' });
+      assert.strictEqual(res.statusCode, 200);
+      assert.ok(res.body.includes('ParcOS'));
+      assert.ok(res.body.includes('styles.css?v=5'));
+      done();
+    });
+
     await it('PROD: GET /?host=parcos.ro pe dealer (rxmautomobile.ro) NU afișează landing-ul (BLOCAT)', async (done) => {
       const res = await requestHttp('/?host=parcos.ro', { Host: 'rxmautomobile.ro' });
       const isLanding = res.body.includes('styles.css?v=5') && res.body.includes('Domeniul e al parcului');

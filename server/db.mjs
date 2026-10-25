@@ -263,7 +263,7 @@ export async function initDatabase() {
         telefon_e164         VARCHAR(30) NOT NULL,
         parc                 VARCHAR(120),
         consent_at           TIMESTAMPTZ NOT NULL,
-        consent_text_version VARCHAR(50) DEFAULT 'v4-20261025' NOT NULL,
+        consent_text_version VARCHAR(50) DEFAULT 'v5-20261025' NOT NULL,
         ip_hash              VARCHAR(64) NOT NULL,
         user_agent           TEXT,
         sursa                VARCHAR(80) DEFAULT 'parcos.ro' NOT NULL,

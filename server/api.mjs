@@ -1274,7 +1274,11 @@ async function readRequestBody(req, maxBytes = 25 * 1024 * 1024) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const LANDING_DIR = path.resolve('landing');
-const LANDING_HOSTS = new Set(['parcos.ro', 'www.parcos.ro']);
+const EXTRA_LANDING_HOSTS = (process.env.LANDING_HOSTS || '')
+  .split(',')
+  .map(s => s.trim().toLowerCase())
+  .filter(Boolean);
+const LANDING_HOSTS = new Set(['parcos.ro', 'www.parcos.ro', 'staging.parcos.ro', ...EXTRA_LANDING_HOSTS]);
 const LANDING_FILES = new Set(['/favicon.ico', '/favicon-32x32.png', '/apple-touch-icon.png']);
 
 const MIME_MAP = {
