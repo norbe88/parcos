@@ -952,6 +952,7 @@ async function renderDynamicHtml(html, req, urlObj) {
                    pathname.startsWith('/saas') || 
                    searchParams.has('saas') ||
                    queryDealer === 'parcos';
+  const isRxm = host.includes('rxmautomobile.ro') || (!isParcos && (host === 'localhost' || host === '127.0.0.1'));
 
   let title = '';
   let description = '';
@@ -1010,7 +1011,6 @@ async function renderDynamicHtml(html, req, urlObj) {
     };
   } else {
     // 🚗 DEALER SHOWROOM (RXM Automobile sau Tenant Specific)
-    const isRxm = host.includes('rxmautomobile.ro') || (!isParcos && (host === 'localhost' || host === '127.0.0.1'));
     const carId = searchParams.get('car') || pathname.match(/^\/(?:cars|masini)\/([^\/]+)/)?.[1];
 
     let vehicle = null;
@@ -1200,12 +1200,21 @@ async function renderDynamicHtml(html, req, urlObj) {
     }
   }
 
-  // Gestionare preîncărcare video și titlu Apple Web App per-tenant:
+  // Gestionare preîncărcare video, titlu Apple Web App și Favicon per-tenant:
   // Pe showroom de dealer (RXM etc.), NU preîncărcăm video-ul SaaS parcos-showroom-intro.mp4
   if (!isParcos) {
     output = output.replace(/<link\s+rel=["']preload["'][^>]*parcos-showroom-intro\.mp4[^>]*>\s*/gi, '');
     output = output.replace(/<link\s+rel=["']preload["'][^>]*parcos-showroom-hall\.jpg[^>]*>\s*/gi, '');
     output = output.replace(/<meta\s+name=["']apple-mobile-web-app-title["'][^>]*>/gi, `<meta name="apple-mobile-web-app-title" content="${escapeHtml(ogSiteName || (isRxm ? 'RXM Automobile' : 'Dealer Showroom'))}" />`);
+
+    // 🛡️ Înlocuire dinamică Favicon & Web App Manifest pentru showroom dealer (RXM Automobile etc.)
+    const dealerAssetPrefix = isRxm ? '/rxm' : '/rxm';
+    output = output.replace(/href=["']\/favicon\.svg(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/favicon.svg?v=rxm2026"`);
+    output = output.replace(/href=["']\/favicon-32x32\.png(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/favicon-32x32.png?v=rxm2026"`);
+    output = output.replace(/href=["']\/favicon-16x16\.png(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/favicon-16x16.png?v=rxm2026"`);
+    output = output.replace(/href=["']\/favicon\.ico(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/favicon.ico?v=rxm2026"`);
+    output = output.replace(/href=["']\/apple-touch-icon\.png(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/apple-touch-icon.png?v=rxm2026"`);
+    output = output.replace(/href=["']\/site\.webmanifest(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/site.webmanifest?v=rxm2026"`);
   } else {
     output = output.replace(/<meta\s+name=["']apple-mobile-web-app-title["'][^>]*>/gi, `<meta name="apple-mobile-web-app-title" content="ParcOS" />`);
   }
@@ -4486,10 +4495,13 @@ REGULI STRICTE & INVARIANTE HOLDING:
     const DIST_DIR = path.resolve('dist');
     const PUBLIC_DIR = path.resolve('public');
     if ((fs.existsSync(DIST_DIR) || fs.existsSync(PUBLIC_DIR)) && (req.method === 'GET' || req.method === 'HEAD') && !pathname.startsWith('/api/')) {
+      const rawHost = (req.headers['x-forwarded-host'] || req.headers['host'] || '').split(',')[0].split(':')[0].toLowerCase().trim().replace(/^www\./, '');
+      const isParcosHost = rawHost === 'parcos.ro' || rawHost === 'parcos.local' || rawHost.includes('parcos');
+      const isRxmHost = rawHost.includes('rxmautomobile.ro') || (!isParcosHost && (rawHost === 'localhost' || rawHost === '127.0.0.1'));
+
       // 🗺️ Sitemap Dinamic diferențiat per domeniu (parcos.ro vs rxmautomobile.ro)
       if (pathname === '/sitemap.xml') {
-        const rawHost = (req.headers['x-forwarded-host'] || req.headers['host'] || '').split(',')[0].split(':')[0].toLowerCase().trim().replace(/^www\./, '');
-        if (rawHost === 'parcos.ro' || rawHost === 'parcos.local' || rawHost.includes('parcos')) {
+        if (isParcosHost) {
           const parcosSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://parcos.ro/</loc><lastmod>2026-10-25</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
@@ -4510,10 +4522,25 @@ REGULI STRICTE & INVARIANTE HOLDING:
       const sanitizedPath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
       let potentialFile = path.join(DIST_DIR, sanitizedPath);
 
-      if (!fs.existsSync(potentialFile) || !fs.statSync(potentialFile).isFile()) {
-        const altPublicFile = path.join(PUBLIC_DIR, sanitizedPath);
-        if (fs.existsSync(altPublicFile) && fs.statSync(altPublicFile).isFile()) {
-          potentialFile = altPublicFile;
+      // 🛡️ Multi-Tenant Favicon & Root Branding Isolation:
+      // Dacă cererea vine de pe rxmautomobile.ro (sau alt showroom de dealer) și cere un favicon direct la rădăcină (/favicon.ico, /favicon.svg etc.)
+      const cleanPathForBranding = sanitizedPath.replace(/^[\\\/]+/, '');
+      const isRootBrandingFile = /^(?:favicon[^\/\\]*|apple-touch-icon[^\/\\]*|site\.webmanifest)$/i.test(cleanPathForBranding);
+      if (isRootBrandingFile && !isParcosHost) {
+        const tenantFolder = isRxmHost ? 'rxm' : 'rxm';
+        const tenantDistFile = path.join(DIST_DIR, tenantFolder, cleanPathForBranding);
+        const tenantPublicFile = path.join(PUBLIC_DIR, tenantFolder, cleanPathForBranding);
+        if (fs.existsSync(tenantDistFile) && fs.statSync(tenantDistFile).isFile()) {
+          potentialFile = tenantDistFile;
+        } else if (fs.existsSync(tenantPublicFile) && fs.statSync(tenantPublicFile).isFile()) {
+          potentialFile = tenantPublicFile;
+        }
+      } else {
+        if (!fs.existsSync(potentialFile) || !fs.statSync(potentialFile).isFile()) {
+          const altPublicFile = path.join(PUBLIC_DIR, sanitizedPath);
+          if (fs.existsSync(altPublicFile) && fs.statSync(altPublicFile).isFile()) {
+            potentialFile = altPublicFile;
+          }
         }
       }
 
@@ -4673,3 +4700,5 @@ if (isDirectRun || process.env.AUTO_START_SERVER === 'true') {
       });
     });
 }
+
+export { renderDynamicHtml };

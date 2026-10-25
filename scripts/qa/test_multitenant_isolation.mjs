@@ -67,6 +67,18 @@ async function runIsolationTests() {
       'FAIL: rxmautomobile.ro trebuie să conțină titlul și metadatele RXM!'
     );
     console.log('✅ [PASS] rxmautomobile.ro conține corect identitatea dedicată RXM AUTO MOBILE');
+
+    // Test 3b: Verificare Favicon & Branding Isolation pe rxmautomobile.ro
+    assert.strictEqual(
+      rxmHtml.includes('parcos2026'),
+      false,
+      'FAIL: rxmautomobile.ro nu trebuie să conțină tag-uri favicon de parcos2026!'
+    );
+    assert.ok(
+      rxmHtml.includes('/rxm/favicon.svg?v=rxm2026') || rxmHtml.includes('/rxm/favicon'),
+      'FAIL: rxmautomobile.ro trebuie să aibă favicon dedicat din /rxm/!'
+    );
+    console.log('✅ [PASS] rxmautomobile.ro are tag-uri de favicon 100% izolate (RXM emblem)');
   } catch (err) {
     console.warn('⚠️ [WARN] Nu s-a putut apela rețeaua externă pentru rxmautomobile.ro:', err.message);
   }
@@ -85,10 +97,33 @@ async function runIsolationTests() {
       false,
       'FAIL: parcos.ro a scăpat numărul de telefon al dealerului RXM!'
     );
-    console.log('✅ [PASS] parcos.ro este izolat și nu conține date de contact specifice ale dealerului');
+    assert.ok(
+      parcosHtml.includes('v=parcos2026'),
+      'FAIL: parcos.ro trebuie să aibă favicon-ul oficial ParcOS!'
+    );
+    console.log('✅ [PASS] parcos.ro este izolat și folosește corect favicon-ul oficial ParcOS');
   } catch (err) {
     console.warn('⚠️ [WARN] Nu s-a putut apela rețeaua externă pentru parcos.ro:', err.message);
   }
+
+  // Test 5: Verificare fizică a asset-urilor RXM Automobile
+  const requiredRxmAssets = [
+    'public/rxm/favicon.ico',
+    'public/rxm/favicon.svg',
+    'public/rxm/favicon-16x16.png',
+    'public/rxm/favicon-32x32.png',
+    'public/rxm/favicon-192x192.png',
+    'public/rxm/favicon-512x512.png',
+    'public/rxm/apple-touch-icon.png',
+    'public/rxm/site.webmanifest'
+  ];
+  for (const asset of requiredRxmAssets) {
+    assert.ok(
+      fs.existsSync(path.resolve(asset)),
+      `FAIL: Asset-ul esențial RXM lipsește: ${asset}`
+    );
+  }
+  console.log('✅ [PASS] Toate cele 8 asset-uri de branding & favicon RXM Automobile sunt prezente pe disc');
 
   console.log('────────────────────────────────────────────────────────────────────────');
   console.log('🏆 TOATE TESTELE DE IZOLARE MULTI-TENANT AU TRECUT CU SUCCES! ZERO BLEED.');
