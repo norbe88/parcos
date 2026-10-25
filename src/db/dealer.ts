@@ -76,7 +76,10 @@ export const SEED_DEALER: DealerProfile = {
   tier: "enterprise",
   status: "active",
   maxVehiclesQuota: 100,
-  features: { ...DEFAULT_TENANT_FEATURES },
+  features: { 
+    ...DEFAULT_TENANT_FEATURES,
+    financingPortfolio: true,
+  },
   socialIntegration: {
     metaEnabled: false,
     facebookPageId: "61550788350781",

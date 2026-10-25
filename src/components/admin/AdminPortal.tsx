@@ -28,7 +28,6 @@ import { VehicleSeedExporterModal } from './VehicleSeedExporterModal';
 import { AdminHelpModal } from './AdminHelpModal';
 import { ParcOsSidebar, AdminTabType } from './ParcOsSidebar';
 import { WorkspaceSettingsView } from './WorkspaceSettingsView';
-import { SuperAdminOnboardingModal } from './SuperAdminOnboardingModal';
 import { SalesDocsHubView } from './SalesDocsHubView';
 import { WindowStickersHubView } from './WindowStickersHubView';
 import { FeedsHubView } from './FeedsHubView';
@@ -133,7 +132,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [isSeedExporterOpen, setIsSeedExporterOpen] = useState(false);
   const [isFeedExportOpen, setIsFeedExportOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
   const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
 
   // Statistici Dashboard Admin
@@ -641,7 +639,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           <WorkspaceSettingsView
             dealer={activeDealer}
             showToast={showToast}
-            onOpenOnboardModal={() => setIsOnboardingModalOpen(true)}
           />
         )}
 
@@ -931,13 +928,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
         dealer={activeDealer}
-      />
-
-      {/* 🏢 SuperAdmin Turnkey Showroom Onboarding Modal */}
-      <SuperAdminOnboardingModal
-        isOpen={isOnboardingModalOpen}
-        onClose={() => setIsOnboardingModalOpen(false)}
-        showToast={showToast}
       />
 
       {/* 🔌 Modal Ghid & Instalare Extensie ParcOS OLX Publisher */}

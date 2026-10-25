@@ -10,16 +10,16 @@ import { getThemeConfig } from '../../utils/themePresets';
 import { DealerProfile, SEED_DEALER } from '../../db/seed';
 import { generateOlxBookmarkletUrl } from '../../utils/olxBookmarkletGenerator';
 
+import { FinancingSettingsManager } from './FinancingSettingsManager';
+
 interface WorkspaceSettingsViewProps {
   dealer?: DealerProfile;
   showToast: (msg: string) => void;
-  onOpenOnboardModal?: () => void;
 }
 
 export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
   dealer = SEED_DEALER,
-  showToast,
-  onOpenOnboardModal
+  showToast
 }) => {
   const { 
     settings, 
@@ -32,7 +32,6 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
   } = useWorkspace();
   const { tenant } = useTenant();
   const activeDealer = dealer || tenant;
-  const brandTheme = getThemeConfig(activeDealer.themePreset || tenant.themePreset);
 
   // Detecție extensie ParcOS instalată în browser
   const [isExtensionInstalled, setIsExtensionInstalled] = useState(false);
@@ -71,22 +70,11 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
             Setări Parc & Workspace Dealer OS
           </h1>
           <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-            Personalizează vizualizarea inventarului, moneda de lucru și opțiunile de lucru pentru echipa {dealer.name}.
+            Personalizează vizualizarea inventarului, cursul euro de facturare, ratele și opțiunile de lucru pentru echipa {dealer.name}.
           </p>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          {onOpenOnboardModal && (
-            <button
-              type="button"
-              onClick={onOpenOnboardModal}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black text-xs font-black shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Înrolează Parc Auto Nou</span>
-            </button>
-          )}
-
           <button
             type="button"
             onClick={() => {
@@ -102,86 +90,9 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* CARD SPECIAL SUPERADMIN: TURNKEY SHOWROOM ONBOARDING ENGINE              */}
+      {/* CARD 0: CURS VALUTAR BNR / BT & GRILE DOBÂNDĂ RATE (F&I CONFIG)          */}
       {/* ========================================================================= */}
-      {onOpenOnboardModal && (
-        <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/[0.04] to-transparent border border-amber-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="space-y-1.5 max-w-xl">
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[11px] font-bold">
-                🏢 SuperAdmin Turnkey Engine • Netcup VPS (152.53.158.65)
-              </div>
-              <h2 className="text-lg font-black text-white">Înrolează un Nou Parc Auto Partener</h2>
-              <p className="text-xs text-zinc-300 leading-relaxed">
-                Deschide un showroom complet autonom în 60 secunde cu autocompletare oficială CUI din ANAF v9, 
-                selector de teme Dark Luxury și izolare multi-domeniu.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={onOpenOnboardModal}
-              className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black shadow-lg shadow-amber-500/20 transition-all cursor-pointer whitespace-nowrap self-start sm:self-auto"
-            >
-              🚀 Deschide Asistent Onboarding
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* CARD 0: IDENTITATE BRAND SHOWROOM (SUPERADMIN GOVERNANCE — OP2)           */}
-      {/* ========================================================================= */}
-      <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-6 shadow-xl relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div 
-              className="w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 shadow-md"
-              style={{ 
-                backgroundColor: `${brandTheme.accentColor}20`, 
-                borderColor: `${brandTheme.accentColor}50`,
-                color: brandTheme.accentColor 
-              }}
-            >
-              <Palette className="w-5 h-5" />
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
-                  Identitate Brand Showroom
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border bg-white/5 text-zinc-300 border-white/10 flex items-center gap-1">
-                  <Shield className="w-3 h-3 text-amber-400" />
-                  Guvernanță SuperAdmin
-                </span>
-              </div>
-              <h2 className="text-lg font-black text-white flex items-center gap-2">
-                <span>{brandTheme.label}</span>
-                <span 
-                  className="w-2.5 h-2.5 rounded-full inline-block shadow-sm"
-                  style={{ backgroundColor: brandTheme.accentColor }} 
-                />
-              </h2>
-              <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                {brandTheme.description}. Paleta de culori a showroom-ului public ({activeDealer.name}) și a accentelor grafice este stabilită centralizat de administratorul ParcOS.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-            <div 
-              className="px-3 py-1.5 rounded-xl border text-xs font-bold font-mono flex items-center gap-2 shadow-xs"
-              style={{
-                backgroundColor: `${brandTheme.accentColor}15`,
-                borderColor: `${brandTheme.accentColor}40`,
-                color: brandTheme.accentColor
-              }}
-            >
-              <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: brandTheme.accentColor }} />
-              <span>Preset Activ: {brandTheme.id}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <FinancingSettingsManager showToast={showToast} />
 
       {/* ========================================================================= */}
       {/* CARD 1: PERSONALIZARE VIZUALĂ WORKSPACE (ERGONOMIE, DENSITATE, MONEDĂ)     */}

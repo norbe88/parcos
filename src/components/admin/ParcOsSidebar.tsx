@@ -63,7 +63,6 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
   const [pendingFinancingCount, setPendingFinancingCount] = useState<number>(0);
 
   useEffect(() => {
-    if (!dealer?.features?.financingPortfolio) return;
     const updateCount = () => {
       try {
         const dossiers = getSavedFinancingDossiers();
@@ -76,7 +75,7 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
     updateCount();
     window.addEventListener('rxm_financing_updated', updateCount);
     return () => window.removeEventListener('rxm_financing_updated', updateCount);
-  }, [dealer?.features?.financingPortfolio]);
+  }, []);
   const handleSelectTab = (tab: AdminTabType) => {
     onTabChange(tab);
     if (onCloseMobile) onCloseMobile();
@@ -100,17 +99,15 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
           badge: 'Lead-uri',
           badgeColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30'
         },
-        ...(dealer?.features?.financingPortfolio ? [
-          {
-            id: 'financing' as AdminTabType,
-            label: 'Finanțări (F&I)',
-            icon: CreditCard,
-            badge: pendingFinancingCount > 0 ? `${pendingFinancingCount} în lucru` : 'F&I Suite',
-            badgeColor: pendingFinancingCount > 0 
-              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse'
-              : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-          }
-        ] : []),
+        {
+          id: 'financing' as AdminTabType,
+          label: 'Finanțări (F&I)',
+          icon: CreditCard,
+          badge: pendingFinancingCount > 0 ? `${pendingFinancingCount} în lucru` : 'F&I Suite',
+          badgeColor: pendingFinancingCount > 0 
+            ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse'
+            : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+        },
 
         {
           id: 'mail' as AdminTabType,
