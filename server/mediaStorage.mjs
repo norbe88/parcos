@@ -9,8 +9,24 @@
 
 import fs from 'fs';
 import path from 'path';
-import { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+// Dynamic optional import for @aws-sdk (prevents crashing minimal or legacy container environments)
+let S3Client = null;
+let PutObjectCommand = null;
+let ListObjectsV2Command = null;
+let DeleteObjectsCommand = null;
+let getSignedUrl = null;
+
+try {
+  const s3Module = await import('@aws-sdk/client-s3');
+  S3Client = s3Module.S3Client;
+  PutObjectCommand = s3Module.PutObjectCommand;
+  ListObjectsV2Command = s3Module.ListObjectsV2Command;
+  DeleteObjectsCommand = s3Module.DeleteObjectsCommand;
+  const presignerModule = await import('@aws-sdk/s3-request-presigner');
+  getSignedUrl = presignerModule.getSignedUrl;
+} catch {
+  // @aws-sdk absent in minimal environments; mediaStorage will gracefully fall back to local disk
+}
 
 // Auto-loader zero-dependency pentru .env dacă există în rădăcină
 try {
@@ -42,7 +58,7 @@ export function getR2Client() {
   const secretAccessKey = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
   const endpoint = process.env.CLOUDFLARE_R2_ENDPOINT;
 
-  if (accessKeyId && secretAccessKey && endpoint) {
+  if (S3Client && accessKeyId && secretAccessKey && endpoint) {
     try {
       _r2Client = new S3Client({
         region: 'auto',

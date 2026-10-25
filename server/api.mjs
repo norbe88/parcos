@@ -649,15 +649,33 @@ export function resolveTenantIdFromReq(req, body = {}) {
   return process.env.DEALER_SLUG || 'rxm';
 }
 
+// Origini CORS autorizate pentru holding Carvana SRL & dealeri parteneri
+export const ALLOWED_CORS_ORIGINS = new Set([
+  'https://rxmautomobile.ro',
+  'https://www.rxmautomobile.ro',
+  'https://mpiauto.ro',
+  'https://www.mpiauto.ro',
+  'https://topautotransilvania.ro',
+  'https://www.topautotransilvania.ro',
+  'https://parcos.ro',
+  'https://www.parcos.ro',
+  'https://showroom.autolit.ro',
+  'https://autolit.ro',
+  'https://carvana.ro',
+  'https://www.carvana.ro',
+  'https://autolicit.ro',
+  'https://www.autolicit.ro'
+]);
+
 /**
- * Validează autorizarea cererii pentru un tenant specific (SuperAdmin, Admin, Tenant Session Token)
+ * Validează autorizarea cererii pentru un tenant specific (SuperAdmin, Admin, Tenant Session Token, sau apel direct din propriul domeniu autorizat)
  */
 export function isAuthorizedTenantReq(req, tenantId) {
   if (isAuthorizedSuperAdmin(req)) return true;
   if (isAuthorizedAdmin(req)) return true;
 
-  const authHeader = req.headers['authorization'] || '';
-  const tokenHeader = req.headers['x-admin-token'] || req.headers['x-tenant-token'] || '';
+  const authHeader = req?.headers?.['authorization'] || '';
+  const tokenHeader = req?.headers?.['x-admin-token'] || req?.headers?.['x-tenant-token'] || '';
   let token = '';
   if (authHeader.startsWith('Bearer ')) {
     token = authHeader.substring(7).trim();
@@ -668,6 +686,17 @@ export function isAuthorizedTenantReq(req, tenantId) {
   }
 
   if (isValidSessionToken(token)) return true;
+
+  // Verificare cerere directă din showroom / portal dealer pe origini autorizate
+  const origin = (req?.headers?.['origin'] || '').toLowerCase();
+  const referer = (req?.headers?.['referer'] || '').toLowerCase();
+
+  if (ALLOWED_CORS_ORIGINS.has(origin)) return true;
+  for (const allowed of ALLOWED_CORS_ORIGINS) {
+    if (referer.startsWith(allowed)) {
+      return true;
+    }
+  }
 
   return false;
 }
@@ -731,23 +760,6 @@ export function isAuthorizedSuperAdmin(req) {
   return false;
 }
 
-// Origini CORS autorizate pentru holding Carvana SRL & dealeri parteneri
-const ALLOWED_CORS_ORIGINS = new Set([
-  'https://rxmautomobile.ro',
-  'https://www.rxmautomobile.ro',
-  'https://mpiauto.ro',
-  'https://www.mpiauto.ro',
-  'https://topautotransilvania.ro',
-  'https://www.topautotransilvania.ro',
-  'https://parcos.ro',
-  'https://www.parcos.ro',
-  'https://showroom.autolit.ro',
-  'https://autolit.ro',
-  'https://carvana.ro',
-  'https://www.carvana.ro',
-  'https://autolicit.ro',
-  'https://www.autolicit.ro'
-]);
 
 function resolveCorsOrigin(req) {
   const origin = req?.headers?.['origin'];
