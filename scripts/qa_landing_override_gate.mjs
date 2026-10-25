@@ -16,6 +16,7 @@ const TEST_PORT = 4199;
 process.env.PORT = String(TEST_PORT);
 process.env.AUTO_START_SERVER = 'false';
 process.env.NODE_ENV = 'production';
+process.env.LANDING_HOSTS = 'staging.parcos.ro';
 
 let passCount = 0;
 let failCount = 0;

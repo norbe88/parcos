@@ -793,13 +793,16 @@ function resolveCorsOrigin(req) {
   return 'https://rxmautomobile.ro';
 }
 
+const isStagingDeployment = process.env.IS_STAGING === 'true' || process.env.COOLIFY_APP_NAME === 'parcos-staging';
+
 const SECURITY_HEADERS = {
   'X-Frame-Options': 'SAMEORIGIN',
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'geolocation=(), microphone=(), camera=(self)',
   'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.tiktok.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com; font-src 'self' https://fonts.gstatic.com https://cdn.fontshare.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://rxmautomobile.ro https://*.googleapis.com https://*.tiktok.com https://*.tiktokv.com; frame-src 'self' https://www.tiktok.com https://*.tiktok.com https://www.youtube.com https://*.youtube.com https://maps.google.com https://www.google.com; frame-ancestors 'self';",
-  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  ...(isStagingDeployment ? { 'X-Robots-Tag': 'noindex, nofollow, noarchive' } : {})
 };
 
 export async function resolveTenant(req, urlObj) {
@@ -1278,7 +1281,7 @@ const EXTRA_LANDING_HOSTS = (process.env.LANDING_HOSTS || '')
   .split(',')
   .map(s => s.trim().toLowerCase())
   .filter(Boolean);
-const LANDING_HOSTS = new Set(['parcos.ro', 'www.parcos.ro', 'staging.parcos.ro', ...EXTRA_LANDING_HOSTS]);
+const LANDING_HOSTS = new Set(['parcos.ro', 'www.parcos.ro', ...EXTRA_LANDING_HOSTS]);
 const LANDING_FILES = new Set(['/favicon.ico', '/favicon-32x32.png', '/apple-touch-icon.png']);
 
 const MIME_MAP = {
@@ -1362,14 +1365,23 @@ async function tryServeLanding(req, res, urlObj, pathname) {
 
   const ext = path.extname(targetFile).toLowerCase();
   const contentType = MIME_MAP[ext] || 'application/octet-stream';
+  const isStagingReq = process.env.IS_STAGING === 'true' || 
+                       process.env.COOLIFY_APP_NAME === 'parcos-staging' || 
+                       hostOfRequest(req).includes('staging');
 
-  res.writeHead(200, {
+  const responseHeaders = {
     'Content-Type': contentType,
     'Content-Length': stat.size,
     'Cache-Control': cacheHeader,
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'strict-origin-when-cross-origin'
-  });
+  };
+
+  if (isStagingReq) {
+    responseHeaders['X-Robots-Tag'] = 'noindex, nofollow, noarchive';
+  }
+
+  res.writeHead(200, responseHeaders);
 
   if (req.method === 'HEAD') {
     res.end();
@@ -1507,6 +1519,15 @@ async function handleLandingLead(req, res) {
     // 10. Trimitere e-mail notificare asincronă via AWS SES către contact@parcos.ro
     (async () => {
       try {
+        const isStagingEnv = process.env.IS_STAGING === 'true' || 
+                             process.env.COOLIFY_APP_NAME === 'parcos-staging' || 
+                             hostOfRequest(req).includes('staging');
+
+        if (isStagingEnv) {
+          console.log(`🔒 [STAGING GUARD] Notificare externă email/SES blocată pe mediul de staging pentru lead #${savedLead?.id}.`);
+          return;
+        }
+
         const accessKeyId = process.env.AWS_SES_ACCESS_KEY_ID;
         const secretAccessKey = process.env.AWS_SES_SECRET_ACCESS_KEY;
         const region = process.env.AWS_SES_REGION || process.env.AWS_REGION || 'eu-central-1';
@@ -4568,7 +4589,7 @@ REGULI STRICTE & INVARIANTE HOLDING:
     // Rută inexistentă
     return sendJson(res, 404, { success: false, error: 'Endpoint inexistent' });
   } catch (err) {
-    console.error(`[API Error] ${req.method} ${pathname}:`, err);
+    console.error(`[API Error] ${req.method} ${req.url}:`, err);
     return sendJson(res, 500, {
       success: false,
       error: 'Eroare internă de server',

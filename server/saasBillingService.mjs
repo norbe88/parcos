@@ -151,6 +151,11 @@ export async function generateSaasInvoiceForTenant(tenantSlug, options = {}) {
  * Verifică toate abonamentele parcurilor auto și aplică starea "suspended" dacă termenul de grație de 14 zile a expirat
  */
 export async function checkOverdueSubscriptions() {
+  if (process.env.IS_STAGING === 'true' || process.env.COOLIFY_APP_NAME === 'parcos-staging') {
+    console.warn(`🔒 [SAAS BILLING STAGING GUARD] Verificarea și suspendarea abonamentelor sunt dezactivate pe mediul de staging.`);
+    return { checked: 0, active: 0, inGracePeriod: 0, suspended: 0, suspendedTenants: [], isStaging: true };
+  }
+
   const allTenants = await getAllDealers(true);
   const now = new Date();
   const results = {

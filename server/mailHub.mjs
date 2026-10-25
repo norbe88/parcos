@@ -977,7 +977,13 @@ export async function handleOutboundSend(payload, options = {}) {
   let sesMessageId = null;
   let isMock = true;
 
-  if (accessKeyId && secretAccessKey) {
+  const isStagingEnv = process.env.IS_STAGING === 'true' || 
+                       process.env.COOLIFY_APP_NAME === 'parcos-staging';
+
+  if (isStagingEnv) {
+    console.log(`🔒 [MailHub Staging Guard] Outbound e-mail blocat pe staging. Rulare forțată în Mock Sandbox.`);
+    sesMessageId = `staging-mock-${crypto.randomUUID()}`;
+  } else if (accessKeyId && secretAccessKey) {
     const startTime = Date.now();
     try {
       console.log(`📨 [SES Outbound] Trimitere reală prin AWS SES (${region}) către ${recipientEmail} (${messageId})...`);
