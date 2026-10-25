@@ -1,0 +1,138 @@
+/* ParcOS landing: JS minimal, fără dependențe. Nu apelează niciun endpoint în afară de POST /api/lead. */
+(function () {
+  'use strict';
+  var WA_NUMBER = '40738164641';
+
+  /* An curent în footer */
+  var an = document.getElementById('an');
+  if (an) an.textContent = String(new Date().getFullYear());
+
+  /* 1) Video decorativ din hero, încărcat leneș, DUPĂ load.
+        Nu se încarcă la: prefers-reduced-motion, Save-Data, conexiune 2G/3G,
+        ecrane mici cu conexiune necunoscută. Posterul static rămâne mereu. */
+  function shouldLoadVideo() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+    var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (c) {
+      if (c.saveData) return false;
+      if (/(^|-)?(slow-2g|2g|3g)$/.test(c.effectiveType || '')) return false;
+    } else if (window.matchMedia && window.matchMedia('(max-width: 860px)').matches) {
+      return false; // mobil fără Network Information API (ex. iOS Safari): doar poster
+    }
+    return true;
+  }
+
+  function loadVideo() {
+    var v = document.querySelector('.showroom-video');
+    if (!v || !shouldLoadVideo()) return;
+    var canWebm = v.canPlayType('video/webm; codecs="vp9"');
+    var src = canWebm ? v.getAttribute('data-src-webm') : v.getAttribute('data-src-mp4');
+    if (!src) return;
+    v.src = src;
+    v.addEventListener('playing', function () { v.classList.add('is-playing'); }, { once: true });
+    var tryPlay = function () { var p = v.play(); if (p && p.catch) p.catch(function () {}); };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) tryPlay(); else v.pause(); });
+      }, { threshold: 0.15 }).observe(v);
+    } else {
+      tryPlay();
+    }
+  }
+  if (document.readyState === 'complete') setTimeout(loadVideo, 300);
+  else window.addEventListener('load', function () { setTimeout(loadVideo, 300); });
+
+  /* 1b) Prețuri: toggle lunar/anual + contorul de locuri „Parc Fondator”.
+        Singura sursă pentru numărul de locuri: atributul data-locuri-ramase de pe <section id="pret"> din index.html. */
+  var pret = document.getElementById('pret');
+  if (pret) {
+    var btns = pret.querySelectorAll('.bill-btn');
+    var setBill = function (mode) {
+      var k = mode === 'anual' ? 'data-a' : 'data-m';
+      pret.querySelectorAll('[data-m]').forEach(function (el) { var t = el.getAttribute(k); if (t) el.textContent = t; });
+      btns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-bill') === mode)); });
+    };
+    btns.forEach(function (b) { b.addEventListener('click', function () { setBill(b.getAttribute('data-bill')); }); });
+
+    var left = parseInt(pret.getAttribute('data-locuri-ramase'), 10);
+    var total = parseInt(pret.getAttribute('data-locuri-total'), 10) || 10;
+    var until = pret.getAttribute('data-fondator-pana'); // AAAA-LL-ZZ, inclusiv (ora României)
+    var expired = until ? Date.now() > new Date(until + 'T23:59:59+02:00').getTime() : false;
+    var leftEl = pret.querySelector('[data-founder-left]');
+    var box = pret.querySelector('.founder');
+    if (leftEl && !isNaN(left)) {
+      if (expired || left <= 0) {
+        leftEl.textContent = expired ? 'Oferta de fondator s-a încheiat.' : 'Toate cele ' + total + ' locuri de fondator s-au ocupat.';
+        if (box) box.classList.add('is-closed');
+        var ctaT = pret.querySelector('[data-founder-cta-text]');
+        if (ctaT) ctaT.textContent = 'Pornește testul de 14 zile';
+      } else {
+        leftEl.textContent = left === 1 ? 'Mai este 1 loc din ' + total + '.' : 'Mai sunt ' + left + ' locuri din ' + total + '.';
+      }
+    }
+  }
+
+  /* 2) Formular lead → POST /api/lead; dacă endpoint-ul eșuează, deschidem WhatsApp cu datele completate. */
+  var form = document.getElementById('lead-form');
+  if (!form) return;
+  var statusEl = document.getElementById('form-status');
+  var btn = form.querySelector('button[type=submit]');
+
+  function setStatus(msg, cls) {
+    statusEl.textContent = msg;
+    statusEl.className = 'form-status' + (cls ? ' ' + cls : '');
+  }
+  function normPhone(t) { return (t || '').replace(/[\s.\-()]/g, ''); }
+  function validPhone(t) { return /^(\+?40|0040|0)7\d{8}$|^(\+?40|0040|0)[23]\d{8}$/.test(normPhone(t)); }
+
+  function waFallback(d) {
+    var txt = 'Bună ziua! Aș vrea detalii despre ParcOS.\nNume: ' + d.nume + '\nTelefon: ' + d.telefon + (d.parc ? '\nParc: ' + d.parc : '');
+    var url = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(txt);
+    setStatus('Nu am putut trimite formularul. Îți deschidem WhatsApp cu datele completate.', 'err');
+    // Notă: cu 'noopener' window.open întoarce mereu null, așa că setăm opener=null manual.
+    var w = window.open(url, '_blank');
+    if (w) { try { w.opener = null; } catch (e) {} }
+    else { window.location.href = url; } // popup blocat: navigăm direct
+  }
+
+  form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var nume = form.nume.value.trim();
+    var telefon = form.telefon.value.trim();
+    var parc = form.parc.value.trim();
+    var ok = true;
+    [form.nume, form.telefon, form.consent].forEach(function (el) { el.removeAttribute('aria-invalid'); });
+    if (nume.length < 2) { form.nume.setAttribute('aria-invalid', 'true'); ok = false; }
+    if (!validPhone(telefon)) { form.telefon.setAttribute('aria-invalid', 'true'); ok = false; }
+    if (!form.consent.checked) { form.consent.setAttribute('aria-invalid', 'true'); ok = false; }
+    if (!ok) {
+      setStatus('Completează numele, un număr de telefon valid și bifează acordul.', 'err');
+      var first = form.querySelector('[aria-invalid=true]');
+      if (first) first.focus();
+      return;
+    }
+    if (form.website.value) { setStatus('Mulțumim! Te sunăm în curând.', 'ok'); return; } // honeypot
+
+    var data = { nume: nume, telefon: normPhone(telefon), parc: parc, consent: true, sursa: 'parcos.ro', website: '' };
+    btn.disabled = true;
+    setStatus('Se trimite…');
+    var ctrl = 'AbortController' in window ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 8000);
+
+    fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(data),
+      signal: ctrl ? ctrl.signal : undefined,
+      credentials: 'omit'
+    }).then(function (r) {
+      clearTimeout(timer);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      setStatus('Mulțumim, ' + nume.split(' ')[0] + '! Te sunăm în curând.', 'ok');
+      form.reset();
+    }).catch(function () {
+      clearTimeout(timer);
+      waFallback(data);
+    }).then(function () { btn.disabled = false; });
+  });
+})();

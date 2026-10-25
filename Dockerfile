@@ -34,8 +34,9 @@ RUN npm ci --omit=dev
 # Copy built frontend from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Copy backend server, helpers, and schemas
+# Copy backend server, landing assets, helpers, and schemas
 COPY server/ ./server/
+COPY landing/ ./landing/
 COPY scripts/marketScraperHelper.js ./scripts/marketScraperHelper.js
 COPY scripts/ ./scripts/
 COPY staged_imports/ ./staged_imports/

@@ -26,6 +26,7 @@ import {
   updateDealerFeatures,
   propagateFeatureGlobally,
   upsertDealer,
+  insertLandingLead,
   getSql
 } from './db.mjs';
 import { saveCarImageDataUrl, saveCarImageToDisk, deleteCarMediaFromDisk, createPresignedUploadUrl } from './mediaStorage.mjs';
@@ -34,6 +35,8 @@ import {
   handleInboundWebhook,
   handleBounceWebhook,
   handleOutboundSend,
+  buildRawMimeMessage,
+  sendRawEmailViaSESWithRetry,
   getMailThreads,
   getMailThreadById,
   updateThreadStatus,
@@ -1264,6 +1267,312 @@ async function readRequestBody(req, maxBytes = 25 * 1024 * 1024) {
   });
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// PARCOS.RO STATIC LANDING ENGINE (v4) & LEAD DISPATCHER
+// Invariante: Servire strict pe parcos.ro & www.parcos.ro la / și /lp-assets/*
+// Orice altă rută și orice alt domeniu merg neschimbate către aplicație/tenanți
+// ─────────────────────────────────────────────────────────────────────────────
+
+const LANDING_DIR = path.resolve('landing');
+const LANDING_HOSTS = new Set(['parcos.ro', 'www.parcos.ro']);
+const LANDING_FILES = new Set(['/favicon.ico', '/favicon-32x32.png', '/apple-touch-icon.png']);
+
+const MIME_MAP = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.woff2': 'font/woff2',
+  '.woff': 'font/woff',
+  '.avif': 'image/avif',
+  '.webp': 'image/webp',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm'
+};
+
+function hostOfRequest(req) {
+  return String(req.headers['x-forwarded-host'] || req.headers['host'] || '')
+    .split(',')[0].trim().toLowerCase().replace(/:\d+$/, '');
+}
+
+function isLandingHost(req, urlObj) {
+  const h = hostOfRequest(req);
+  if (LANDING_HOSTS.has(h)) return true;
+
+  // ⚠️ Override-ul de test ?host=parcos.ro este permis STRICT în mediu local de dezvoltare (NODE_ENV !== 'production')
+  // și DOAR dacă Host-ul cererii este localhost / 127.0.0.1.
+  // În producție, pe domeniile dealerilor (ex. rxmautomobile.ro), parametrul ?host=parcos.ro este IGNORAT complet.
+  const isDev = process.env.NODE_ENV !== 'production';
+  const isLocalHost = h === 'localhost' || h === '127.0.0.1' || h.endsWith('.local');
+  if (isDev && isLocalHost) {
+    if (urlObj.searchParams.get('host') === 'parcos.ro' || 
+        urlObj.searchParams.get('landing') === 'true' || 
+        req.headers['x-landing'] === 'true') {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function tryServeLanding(req, res, urlObj, pathname) {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return false;
+  if (!isLandingHost(req, urlObj)) return false;
+
+  let rel = null;
+  let cacheHeader = 'public, max-age=2592000'; // 30 zile
+
+  if (pathname === '/' || pathname === '/index.html') {
+    rel = 'index.html';
+    cacheHeader = 'no-cache';
+  } else if (pathname === '/politica-de-confidentialitate' || pathname === '/politica-de-confidentialitate.html') {
+    rel = 'politica-de-confidentialitate.html';
+    cacheHeader = 'no-cache';
+  } else if (pathname.startsWith('/lp-assets/') || LANDING_FILES.has(pathname)) {
+    rel = decodeURIComponent(pathname.replace(/^\/+/, ''));
+    if (/\.(css|js)$/.test(rel)) {
+      cacheHeader = 'public, max-age=31536000, immutable';
+    } else if (LANDING_FILES.has(pathname)) {
+      cacheHeader = 'public, max-age=604800';
+    }
+  }
+
+  if (!rel) return false;
+
+  const targetFile = path.resolve(LANDING_DIR, rel);
+  const landingBase = path.resolve(LANDING_DIR);
+
+  // Anti-path traversal guard
+  if (!targetFile.startsWith(landingBase + path.sep) && 
+      targetFile !== path.resolve(landingBase, 'index.html') && 
+      targetFile !== path.resolve(landingBase, 'politica-de-confidentialitate.html')) {
+    return false;
+  }
+
+  if (!fs.existsSync(targetFile)) return false;
+  const stat = fs.statSync(targetFile);
+  if (!stat.isFile()) return false;
+
+  const ext = path.extname(targetFile).toLowerCase();
+  const contentType = MIME_MAP[ext] || 'application/octet-stream';
+
+  res.writeHead(200, {
+    'Content-Type': contentType,
+    'Content-Length': stat.size,
+    'Cache-Control': cacheHeader,
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin'
+  });
+
+  if (req.method === 'HEAD') {
+    res.end();
+    return true;
+  }
+
+  fs.createReadStream(targetFile).pipe(res);
+  return true;
+}
+
+// In-memory rate limiting pentru /api/lead: max 5 req / 10 min per IP hash
+const leadRateLimitMap = new Map();
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const MAX_LEADS_PER_WINDOW = 5;
+
+// Curățare periodică memorie rate limiter
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of leadRateLimitMap.entries()) {
+    if (now - entry.startTime > RATE_LIMIT_WINDOW_MS) {
+      leadRateLimitMap.delete(key);
+    }
+  }
+}, 5 * 60 * 1000).unref();
+
+async function handleLandingLead(req, res) {
+  try {
+    // 1. Verificare Origin/Referer (Same-Origin / Doar pe parcos.ro)
+    const origin = req.headers['origin'] || '';
+    const referer = req.headers['referer'] || '';
+    const originCheck = origin || referer;
+    if (originCheck) {
+      const isAllowedOrigin = 
+        originCheck.includes('parcos.ro') || 
+        originCheck.includes('localhost') || 
+        originCheck.includes('127.0.0.1');
+      if (!isAllowedOrigin) {
+        return sendJson(res, 403, { ok: false, error: 'forbidden' });
+      }
+    }
+
+    // 2. Rate limit pe bază de hash IP
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket?.remoteAddress || '127.0.0.1';
+    const salt = process.env.LEAD_SALT || 'parcos_lead_salt_2026';
+    const ipHash = crypto.createHash('sha256').update(clientIp + salt).digest('hex');
+
+    const now = Date.now();
+    const rateRecord = leadRateLimitMap.get(ipHash) || { count: 0, startTime: now };
+    if (now - rateRecord.startTime < RATE_LIMIT_WINDOW_MS) {
+      if (rateRecord.count >= MAX_LEADS_PER_WINDOW) {
+        console.warn(`🛑 [/api/lead] Rate limit depășit pentru ipHash: ${ipHash.slice(0, 10)}...`);
+        return sendJson(res, 429, { ok: false, error: 'rate_limit' });
+      }
+      rateRecord.count++;
+    } else {
+      rateRecord.count = 1;
+      rateRecord.startTime = now;
+    }
+    leadRateLimitMap.set(ipHash, rateRecord);
+
+    // 3. Citire corpul cererii cu limită strictă de 2 KB
+    let rawBody;
+    try {
+      rawBody = await readRequestBody(req, 2048);
+    } catch (sizeErr) {
+      return sendJson(res, 400, { ok: false, error: 'payload_too_large' });
+    }
+
+    let payload;
+    try {
+      payload = JSON.parse(rawBody.toString('utf8'));
+    } catch {
+      return sendJson(res, 400, { ok: false, error: 'invalid_json' });
+    }
+
+    const { nume, telefon, parc, consent, website, sursa } = payload || {};
+
+    // 4. Honeypot check: dacă câmpul website este completat de bot, returnăm 200 fără a salva
+    if (website && String(website).trim().length > 0) {
+      console.log('🛡️ [/api/lead] Honeypot declanșat de bot. Lead respins silențios.');
+      return sendJson(res, 200, { ok: true });
+    }
+
+    // 5. Validare nume (2-80 caractere)
+    const cleanNume = String(nume || '').trim();
+    if (!cleanNume || cleanNume.length < 2 || cleanNume.length > 80) {
+      return sendJson(res, 400, { ok: false, error: 'validare_nume' });
+    }
+
+    // 6. Validare acord GDPR (trebuie să fie strict true)
+    if (consent !== true) {
+      return sendJson(res, 400, { ok: false, error: 'validare_consimtamant' });
+    }
+
+    // 7. Normalizare și validare telefon RO: ^(\+?40|0040|0)[237]\d{8}$
+    const rawPhone = String(telefon || '').replace(/[\s\.\-\(\)]/g, '').trim();
+    const phoneRoRegex = /^(\+?40|0040|0)[237]\d{8}$/;
+    if (!phoneRoRegex.test(rawPhone)) {
+      return sendJson(res, 400, { ok: false, error: 'validare_telefon' });
+    }
+
+    // Normalizare în format E.164 (+40...)
+    let e164Phone = rawPhone;
+    if (e164Phone.startsWith('0040')) {
+      e164Phone = '+' + e164Phone.slice(2);
+    } else if (e164Phone.startsWith('0')) {
+      e164Phone = '+40' + e164Phone.slice(1);
+    } else if (!e164Phone.startsWith('+')) {
+      e164Phone = '+' + e164Phone;
+    }
+
+    const cleanParc = parc ? String(parc).trim().slice(0, 100) : null;
+    const cleanSursa = sursa ? String(sursa).trim().slice(0, 80) : 'parcos.ro';
+
+    // 8. Salvare în PostgreSQL (tabel dedicat landing_leads)
+    const leadRecord = {
+      nume: cleanNume,
+      telefon_e164: e164Phone,
+      parc: cleanParc,
+      consent_at: new Date(),
+      consent_text_version: 'v4-20261025',
+      ip_hash: ipHash,
+      user_agent: String(req.headers['user-agent'] || '').slice(0, 255),
+      sursa: cleanSursa,
+      status: 'new'
+    };
+
+    const savedLead = await insertLandingLead(leadRecord);
+    const maskedPhone = e164Phone.slice(0, 5) + 'xxx' + e164Phone.slice(-3);
+    console.log(`📥 [/api/lead] Lead nou înregistrat (ID: ${savedLead?.id}) de la ${cleanNume} (${cleanParc || 'Fără parc'}), Tel: ${maskedPhone}`);
+
+    // 9. Răspuns imediat 200 către client (nu așteaptă e-mailul)
+    sendJson(res, 200, { ok: true, id: savedLead?.id });
+
+    // 10. Trimitere e-mail notificare asincronă via AWS SES către contact@parcos.ro
+    (async () => {
+      try {
+        const accessKeyId = process.env.AWS_SES_ACCESS_KEY_ID;
+        const secretAccessKey = process.env.AWS_SES_SECRET_ACCESS_KEY;
+        const region = process.env.AWS_SES_REGION || process.env.AWS_REGION || 'eu-central-1';
+
+        if (!accessKeyId || !secretAccessKey) {
+          console.warn(`⚠️ [Lead Notification] AWS_SES_ACCESS_KEY_ID / SECRET nu sunt configurate în env. Notificarea lead-ului #${savedLead?.id} a rulat în mock mode.`);
+          return;
+        }
+
+        const subject = `Lead nou parcos.ro: ${cleanNume}${cleanParc ? ` (${cleanParc})` : ''}`;
+        const htmlBody = `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; color: #18181b; max-width: 600px; margin: 0 auto; background: #fafafa; border-radius: 12px; border: 1px solid #e4e4e7;">
+            <div style="border-bottom: 2px solid #059669; padding-bottom: 12px; margin-bottom: 16px;">
+              <h2 style="color: #059669; margin: 0; font-size: 20px;">Lead Nou Înregistrat pe ParcOS.ro</h2>
+              <span style="font-size: 12px; color: #71717a;">Notificare automată de platformă</span>
+            </div>
+            <p style="font-size: 14px; margin-bottom: 16px;">A fost trimisă o cerere de testare / contact din formularul principal al landing-ului:</p>
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px;">
+              <tr style="border-bottom: 1px solid #e4e4e7;">
+                <td style="padding: 8px 0; color: #71717a; width: 140px;"><strong>Nume:</strong></td>
+                <td style="padding: 8px 0; font-weight: bold; color: #18181b;">${cleanNume}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #e4e4e7;">
+                <td style="padding: 8px 0; color: #71717a;"><strong>Telefon:</strong></td>
+                <td style="padding: 8px 0; font-weight: bold;"><a href="tel:${e164Phone}" style="color: #059669; text-decoration: none;">${e164Phone}</a></td>
+              </tr>
+              <tr style="border-bottom: 1px solid #e4e4e7;">
+                <td style="padding: 8px 0; color: #71717a;"><strong>Parc Auto:</strong></td>
+                <td style="padding: 8px 0; color: #18181b;">${cleanParc || 'Nespecificat'}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #e4e4e7;">
+                <td style="padding: 8px 0; color: #71717a;"><strong>Sursă:</strong></td>
+                <td style="padding: 8px 0; color: #18181b;">${cleanSursa}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #71717a;"><strong>Data / Ora:</strong></td>
+                <td style="padding: 8px 0; color: #18181b;">${new Date().toLocaleString('ro-RO', { timeZone: 'Europe/Bucharest' })}</td>
+              </tr>
+            </table>
+            <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 12px; margin-bottom: 16px; font-size: 13px; color: #065f46;">
+              👉 <strong>Acțiune recomandată:</strong> Contactați clientul pe WhatsApp sau telefonic în maxim 15 minute pentru demonstrație și onboarding.
+            </div>
+            <p style="font-size: 11px; color: #a1a1aa; margin: 0; text-align: center;">CARVANA S.R.L. · CUI RO48206022 · ParcOS Auto Platform</p>
+          </div>
+        `;
+
+        const { rawMime } = buildRawMimeMessage({
+          senderEmail: 'contact@parcos.ro',
+          recipientEmail: 'contact@parcos.ro',
+          subject,
+          htmlBody,
+          textBody: `Lead nou parcos.ro\nNume: ${cleanNume}\nTelefon: ${e164Phone}\nParc: ${cleanParc || 'Nespecificat'}\nData: ${new Date().toISOString()}`,
+          dealershipName: 'ParcOS Platform',
+          employeeName: 'Notificări Leads',
+          isCommercial: false
+        });
+
+        await sendRawEmailViaSESWithRetry(rawMime, { accessKeyId, secretAccessKey, region }, 1, 10000);
+        console.log(`📧 [Lead Notification] Email de notificare trimis cu succes către contact@parcos.ro pentru lead-ul #${savedLead?.id}`);
+      } catch (mailErr) {
+        console.warn(`⚠️ [Lead Notification] Eroare la trimiterea email-ului de notificare (lead-ul este salvat în DB):`, mailErr.message);
+      }
+    })();
+
+  } catch (err) {
+    console.error('❌ [/api/lead] Eroare neașteptată:', err);
+    sendJson(res, 500, { ok: false, error: 'internal_error' });
+  }
+}
+
 export const server = http.createServer(async (req, res) => {
   // Tratare preflight CORS
   if (req.method === 'OPTIONS') {
@@ -1286,6 +1595,17 @@ export const server = http.createServer(async (req, res) => {
     // Normalizare prefix legacy /rxm/api -> /api
     if (pathname.startsWith('/rxm/api/')) {
       pathname = pathname.replace('/rxm/api/', '/api/');
+    }
+
+    // 0.00 PARCOS.RO STATIC LANDING (v4) & LEAD DISPATCHER
+    // Izolare strictă: Se servește DOAR pe parcos.ro & www.parcos.ro la / și /lp-assets/*
+    // Toate celelalte căi și domeniile tenanților merg neschimbate către aplicație
+    if (await tryServeLanding(req, res, urlObj, pathname)) {
+      return;
+    }
+
+    if (req.method === 'POST' && pathname === '/api/lead') {
+      return await handleLandingLead(req, res);
     }
 
     // 0. GET /api/health - Diagnostic & Status Server [Sanitizat Anonim]
@@ -4137,51 +4457,10 @@ REGULI STRICTE & INVARIANTE HOLDING:
         if (rawHost === 'parcos.ro' || rawHost === 'parcos.local' || rawHost.includes('parcos')) {
           const parcosSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://parcos.ro/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://parcos.ro/#demo-ocr</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://parcos.ro/#pricing</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://parcos.ro/#calculator-roi</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://parcos.ro/#teme</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://parcos.ro/#whatsapp-quote</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://parcos.ro/#ghid-auto</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://parcos.ro/termeni-si-conditii</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://parcos.ro/politica-de-cookies</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
+  <url><loc>https://parcos.ro/</loc><lastmod>2026-10-25</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://parcos.ro/termeni-si-conditii</loc><lastmod>2026-10-25</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://parcos.ro/politica-de-confidentialitate</loc><lastmod>2026-10-25</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://parcos.ro/politica-de-cookies</loc><lastmod>2026-10-25</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>`;
           res.writeHead(200, {
             'Content-Type': 'application/xml; charset=utf-8',

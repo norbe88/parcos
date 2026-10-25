@@ -32,4 +32,6 @@ backups/
 *.dump
 *.original.mp4
 *.bak
+*.tar.gz
+dist.tar.gz
 

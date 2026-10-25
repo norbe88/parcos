@@ -1,10 +1,10 @@
-import React from 'react';
 import { 
   Share2, Film, Download, FileSpreadsheet, Rss, Code2, 
-  Sparkles, ExternalLink, Play, CheckCircle2 
+  Sparkles, ExternalLink, Play, CheckCircle2, Users
 } from 'lucide-react';
 import { VehicleItem, DealerProfile, SEED_DEALER } from '../../db/seed';
 import { HeroTikTokManager } from './HeroTikTokManager';
+import { downloadLeadsCsv } from '../../services/leadService';
 
 interface FeedsHubViewProps {
   cars: VehicleItem[];
@@ -52,8 +52,8 @@ export const FeedsHubView: React.FC<FeedsHubViewProps> = ({
         </button>
       </div>
 
-      {/* Card 1: Feed-uri automate disponibile */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Card 1: Feed-uri automate disponibile & Export Bază Clienți */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-5 rounded-2xl bg-[#121215] border border-white/[0.08] flex flex-col justify-between space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -123,6 +123,33 @@ export const FeedsHubView: React.FC<FeedsHubViewProps> = ({
             className="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-xs transition-all border border-white/10 cursor-pointer"
           >
             Generează JSON Feed
+          </button>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-[#121215] border border-white/[0.08] flex flex-col justify-between space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold text-purple-400 flex items-center gap-1.5">
+                <Users className="w-4 h-4" /> BAZĂ CLIENȚI
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                CSV / Excel
+              </span>
+            </div>
+            <h3 className="text-sm font-bold text-white">Export Lead-uri CRM (CSV)</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Descărcare a registrului de oportunități, lead-uri, telefoane și solicitări de finanțare în format CSV.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              downloadLeadsCsv();
+              showToast('📁 Fișierul CSV cu registrul de lead-uri a fost descărcat cu succes!');
+            }}
+            className="w-full py-2 px-3 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 active:scale-[0.98] text-purple-300 hover:text-purple-200 font-bold text-xs transition-all border border-purple-500/30 cursor-pointer"
+          >
+            Exportă lead-uri (CSV)
           </button>
         </div>
       </div>

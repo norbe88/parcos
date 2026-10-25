@@ -248,9 +248,11 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // Reîmprospătare automată din backend la inițializare
+  // Reîmprospătare automată din backend la inițializare (strict pe rutele de /superadmin)
   useEffect(() => {
-    refreshTenantsFromBackend();
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/superadmin')) {
+      refreshTenantsFromBackend();
+    }
   }, [refreshTenantsFromBackend]);
 
   // Modificare granulară a feature flags per tenant (SuperAdmin Master Control)

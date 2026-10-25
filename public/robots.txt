@@ -26,6 +26,7 @@ Allow: /rxm/
 Allow: /images/
 Allow: /cars/
 Allow: /assets/
+Allow: /lp-assets/
 Disallow: /admin
 Disallow: /rxm/admin
 Disallow: /*?admin*
@@ -62,6 +63,7 @@ Disallow: /*?admin*
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /lp-assets/
 
 # Sitemaps & Context Agenți AI (LLMs)
 Sitemap: https://rxmautomobile.ro/sitemap.xml

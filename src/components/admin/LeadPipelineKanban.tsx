@@ -586,13 +586,13 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
             type="button"
             onClick={() => {
               downloadLeadsCsv(leads);
-              showToast('📁 Fișierul CSV cu toate lead-urile a fost descărcat cu succes!');
+              showToast('📁 Fișierul CSV cu toate lead-urile din CRM a fost descărcat cu succes!');
             }}
-            className="py-2.5 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 active:scale-[0.98] text-zinc-300 hover:text-white font-bold text-xs flex items-center justify-center gap-2 border border-white/10 transition-all min-h-[44px] touch-manipulation"
-            title="Exportă baza de date a lead-urilor în format CSV"
+            className="py-2.5 px-3.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-[0.98] text-emerald-300 hover:text-emerald-200 font-bold text-xs flex items-center justify-center gap-2 border border-emerald-500/30 transition-all min-h-[44px] touch-manipulation shadow-sm"
+            title="Exportă registrul de lead-uri și oportunități CRM în format CSV (Excel)"
           >
             <FileText className="w-4 h-4 text-emerald-400" />
-            <span>Export CSV</span>
+            <span>Export lead-uri (CSV)</span>
           </button>
 
           <button

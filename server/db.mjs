@@ -253,6 +253,25 @@ export async function initDatabase() {
 
     // Inițializare structură ParcOS Mail Hub (Sprint 1: PMH-101 / PMH-106)
     await initMailHubSchema();
+
+    // Inițializare tabelă lead-uri landing (parcos.ro)
+    await sql`
+      CREATE TABLE IF NOT EXISTS landing_leads (
+        id                   SERIAL PRIMARY KEY,
+        created_at           TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+        nume                 VARCHAR(100) NOT NULL,
+        telefon_e164         VARCHAR(30) NOT NULL,
+        parc                 VARCHAR(120),
+        consent_at           TIMESTAMPTZ NOT NULL,
+        consent_text_version VARCHAR(50) DEFAULT 'v4-20261025' NOT NULL,
+        ip_hash              VARCHAR(64) NOT NULL,
+        user_agent           TEXT,
+        sursa                VARCHAR(80) DEFAULT 'parcos.ro' NOT NULL,
+        status               VARCHAR(30) DEFAULT 'new' NOT NULL
+      );
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_landing_leads_created_at ON landing_leads(created_at);`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_landing_leads_status ON landing_leads(status);`;
   } catch (err) {
     console.warn('[DB Init] Warning la verificarea conexiunii PostgreSQL:', err.message);
   }
@@ -1407,5 +1426,34 @@ export async function upsertDealer(data) {
   };
   FALLBACK_DEALERS[slug] = fallbackRecord;
   return { ...fallbackRecord };
+}
+
+/**
+ * Salvează un lead provenit din formularul landing page (parcos.ro)
+ */
+export async function insertLandingLead(lead) {
+  const sql = getSql();
+  try {
+    const rows = await sql`
+      INSERT INTO landing_leads (
+        nume, telefon_e164, parc, consent_at, consent_text_version, ip_hash, user_agent, sursa, status
+      ) VALUES (
+        ${lead.nume},
+        ${lead.telefon_e164},
+        ${lead.parc || null},
+        ${lead.consent_at || new Date()},
+        ${lead.consent_text_version || 'v4-20261025'},
+        ${lead.ip_hash},
+        ${lead.user_agent || null},
+        ${lead.sursa || 'parcos.ro'},
+        ${lead.status || 'new'}
+      )
+      RETURNING id, created_at;
+    `;
+    return rows[0] || { id: Date.now(), created_at: new Date().toISOString() };
+  } catch (err) {
+    console.warn('[DB] Eroare la salvarea lead-ului în PostgreSQL (fallback local):', err.message);
+    return { id: Date.now(), created_at: new Date().toISOString() };
+  }
 }
 
