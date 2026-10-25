@@ -13,18 +13,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       lastUpdated: Date.now()
     }, () => {
       console.log('[ParcOS Extension] Mașină salvată în storage:', request.payload?.title);
-      sendResponse({ success: true });
+      sendResponse({ success: true, savedAt: Date.now() });
     });
-    return true; // Răspuns asincron
+    return true; // Păstrează canalul deschis pentru răspuns asincron
   }
 
   if (request.action === 'GET_PENDING_CAR') {
     chrome.storage.local.get(['pendingCar', 'lastUpdated'], (result) => {
-      // Verificăm dacă payload-ul nu este mai vechi de 60 de minute
       const now = Date.now();
-      const isFresh = result.lastUpdated && (now - result.lastUpdated) < 60 * 60 * 1000;
+      // Verificăm prospețimea datelor (maxim 120 minute)
+      const isFresh = !result.lastUpdated || (now - result.lastUpdated) < 120 * 60 * 1000;
       if (result.pendingCar && isFresh) {
-        sendResponse({ success: true, car: result.pendingCar });
+        sendResponse({ success: true, car: result.pendingCar, lastUpdated: result.lastUpdated });
+      } else if (result.pendingCar) {
+        // Returnăm mașina chiar dacă e mai veche de 2 ore ca rezervă
+        sendResponse({ success: true, car: result.pendingCar, isStale: true });
       } else {
         sendResponse({ success: false, car: null });
       }

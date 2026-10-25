@@ -32,6 +32,7 @@ import {
   Play
 } from 'lucide-react';
 import { DealerProfile } from '../../db/seed';
+import { getSuperAdminHeaders } from '../../utils/superAdminApi';
 
 export interface BackupSnapshot {
   id: string;
@@ -95,6 +96,12 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
 
   // Încărcare date backup-uri
   useEffect(() => {
+    if (dealer?.slug) {
+      setRollbackTenant(dealer.slug);
+    }
+  }, [dealer?.slug]);
+
+  useEffect(() => {
     loadBackups();
   }, []);
 
@@ -102,7 +109,10 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
     setIsLoading(true);
     try {
       const res = await fetch('/api/admin/backups', {
-        headers: { 'Accept': 'application/json' }
+        headers: { 
+          'Accept': 'application/json',
+          ...getSuperAdminHeaders()
+        }
       });
       if (res.ok) {
         const data = await res.json();
@@ -182,8 +192,8 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
     try {
       const res = await fetch('/api/admin/backups/trigger', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'manual' })
+        headers: getSuperAdminHeaders(),
+        body: JSON.stringify({ mode: 'manual', tenant: rollbackTenant })
       });
       if (res.ok) {
         showToast('✅ Snapshot manual finalizat și sincronizat direct pe Google Drive!', 'success');
@@ -212,7 +222,7 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
     try {
       const res = await fetch('/api/admin/backups/dry-run', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getSuperAdminHeaders(),
         body: JSON.stringify({
           snapshotId: rollbackSnapshotId,
           tenantSlug: rollbackTenant,
@@ -262,7 +272,7 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
     try {
       const res = await fetch('/api/admin/backups/rollback', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getSuperAdminHeaders(),
         body: JSON.stringify({
           snapshotId: rollbackSnapshotId,
           tenantSlug: rollbackTenant,

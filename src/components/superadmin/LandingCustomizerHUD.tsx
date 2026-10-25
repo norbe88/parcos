@@ -76,7 +76,7 @@ export const LandingCustomizerHUD: React.FC<LandingCustomizerHUDProps> = ({
 
   const [selectedTheme, setSelectedTheme] = useState<DealerThemePreset>(tenant.themePreset || 'obsidian_gold');
   const [layoutVariant, setLayoutVariant] = useState<DealerLayoutVariant>(baseConfig.layoutVariant || 'luxury_cinematic');
-  const [heroType, setHeroType] = useState<DealerHeroType>(baseConfig.hero?.type || 'video_loop');
+  const [heroType, setHeroType] = useState<DealerHeroType>(baseConfig.hero?.type || 'spotlight');
   const [heroHeadline, setHeroHeadline] = useState<string>(baseConfig.hero?.headline || '');
   const [heroSubheadline, setHeroSubheadline] = useState<string>(baseConfig.hero?.subheadline || '');
   const [heroVideoUrl, setHeroVideoUrl] = useState<string>(baseConfig.hero?.videoUrl || '');
@@ -105,7 +105,7 @@ export const LandingCustomizerHUD: React.FC<LandingCustomizerHUDProps> = ({
     const fresh = tenant.landingConfig || DEFAULT_LANDING_CONFIG;
     setSelectedTheme(tenant.themePreset || 'obsidian_gold');
     setLayoutVariant(fresh.layoutVariant || 'luxury_cinematic');
-    setHeroType(fresh.hero?.type || 'video_loop');
+    setHeroType(fresh.hero?.type || 'spotlight');
     setHeroHeadline(fresh.hero?.headline || '');
     setHeroSubheadline(fresh.hero?.subheadline || '');
     setHeroVideoUrl(fresh.hero?.videoUrl || '');
@@ -835,7 +835,7 @@ export const LandingCustomizerHUD: React.FC<LandingCustomizerHUDProps> = ({
               onClick={() => {
                 const fresh = tenant.landingConfig || DEFAULT_LANDING_CONFIG;
                 setLayoutVariant(fresh.layoutVariant || 'luxury_cinematic');
-                setHeroType(fresh.hero?.type || 'video_loop');
+                setHeroType(fresh.hero?.type || 'spotlight');
                 setVisibleSections(fresh.visibleSections || DEFAULT_LANDING_CONFIG.visibleSections);
                 setCustomBadges(fresh.customBadges || []);
                 setIsDirty(false);

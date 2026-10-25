@@ -15,7 +15,7 @@ export const DEFAULT_TENANT_FEATURES: TenantFeatures = {
 // ─── Config Landing Default (fallback sigur pentru orice dealer nou) ──────────
 export const DEFAULT_LANDING_CONFIG: DealerLandingConfig = {
   layoutVariant: 'luxury_cinematic',
-  hero: { type: 'video_loop' },
+  hero: { type: 'spotlight' },
   visibleSections: {
     heroCinematic: true,
     vehicleCatalog: true,
@@ -83,7 +83,28 @@ export const SEED_DEALER: DealerProfile = {
     instagramBusinessAccountId: "",
     autoAddWatermarkPlates: true
   },
-  landingConfig: DEFAULT_LANDING_CONFIG
+  landingConfig: {
+    ...DEFAULT_LANDING_CONFIG,
+    hero: { type: 'spotlight' }
+  },
+  logoUrl: "/images/rxm-logo-gold.png",
+  windowStickerConfig: {
+    showLogo: true,
+    logoPosition: "header_left",
+    showEngineCc: true,
+    showPowerHp: true,
+    showFuelType: true,
+    showTransmission: true,
+    showDrivetrain: true,
+    showExchangeRateDisclaimer: true,
+    exchangeRateDisclaimerText: "Plata în LEI la curs BNR + 2% din ziua facturării",
+    showVin: false,
+    showMonthlyRate: true,
+    showVatDetails: true,
+    showTopFeatures: true,
+    showQrCode: true,
+    showWarrantyBadge: true
+  }
 };
 
 export const DEALER_MPI_AUTO: DealerProfile = {

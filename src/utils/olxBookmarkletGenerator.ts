@@ -11,17 +11,25 @@ export function getOlxInjectorScriptSource(): string {
 (async function() {
   console.log('[ParcOS OLX Bookmarklet] Pornire completare automată...');
 
-  // 1. Preluare payload din localStorage sau fallback prompt
-  let raw = localStorage.getItem('parcos_olx_pending_car');
+  // 1. Preluare payload din localStorage sau clipboard / prompt
   let data = null;
-  if (raw) {
-    try { data = JSON.parse(raw); } catch(e){}
+  try {
+    const raw = localStorage.getItem('parcos_olx_pending_car');
+    if (raw) data = JSON.parse(raw);
+  } catch(e){}
+
+  if (!data) {
+    try {
+      const clipText = await navigator.clipboard.readText();
+      const parsed = JSON.parse(clipText);
+      if (parsed && (parsed.title || parsed.brand)) data = parsed;
+    } catch(e){}
   }
 
   if (!data) {
-    const pasted = prompt('Lipește datele JSON exportate din ParcOS (sau apasă Cancel):');
+    const pasted = prompt('Lipește datele JSON ale mașinii exportate din ParcOS (sau apasă Cancel):');
     if (!pasted) return;
-    try { data = JSON.parse(pasted); } catch(e){ alert('Date invalide!'); return; }
+    try { data = JSON.parse(pasted); } catch(e){ alert('Date JSON invalide!'); return; }
   }
 
   // Helper set input value cu evenimente React
@@ -29,7 +37,7 @@ export function getOlxInjectorScriptSource(): string {
     if (!el) return;
     el.focus();
     const proto = Object.getPrototypeOf(el);
-    const set = Object.getOwnPropertyDescriptor(proto, 'value')?.set || Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    const set = Object.getOwnPropertyDescriptor(proto, 'value')?.set || Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set || Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
     if (set) {
       set.call(el, val);
     } else {
@@ -37,6 +45,7 @@ export function getOlxInjectorScriptSource(): string {
     }
     el.dispatchEvent(new Event('input', { bubbles: true }));
     el.dispatchEvent(new Event('change', { bubbles: true }));
+    el.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, key: ' ' }));
     el.blur();
   }
 
@@ -44,33 +53,75 @@ export function getOlxInjectorScriptSource(): string {
     const el = document.querySelector(sel);
     if (el) {
       el.click();
-      el.dispatchEvent(new Event('click', { bubbles: true }));
+      el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     }
   }
 
-  // Creează banner de status
+  // Banner status
   const badge = document.createElement('div');
   badge.id = 'parcos-olx-status-badge';
-  badge.style.cssText = 'position:fixed;top:16px;right:16px;z-index:999999;background:#10b981;color:#000;font-weight:bold;font-family:sans-serif;padding:12px 18px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;font-size:14px;';
-  badge.innerHTML = '<span>⚡ ParcOS: Se completează formularul...</span>';
+  badge.style.cssText = 'position:fixed;top:16px;right:16px;z-index:9999999;background:#111114;border:1px solid #f59e0b;color:#f59e0b;font-weight:bold;font-family:sans-serif;padding:12px 18px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.6);display:flex;align-items:center;gap:8px;font-size:13px;';
+  badge.innerHTML = '<span>⚡ ParcOS: Se completează formularul... (' + (data.brand || '') + ' ' + (data.model || '') + ')</span>';
   document.body.appendChild(badge);
 
-  // 2. Setare Titlu
-  const titleInput = document.querySelector('input[data-testid="title"]') || document.querySelector('#title');
+  // 2. Setare Titlu (cu selecție dinamică pentru ecranul nou OLX)
+  const titleSelectors = [
+    'input[data-testid="add-title-input"]',
+    'input[data-testid="title"]',
+    'input[name="title"]',
+    'input#title',
+    'input[placeholder*="Barista"]',
+    'input[placeholder*="titlu" i]',
+    'input[maxlength="150"]',
+    'main input[type="text"]',
+    'form input[type="text"]'
+  ];
+
+  let titleInput = null;
+  for (const s of titleSelectors) {
+    const el = document.querySelector(s);
+    if (el && el.offsetParent !== null) { titleInput = el; break; }
+  }
+
   if (titleInput && data.title) {
     setVal(titleInput, data.title);
+    await new Promise(r => setTimeout(r, 600));
+
+    // Clic pe butonul Continuă
+    const buttons = Array.from(document.querySelectorAll('button, a[role="button"], input[type="submit"]'));
+    const continueBtn = buttons.find(b => {
+      const txt = (b.textContent || b.value || '').trim().toLowerCase();
+      return (txt.includes('continuă') || txt.includes('continua')) && b.offsetParent !== null;
+    });
+    if (continueBtn) {
+      continueBtn.click();
+      await new Promise(r => setTimeout(r, 1000));
+    }
   }
 
-  // 3. Click buton Continuă categorie dacă e prezent
-  await new Promise(r => setTimeout(r, 600));
-  const continueBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent && b.textContent.includes('Continuă'));
-  if (continueBtn) {
-    continueBtn.click();
-    await new Promise(r => setTimeout(r, 1200));
+  // Căutare card/chip categorie Autoturisme
+  for (let c = 0; c < 5; c++) {
+    const candidates = Array.from(document.querySelectorAll('button, div[role="button"], a, li, span, h6, p'));
+    const catChip = candidates.find(el => {
+      const t = (el.textContent || '').trim().toLowerCase();
+      return t === 'autoturisme' || t === 'auto, moto si ambarcatiuni' || (t.includes('autoturisme') && t.length < 35);
+    });
+    if (catChip) {
+      catChip.click();
+      await new Promise(r => setTimeout(r, 800));
+      break;
+    }
+    await new Promise(r => setTimeout(r, 400));
   }
 
-  // 4. Preț și Monedă
-  const priceInput = document.querySelector('input[data-testid="price-input"]');
+  // Așteptare apariție formular detaliat (max 6 secunde)
+  for (let w = 0; w < 12; w++) {
+    if (document.querySelector('input[data-testid="price-input"]') || document.querySelector('textarea#description') || document.querySelector('input[name="price"]')) break;
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  // 3. Preț și Monedă
+  const priceInput = document.querySelector('input[data-testid="price-input"]') || document.querySelector('input[name="price"]') || document.querySelector('#price');
   if (priceInput && data.price) {
     setVal(priceInput, String(data.price));
   }
@@ -87,13 +138,18 @@ export function getOlxInjectorScriptSource(): string {
     }
   }
 
-  // 5. Descriere
-  const descEl = document.querySelector('textarea#description') || document.querySelector('textarea[data-testid="description"]');
+  if (data.negotiable) {
+    const neg = document.querySelector('#nexus-input') || document.querySelector('input[name*="negotiable"]');
+    if (neg && !neg.checked) neg.click();
+  }
+
+  // 4. Descriere Comercială
+  const descEl = document.querySelector('textarea#description') || document.querySelector('textarea[data-testid="description"]') || document.querySelector('textarea[name="description"]') || document.querySelector('textarea');
   if (descEl && data.description) {
     setVal(descEl, data.description);
   }
 
-  // 6. Parametri Tehnici (Inputs)
+  // 5. Parametri Tehnici (Inputs)
   const inputsMap = {
     'parameters.year': data.year,
     'parameters.rulaj_pana': data.mileageKm,
@@ -104,11 +160,11 @@ export function getOlxInjectorScriptSource(): string {
 
   for (const [key, val] of Object.entries(inputsMap)) {
     if (!val) continue;
-    const inp = document.querySelector('input[data-testid="' + key + '"]');
+    const inp = document.querySelector('input[data-testid="' + key + '"]') || document.querySelector('input[name="' + key + '"]');
     if (inp) setVal(inp, String(val));
   }
 
-  // 7. Chip-uri (Cutie, Stare, Volan, Înmatriculare, Firmă)
+  // 6. Chip-uri (Cutie, Stare, Volan, Înmatriculare, Firmă)
   if (data.gearbox === 'automat') {
     clickChip('[data-cy="parameters.gearbox_automatic"]');
   } else {
@@ -119,23 +175,23 @@ export function getOlxInjectorScriptSource(): string {
   clickChip('[data-cy="parameters.registration_state_registered"]');
   clickChip('[data-cy="private_business_business"]');
 
-  // 8. Contact & Telefon & Localitate
-  const personInput = document.querySelector('#person');
+  // 7. Contact & Telefon & Localitate
+  const personInput = document.querySelector('#person') || document.querySelector('input[name="person"]');
   if (personInput && data.contactPerson) setVal(personInput, data.contactPerson);
 
-  const phoneInput = document.querySelector('#phone');
+  const phoneInput = document.querySelector('#phone') || document.querySelector('input[name="phone"]');
   if (phoneInput && data.contactPhone) setVal(phoneInput, data.contactPhone);
 
-  const locInput = document.querySelector('#autosuggest-location-input');
+  const locInput = document.querySelector('#autosuggest-location-input') || document.querySelector('input[name="location"]');
   if (locInput && data.location) {
     setVal(locInput, data.location);
-    await new Promise(r => setTimeout(r, 1000));
-    const firstSug = document.querySelector('[role="option"]');
+    await new Promise(r => setTimeout(r, 900));
+    const firstSug = document.querySelector('[role="option"], .autosuggest-item');
     if (firstSug) firstSug.click();
   }
 
-  // 9. Upload Fotografii (max 8)
-  const fileInput = document.querySelector('input[data-cy="attach-photos-input"]');
+  // 8. Upload Fotografii (max 8)
+  const fileInput = document.querySelector('input[data-cy="attach-photos-input"]') || document.querySelector('input[type="file"]');
   if (fileInput && Array.isArray(data.photos) && data.photos.length > 0) {
     badge.innerHTML = '<span>📸 ParcOS: Se descarcă și încarcă cele ' + data.photos.slice(0, 8).length + ' fotografii...</span>';
     try {
@@ -161,8 +217,10 @@ export function getOlxInjectorScriptSource(): string {
   }
 
   badge.style.background = '#22c55e';
+  badge.style.color = '#000';
+  badge.style.borderColor = '#16a34a';
   badge.innerHTML = '<span>✅ Formular completat cu succes de ParcOS! Verifică și apasă [Publică-mi anunțul].</span>';
-  setTimeout(() => { badge.remove(); }, 8000);
+  setTimeout(() => { badge.remove(); }, 12000);
 })();
   `.trim();
 }

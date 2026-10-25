@@ -17,7 +17,8 @@ export type SuperAdminNavTab =
   | 'integrations_portals' // 📡 Sincronizare OLX & Autovit
   | 'integrations_mail'    // 📧 ParcOS Mail Hub (SES / Inbound)
   | 'feature_propagation'  // 🚀 Matrice Module (1-Click Rollout Global)
-  | 'vps_monitoring';      // 📊 Telemetrie VPS Netcup (RAM, SSD, Docker)
+  | 'vps_monitoring'       // 📊 Telemetrie VPS Netcup (RAM, SSD, Docker)
+  | 'backup_rollback';     // 🛡️ Backup & Rollback Disaster Recovery (VPS -> Google Drive)
 
 export interface SuperAdminSidebarProps {
   activeTab: SuperAdminNavTab;
@@ -147,6 +148,13 @@ export const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
           label: 'Telemetrie VPS Netcup',
           icon: Cpu,
           badge: '152.53.158.65',
+          badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+        },
+        {
+          id: 'backup_rollback' as SuperAdminNavTab,
+          label: 'Backup & Rollback Cloud',
+          icon: Database,
+          badge: 'G-Drive • RPO 01:15',
           badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
         }
       ]

@@ -690,11 +690,11 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <a
-              href={isParcos ? 'tel:+40748892937' : `tel:${dealer.phonePrimary.replace(/\s+/g, '')}`}
+              href={isParcos ? 'tel:+40758511040' : `tel:${dealer.phonePrimary.replace(/\s+/g, '')}`}
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-black font-bold text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/20 touch-manipulation cursor-pointer"
             >
               <Phone className="w-4 h-4" />
-              <span>Sună: {isParcos ? '+40 748 892 937' : dealer.phonePrimary}</span>
+              <span>Sună: {isParcos ? '+40 758 511 040' : dealer.phonePrimary}</span>
             </a>
             <button
               type="button"

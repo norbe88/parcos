@@ -7,7 +7,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       width: 320px;
-      background: #121215;
+      background: #111114;
       color: #f4f4f5;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       padding: 16px;
@@ -71,14 +71,15 @@
       font-size: 12px;
       color: #71717a;
       text-align: center;
-      padding: 12px 0;
+      padding: 10px 0;
+      line-height: 1.4;
     }
     .btn {
       width: 100%;
       padding: 10px;
       border-radius: 10px;
       border: none;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 12px;
       cursor: pointer;
       display: flex;
@@ -99,6 +100,7 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       color: #a1a1aa;
+      margin-bottom: 6px;
     }
     .btn-secondary:hover {
       color: #ffffff;
@@ -130,6 +132,9 @@
 
   <button class="btn btn-primary" id="btn-open-olx">
     <span>🚀 Deschide Formular OLX</span>
+  </button>
+  <button class="btn btn-secondary" id="btn-paste-clipboard">
+    <span>📋 Lipește din Clipboard</span>
   </button>
   <button class="btn btn-secondary" id="btn-clear">
     <span>Curăță datele salvate</span>

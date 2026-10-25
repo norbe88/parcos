@@ -1,7 +1,7 @@
 /* ParcOS landing: JS minimal, fără dependențe. Nu apelează niciun endpoint în afară de POST /api/lead. */
 (function () {
   'use strict';
-  var WA_NUMBER = '40738164641';
+  var WA_NUMBER = '40758511040';
 
   /* An curent în footer */
   var an = document.getElementById('an');

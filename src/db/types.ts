@@ -280,6 +280,43 @@ export interface DealerProfile {
   socialIntegration?: DealerSocialIntegration;
   // Configurare Landing Page Dinamică (Wave 1)
   landingConfig?: DealerLandingConfig;
+  // Identitate Vizuală & Logo Dealer
+  logoUrl?: string;
+  // Configurare Fișe de Parbriz A4 (Motorizare, Curs BNR+2%, Logo, Toggles)
+  windowStickerConfig?: Partial<WindowStickerConfig>;
+}
+
+// ─── Configurare Fișe de Parbriz A4 (Showroom Window Stickers) ──────────────
+export interface WindowStickerConfig {
+  // 1. Branding & Logo Dealer
+  showLogo: boolean;
+  logoPosition: 'header_left' | 'header_right';
+  logoUrl?: string;
+
+  // 2. Motorizare & Detalii Tehnice
+  showEngineCc: boolean;           // Capacitate cilindrică (cm³ - ex: 1.998 cm³)
+  showPowerHp: boolean;            // Putere (CP)
+  showFuelType: boolean;           // Combustibil
+  showTransmission: boolean;       // Cutie de viteze
+  showDrivetrain?: boolean;        // Tracțiune (4x4 / Față / Spate)
+  showMileage: boolean;            // Rulaj certificat
+  showYear: boolean;               // An fabricație
+  showVin: boolean;                // Serie Șasiu (VIN)
+
+  // 3. Preț & Conformitate Legală ANPC (Curs BNR + 2%)
+  showExchangeRateDisclaimer: boolean; // Mențiune legală Curs BNR + 2%
+  exchangeRateDisclaimerText: string;  // Text legal personalizat
+  showVatDetails: boolean;             // TVA Deductibil 21% / Regim Marjă
+  showMonthlyRate: boolean;            // Bloc rate lunare
+
+  // 4. Dotări, QR & Garanție
+  showTopFeatures: boolean;            // Echipamente principale de top
+  showQrCode: boolean;                 // Cod QR showroom & video
+  showWarrantyBadge: boolean;          // Mențiune Garanție Dealer
+
+  // 5. Badge Personalizat / Colț
+  customBadgeText?: string;            // Text evidențiere (ex: "Revizie gratuită la livrare")
+  customBadgePosition?: 'top_right' | 'top_left';
 }
 
 export interface DealerSocialIntegration {

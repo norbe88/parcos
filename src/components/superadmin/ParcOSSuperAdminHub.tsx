@@ -21,6 +21,7 @@ import { SuperAdminVpsTab } from './tabs/SuperAdminVpsTab';
 import { SuperAdminBillingTab } from './tabs/SuperAdminBillingTab';
 import { SuperAdminMailTab } from './tabs/SuperAdminMailTab';
 import { SuperAdminFeaturePropagationTab } from './tabs/SuperAdminFeaturePropagationTab';
+import { BackupRollbackManager } from '../admin/BackupRollbackManager';
 import { 
   propagateFeatureGloballyBackend, 
   testFgoConnectionBackend, 
@@ -742,6 +743,14 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
               onRunOverdueSweep={handleRunOverdueSweep}
               onTriggerInvoice={handleTriggerInvoice}
               onPayInvoice={handlePayInvoice}
+            />
+          )}
+
+          {/* TAB 10: BACKUP & ROLLBACK DISASTER RECOVERY (STRICT SUPERADMIN) */}
+          {activeNavTab === 'backup_rollback' && (
+            <BackupRollbackManager
+              dealer={currentTenant}
+              showToast={showToast}
             />
           )}
 

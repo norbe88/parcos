@@ -566,7 +566,7 @@ export const CookiePolicyPage: React.FC<CookiePolicyPageProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Asistență Tehnică: <a href="tel:+40748892937" className="text-amber-300 hover:underline font-mono">+40 748 892 937</a></span>
+                  <span>Asistență Tehnică: <a href="tel:+40758511040" className="text-amber-300 hover:underline font-mono">+40 758 511 040</a></span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Globe className="w-4 h-4 text-amber-400 shrink-0" />

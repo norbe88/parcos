@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Car, Users, FileText, Radio, QrCode, Share2, BarChart3, 
   Settings, Plus, ExternalLink, HelpCircle, LogOut, X, 
-  ShieldCheck, Layers, Building2, ChevronRight, CheckCircle2, DollarSign, Mail, Database,
+  ShieldCheck, Layers, Building2, ChevronRight, CheckCircle2, DollarSign, Mail,
   Sun, Moon, CreditCard, Puzzle
 } from 'lucide-react';
 import { DealerProfile, SEED_DEALER } from '../../db/seed';
@@ -19,8 +19,7 @@ export type AdminTabType =
   | 'feeds'           // 📡 Feed-uri Stoc & Social
   | 'analytics'       // 📊 Bilanț Financiar & KPI
   | 'settings'        // ⚙️ Setări Parc & Workspace
-  | 'financing'       // 💳 Curs BT & Creditori
-  | 'backups';        // 🛡️ Backup & Rollback Cloud
+  | 'financing';      // 💳 Curs BT & Creditori
 
 export interface ParcOsSidebarProps {
   activeTab: AdminTabType;
@@ -173,14 +172,6 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
           icon: Settings,
           badge: 'TVA 21%',
           badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-        },
-
-        {
-          id: 'backups' as AdminTabType,
-          label: 'Backup & Rollback Cloud',
-          icon: Database,
-          badge: 'G-Drive • RPO 01:15',
-          badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
         }
       ]
     }

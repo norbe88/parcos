@@ -415,13 +415,13 @@ export const AdminHelpModal: React.FC<AdminHelpModalProps> = ({
             </div>
 
             <a
-              href="https://wa.me/40738164641?text=Buna%20ziua,%20am%20o%20intrebare%20despre%20panoul%20de%20gestiune%20Dealer%20OS."
+              href="https://wa.me/40758511040?text=Buna%20ziua,%20am%20o%20intrebare%20despre%20panoul%20de%20gestiune%20Dealer%20OS."
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-black font-bold text-xs px-3.5 py-2 rounded-xl transition-all shadow-md active:scale-95 whitespace-nowrap shrink-0"
             >
               <MessageSquare className="w-3.5 h-3.5" />
-              <span>WhatsApp Suport (0738 164 641)</span>
+              <span>WhatsApp Suport (0758 511 040)</span>
             </a>
           </div>
         </div>

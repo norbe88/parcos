@@ -36,7 +36,6 @@ import { MailboxLayout } from '../../modules/mail/MailboxLayout';
 import { OLXExtensionInstallModal } from './OLXExtensionInstallModal';
 import { convertEurToRon } from '../../utils/currencyEngine';
 import { DealPricingData } from './DealPriceModal';
-import { BackupRollbackManager } from './BackupRollbackManager';
 import { useWorkspace } from '../../context/WorkspaceContext';
 
 interface AdminPortalProps {
@@ -662,10 +661,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           />
         )}
 
-        {/* 10. Centru de Backup & Rollback Disaster Recovery */}
-        {activeAdminTab === 'backups' && (
-          <BackupRollbackManager dealer={activeDealer} showToast={showToast} />
-        )}
 
       {/* 🛠️ Suport Tehnic & Mentenanță Showroom — Carvana S.R.L. */}
       <div className="mt-8 bg-gradient-to-b from-[#151518] to-[#101012] border border-amber-500/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
@@ -686,13 +681,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </div>
 
           <a 
-            href="https://wa.me/40738164641?text=Buna%20ziua,%20am%20o%20solicitare%20tehnica%20pentru%20platforma%20RXM%20Automobile"
+            href="https://wa.me/40758511040?text=Buna%20ziua,%20am%20o%20solicitare%20tehnica%20pentru%20platforma%20ParcOS"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95 whitespace-nowrap"
           >
             <Phone className="w-3.5 h-3.5" />
-            <span>Deschide WhatsApp Suport (0738 164 641)</span>
+            <span>Deschide WhatsApp Suport (0758 511 040)</span>
           </a>
         </div>
 
@@ -704,10 +699,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 <Phone className="w-3.5 h-3.5 text-amber-400" /> Suport Tehnic Direct (Tel & WhatsApp)
               </div>
               <a 
-                href="tel:0738164641" 
+                href="tel:0758511040" 
                 className="font-bold text-white text-base font-mono text-amber-300 hover:underline block"
               >
-                0738 164 641
+                0758 511 040
               </a>
               <div className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1 font-medium">
                 <Check className="w-3 h-3" /> Linie activă • Telefon + WhatsApp
@@ -715,13 +710,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </div>
             <div className="mt-3 pt-2.5 border-t border-white/[0.06] flex items-center gap-2">
               <a 
-                href="tel:0738164641" 
+                href="tel:0758511040" 
                 className="flex-1 py-1.5 px-2 bg-white/5 hover:bg-white/10 rounded-lg text-center text-[11px] text-zinc-300 font-semibold transition-all"
               >
                 📞 Apelează
               </a>
               <a 
-                href="https://wa.me/40738164641?text=Buna%20ziua,%20am%20o%20solicitare%20tehnica%20pentru%20platforma%20RXM%20Automobile" 
+                href="https://wa.me/40758511040?text=Buna%20ziua,%20am%20o%20solicitare%20tehnica%20pentru%20platforma%20ParcOS" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="flex-1 py-1.5 px-2 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 rounded-lg text-center text-[11px] text-emerald-300 font-semibold transition-all"

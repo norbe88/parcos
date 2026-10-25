@@ -70,6 +70,8 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
   const [isExtensionInstalled, setIsExtensionInstalled] = useState(false);
 
   useEffect(() => {
+    if (!isOpen) return;
+
     const check = () => {
       const attr = document.documentElement.getAttribute('data-parcos-olx-extension');
       if (attr === 'installed' || (window as any).__PARCOS_OLX_EXTENSION__) {
@@ -77,7 +79,27 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
       }
     };
     check();
+
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data?.type === 'PARCOS_OLX_PONG' || e.data?.type === 'PARCOS_OLX_EXPORT_SAVED') {
+        setIsExtensionInstalled(true);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
     window.addEventListener('parcos-olx-extension-ready', () => setIsExtensionInstalled(true));
+
+    // Trimite un ping către content script
+    window.postMessage({ type: 'PARCOS_OLX_PING' }, '*');
+    const timer = setInterval(() => {
+      window.postMessage({ type: 'PARCOS_OLX_PING' }, '*');
+      check();
+    }, 800);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      clearInterval(timer);
+    };
   }, [isOpen]);
 
   // Inițializare stare la selectarea mașinii
@@ -192,7 +214,7 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
   };
 
   // Trimitere către OLX și salvare în localStorage + clipboard
-  const handleExportAndOpenOlx = () => {
+  const handleExportAndOpenOlx = async () => {
     const payload = buildPayload();
     if (!payload) return;
 
@@ -210,15 +232,18 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
         exportedAt: new Date().toISOString()
       }));
 
-      // 2. PostMessage către eventualele extensii ascultătoare în pagină
-      window.postMessage({ type: 'PARCOS_OLX_EXPORT', payload }, '*');
-
-      // 3. Copiere în clipboard ca fallback de siguranță
+      // 2. Copiere în clipboard ca fallback instant garantat
       navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).catch(() => {});
 
-      showToast('🚀 Datele au fost pregătite! Se deschide OLX...');
+      // 3. PostMessage către content scriptul extensiei
+      window.postMessage({ type: 'PARCOS_OLX_EXPORT', payload }, '*');
 
-      // 4. Deschidere tab olx.ro/adding/
+      showToast('🚀 Datele au fost transmise extensiei! Se deschide OLX...');
+
+      // 4. Așteptăm 350ms pentru a fi siguri că background service worker a salvat în chrome.storage.local
+      await new Promise((r) => setTimeout(r, 350));
+
+      // 5. Deschidere tab olx.ro/adding/
       window.open('https://www.olx.ro/adding/', '_blank', 'noopener,noreferrer');
       onClose();
     } catch (err) {

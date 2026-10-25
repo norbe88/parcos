@@ -1200,6 +1200,16 @@ async function renderDynamicHtml(html, req, urlObj) {
     }
   }
 
+  // Gestionare preîncărcare video și titlu Apple Web App per-tenant:
+  // Pe showroom de dealer (RXM etc.), NU preîncărcăm video-ul SaaS parcos-showroom-intro.mp4
+  if (!isParcos) {
+    output = output.replace(/<link\s+rel=["']preload["'][^>]*parcos-showroom-intro\.mp4[^>]*>\s*/gi, '');
+    output = output.replace(/<link\s+rel=["']preload["'][^>]*parcos-showroom-hall\.jpg[^>]*>\s*/gi, '');
+    output = output.replace(/<meta\s+name=["']apple-mobile-web-app-title["'][^>]*>/gi, `<meta name="apple-mobile-web-app-title" content="${escapeHtml(ogSiteName || (isRxm ? 'RXM Automobile' : 'Dealer Showroom'))}" />`);
+  } else {
+    output = output.replace(/<meta\s+name=["']apple-mobile-web-app-title["'][^>]*>/gi, `<meta name="apple-mobile-web-app-title" content="ParcOS" />`);
+  }
+
   return output;
 }
 

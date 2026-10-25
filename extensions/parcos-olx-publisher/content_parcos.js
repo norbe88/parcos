@@ -1,31 +1,58 @@
 /**
  * extensions/parcos-olx-publisher/content_parcos.js
- * Content script injectat pe paginile ParcOS (showroom și admin)
+ * Content script injectat pe paginile ParcOS (showroom și admin pe parcos.ro, localhost, 127.0.0.1)
  */
 
 (function() {
   console.log('[ParcOS Extension] Content script conectat la instanța ParcOS.');
 
-  // Semnalizare către interfața React că extensia este prezentă și activă
-  try {
-    document.documentElement.setAttribute('data-parcos-olx-extension', 'installed');
-    window.dispatchEvent(new CustomEvent('parcos-olx-extension-ready', { 
-      detail: { version: '1.0.0', status: 'ready' } 
-    }));
-  } catch (e) {}
+  function broadcastReady() {
+    try {
+      document.documentElement.setAttribute('data-parcos-olx-extension', 'installed');
+      window.dispatchEvent(new CustomEvent('parcos-olx-extension-ready', { 
+        detail: { version: '1.0.0', status: 'ready' } 
+      }));
+      window.postMessage({ type: 'PARCOS_OLX_PONG', version: '1.0.0', status: 'ready' }, '*');
+    } catch (e) {}
+  }
 
-  // Ascultare evenimente de export emise de OLXExportModal.tsx
+  // Semnalizare inițială
+  broadcastReady();
+
+  // Ascultare mesaje de la interfața React ParcOS
   window.addEventListener('message', (event) => {
-    if (!event.data || event.data.type !== 'PARCOS_OLX_EXPORT') return;
+    if (!event.data) return;
 
-    const payload = event.data.payload;
-    console.log('[ParcOS Extension] Export detectat din ParcOS UI:', payload?.title);
+    // 1. Verificare ping de stare
+    if (event.data.type === 'PARCOS_OLX_PING') {
+      broadcastReady();
+      return;
+    }
 
-    chrome.runtime.sendMessage({
-      action: 'SAVE_PENDING_CAR',
-      payload: payload
-    }, (response) => {
-      console.log('[ParcOS Extension] Răspuns salvare în background:', response);
-    });
+    // 2. Export mașină pentru publicare pe OLX
+    if (event.data.type === 'PARCOS_OLX_EXPORT') {
+      const payload = event.data.payload;
+      console.log('[ParcOS Extension] Export detectat din ParcOS UI:', payload?.title);
+
+      try {
+        chrome.runtime.sendMessage({
+          action: 'SAVE_PENDING_CAR',
+          payload: payload
+        }, (response) => {
+          console.log('[ParcOS Extension] Răspuns salvare în background:', response);
+          window.postMessage({ 
+            type: 'PARCOS_OLX_EXPORT_SAVED', 
+            success: Boolean(response?.success),
+            title: payload?.title
+          }, '*');
+        });
+      } catch (err) {
+        console.error('[ParcOS Extension] Eroare la trimiterea către background:', err);
+      }
+    }
   });
+
+  // Re-semnalizare periodică discretă la intervale scurte după încărcarea DOM
+  setTimeout(broadcastReady, 500);
+  setTimeout(broadcastReady, 1500);
 })();

@@ -81,6 +81,19 @@ export const DealerHeroAdapter: React.FC<DealerHeroAdapterProps> = ({
 
   switch (hero.type) {
     case 'video_loop':
+      // ShowroomVideoIntro este showcase-ul demonstrativ ParcOS SaaS (Porsche, Audi RS7, telemetrie SaaS).
+      // Pentru showroom-ul RXM Automobile sau orice dealer fără URL video dedicat (hero.videoUrl),
+      // randăm întotdeauna HeroSpotlight cu mașinile reale din stocul dealerului:
+      if (!hero.videoUrl || tenant.slug === 'rxm') {
+        return (
+          <HeroSpotlight
+            cars={cars}
+            onSelectCar={onSelectCar}
+            dealer={tenant}
+            isRevealed={isRevealed}
+          />
+        );
+      }
       return (
         <React.Suspense fallback={<div className="min-h-screen bg-[#09090b]" />}>
           <ShowroomVideoIntro
@@ -102,8 +115,16 @@ export const DealerHeroAdapter: React.FC<DealerHeroAdapterProps> = ({
         />
       );
     case 'banner':
-    default:
       return <DealerBannerHero tenant={tenant} landingConfig={landingConfig} headline={headlineFinal} />;
+    default:
+      return (
+        <HeroSpotlight
+          cars={cars}
+          onSelectCar={onSelectCar}
+          dealer={tenant}
+          isRevealed={isRevealed}
+        />
+      );
   }
 };
 

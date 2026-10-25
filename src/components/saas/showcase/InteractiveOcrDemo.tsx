@@ -806,7 +806,7 @@ export const InteractiveOcrDemo: React.FC<InteractiveOcrDemoProps> = ({
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <a
-                href="https://wa.me/40748892937?text=Buna%20ziua!%20Am%20testat%20scannerul%20pe%20ParcOS%20(3/3)%20si%20doresc%20acces%20nelimitat%20pentru%20parcul%20meu%20auto."
+                href="https://wa.me/40758511040?text=Buna%20ziua!%20Am%20testat%20scannerul%20pe%20ParcOS%20(3/3)%20si%20doresc%20acces%20nelimitat%20pentru%20parcul%20meu%20auto."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:flex-1 min-h-[48px] px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all touch-manipulation active:scale-[0.98]"
