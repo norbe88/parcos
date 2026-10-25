@@ -204,6 +204,23 @@ export function convertEurToRon(amountEur: number, customRate?: number): number 
 }
 
 /**
+ * Convertește o sumă din RON în EUR la cursul BT (BNR + 2%)
+ */
+export function convertRonToEur(amountRon: number, customRate?: number): number {
+  if (!amountRon || amountRon <= 0) return 0;
+  const rate = customRate ?? getBtExchangeRate();
+  return Math.round(amountRon / rate);
+}
+
+/**
+ * Formatează o sumă deja în RON direct (ex: 15000 -> "15.000 RON")
+ */
+export function formatRonDirect(amountRon: number): string {
+  if (!amountRon || amountRon <= 0) return '0 RON';
+  return `${Math.round(amountRon).toLocaleString('ro-RO')} RON`;
+}
+
+/**
  * Formatează o sumă în RON (ex: "1.759 RON", fără tildă)
  */
 export function formatPriceRon(amountEur: number, customRate?: number): string {

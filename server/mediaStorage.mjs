@@ -10,6 +10,26 @@
 import fs from 'fs';
 import path from 'path';
 import { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+
+// Auto-loader zero-dependency pentru .env dacă există în rădăcină
+try {
+  const envPath = path.join(process.cwd(), '.env');
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    envContent.split('\n').forEach(line => {
+      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        const key = match[1];
+        let value = match[2] || '';
+        if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
+        if (!process.env[key]) {
+          process.env[key] = value.trim();
+        }
+      }
+    });
+  }
+} catch {}
 
 let _r2Client = null;
 
@@ -207,3 +227,92 @@ export async function deleteCarMediaFromDisk(carId) {
     console.warn(`[mediaStorage] Nu s-a putut șterge directorul local pentru ${carId}:`, err.message);
   }
 }
+
+/**
+ * Generează un Presigned PUT URL pentru upload direct din browser către Cloudflare R2
+ * @param {Object} params
+ * @param {string} [params.tenantSlug='rxm'] - Slug-ul dealerului (ex: "mpi_auto", "rxm")
+ * @param {'car' | 'branding' | 'landing'} [params.mediaType='car'] - Categoria de fișier
+ * @param {string} [params.carId] - ID-ul mașinii (obligatoriu dacă mediaType === 'car')
+ * @param {string} params.filename - Numele fișierului (ex: "logo.webp", "hero-loop.mp4")
+ * @param {string} [params.contentType='image/webp'] - Tipul MIME (ex: "image/webp", "video/mp4")
+ * @param {number} [params.expiresInSeconds=600] - Valabilitate token în secunde (default 10 min)
+ * @returns {Promise<{ uploadUrl: string, publicUrl: string, key: string } | null>}
+ */
+export async function createPresignedUploadUrl({
+  tenantSlug = 'rxm',
+  mediaType = 'car',
+  carId,
+  filename,
+  contentType = 'image/webp',
+  expiresInSeconds = 600,
+}) {
+  const r2 = getR2Client();
+  const bucketName = getR2BucketName();
+  const publicBaseUrl = getR2PublicBaseUrl();
+
+  if (!r2 || !publicBaseUrl) {
+    return null;
+  }
+
+  try {
+    const safeTenant = String(tenantSlug || 'rxm').trim().toLowerCase().replace(/[^a-zA-Z0-9_-]/g, '_');
+    const safeFilename = path.basename(String(filename || `file_${Date.now()}`)).replace(/[^a-zA-Z0-9_.-]/g, '_');
+
+    let key = '';
+    if (mediaType === 'car' || mediaType === 'cars') {
+      const safeCarId = String(carId || 'temp_car').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+      key = `tenants/${safeTenant}/cars/${safeCarId}/${safeFilename}`;
+    } else if (mediaType === 'branding') {
+      key = `tenants/${safeTenant}/branding/${safeFilename}`;
+    } else if (mediaType === 'landing') {
+      key = `tenants/${safeTenant}/landing/${safeFilename}`;
+    } else {
+      key = `tenants/${safeTenant}/misc/${safeFilename}`;
+    }
+
+    const command = new PutObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+      ContentType: contentType,
+      CacheControl: 'public, max-age=31536000, immutable',
+    });
+
+    const uploadUrl = await getSignedUrl(r2, command, { expiresIn: expiresInSeconds });
+    const publicUrl = `${publicBaseUrl}/${key}`;
+
+    return {
+      uploadUrl,
+      publicUrl,
+      key,
+    };
+  } catch (err) {
+    console.error('[mediaStorage] Eroare la generarea URL-ului semnat R2:', err);
+    return null;
+  }
+}
+
+/**
+ * Șterge un obiect din Cloudflare R2 după cheie.
+ * @param {string} key
+ * @returns {Promise<boolean>}
+ */
+export async function deleteMediaFromR2(key) {
+  const r2 = getR2Client();
+  const bucketName = getR2BucketName();
+  if (!r2 || !key) return false;
+
+  try {
+    const { DeleteObjectCommand } = await import('@aws-sdk/client-s3');
+    await r2.send(new DeleteObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+    }));
+    return true;
+  } catch (err) {
+    console.warn(`[mediaStorage] Eroare la ștergerea cheii ${key} din R2:`, err.message);
+    return false;
+  }
+}
+
+

@@ -5,6 +5,7 @@
 // =========================================================================
 
 import { GEMINI_MODELS, blobToBase64, executeGeminiVisionInference } from './geminiVisionEngine';
+import { getAdminAuthHeaders } from './adminAuth';
 
 export interface ParsedClientIdDocument {
   fullName: string;
@@ -139,14 +140,57 @@ export async function scanClientIdCardWithGemini(
   let parsed: any = null;
   let lastError: Error | null = null;
 
-  for (const model of GEMINI_MODELS) {
-    try {
-      onProgress?.(50, '🔍 Analiză optică de înaltă precizie — recunoaștere CNP, Serie & Domiciliu...');
-      parsed = await executeGeminiVisionInference(model, ID_CARD_PROMPT, base64Data, mimeType, onProgress);
-      if (parsed) break;
-    } catch (err: any) {
-      lastError = err;
-      console.warn('[Client ID OCR] Încercare canal procesare eșuată:', err.message);
+  // 1. Canal primar: Endpoint dedicat Parcos Multi-Tenant (/api/parcos/clients/scan-id)
+  try {
+    const tenantId = (typeof window !== 'undefined' && (localStorage.getItem('rxm_tenant_id') || localStorage.getItem('parcos_tenant_id'))) || 'rxm';
+    onProgress?.(45, '🔒 Transmitere securizată către gateway-ul ParcOS ID Verify...');
+    const parcosRes = await fetch('/api/parcos/clients/scan-id', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Tenant-Id': tenantId,
+        ...getAdminAuthHeaders(),
+      },
+      body: JSON.stringify({
+        imageBase64: base64Data,
+        mimeType: mimeType || 'image/jpeg',
+        tenantId,
+      }),
+    });
+
+    if (parcosRes.status === 429) {
+      const errJson = await parcosRes.json().catch(() => ({}));
+      throw new Error(errJson.error || 'Ați atins limita de procesare simultană a documentelor. Vă rugăm să așteptați câteva momente.');
+    }
+    if (parcosRes.status === 503) {
+      const errJson = await parcosRes.json().catch(() => ({}));
+      throw new Error(errJson.error || 'Serviciul inteligent este temporar indisponibil. Datele clientului pot fi completate manual.');
+    }
+
+    if (parcosRes.ok) {
+      const parcosData = await parcosRes.json();
+      if (parcosData?.success && parcosData?.idData) {
+        parsed = parcosData.idData;
+      }
+    }
+  } catch (err: any) {
+    if (err.message && (err.message.includes('limita') || err.message.includes('temporar indisponibil'))) {
+      throw err;
+    }
+    console.info('[Parcos ID Proxy] Fallback pe canalul gateway standard:', err.message);
+  }
+
+  // 2. Canal secundar de rezervă
+  if (!parsed) {
+    for (const model of GEMINI_MODELS) {
+      try {
+        onProgress?.(50, '🔍 Analiză optică de înaltă precizie — recunoaștere CNP, Serie & Domiciliu...');
+        parsed = await executeGeminiVisionInference(model, ID_CARD_PROMPT, base64Data, mimeType, onProgress);
+        if (parsed) break;
+      } catch (err: any) {
+        lastError = err;
+        console.warn('[Client ID OCR] Încercare canal procesare eșuată:', err.message);
+      }
     }
   }
 

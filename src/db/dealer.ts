@@ -9,6 +9,7 @@ export const DEFAULT_TENANT_FEATURES: TenantFeatures = {
   windowStickersQr: true,
   financingCalculator: true,
   whatsappLeadsBot: true,
+  financingPortfolio: false, // Strict blocat implicit pe producție
 };
 
 // ─── Config Landing Default (fallback sigur pentru orice dealer nou) ──────────
@@ -249,6 +250,7 @@ export const DEALER_RXM_SANDBOX: DealerProfile = {
   features: {
     ...DEFAULT_TENANT_FEATURES,
     fgoInvoicing: true,
+    financingPortfolio: true, // Activ pentru testare pe staging
   },
   config: {
     ...(SEED_DEALER.config || {}),

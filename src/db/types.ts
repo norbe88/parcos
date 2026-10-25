@@ -1,5 +1,6 @@
 export interface VehicleItem {
   id: string;
+  dealerSlug?: string;
   stockNumber: string;
   brand: string;
   model: string;
@@ -203,11 +204,19 @@ export interface DealerLandingSections {
   googleReviewsSection: boolean; // GoogleReviewsSection (#recenzii)
 }
 
+export interface DealerSeoConfig {
+  metaTitle?: string;
+  metaDescription?: string;
+  ogImage?: string;
+  canonicalUrl?: string;
+}
+
 export interface DealerLandingConfig {
   layoutVariant: DealerLayoutVariant;
   hero: DealerHeroConfig;
   visibleSections: DealerLandingSections;
   customBadges: string[]; // ex: ["Garanție 24 Luni", "TVA Deductibil 21%"]
+  seo?: DealerSeoConfig;
 }
 
 export interface TenantFeatures {
@@ -220,6 +229,7 @@ export interface TenantFeatures {
   financingCalculator: boolean;   // Calculator rate BT / TBI
   whatsappLeadsBot: boolean;    // Simulator cotații & leaduri WhatsApp
   fgoInvoicing?: boolean;       // Conectare Facturare & Proforme FGO.ro API v2
+  financingPortfolio?: boolean; // Modul F&I & Portofoliu Dosare Credit
 }
 
 export type TenantTier = 'starter' | 'pro' | 'enterprise';
@@ -298,4 +308,72 @@ export interface DealerLeadItem {
   updatedAt: string;
   scheduledTestDriveAt?: string;
   recontactDate?: string;
+}
+
+// ─── F&I & Portofoliu Dosare Credit ─────────────────────────────────────────
+export type CreditorPartnerId = 'tbi' | 'bt' | 'unicredit' | 'creditfix' | 'mogo' | 'other';
+
+export type FinancingDossierStatus = 
+  | 'draft'               // Date inițiale, nefinalizat
+  | 'docs_pending'        // Așteaptă CI / Acord ANAF de la client
+  | 'submitted'           // Trimis la finanțator
+  | 'under_review'        // În analiză la bancă
+  | 'conditional'         // Aprobat condiționat (ex: avans suplimentar)
+  | 'approved'            // Aprobat definitiv
+  | 'contract_signed'     // Contract credit semnat
+  | 'funded'              // Banii au fost virați în contul parcului
+  | 'delivered'           // Mașină predată clientului
+  | 'rejected'            // Respins de bancă
+  | 'canceled';           // Clientul a renunțat
+
+export interface FinancingDossierItem {
+  id: string;
+  leadId?: string;               // Referință opțională către DealerLeadItem
+  carId: string;                 // Referință la vehiculul din stoc
+  carTitle: string;
+  carPriceEur: number;
+  carPriceRon: number;
+  
+  // Date Solicitant
+  clientName: string;
+  clientPhone: string;
+  clientEmail?: string;
+  clientCnp?: string;
+  clientEmploymentType: 'salariat_ro' | 'salariat_diaspora' | 'pensionar' | 'pfa_srl' | 'co_platitor';
+  monthlyNetIncomeRon?: number;
+  existingDebtsRon?: number;
+  
+  // Date Finanțare
+  creditor: CreditorPartnerId;
+  downPaymentEur: number;
+  downPaymentRon: number;
+  downPaymentPct: number;         // ex: 0, 10, 20
+  financedAmountRon: number;      // Preț RON - Avans RON
+  tenureMonths: number;           // 12, 24, 36, 48, 60
+  interestRatePct: number;        // ex: 7.9%
+  monthlyInstallmentRon: number;  // Rata lunară estimată
+  
+  // Status & Workflow
+  status: FinancingDossierStatus;
+  rejectionReason?: string;
+  conditionNotes?: string;
+  
+  // Checklist Documente Obligatorii
+  documents: {
+    idCardUploaded: boolean;
+    anafConsentSigned: boolean;
+    incomeProofUploaded: boolean;
+    bankContractUploaded: boolean;
+  };
+  
+  // Monetizare & Comision Dealer (Broker Kickback)
+  brokerCommissionPct?: number;     // ex: 2.0%
+  brokerCommissionRon?: number;     // ex: 1.200 RON
+  commissionPayoutStatus: 'pending' | 'invoiced' | 'collected';
+  
+  // Responsabil & Notițe
+  assignedOfficer: string;          // ex: "Mădălina - Finanțare"
+  internalNotes?: string;
+  createdAt: string;
+  updatedAt: string;
 }

@@ -73,7 +73,12 @@ export async function saveTenantProfileToBackend(
     status: partialProfile.status,
     max_vehicles_quota: partialProfile.maxVehiclesQuota,
     theme_preset: partialProfile.themePreset,
-    config: partialProfile.config
+    landing_config: partialProfile.landingConfig,
+    landingConfig: partialProfile.landingConfig,
+    config: {
+      ...(partialProfile.config || {}),
+      ...(partialProfile.landingConfig ? { landingConfig: partialProfile.landingConfig } : {})
+    }
   };
 
   const res = await fetch(`/api/superadmin/tenants/${encodeURIComponent(slug)}`, {
@@ -332,6 +337,7 @@ export function mapBackendTenantToProfile(raw: any): DealerProfile {
       whatsappLeadsBot: true,
       fgoInvoicing: false
     },
+    landingConfig: raw.landingConfig || raw.landing_config || raw.config?.landingConfig || undefined,
     config: raw.config || {}
   };
 }

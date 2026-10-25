@@ -13,6 +13,8 @@
 - `02_COMPETITIVE_RESEARCH_CARMATIK_VS_DEALEROS.md` — Cercetare de piață NotebookLM privind ecosistemul Carmatik.ro, DealerOS, Autobear și sistemele CRM auto din România.
 - `04_FGO_INVOICING_INTEGRATION_SPEC.md` — Specificație tehnică & arhitectură pentru integrarea FGO.ro în ParcOS la cost zero (BYOK, Regimul Marjei Art. 312, 21% TVA, e-Factura SPV).
 - `05_HERO_VIDEO_4K_PERFORMANCE_TICKETS.md` — Analiză de performanță & Specificație de optimizare video intro 4K (decuplare scroll React, eliminare stutter GPU, lock cadru final fără reset la uși închise).
+- `06_OLX_AUTO_POSTER_RESEARCH_AND_SPEC.md` — Cercetare arhitectură & specificație OLX Auto Poster (IP mobil GSM S9, reconciliere stoc 1-click, anti-blocare).
+- `07_CREDIT_PORTFOLIO_MANAGEMENT_SPEC.md` — Specificație tehnică & arhitectură Portofoliu Management Leaduri & Dosare Credit Auto (F&I Sub-Pipeline: TBI, BT Direct, UniCredit, scoring ANAF, comision brokeraj dealer).
 - `SUPERADMIN_MULTI_TENANT_ROADMAP_AND_SPEC.md` — Master Roadmap & Specificație SuperAdmin Multi-Tenant cu propagare instantanee pe toți chiriașii (Sprinturi SA-1 la SA-5).
 
 

@@ -1,13 +1,23 @@
 node_modules/
 dist/
+.cache/
+.parcel-cache/
+.turbo/
+
+# Environment & Secrets (Zero-Leak Gate)
 .env
-.env.local
-.env.staging
-.env.production
-.env.*.local
+.env.*
+!.env.example
 *.pem
 *.key
+
+# Logs, Transcripts & Debugging (Zero-Leak Gate)
+logs/
 *.log
+transcripts/
+*.jsonl
+.system_generated/
+
 .DS_Store
 Thumbs.db
 .scratch/
@@ -22,3 +32,4 @@ backups/
 *.dump
 *.original.mp4
 *.bak
+

@@ -17,6 +17,7 @@ import {
   archiveLeadAsLost,
   updateLead
 } from '../../services/leadService';
+import { createDossierFromLead } from '../../services/financingService';
 
 const SEED_LEADS: DealerLeadItem[] = [
   {
@@ -247,12 +248,20 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
   };
 
   const executeStatusMove = (leadId: string, nextStatus: DealerLeadStatus) => {
+    const targetLead = leads.find(l => l.id === leadId);
     setLeads(prev => prev.map(l => l.id === leadId ? {
       ...l,
       status: nextStatus,
       updatedAt: new Date().toISOString()
     } : l));
     showToast(`Lead avansat la stadiul: ${getStatusLabel(nextStatus)}`);
+
+    // Auto-inițiere dosar F&I pe chiriașii cu modulul activ
+    if (nextStatus === 'financing' && targetLead && dealer?.features?.financingPortfolio) {
+      const associatedCar = targetLead.carId ? cars.find(c => c.id === targetLead.carId) : null;
+      createDossierFromLead(targetLead, associatedCar, dealer?.financeContactName || 'Consilier Finanțare');
+      showToast(`📁 Dosar de finanțare inițiat automat pentru ${targetLead.clientName}`);
+    }
   };
 
   // Confirmare sincronizare status vehicul în stoc
@@ -945,6 +954,17 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
                           }`}>
                             <Clock className="w-3 h-3" />
                             <span>Recontactare: {lead.recontactDate}</span>
+                          </div>
+                        )}
+
+                        {/* Indicator Dosar Finanțare (Ticket 04) */}
+                        {lead.status === 'financing' && dealer?.features?.financingPortfolio && (
+                          <div className="text-[10px] text-amber-300 flex items-center justify-between font-semibold bg-amber-500/10 px-2 py-1 rounded-md border border-amber-500/20">
+                            <span className="flex items-center gap-1">
+                              <FileText className="w-3 h-3 text-amber-400 shrink-0" />
+                              <span>Dosar F&I Inițiat</span>
+                            </span>
+                            <span className="text-[9px] uppercase tracking-wider text-amber-400 font-bold">TBI / BT</span>
                           </div>
                         )}
 

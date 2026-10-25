@@ -35,6 +35,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isHidden = isRevealed && !isAtTop && scrollDirection === 'down' && !mobileMenuOpen;
   const isElevated = !isAtTop && scrollDirection === 'up';
 
+  // Vizibilitate dinamică a secțiunilor conform landingConfig dealer
+  const visibleSecs = dealer?.landingConfig?.visibleSections;
+  const showCatalog = visibleSecs?.vehicleCatalog !== false;
+  const showWhyUs = visibleSecs?.whyChooseUs !== false;
+  const showCustomOrder = visibleSecs?.customOrderSection !== false;
+  const showFinancing = visibleSecs?.financingSection !== false;
+  const showBuyBack = visibleSecs?.buyBackSection !== false;
+
   // Navigare fluidă la secțiunile din Showroom cu calcul precis de offset
   const navigateToSection = (sectionId: string) => {
     setMobileMenuOpen(false);
@@ -125,50 +133,60 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Desktop Navigation (>= lg) — Editorial, curat, fără iconițe redundante înghesuite */}
         <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-[13.5px] xl:text-sm font-medium text-zinc-300">
-          <button 
-            type="button"
-            onClick={() => navigateToSection('catalog')} 
-            className={`transition-colors font-semibold flex items-center gap-2 cursor-pointer ${
-              viewMode === 'showroom' ? 'text-amber-400' : 'hover:text-white'
-            }`}
-          >
-            <span>Stoc Auto</span>
-            <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/15 border border-amber-500/30 text-amber-300 shadow-sm">
-              {totalCarsCount}
-            </span>
-          </button>
+          {showCatalog && (
+            <button 
+              type="button"
+              onClick={() => navigateToSection('catalog')} 
+              className={`transition-colors font-semibold flex items-center gap-2 cursor-pointer ${
+                viewMode === 'showroom' ? 'text-amber-400' : 'hover:text-white'
+              }`}
+            >
+              <span>Stoc Auto</span>
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/15 border border-amber-500/30 text-amber-300 shadow-sm">
+                {totalCarsCount}
+              </span>
+            </button>
+          )}
           
-          <button 
-            type="button"
-            onClick={() => navigateToSection('garantie')} 
-            className="hover:text-amber-300 transition-colors cursor-pointer"
-          >
-            Garanție
-          </button>
+          {showWhyUs && (
+            <button 
+              type="button"
+              onClick={() => navigateToSection('garantie')} 
+              className="hover:text-amber-300 transition-colors cursor-pointer"
+            >
+              Garanție
+            </button>
+          )}
 
-          <button 
-            type="button"
-            onClick={() => navigateToSection('comanda')} 
-            className="hover:text-amber-300 transition-colors cursor-pointer"
-          >
-            La Comandă
-          </button>
+          {showCustomOrder && (
+            <button 
+              type="button"
+              onClick={() => navigateToSection('comanda')} 
+              className="hover:text-amber-300 transition-colors cursor-pointer"
+            >
+              La Comandă
+            </button>
+          )}
 
-          <button 
-            type="button"
-            onClick={() => navigateToSection('finantare')} 
-            className="hover:text-amber-300 transition-colors cursor-pointer"
-          >
-            Finanțare
-          </button>
+          {showFinancing && (
+            <button 
+              type="button"
+              onClick={() => navigateToSection('finantare')} 
+              className="hover:text-amber-300 transition-colors cursor-pointer"
+            >
+              Finanțare
+            </button>
+          )}
 
-          <button 
-            type="button"
-            onClick={() => navigateToSection('buyback')} 
-            className="hover:text-amber-300 transition-colors cursor-pointer"
-          >
-            Buy-Back
-          </button>
+          {showBuyBack && (
+            <button 
+              type="button"
+              onClick={() => navigateToSection('buyback')} 
+              className="hover:text-amber-300 transition-colors cursor-pointer"
+            >
+              Buy-Back
+            </button>
+          )}
 
           <button 
             type="button"
@@ -247,57 +265,67 @@ export const Navbar: React.FC<NavbarProps> = ({
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-white/[0.08] bg-[#0c0c0e]/98 backdrop-blur-2xl px-4 py-4 space-y-3 animate-in slide-in-from-top-4 duration-200 max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain">
           <div className="grid grid-cols-1 gap-1 text-sm font-medium">
-            <button
-              type="button"
-              onClick={() => navigateToSection('catalog')}
-              className={`w-full text-left px-3.5 py-3 rounded-xl flex items-center justify-between min-h-[44px] touch-manipulation cursor-pointer ${
-                viewMode === 'showroom' ? 'bg-amber-500/15 text-amber-300 font-bold border border-amber-500/30' : 'text-zinc-200 hover:bg-white/5'
-              }`}
-            >
-              <span className="flex items-center gap-2.5">
-                <Car className="w-4 h-4 text-amber-400" />
-                <span>Mașini în stoc</span>
-              </span>
-              <span className="px-2 py-0.5 rounded-full text-xs bg-amber-400 text-black font-mono font-bold">
-                {totalCarsCount}
-              </span>
-            </button>
+            {showCatalog && (
+              <button
+                type="button"
+                onClick={() => navigateToSection('catalog')}
+                className={`w-full text-left px-3.5 py-3 rounded-xl flex items-center justify-between min-h-[44px] touch-manipulation cursor-pointer ${
+                  viewMode === 'showroom' ? 'bg-amber-500/15 text-amber-300 font-bold border border-amber-500/30' : 'text-zinc-200 hover:bg-white/5'
+                }`}
+              >
+                <span className="flex items-center gap-2.5">
+                  <Car className="w-4 h-4 text-amber-400" />
+                  <span>Mașini în stoc</span>
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-xs bg-amber-400 text-black font-mono font-bold">
+                  {totalCarsCount}
+                </span>
+              </button>
+            )}
 
-            <button
-              type="button"
-              onClick={() => navigateToSection('garantie')}
-              className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation cursor-pointer"
-            >
-              <Shield className="w-4 h-4 text-emerald-400" />
-              <span>Garanție până la 36 Luni</span>
-            </button>
+            {showWhyUs && (
+              <button
+                type="button"
+                onClick={() => navigateToSection('garantie')}
+                className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation cursor-pointer"
+              >
+                <Shield className="w-4 h-4 text-emerald-400" />
+                <span>Garanție până la 36 Luni</span>
+              </button>
+            )}
 
-            <button
-              type="button"
-              onClick={() => navigateToSection('comanda')}
-              className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation cursor-pointer"
-            >
-              <Truck className="w-4 h-4 text-amber-400" />
-              <span>Mașini la Comandă</span>
-            </button>
+            {showCustomOrder && (
+              <button
+                type="button"
+                onClick={() => navigateToSection('comanda')}
+                className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation cursor-pointer"
+              >
+                <Truck className="w-4 h-4 text-amber-400" />
+                <span>Mașini la Comandă</span>
+              </button>
+            )}
 
-            <button
-              type="button"
-              onClick={() => navigateToSection('finantare')}
-              className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation cursor-pointer"
-            >
-              <Calculator className="w-4 h-4 text-amber-400" />
-              <span>Finanțare Rate (0% Avans)</span>
-            </button>
+            {showFinancing && (
+              <button
+                type="button"
+                onClick={() => navigateToSection('finantare')}
+                className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation cursor-pointer"
+              >
+                <Calculator className="w-4 h-4 text-amber-400" />
+                <span>Finanțare Rate (0% Avans)</span>
+              </button>
+            )}
 
-            <button
-              type="button"
-              onClick={() => navigateToSection('buyback')}
-              className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation cursor-pointer"
-            >
-              <ArrowLeftRight className="w-4 h-4 text-amber-400" />
-              <span>Buy-Back & Schimb Auto</span>
-            </button>
+            {showBuyBack && (
+              <button
+                type="button"
+                onClick={() => navigateToSection('buyback')}
+                className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation cursor-pointer"
+              >
+                <ArrowLeftRight className="w-4 h-4 text-amber-400" />
+                <span>Buy-Back & Schimb Auto</span>
+              </button>
+            )}
 
             <button
               type="button"

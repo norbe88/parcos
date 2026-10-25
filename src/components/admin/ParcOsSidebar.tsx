@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Car, Users, FileText, Radio, QrCode, Share2, BarChart3, 
   Settings, Plus, ExternalLink, HelpCircle, LogOut, X, 
   ShieldCheck, Layers, Building2, ChevronRight, CheckCircle2, DollarSign, Mail, Database,
-  Sun, Moon
+  Sun, Moon, CreditCard, Puzzle
 } from 'lucide-react';
 import { DealerProfile, SEED_DEALER } from '../../db/seed';
 import { useWorkspace } from '../../context/WorkspaceContext';
+import { getSavedFinancingDossiers } from '../../services/financingService';
 
 export type AdminTabType = 
   | 'inventory'       // 🚗 Stoc & Inventar
@@ -35,6 +36,7 @@ export interface ParcOsSidebarProps {
   };
   onOpenAddModal: () => void;
   onOpenShowroom?: () => void;
+  onOpenExtensionModal?: () => void;
   onOpenHelp?: () => void;
   onLogout?: () => void;
   isMobileOpen?: boolean;
@@ -51,6 +53,7 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
   stats,
   onOpenAddModal,
   onOpenShowroom,
+  onOpenExtensionModal,
   onOpenHelp,
   onLogout,
   isMobileOpen = false,
@@ -58,6 +61,23 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
 }) => {
   const { settings, toggleDisplayMode } = useWorkspace();
   const displayMode = settings.displayMode;
+  const [pendingFinancingCount, setPendingFinancingCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (!dealer?.features?.financingPortfolio) return;
+    const updateCount = () => {
+      try {
+        const dossiers = getSavedFinancingDossiers();
+        const pending = dossiers.filter((d) => ['docs_pending', 'under_review', 'submitted'].includes(d.status)).length;
+        setPendingFinancingCount(pending);
+      } catch (err) {
+        // silent
+      }
+    };
+    updateCount();
+    window.addEventListener('rxm_financing_updated', updateCount);
+    return () => window.removeEventListener('rxm_financing_updated', updateCount);
+  }, [dealer?.features?.financingPortfolio]);
   const handleSelectTab = (tab: AdminTabType) => {
     onTabChange(tab);
     if (onCloseMobile) onCloseMobile();
@@ -81,6 +101,18 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
           badge: 'Lead-uri',
           badgeColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30'
         },
+        ...(dealer?.features?.financingPortfolio ? [
+          {
+            id: 'financing' as AdminTabType,
+            label: 'Finanțări (F&I)',
+            icon: CreditCard,
+            badge: pendingFinancingCount > 0 ? `${pendingFinancingCount} în lucru` : 'F&I Suite',
+            badgeColor: pendingFinancingCount > 0 
+              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse'
+              : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+          }
+        ] : []),
+
         {
           id: 'mail' as AdminTabType,
           label: 'ParcOS Mail Hub',
@@ -141,13 +173,6 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
           icon: Settings,
           badge: 'TVA 21%',
           badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-        },
-        {
-          id: 'financing' as AdminTabType,
-          label: 'Curs BT & Dobânzi Rate',
-          icon: DollarSign,
-          badge: 'Curs Live',
-          badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
         },
 
         {
@@ -331,6 +356,24 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
               <span>Vezi Showroom Public</span>
             </div>
             <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
+          </button>
+        )}
+
+        {/* Asistent & Extensie OLX 1-Click */}
+        {onOpenExtensionModal && (
+          <button
+            type="button"
+            onClick={() => {
+              onOpenExtensionModal();
+              if (onCloseMobile) onCloseMobile();
+            }}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-teal-300 hover:text-white hover:bg-teal-500/10 transition-all border border-teal-500/20 bg-teal-500/5 cursor-pointer group"
+          >
+            <div className="flex items-center gap-2">
+              <Puzzle className="w-3.5 h-3.5 text-teal-400 group-hover:rotate-12 transition-transform" />
+              <span className="font-semibold">Extensie & Asistent OLX</span>
+            </div>
+            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30">1-Click</span>
           </button>
         )}
 

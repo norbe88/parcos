@@ -1145,6 +1145,11 @@ export async function updateDealer(slug, updates) {
   if (updates.config && typeof updates.config === 'object') {
     config = { ...(typeof current.config === 'object' && current.config ? current.config : {}), ...updates.config };
   }
+  if (updates.landingConfig && typeof updates.landingConfig === 'object') {
+    config = { ...(typeof config === 'object' && config ? config : {}), landingConfig: updates.landingConfig };
+  } else if (updates.landing_config && typeof updates.landing_config === 'object') {
+    config = { ...(typeof config === 'object' && config ? config : {}), landingConfig: updates.landing_config };
+  }
 
   try {
     const rows = await sql`

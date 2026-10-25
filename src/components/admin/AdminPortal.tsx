@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { 
   SlidersHorizontal, Plus, Car, Trash2, Mail, Send, Check, Server, Phone, CheckCircle2, Tag, Star, Film,
   ExternalLink, AlertTriangle, Radio, BarChart3, LineChart, DollarSign, Sparkles, FileText, QrCode, Users, LogOut, Building2,
-  Share2, HelpCircle, Clock, Menu
+  Share2, HelpCircle, Clock, Menu, Puzzle
 } from 'lucide-react';
 import { VehicleItem, SEED_DEALER, MarketPriceEvaluation } from '../../db/seed';
 import { useTenant } from '../../hooks/useTenant';
@@ -19,7 +19,7 @@ import { LeadPipelineKanban } from './LeadPipelineKanban';
 import { InventoryTableManager } from './InventoryTableManager';
 import { PhotoGalleryManagerModal } from './PhotoGalleryManagerModal';
 import { PlateOverlayStudioModal } from './PlateOverlayStudioModal';
-import { FinancingSettingsManager } from './FinancingSettingsManager';
+import { FinancingPortfolioManager } from './FinancingPortfolioManager';
 import { AutolicitPushModal } from './AutolicitPushModal';
 import { OLXExportModal } from './OLXExportModal';
 import { VehicleSocialPostModal } from '../modals/VehicleSocialPostModal';
@@ -33,6 +33,7 @@ import { SalesDocsHubView } from './SalesDocsHubView';
 import { WindowStickersHubView } from './WindowStickersHubView';
 import { FeedsHubView } from './FeedsHubView';
 import { MailboxLayout } from '../../modules/mail/MailboxLayout';
+import { OLXExtensionInstallModal } from './OLXExtensionInstallModal';
 import { convertEurToRon } from '../../utils/currencyEngine';
 import { DealPricingData } from './DealPriceModal';
 import { BackupRollbackManager } from './BackupRollbackManager';
@@ -134,6 +135,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [isFeedExportOpen, setIsFeedExportOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
+  const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
 
   // Statistici Dashboard Admin
   const adminStats = useMemo(() => {
@@ -204,6 +206,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Buton Extensie OLX Mobil */}
+          <button
+            type="button"
+            onClick={() => setIsExtensionModalOpen(true)}
+            className="p-1.5 rounded-lg bg-teal-500/10 border border-teal-500/30 text-teal-300 hover:text-white transition-all cursor-pointer"
+            title="Extensie & Asistent OLX"
+          >
+            <Puzzle className="w-4 h-4 text-teal-400" />
+          </button>
+
           {onBackToShowroom && (
             <button
               type="button"
@@ -241,6 +253,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         }}
         onOpenAddModal={handleGuardedOpenAddModal}
         onOpenShowroom={onBackToShowroom}
+        onOpenExtensionModal={() => setIsExtensionModalOpen(true)}
         onOpenHelp={() => setIsHelpOpen(true)}
         onLogout={onLogout}
         isMobileOpen={isMobileSidebarOpen}
@@ -276,6 +289,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 <span>Vezi Showroom</span>
               </button>
             )}
+
+            {/* Buton Extensie & Asistent OLX 1-Click */}
+            <button 
+              type="button"
+              onClick={() => setIsExtensionModalOpen(true)}
+              className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 hover:from-teal-500/20 hover:to-emerald-500/20 text-teal-300 border border-teal-500/30 font-semibold text-xs sm:text-sm h-10 px-3.5 rounded-xl transition-all active:scale-95 touch-manipulation cursor-pointer shrink-0 shadow-lg shadow-teal-500/5"
+              title="Instalează sau testează Extensia ParcOS OLX Publisher"
+            >
+              <Puzzle className="w-4 h-4 text-teal-400" />
+              <span className="hidden sm:inline">Extensie OLX</span>
+              <span className="hidden md:inline-block px-1.5 py-0.2 text-[10px] uppercase font-bold tracking-wider rounded bg-teal-500/20 text-teal-200 border border-teal-500/30">1-Click</span>
+            </button>
 
             {/* Buton Ghid & Centru Ajutor Portal */}
             <button 
@@ -623,7 +648,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
         {/* 9. Configurare Finanțare, Curs BT & Creditori */}
         {activeAdminTab === 'financing' && (
-          <FinancingSettingsManager showToast={showToast} />
+          <FinancingPortfolioManager
+            cars={cars}
+            dealer={activeDealer}
+            showToast={showToast}
+            onStatusChange={onStatusChange}
+            onOpenSalesDocs={(car, buyer) => {
+              setSalesDocsCar(car);
+              setSalesDocsInitialBuyer(buyer || null);
+              setSalesDocsInitialTab('proforma');
+              setIsSalesDocsOpen(true);
+            }}
+          />
         )}
 
         {/* 10. Centru de Backup & Rollback Disaster Recovery */}
@@ -865,6 +901,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             setIsOlxExportOpen(false);
             setOlxExportCar(null);
           }}
+          onOpenInstallModal={() => setIsExtensionModalOpen(true)}
           showToast={showToast}
           dealer={activeDealer}
         />
@@ -905,6 +942,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       <SuperAdminOnboardingModal
         isOpen={isOnboardingModalOpen}
         onClose={() => setIsOnboardingModalOpen(false)}
+        showToast={showToast}
+      />
+
+      {/* 🔌 Modal Ghid & Instalare Extensie ParcOS OLX Publisher */}
+      <OLXExtensionInstallModal
+        isOpen={isExtensionModalOpen}
+        onClose={() => setIsExtensionModalOpen(false)}
         showToast={showToast}
       />
       </main>

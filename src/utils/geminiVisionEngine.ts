@@ -6,42 +6,25 @@
 import { ParsedVehicleDocument, DocOriginCountry, convertKwToHp, maskVinString, sanitizeVin, isValidVin } from './documentOcrParser';
 import { getAdminAuthHeaders } from './adminAuth';
 
-// Pool-ul oficial resilient de chei API (cu prioritizare gateway securizat pe server)
-const DEFAULT_GEMINI_KEYS: string[] = (
-  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GEMINI_API_KEYS) ||
-  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GEMINI_API_KEY) ||
-  ''
-).split(',').map((k: string) => k.trim()).filter(Boolean);
-
-// Modele rapide multimodale Gemini (cu fallback în cascadă)
+// Modele rapide multimodale Gemini (cu fallback în cascadă pe server)
 export const GEMINI_MODELS = [
-  'gemini-3.5-flash-lite',
-  'gemini-3.5-flash',
   'gemini-3.8-flash',
-  'gemini-2.5-flash'
+  'gemini-2.5-flash',
+  'gemini-1.5-flash'
 ];
 
-let currentKeyIndex = 0;
-
 /**
- * Returnează lista de chei disponibile (din env VITE_GEMINI_API_KEYS)
+ * Returnează lista de chei disponibile (deprecat: securizat exclusiv pe server)
  */
 export function getGeminiKeyPool(): string[] {
-  const envKeys = (import.meta as any).env?.VITE_GEMINI_API_KEYS;
-  if (typeof envKeys === 'string' && envKeys.trim().length > 0) {
-    return envKeys.split(',').map((k: string) => k.trim()).filter(Boolean);
-  }
-  return DEFAULT_GEMINI_KEYS;
+  return [];
 }
 
 /**
- * Obține o cheie prin rotație round-robin dacă există un pool configurat
+ * Obține o cheie prin rotație (deprecat: securizat exclusiv pe server)
  */
 export function getNextGeminiKey(): string {
-  const pool = getGeminiKeyPool();
-  if (pool.length === 0) return '';
-  currentKeyIndex = (currentKeyIndex + 1) % pool.length;
-  return pool[currentKeyIndex];
+  return '';
 }
 
 const VEHICLE_DOC_PROMPT = `You are an expert automotive document analyst specializing in European and International vehicle registration documents:
@@ -201,51 +184,8 @@ export async function executeGeminiVisionInference(
     console.warn('[Document OCR Gateway] Fallback /api/demo/ocr-scan indisponibil:', demoErr.message);
   }
 
-  // 2. Fallback autonom pe pool-ul securizat de chei
-  const pool = getGeminiKeyPool();
-  if (pool.length === 0) {
-    throw new Error('Serviciul de procesare automată a documentelor este temporar indisponibil. Vă rugăm să reîncercați.');
-  }
-
-  const attempts = Math.min(pool.length, 6);
-  let lastError: Error | null = null;
-
-  for (let i = 0; i < attempts; i++) {
-    const key = getNextGeminiKey();
-    if (!key) continue;
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 18000);
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: requestBody
-      });
-
-      clearTimeout(timeout);
-
-      if (!response.ok) {
-        if (response.status === 429 || response.status === 503) {
-          continue; // Rotește pe următoarea cheie
-        }
-        continue;
-      }
-
-      const data = await response.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) throw new Error('Documentul nu a putut fi extras.');
-
-      const cleaned = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
-      return JSON.parse(cleaned);
-    } catch (err: any) {
-      lastError = err;
-    }
-  }
-
-  throw new Error('Documentul nu a putut fi analizat automat. Vă rugăm să asigurați o fotografie clară, bine focalizată și iluminată.');
+  // 2. Încheiere sigură: Niciun apel direct din browser către API-ul extern Google
+  throw new Error('Serviciul de procesare automată a documentelor este temporar indisponibil. Vă rugăm să asigurați o fotografie clară, bine focalizată și iluminată.');
 }
 
 /**
@@ -262,13 +202,56 @@ export async function scanDocumentWithGeminiVision(
   let parsed: any = null;
   let lastError: Error | null = null;
 
-  for (const model of GEMINI_MODELS) {
-    try {
-      onProgress?.(55, '🔍 Analiză optică avansată de înaltă rezoluție a documentului...');
-      parsed = await executeGeminiVisionInference(model, VEHICLE_DOC_PROMPT, base64Data, mimeType, onProgress);
-      if (parsed) break;
-    } catch (err: any) {
-      lastError = err;
+  // 1. Canal primar: Endpoint dedicat Parcos Multi-Tenant (/api/parcos/vehicles/scan-civ)
+  try {
+    const tenantId = (typeof window !== 'undefined' && (localStorage.getItem('rxm_tenant_id') || localStorage.getItem('parcos_tenant_id'))) || 'rxm';
+    onProgress?.(45, '🔍 Transmitere securizată către gateway-ul ParcOS Multi-Tenant...');
+    const parcosRes = await fetch('/api/parcos/vehicles/scan-civ', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Tenant-Id': tenantId,
+        ...getAdminAuthHeaders(),
+      },
+      body: JSON.stringify({
+        imageBase64: base64Data,
+        mimeType: mimeType || 'image/jpeg',
+        tenantId,
+      }),
+    });
+
+    if (parcosRes.status === 429) {
+      const errJson = await parcosRes.json().catch(() => ({}));
+      throw new Error(errJson.error || 'Ați atins limita de procesare simultană a documentelor. Vă rugăm să așteptați câteva momente.');
+    }
+    if (parcosRes.status === 503) {
+      const errJson = await parcosRes.json().catch(() => ({}));
+      throw new Error(errJson.error || 'Serviciul inteligent este temporar indisponibil. Datele mașinii pot fi completate manual.');
+    }
+
+    if (parcosRes.ok) {
+      const parcosData = await parcosRes.json();
+      if (parcosData?.success && parcosData?.vehicleData) {
+        parsed = parcosData.vehicleData;
+      }
+    }
+  } catch (err: any) {
+    if (err.message && (err.message.includes('limita') || err.message.includes('temporar indisponibil'))) {
+      throw err;
+    }
+    console.info('[Parcos Multi-Tenant Proxy] Fallback pe canalul gateway standard:', err.message);
+  }
+
+  // 2. Canal secundar de rezervă: Gateway Micro-API
+  if (!parsed) {
+    for (const model of GEMINI_MODELS) {
+      try {
+        onProgress?.(55, '🔍 Analiză optică de înaltă rezoluție a documentului...');
+        parsed = await executeGeminiVisionInference(model, VEHICLE_DOC_PROMPT, base64Data, mimeType, onProgress);
+        if (parsed) break;
+      } catch (err: any) {
+        lastError = err;
+      }
     }
   }
 

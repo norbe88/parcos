@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { 
   X, Gavel, Tag, CheckCircle2, AlertTriangle, ShieldCheck, 
-  ArrowRight, Sparkles, Building2, Clock, Trash2 
+  ArrowRight, Sparkles, Building2, Clock, Trash2, Loader2 
 } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../db/seed';
+import { 
+  buildAutolicitPayload, 
+  pushListingToAutolicit, 
+  delistFromAutolicit 
+} from '../../services/autolicitSyncService';
 
 interface AutolicitPushModalProps {
   isOpen: boolean;
@@ -27,6 +32,7 @@ export const AutolicitPushModal: React.FC<AutolicitPushModalProps> = ({
   // Modul ales: 'direct_sale' (preț fix) sau 'auction' (licitație -20%)
   const [selectedMode, setSelectedMode] = useState<'direct_sale' | 'auction'>('direct_sale');
   const [startingBidEur, setStartingBidEur] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Sincronizare stare la selectarea unei mașini
   React.useEffect(() => {
@@ -43,27 +49,73 @@ export const AutolicitPushModal: React.FC<AutolicitPushModalProps> = ({
   const isAlreadySynced = currentSync?.isSynced;
   const defaultAuctionStartEur = Math.round(car.priceEur * 0.8);
 
-  const handlePublish = () => {
-    const syncPayload: NonNullable<VehicleItem['autolicitSync']> = {
-      isSynced: true,
-      mode: selectedMode,
-      startingBidEur: selectedMode === 'auction' ? startingBidEur : undefined,
-      syncedAt: new Date().toISOString()
-    };
+  const handlePublish = async () => {
+    if (!car.vin || car.vin.trim().length < 11) {
+      showToast('⚠️ Seria de șasiu (VIN) este invalidă sau lipsește. Completați VIN-ul mașinii înainte de publicare.');
+      return;
+    }
 
-    onConfirmSync(car.id, syncPayload);
-    showToast(
-      selectedMode === 'auction'
-        ? `⚡ Mașina a fost trimisă la Licitație Live pe AutoLicit.ro (Pornire: ${startingBidEur.toLocaleString('ro-RO')} €)!`
-        : `✓ Mașina a fost publicată în secțiunea Stoc Parcuri Partenere pe AutoLicit.ro!`
-    );
-    onClose();
+    try {
+      setIsSubmitting(true);
+      const payload = buildAutolicitPayload(car, selectedMode, startingBidEur);
+      const res = await pushListingToAutolicit(payload);
+
+      if (!res.success) {
+        showToast(`⚠️ Sincronizarea AutoLicit a eșuat: ${res.error || 'Eroare de conexiune'}. Verificați și reîncercați.`);
+        return;
+      }
+
+      const syncPayload: NonNullable<VehicleItem['autolicitSync']> = {
+        isSynced: true,
+        mode: selectedMode,
+        startingBidEur: selectedMode === 'auction' ? startingBidEur : undefined,
+        syncedAt: new Date().toISOString()
+      };
+
+      onConfirmSync(car.id, syncPayload);
+
+      // Feedback îmbogățit cu evaluare de preț (Deal Rating) din Desy
+      if (res.priceAnalysis?.dealRating === 'GREAT_PRICE') {
+        showToast(`✓ Publicat pe AutoLicit.ro! Evaluare: Preț Excelent (sub piață).`);
+      } else if (res.priceAnalysis?.dealRating === 'FAIR_PRICE') {
+        showToast(`✓ Publicat pe AutoLicit.ro! Evaluare: Preț Corect de Piață.`);
+      } else {
+        showToast(
+          selectedMode === 'auction'
+            ? `⚡ Mașina a fost trimisă la Licitație Live pe AutoLicit.ro (Pornire: ${startingBidEur.toLocaleString('ro-RO')} €)!`
+            : `✓ Mașina a fost publicată în secțiunea Stoc Parcuri Partenere pe AutoLicit.ro!`
+        );
+      }
+      onClose();
+    } catch (err: any) {
+      console.error('[AutolicitPushModal] Eroare neașteptată la publicare:', err);
+      showToast(`⚠️ Eroare neașteptată la sincronizare: ${err?.message || 'Eroare necunoscută'}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleUnpublish = () => {
-    onRemoveSync(car.id);
-    showToast(`✓ Mașina a fost retrasă de pe AutoLicit.ro.`);
-    onClose();
+  const handleUnpublish = async () => {
+    try {
+      setIsSubmitting(true);
+      const dealerSlug = car.dealerSlug || dealer?.slug || 'rxm';
+      const res = await delistFromAutolicit(car.vin, dealerSlug);
+
+      if (!res.success) {
+        console.warn('[AutolicitPushModal] Avertisment delistare:', res.error);
+      }
+
+      onRemoveSync(car.id);
+      showToast(`✓ Mașina a fost retrasă de pe AutoLicit.ro.`);
+      onClose();
+    } catch (err: any) {
+      console.error('[AutolicitPushModal] Eroare neașteptată la retragere:', err);
+      onRemoveSync(car.id);
+      showToast(`✓ Mașina a fost retrasă local de pe AutoLicit.ro.`);
+      onClose();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -98,7 +150,8 @@ export const AutolicitPushModal: React.FC<AutolicitPushModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-all cursor-pointer"
+            disabled={isSubmitting}
+            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-5 h-5" />
           </button>
@@ -210,8 +263,9 @@ export const AutolicitPushModal: React.FC<AutolicitPushModalProps> = ({
                 <input
                   type="number"
                   value={startingBidEur}
+                  disabled={isSubmitting}
                   onChange={(e) => setStartingBidEur(Math.max(1000, parseInt(e.target.value) || 0))}
-                  className="w-full bg-[#18181b] border border-amber-500/40 rounded-lg px-3 py-2 text-sm text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-amber-400"
+                  className="w-full bg-[#18181b] border border-amber-500/40 rounded-lg px-3 py-2 text-sm text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-amber-400 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <span className="text-sm font-mono text-zinc-400">€</span>
               </div>
@@ -239,9 +293,14 @@ export const AutolicitPushModal: React.FC<AutolicitPushModalProps> = ({
             <button
               type="button"
               onClick={handleUnpublish}
-              className="py-2.5 px-3.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+              disabled={isSubmitting}
+              className="py-2.5 px-3.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Trash2 className="w-4 h-4" />
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin text-red-400" />
+              ) : (
+                <Trash2 className="w-4 h-4" />
+              )}
               <span>Retrage de pe AutoLicit</span>
             </button>
           ) : (
@@ -252,7 +311,8 @@ export const AutolicitPushModal: React.FC<AutolicitPushModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-bold transition-all cursor-pointer"
+              disabled={isSubmitting}
+              className="py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-bold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Anulează
             </button>
@@ -260,10 +320,20 @@ export const AutolicitPushModal: React.FC<AutolicitPushModalProps> = ({
             <button
               type="button"
               onClick={handlePublish}
-              className="py-2.5 px-5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-extrabold flex items-center gap-1.5 shadow-lg shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+              disabled={isSubmitting}
+              className="py-2.5 px-5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-extrabold flex items-center gap-1.5 shadow-lg shadow-amber-500/20 active:scale-95 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
             >
-              <Sparkles className="w-4 h-4 text-black" />
-              <span>{isAlreadySynced ? 'Actualizează pe AutoLicit' : 'Publică Imediat pe AutoLicit'}</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 text-black animate-spin" />
+                  <span>Se sincronizează...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 text-black" />
+                  <span>{isAlreadySynced ? 'Actualizează pe AutoLicit' : 'Publică Imediat pe AutoLicit'}</span>
+                </>
+              )}
             </button>
           </div>
         </div>

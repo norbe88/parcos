@@ -3,6 +3,8 @@ import { Phone, MessageCircle } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../../db/seed';
 import { getWhatsAppFinanceUrl } from '../../../utils/helpers';
 import { convertEurToRon, getExchangeRateDisclaimer } from '../../../utils/currencyEngine';
+import { recordIncomingLead, recordShowroomInteraction } from '../../../services/leadService';
+import { createDossierFromCalculator } from '../../../services/financingService';
 
 interface DetailFinanceTabProps {
   car: VehicleItem;
@@ -23,6 +25,42 @@ export const DetailFinanceTab: React.FC<DetailFinanceTabProps> = ({
   currentRate,
   dealer = SEED_DEALER
 }) => {
+  const handleApplyFinance = () => {
+    recordShowroomInteraction('whatsapp', { carId: car.id, carTitle: `${car.brand} ${car.model}` });
+
+    const lead = recordIncomingLead({
+      clientName: 'Solicitare Finanțare Showroom Web',
+      clientPhone: dealer.whatsappFinance || '0758042979',
+      dealType: 'financing',
+      source: 'showroom_web',
+      carId: car.id,
+      carTitle: `${car.brand} ${car.model} (${car.year})`,
+      carPriceEur: car.priceEur,
+      notes: `Simulare rate showroom: Avans ${advancePercent}% (${Math.round(car.priceEur * (advancePercent / 100))} €), ${periodMonths} luni, rată ${currentRate} €/lună (~${convertEurToRon(currentRate)} RON).`
+    });
+
+    if (dealer.features?.financingPortfolio) {
+      const downPaymentEur = Math.round(car.priceEur * (advancePercent / 100));
+      const downPaymentRon = convertEurToRon(downPaymentEur);
+      const financedAmountRon = convertEurToRon(car.priceEur - downPaymentEur);
+      const monthlyInstallmentRon = convertEurToRon(currentRate);
+
+      createDossierFromCalculator({
+        car,
+        clientName: 'Solicitare Finanțare Showroom Web',
+        clientPhone: dealer.whatsappFinance || '0758042979',
+        creditor: 'tbi',
+        downPaymentEur,
+        downPaymentRon,
+        tenureMonths: periodMonths,
+        interestRatePct: 7.9,
+        financedAmountRon,
+        monthlyInstallmentRon,
+        notes: `Creat automat din calculatorul showroom. Lead ID: ${lead.id}`
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center">
@@ -100,6 +138,7 @@ export const DetailFinanceTab: React.FC<DetailFinanceTabProps> = ({
         href={getWhatsAppFinanceUrl(car, dealer.whatsappFinance || '40758042979', advancePercent, periodMonths, 'TBI Bank', currentRate)}
         target="_blank" 
         rel="noopener noreferrer"
+        onClick={handleApplyFinance}
         className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm h-11 rounded-xl transition-all shadow-lg shadow-amber-500/20 touch-manipulation active:scale-95"
       >
         <MessageCircle className="w-4 h-4 fill-black" />

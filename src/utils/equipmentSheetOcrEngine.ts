@@ -6,7 +6,7 @@
 
 import { preprocessDocumentImage } from './documentOcrEngine';
 import { 
-  getGeminiKeyPool, getNextGeminiKey, blobToBase64, GEMINI_MODELS 
+  blobToBase64, GEMINI_MODELS, executeGeminiVisionInference 
 } from './geminiVisionEngine';
 import { isInvalidCorruptedFeature } from './featuresCatalogService';
 
@@ -143,71 +143,33 @@ export async function processEquipmentSheetOcr(
   );
 
   const { base64Data, mimeType } = await blobToBase64(preprocessedBlob);
-  const pool = getGeminiKeyPool();
 
   onProgress?.(30, '⚡ Declanșare analiză automată fișă de dotări...');
 
+  let parsed: any = null;
   let lastError: Error | null = null;
-  const attempts = Math.min(pool.length, 6);
 
-  for (let i = 0; i < attempts; i++) {
-    const key = getNextGeminiKey();
+  for (const model of GEMINI_MODELS) {
+    try {
+      onProgress?.(50, '🔍 Analiză dotări standard & pachete opționale din fabrică...');
+      parsed = await executeGeminiVisionInference(
+        model,
+        EQUIPMENT_SHEET_VISION_PROMPT,
+        base64Data,
+        mimeType,
+        onProgress
+      );
+      if (parsed) break;
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
 
-    for (const model of GEMINI_MODELS) {
-      try {
-        onProgress?.(
-          40 + i * 8,
-          '🔍 Analiză dotări standard & pachete opționale din fabrică...'
-        );
+  if (!parsed) {
+    throw lastError || new Error('Documentul nu a putut fi analizat automat. Vă rugăm să reîncercați.');
+  }
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 20000);
-
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          signal: controller.signal,
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  { text: EQUIPMENT_SHEET_VISION_PROMPT },
-                  { inline_data: { mime_type: mimeType || 'image/jpeg', data: base64Data } }
-                ]
-              }
-            ],
-            generationConfig: {
-              temperature: 0.1,
-              response_mime_type: 'application/json'
-            }
-          })
-        });
-
-        clearTimeout(timeout);
-
-        if (!response.ok) {
-          const errText = await response.text().catch(() => '');
-          if (response.status === 429) {
-            console.warn(`[EquipmentSheetOCR] Limită de conexiuni atinsă (${i + 1}). Comutare automată canal.`);
-            break;
-          }
-          throw new Error(`Eroare de procesare a foii de dotări (${response.status})`);
-        }
-
-        const data = await response.json();
-        const rawJsonText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!rawJsonText) {
-          throw new Error('Răspuns vid de la serviciul de procesare a dotărilor.');
-        }
-
-        const cleanedJson = rawJsonText
-          .replace(/^```(?:json)?\s*/i, '')
-          .replace(/\s*```$/, '')
-          .trim();
-
-        const parsed = JSON.parse(cleanedJson);
-        onProgress?.(90, '✨ Structurare dotări, separare opționale cu cost și clasificare...');
+  onProgress?.(90, '✨ Structurare dotări, separare opționale cu cost și clasificare...');
 
         // 1. Curățare și validare Header
         const header: ExtractedVehicleSheetHeader = {
@@ -323,21 +285,15 @@ export async function processEquipmentSheetOcr(
         const executionTimeMs = Math.round(performance.now() - startTime);
         onProgress?.(100, `✅ Fișă procesată cu succes! (${cleanStandard.length} dotări standard, ${heroHighlights.length} cheie)`);
 
-        return {
-          header,
-          rawText: cleanStandard.join('\n'),
-          heroHighlights,
-          standardFeatures: cleanStandard,
-          optionalFeatures: cleanOptionals,
-          summaryText: summary,
-          executionTimeMs
-        };
-      } catch (err: any) {
-        lastError = err;
-        console.warn('[EquipmentSheetOCR] Eroare procesare canal:', err?.message);
-      }
-    }
+    return {
+      header,
+      rawText: cleanStandard.join('\n'),
+      heroHighlights,
+      standardFeatures: cleanStandard,
+      optionalFeatures: cleanOptionals,
+      summaryText: summary,
+      executionTimeMs
+    };
   }
 
-  throw lastError || new Error('Nu s-a putut procesa foaia de dotări. Vă rugăm să reîncercați cu o imagine mai clară.');
-}
+

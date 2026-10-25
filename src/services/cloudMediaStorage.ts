@@ -1,7 +1,13 @@
 /**
- * Media Storage Service pentru RXM Automobile
- * Încarcă fotografiile mașinilor direct pe discul Netcup VPS (/rxm/api/upload)
- * cu fallback transparent către IndexedDB/stocare locală când serverul este offline.
+ * Media Storage Service pentru ParcOS & RXM Automobile
+ *
+ * Arhitectură Hibridă de Performanță:
+ * 1. Direct-to-R2 Upload: Browserul trimite binarele direct în Cloudflare R2 prin presigned PUT URLs.
+ *    0 KB bandwidth tranzitat prin Netcup VPS pentru pozele încărcate de dealeri.
+ * 2. RXM Automobile Invariant: Showroom-ul oficial `rxm` folosește în continuare fluxul pe disc
+ *    până la activarea explicită a flag-ului `VITE_ENABLE_RXM_R2_DIRECT === 'true'`.
+ * 3. Zero-Crash Fallback: Dacă R2 este temporar indisponibil sau presign-ul eșuează, comută transparent
+ *    pe uploadul pe disc (/rxm/api/upload) și apoi pe stocarea locală IndexedDB (Zero-crash guarantee).
  */
 
 import { getMediaBlob } from '../utils/mediaVaultDb';
@@ -9,6 +15,19 @@ import { getAdminAuthHeaders } from '../utils/adminAuth';
 
 export interface UploadProgressCallback {
   (current: number, total: number, percent: number): void;
+}
+
+/**
+ * Determinare dacă upload-ul direct în Cloudflare R2 este activ pentru un tenant dat.
+ * - Pentru toți dealerii terți ParcOS (ex: mpi_auto, test): ACTIV implicit
+ * - Pentru RXM Automobile (rxm, rxmautomobile): ACTIV doar cu flag explicit
+ */
+export function isDirectR2UploadEnabled(dealerSlug: string = 'rxm'): boolean {
+  const cleanSlug = (dealerSlug || 'rxm').toLowerCase().trim();
+  if (cleanSlug !== 'rxm' && cleanSlug !== 'rxmautomobile') {
+    return true;
+  }
+  return import.meta.env.VITE_ENABLE_RXM_R2_DIRECT === 'true';
 }
 
 /**
@@ -26,15 +45,62 @@ async function dataUrlOrBlobUrlToBlob(url: string): Promise<Blob | null> {
 }
 
 /**
- * Încarcă o singură imagine pe discul Netcup VPS (/rxm/api/upload).
- *
- * Sursele suportate:
- * 1. URL extern ("https://...") sau cale statică ("/...") -> returnează direct fără re-upload
- * 2. Referință locală IndexedDB ("rxm-media://...") -> extrage din IndexedDB și uploadează
- * 3. Data URL ("data:image/...") sau Blob URL ("blob:...") -> convertește la Blob și uploadează
- * 4. Obiect File sau Blob -> upload direct
- *
- * Dacă serverul este offline sau upload-ul eșuează, returnează sursa locală inițială (zero crash).
+ * Rezolvă orice sursă de imagine (string, Blob, File, IndexedDB URI) într-un Blob binar.
+ */
+async function resolveImageSourceToBlob(
+  source: File | Blob | string
+): Promise<{ blob: Blob | null; originalRef: string }> {
+  if (typeof source === 'string') {
+    if (source.startsWith('rxm-media://')) {
+      const blob = await getMediaBlob(source);
+      return { blob, originalRef: source };
+    }
+    if (source.startsWith('data:') || source.startsWith('blob:')) {
+      const blob = await dataUrlOrBlobUrlToBlob(source);
+      return { blob, originalRef: source };
+    }
+    return { blob: null, originalRef: source };
+  }
+  return { blob: source, originalRef: '' };
+}
+
+/**
+ * Upload clasic pe discul serverului Netcup VPS (/rxm/api/upload).
+ */
+async function uploadToVpsDisk(
+  carId: string,
+  blob: Blob,
+  index: number
+): Promise<string | null> {
+  try {
+    const ext = blob.type && blob.type.includes('jpeg') ? 'jpg' : 'webp';
+    const authHeaders = getAdminAuthHeaders();
+    const apiRes = await fetch('/rxm/api/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': blob.type || 'image/webp',
+        'x-car-id': carId,
+        'x-image-index': String(index),
+        'x-file-ext': ext,
+        ...authHeaders,
+      },
+      body: blob,
+    });
+
+    if (apiRes.ok) {
+      const json = await apiRes.json();
+      if (json && json.success && json.url) {
+        return json.url;
+      }
+    }
+  } catch (err) {
+    console.warn(`[cloudMediaStorage] Eșec upload VPS pentru ${carId} #${index}:`, err);
+  }
+  return null;
+}
+
+/**
+ * Încarcă o singură imagine (cu selecție dinamică Direct-R2 sau VPS disk).
  */
 export async function uploadCarImage(
   carId: string,
@@ -53,66 +119,73 @@ export async function uploadCarImage(
     }
   }
 
-  let blobToUpload: Blob | null = null;
-  const originalReference = typeof imageSource === 'string' ? imageSource : '';
+  const { blob: blobToUpload, originalRef } = await resolveImageSourceToBlob(imageSource);
+  if (!blobToUpload) {
+    return originalRef;
+  }
 
-  try {
-    if (typeof imageSource === 'string') {
-      if (imageSource.startsWith('rxm-media://')) {
-        blobToUpload = await getMediaBlob(imageSource);
-        if (!blobToUpload) {
-          console.warn(`[cloudMediaStorage] Blob-ul IndexedDB nu a fost găsit pentru ${imageSource}`);
-          return imageSource;
-        }
-      } else if (imageSource.startsWith('data:') || imageSource.startsWith('blob:')) {
-        blobToUpload = await dataUrlOrBlobUrlToBlob(imageSource);
-        if (!blobToUpload) return imageSource;
-      } else {
-        // String necunoscut, returnează as-is
-        return imageSource;
-      }
-    } else {
-      // File sau Blob direct
-      blobToUpload = imageSource;
-    }
+  const ext = blobToUpload.type && blobToUpload.type.includes('jpeg') ? 'jpg' : 'webp';
+  const filename = `photo_${String(index + 1).padStart(2, '0')}.${ext}`;
 
-    // 1. Prioritate 1: Upload direct pe discul VPS Netcup (/rxm/api/upload)
+  // 1. Încercare Direct R2 dacă este activat
+  if (isDirectR2UploadEnabled(dealerSlug)) {
     try {
-      const ext = blobToUpload.type && blobToUpload.type.includes('jpeg') ? 'jpg' : 'webp';
       const authHeaders = getAdminAuthHeaders();
-      const apiRes = await fetch('/rxm/api/upload', {
+      const presignRes = await fetch('/api/media/presign-upload', {
         method: 'POST',
         headers: {
-          'Content-Type': blobToUpload.type || 'image/webp',
-          'x-car-id': carId,
-          'x-image-index': String(index),
-          'x-file-ext': ext,
+          'Content-Type': 'application/json',
           ...authHeaders,
         },
-        body: blobToUpload,
+        body: JSON.stringify({
+          tenantSlug: dealerSlug || 'rxm',
+          mediaType: 'cars',
+          carId,
+          files: [
+            {
+              filename,
+              contentType: blobToUpload.type || 'image/webp',
+            },
+          ],
+        }),
       });
 
-      if (apiRes.ok) {
-        const json = await apiRes.json();
-        if (json && json.success && json.url) {
-          return json.url;
+      if (presignRes.ok) {
+        const presignData = await presignRes.json();
+        if (presignData.success && Array.isArray(presignData.results) && presignData.results.length > 0) {
+          const { uploadUrl, publicUrl } = presignData.results[0];
+          const putRes = await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': blobToUpload.type || 'image/webp',
+            },
+            body: blobToUpload,
+          });
+
+          if (putRes.ok) {
+            return publicUrl;
+          }
         }
       }
-    } catch {
-      // API micro-serviciu indisponibil temporar, fallback pe stocarea locală IndexedDB
+    } catch (r2Err) {
+      console.warn(`[cloudMediaStorage] Direct R2 single upload eșuat pentru ${carId} #${index}, fallback VPS:`, r2Err);
     }
-
-    // 2. Fallback pe referința locală IndexedDB / Blob URL (Zero-crash)
-    return originalReference || (blobToUpload ? URL.createObjectURL(blobToUpload) : '');
-  } catch (err) {
-    console.warn(`[cloudMediaStorage] Excepție la upload-ul imaginii #${index} pentru ${carId}:`, err);
-    return originalReference || (blobToUpload ? URL.createObjectURL(blobToUpload) : '');
   }
+
+  // 2. Upload pe discul VPS (/rxm/api/upload)
+  const vpsUrl = await uploadToVpsDisk(carId, blobToUpload, index);
+  if (vpsUrl) {
+    return vpsUrl;
+  }
+
+  // 3. Fallback pe referința locală IndexedDB / Blob URL (Zero-crash)
+  return originalRef || URL.createObjectURL(blobToUpload);
 }
 
 /**
- * Încarcă un lot de imagini cu raportare granulară de progres.
- * Execuție secvențială optimizată pentru serverul Netcup VPS.
+ * Încarcă un lot de imagini cu suport pentru Direct Cloudflare R2 Upload.
+ * Pentru dealeri terți: generează batch presigned URLs și transmite binarele direct în R2.
+ * Pentru RXM / fallback: utilizează fluxul de scriere pe discul VPS Netcup.
  */
 export async function uploadCarImagesBatch(
   carId: string,
@@ -123,13 +196,115 @@ export async function uploadCarImagesBatch(
   const total = images.length;
   if (total === 0) return [];
 
-  // Raportează progres inițial 0%
   if (onProgress) {
     onProgress(0, total, 0);
   }
 
-  const uploadedUrls: string[] = [];
+  const useDirectR2 = isDirectR2UploadEnabled(dealerSlug);
 
+  if (useDirectR2) {
+    try {
+      // Rezolvăm toate sursele în paralel pentru a pregăti cererea batch către R2
+      const resolved = await Promise.all(
+        images.map(async (img, idx) => {
+          if (
+            typeof img === 'string' &&
+            (img.startsWith('https://') || img.startsWith('http://') || img.startsWith('/'))
+          ) {
+            return { isAlreadyUrl: true, url: img, blob: null as Blob | null, originalRef: img, originalIndex: idx };
+          }
+          const { blob, originalRef } = await resolveImageSourceToBlob(img);
+          return { isAlreadyUrl: false, url: '', blob, originalRef, originalIndex: idx };
+        })
+      );
+
+      const itemsToUpload = resolved.filter(item => !item.isAlreadyUrl && item.blob !== null);
+
+      if (itemsToUpload.length > 0) {
+        const authHeaders = getAdminAuthHeaders();
+        const presignRes = await fetch('/api/media/presign-upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders,
+          },
+          body: JSON.stringify({
+            tenantSlug: dealerSlug || 'rxm',
+            mediaType: 'cars',
+            carId,
+            files: itemsToUpload.map(item => {
+              const ext = item.blob!.type && item.blob!.type.includes('jpeg') ? 'jpg' : 'webp';
+              return {
+                filename: `photo_${String(item.originalIndex + 1).padStart(2, '0')}.${ext}`,
+                contentType: item.blob!.type || 'image/webp',
+              };
+            }),
+          }),
+        });
+
+        if (presignRes.ok) {
+          const presignData = await presignRes.json();
+          if (
+            presignData.success &&
+            Array.isArray(presignData.results) &&
+            presignData.results.length === itemsToUpload.length
+          ) {
+            const resultsMap = new Map<number, string>();
+            let completedCount = 0;
+
+            for (let i = 0; i < itemsToUpload.length; i++) {
+              const item = itemsToUpload[i];
+              const { uploadUrl, publicUrl } = presignData.results[i];
+              const blob = item.blob!;
+
+              try {
+                const putRes = await fetch(uploadUrl, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': blob.type || 'image/webp',
+                  },
+                  body: blob,
+                });
+
+                if (putRes.ok) {
+                  resultsMap.set(item.originalIndex, publicUrl);
+                } else {
+                  console.warn(`[cloudMediaStorage] R2 PUT HTTP ${putRes.status} la #${item.originalIndex}, încercare VPS fallback...`);
+                  const vpsUrl = await uploadToVpsDisk(carId, blob, item.originalIndex);
+                  resultsMap.set(item.originalIndex, vpsUrl || item.originalRef || URL.createObjectURL(blob));
+                }
+              } catch (putErr) {
+                console.warn(`[cloudMediaStorage] R2 PUT rețea eșuat la #${item.originalIndex}, VPS fallback:`, putErr);
+                const vpsUrl = await uploadToVpsDisk(carId, blob, item.originalIndex);
+                resultsMap.set(item.originalIndex, vpsUrl || item.originalRef || URL.createObjectURL(blob));
+              }
+
+              completedCount++;
+              if (onProgress) {
+                const pct = Math.round((completedCount / total) * 100);
+                onProgress(completedCount, total, pct);
+              }
+            }
+
+            // Reasamblare în ordinea exactă inițială a fotografiilor
+            return resolved.map(item => {
+              if (item.isAlreadyUrl) return item.url;
+              return resultsMap.get(item.originalIndex) || item.originalRef || '';
+            });
+          }
+        }
+      } else {
+        // Toate imaginile din listă erau deja URL-uri publice/statice
+        if (onProgress) onProgress(total, total, 100);
+        return resolved.map(item => item.url);
+      }
+    } catch (directErr) {
+      console.warn('[cloudMediaStorage] Eroare în pipeline-ul Direct R2 Batch, comutare defensivă pe VPS:', directErr);
+    }
+  }
+
+  // 2. Flux Secvențial pe VPS (pentru RXM fără flag sau ca fallback complet)
+  const uploadedUrls: string[] = [];
   for (let i = 0; i < total; i++) {
     const source = images[i];
     try {

@@ -3,7 +3,7 @@ import {
   X, ExternalLink, Image as ImageIcon, Sparkles, CheckCircle2, 
   AlertCircle, ShieldCheck, CreditCard, RefreshCw, Bookmark, 
   Copy, Check, Phone, MapPin, User, ChevronDown, ChevronUp,
-  Sliders, Layers, Tag
+  Sliders, Layers, Tag, Puzzle, Download
 } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../db/seed';
 import { DealerProfile } from '../../db/types';
@@ -24,6 +24,7 @@ interface OLXExportModalProps {
   onClose: () => void;
   showToast: (msg: string) => void;
   dealer?: DealerProfile;
+  onOpenInstallModal?: () => void;
 }
 
 export const OLXExportModal: React.FC<OLXExportModalProps> = ({
@@ -31,7 +32,8 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
   car,
   onClose,
   showToast,
-  dealer = SEED_DEALER
+  dealer = SEED_DEALER,
+  onOpenInstallModal
 }) => {
   // State formular export
   const [title, setTitle] = useState('');
@@ -65,6 +67,18 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
   // UI state
   const [activeTab, setActiveTab] = useState<'form' | 'bookmarklet'>('form');
   const [isCopied, setIsCopied] = useState(false);
+  const [isExtensionInstalled, setIsExtensionInstalled] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      const attr = document.documentElement.getAttribute('data-parcos-olx-extension');
+      if (attr === 'installed' || (window as any).__PARCOS_OLX_EXTENSION__) {
+        setIsExtensionInstalled(true);
+      }
+    };
+    check();
+    window.addEventListener('parcos-olx-extension-ready', () => setIsExtensionInstalled(true));
+  }, [isOpen]);
 
   // Inițializare stare la selectarea mașinii
   useEffect(() => {
@@ -343,6 +357,46 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
           ) : (
             /* Tab 1: Configurare Anunț & Fotografii */
             <>
+              {/* Banner Asistență Extensie dacă nu este instalată */}
+              {!isExtensionInstalled && (
+                <div className="p-3.5 rounded-xl bg-gradient-to-r from-blue-500/10 via-amber-500/10 to-transparent border border-blue-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <Puzzle className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span className="text-zinc-200">
+                      Pentru completare 100% automată în formularul OLX, instalează extensia sau folosește Bookmarklet-ul:
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {onOpenInstallModal && (
+                      <button
+                        type="button"
+                        onClick={onOpenInstallModal}
+                        className="px-2.5 py-1.5 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 font-bold text-xs border border-teal-500/30 flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                      >
+                        <Puzzle className="w-3.5 h-3.5" />
+                        <span>Ghid Instalare</span>
+                      </button>
+                    )}
+                    <a
+                      href="/downloads/parcos-olx-publisher.zip"
+                      download="parcos-olx-publisher.zip"
+                      className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                      title="Descarcă arhiva ZIP oficială a extensiei (9.5 KB)"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Descarcă ZIP</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('bookmarklet')}
+                      className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-amber-300 font-semibold text-xs border border-white/10 transition-all cursor-pointer"
+                    >
+                      Bookmarklet
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* 1. Selecție Fotografii (Maxim 8) */}
               <div className="space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">

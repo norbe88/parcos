@@ -35,12 +35,18 @@ import { WorkspaceProvider } from './context/WorkspaceContext';
 import { vehicleRepository, RXM_INVENTORY_VERSION } from './services/vehicleRepository';
 import { getTabSessionId } from './utils/broadcastSession';
 import { getAdminAuthHeaders, isCurrentSessionAdmin } from './utils/adminAuth';
+import { updateSeoMetadata } from './utils/seoTenantInjector';
 
 // 🆔 Identificator unic de sesiune per filă pentru a preveni auto-ecoul BroadcastChannel
 const APP_TAB_SESSION_ID = getTabSessionId();
 
 export default function App() {
   const { tenant, tenantId, setTenantId } = useTenant();
+
+  // 🌐 Sincronizare automată SEO, OpenGraph și AutoDealer JSON-LD per Tenant (Ticket 05)
+  useEffect(() => {
+    updateSeoMetadata(tenant);
+  }, [tenant]);
   const [introKey, setIntroKey] = useState(0);
   const [isRevealed, setIsRevealed] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {

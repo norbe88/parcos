@@ -148,6 +148,15 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         return 'rxm';
       }
 
+      // 0. Server-injected meta tag (ex: via Nginx X-Dealer-Slug or SSR)
+      const metaDealer = document.querySelector('meta[name="x-dealer-slug"]')?.getAttribute('content');
+      if (metaDealer) {
+        const resolved = resolveTenantKey(metaDealer);
+        if (tenantsMap[resolved] || TENANT_DEALERS[resolved]) {
+          return resolved;
+        }
+      }
+
       // 1. Parametru URL query
       const urlParams = new URLSearchParams(window.location.search);
       const rawQueryDealer = urlParams.get('dealer') || urlParams.get('dealer_slug') || urlParams.get('tenant');
@@ -372,6 +381,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
               whatsappNumber: json.dealer.whatsapp_number || json.dealer.whatsappNumber,
               email: json.dealer.email,
               themePreset: json.themePreset || json.dealer.config?.themePreset,
+              landingConfig: json.dealer.config?.landingConfig || json.dealer.landingConfig,
             });
           }
         }
@@ -397,26 +407,15 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       name: dynamicConfig.name || baseTenant.name,
       cui: dynamicConfig.cui || baseTenant.cui,
       themePreset: (dynamicConfig.themePreset as any) || baseTenant.themePreset,
+      landingConfig: dynamicConfig.landingConfig || baseTenant.landingConfig,
     };
   }, [baseTenant, dynamicConfig]);
 
   const theme = useMemo(() => getThemeConfig(tenant.themePreset), [tenant.themePreset]);
 
-  // Actualizare dinamică document.title, atribute HTML și injectare CSS variables în :root
+  // Actualizare atribute HTML și injectare CSS variables adaptive în :root
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      const path = (window.location.pathname || '').toLowerCase();
-      const hash = (window.location.hash || '').toLowerCase();
-      const isSpecialPage = 
-        path.startsWith('/ghid-auto') || hash.includes('ghid-auto') ||
-        path.startsWith('/saas') || hash.includes('saas') ||
-        path.startsWith('/termeni-si-conditii') || hash.includes('termeni-si-conditii') ||
-        path.startsWith('/politica-cookie') || hash.includes('politica-cookie') ||
-        path.startsWith('/livrare-nationala') || hash.includes('livrare-nationala');
-
-      if (!isSpecialPage) {
-        document.title = `${tenant.name} — Autovehicule Rulate Premium | Cluj-Napoca`;
-      }
       const activeTheme = tenant.themePreset || 'obsidian_gold';
       document.documentElement.setAttribute('data-theme', activeTheme);
       document.body.setAttribute('data-theme', activeTheme);
