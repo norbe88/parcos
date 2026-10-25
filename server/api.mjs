@@ -2136,7 +2136,7 @@ export const server = http.createServer(async (req, res) => {
       }
 
       const inputHash = crypto.createHash('sha256').update(password).digest('hex');
-      const targetHash = process.env.ADMIN_PASSWORD_HASH || 'e180c917ef121846cee6c6b488b9d7a159c12c96880c1901b5a309ca66efb7c2';
+      const targetHash = process.env.ADMIN_PASSWORD_HASH || 'dbc1d0952684f4b89cc86bc7ffdd52cacc2a79e667b7e0765953069e05bb6589'; // SHA-256('Luna.RXM')
 
       let match = false;
       try {
