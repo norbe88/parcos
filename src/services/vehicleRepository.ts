@@ -1,6 +1,6 @@
 /**
  * Unified Vehicle Repository pentru RXM Automobile
- * Conectat direct la PostgreSQL pe Netcup VPS (152.53.158.65), localStorage ('rxm_cars_inventory') și SEED_VEHICLES
+ * Conectat direct la PostgreSQL pe Netcup VPS (152.53.158.65), localStorage (`parcos_cars_inventory:${slug}`) și SEED_VEHICLES
  * utilizând modelul Stale-While-Revalidate (SWR).
  */
 
@@ -12,8 +12,38 @@ import { normalizeBrand } from '../utils/brandNormalizer';
 import { getTabSessionId } from '../utils/broadcastSession';
 import { getAdminAuthHeaders, isCurrentSessionAdmin } from '../utils/adminAuth';
 
-export const INVENTORY_STORAGE_KEY = 'rxm_cars_inventory';
+/** Cheie istorică, doar pentru migrarea unică a stocului RXM. */
+export const LEGACY_INVENTORY_STORAGE_KEY = 'rxm_cars_inventory';
+const LEGACY_INVENTORY_VERSION_KEY = 'rxm_cars_version';
 export const RXM_INVENTORY_VERSION = 'v10_db_images_json_parse_2026_10_18';
+
+export function inventoryStorageKey(dealerSlug: string): string {
+  const slug = String(dealerSlug || '').trim().toLowerCase();
+  return `parcos_cars_inventory:${slug || 'unknown'}`;
+}
+
+function inventoryVersionKey(dealerSlug: string): string {
+  return `${inventoryStorageKey(dealerSlug)}:version`;
+}
+
+/** Citește `rxm_cars_inventory` o singură dată și o copiază în `parcos_cars_inventory:rxm`. */
+function migrateLegacyRxmInventoryOnce(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const nextKey = inventoryStorageKey('rxm');
+    if (localStorage.getItem(nextKey) != null) return;
+    const legacy = localStorage.getItem(LEGACY_INVENTORY_STORAGE_KEY);
+    if (legacy == null) return;
+    localStorage.setItem(nextKey, legacy);
+    const nextVersionKey = inventoryVersionKey('rxm');
+    if (localStorage.getItem(nextVersionKey) == null) {
+      const legacyVersion = localStorage.getItem(LEGACY_INVENTORY_VERSION_KEY);
+      if (legacyVersion != null) localStorage.setItem(nextVersionKey, legacyVersion);
+    }
+  } catch {
+    // localStorage indisponibil
+  }
+}
 
 export interface RepositorySaveResult {
   success: boolean;
@@ -42,8 +72,9 @@ export function rowToVehicleItem(row: Record<string, any>): VehicleItem {
   }
   let images = (Array.isArray(rawImages) ? rawImages : []).map((img: string) => normalizeCarImageUrl(img));
 
-  // 🛡️ Fallback de siguranță pentru mașini din seed: dacă imaginile lipsesc din DB, le recuperăm din SEED_VEHICLES
-  if (images.length === 0 && row.id) {
+  // Seed photos belong to RXM. Another dealer, or a row with no dealer_slug, stays empty.
+  const dealerSlug = typeof row.dealer_slug === 'string' ? row.dealer_slug.trim().toLowerCase() : '';
+  if (dealerSlug === 'rxm' && images.length === 0 && row.id) {
     const seedMatch = SEED_VEHICLES.find((s) => s.id === row.id);
     if (seedMatch && Array.isArray(seedMatch.images) && seedMatch.images.length > 0) {
       images = seedMatch.images.map((img: string) => normalizeCarImageUrl(img));
@@ -214,14 +245,22 @@ export function ensureDealOfWeekActive(carList: VehicleItem[]): VehicleItem[] {
 /**
  * Citește vehiculele din depozitul local (localStorage / SEED) cu suport pentru migrare de versiune.
  */
-function readLocalCache(): VehicleItem[] {
-  if (typeof window === 'undefined') return ensureDealOfWeekActive(SEED_VEHICLES);
+function readLocalCache(dealerSlug: string = 'rxm'): VehicleItem[] {
+  const slug = String(dealerSlug || '').trim().toLowerCase();
+  if (!slug) return [];
+  const allowSeed = slug === 'rxm';
+  if (typeof window === 'undefined') {
+    return allowSeed ? ensureDealOfWeekActive(SEED_VEHICLES) : [];
+  }
+  if (allowSeed) migrateLegacyRxmInventoryOnce();
   try {
-    const savedVersion = localStorage.getItem('rxm_cars_version');
-    const saved = localStorage.getItem(INVENTORY_STORAGE_KEY);
+    const storageKey = inventoryStorageKey(slug);
+    const versionKey = inventoryVersionKey(slug);
+    const savedVersion = localStorage.getItem(versionKey);
+    const saved = localStorage.getItem(storageKey);
 
-    // 1. Dacă versiunea salvată este diferită, facem migrare automată din seed
-    if (saved && savedVersion !== RXM_INVENTORY_VERSION) {
+    // 1. Migrarea din seed aparține doar RXM. Alt parc rămâne pe cache-ul propriu.
+    if (allowSeed && saved && savedVersion !== RXM_INVENTORY_VERSION) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed)) {
         const seedMap = new Map(SEED_VEHICLES.map((c) => [c.id, c]));
@@ -250,18 +289,15 @@ function readLocalCache(): VehicleItem[] {
         });
 
         const finalized = ensureDealOfWeekActive(updated);
-        localStorage.setItem(INVENTORY_STORAGE_KEY, JSON.stringify(finalized));
-        localStorage.setItem('rxm_cars_version', RXM_INVENTORY_VERSION);
+        localStorage.setItem(storageKey, JSON.stringify(finalized));
+        localStorage.setItem(versionKey, RXM_INVENTORY_VERSION);
         return finalized;
       }
     }
 
-    // 2. Dacă versiunea este deja la zi
-    if (saved && savedVersion === RXM_INVENTORY_VERSION) {
+    if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const seedMap = new Map(SEED_VEHICLES.map((c) => [c.id, c]));
-        // 🛡️ Deduplicare automată după ID pentru a preveni clonările accidentale
+      if (Array.isArray(parsed)) {
         const seen = new Set<string>();
         const sanitized = parsed
           .filter((c: any) => {
@@ -271,8 +307,11 @@ function readLocalCache(): VehicleItem[] {
           })
           .map((c) => {
             let carImages = Array.isArray(c.images) ? c.images : [];
-            if (carImages.length === 0 && seedMap.has(c.id)) {
-              carImages = seedMap.get(c.id)!.images;
+            if (allowSeed && carImages.length === 0) {
+              const seedMatch = SEED_VEHICLES.find((s) => s.id === c.id);
+              if (seedMatch && Array.isArray(seedMatch.images) && seedMatch.images.length > 0) {
+                carImages = seedMatch.images;
+              }
             }
             return {
               ...c,
@@ -280,13 +319,16 @@ function readLocalCache(): VehicleItem[] {
               images: carImages.map((img: string) => normalizeCarImageUrl(img)),
             };
           });
-        return ensureDealOfWeekActive(sanitized);
+        if (!allowSeed) return sanitized;
+        if (sanitized.length > 0 && savedVersion === RXM_INVENTORY_VERSION) {
+          return ensureDealOfWeekActive(sanitized);
+        }
       }
     }
   } catch (err) {
     console.warn('[vehicleRepository] Eroare la citirea din localStorage:', err);
   }
-  return ensureDealOfWeekActive(SEED_VEHICLES);
+  return allowSeed ? ensureDealOfWeekActive(SEED_VEHICLES) : [];
 }
 
 /**
@@ -311,8 +353,10 @@ export function sanitizePublicVehicleItem(v: VehicleItem): VehicleItem {
  * Scrie vehiculele în localStorage și notifică mediul (BroadcastChannel + CustomEvent).
  * Pentru vizitatorii publici, filtrează orice date financiare confidențiale înainte de scriere.
  */
-function writeLocalCache(vehicles: VehicleItem[]): void {
+function writeLocalCache(vehicles: VehicleItem[], dealerSlug: string = 'rxm'): void {
   if (typeof window === 'undefined') return;
+  const slug = String(dealerSlug || '').trim().toLowerCase();
+  if (!slug) return;
   try {
     const isAdmin = isCurrentSessionAdmin();
     // 🛡️ Deduplicare strictă la scriere
@@ -324,7 +368,9 @@ function writeLocalCache(vehicles: VehicleItem[]): void {
     });
 
     const toPersist = isAdmin ? uniqueVehicles : uniqueVehicles.map(sanitizePublicVehicleItem);
-    localStorage.setItem(INVENTORY_STORAGE_KEY, JSON.stringify(toPersist));
+    const storageKey = inventoryStorageKey(slug);
+    localStorage.setItem(storageKey, JSON.stringify(toPersist));
+    localStorage.setItem(inventoryVersionKey(slug), RXM_INVENTORY_VERSION);
 
     // Notificare Cross-Tab via BroadcastChannel cu senderId pentru a preveni auto-ecoul
     if ('BroadcastChannel' in window) {
@@ -332,7 +378,8 @@ function writeLocalCache(vehicles: VehicleItem[]): void {
         const channel = new BroadcastChannel('rxm_inventory_channel');
         channel.postMessage({ 
           type: 'INVENTORY_UPDATED', 
-          cars: toPersist, 
+          cars: toPersist,
+          dealerSlug: slug,
           senderId: getTabSessionId() 
         });
         channel.close();
@@ -378,10 +425,10 @@ async function syncFromSelfHostedApi(dealerSlug: string = 'rxm'): Promise<Vehicl
     if (data && data.success && Array.isArray(data.vehicles)) {
       const serverVehicles = data.vehicles.map(rowToVehicleItem);
       const serverIds = new Set(serverVehicles.map((c: VehicleItem) => c.id));
-      const currentLocal = readLocalCache();
+      const currentLocal = readLocalCache(dealerSlug);
       const localOnly = currentLocal.filter((c: VehicleItem) => !serverIds.has(c.id));
       const merged = [...serverVehicles, ...localOnly];
-      writeLocalCache(merged);
+      writeLocalCache(merged, dealerSlug);
       return merged;
     }
     return null;
@@ -395,7 +442,7 @@ async function syncFromSelfHostedApi(dealerSlug: string = 'rxm'): Promise<Vehicl
  */
 async function syncFromCloud(dealerSlug: string = 'rxm'): Promise<VehicleItem[]> {
   if (isSyncing) {
-    return readLocalCache();
+    return readLocalCache(dealerSlug);
   }
 
   isSyncing = true;
@@ -406,10 +453,10 @@ async function syncFromCloud(dealerSlug: string = 'rxm'): Promise<VehicleItem[]>
       return selfHostedResult;
     }
 
-    return readLocalCache();
+    return readLocalCache(dealerSlug);
   } catch (err) {
     console.warn('[vehicleRepository] Excepție la sincronizarea stocului:', err);
-    return readLocalCache();
+    return readLocalCache(dealerSlug);
   } finally {
     isSyncing = false;
   }
@@ -421,7 +468,7 @@ export const vehicleRepository = {
    * Declanșează discret sincronizarea SWR în fundal cu serverul VPS Netcup.
    */
   getVehicles(dealerSlug: string = 'rxm'): VehicleItem[] {
-    const cached = readLocalCache();
+    const cached = readLocalCache(dealerSlug);
 
     if (typeof window !== 'undefined') {
       // Fire-and-forget background sync
@@ -445,8 +492,8 @@ export const vehicleRepository = {
   /**
    * Caută un vehicul după ID.
    */
-  async getVehicleById(id: string, _dealerSlug: string = 'rxm'): Promise<VehicleItem | null> {
-    const local = readLocalCache();
+  async getVehicleById(id: string, dealerSlug: string = 'rxm'): Promise<VehicleItem | null> {
+    const local = readLocalCache(dealerSlug);
     const foundLocal = local.find((v) => v.id === id);
     if (foundLocal) return foundLocal;
 
@@ -470,7 +517,7 @@ export const vehicleRepository = {
    */
   async saveVehicle(vehicle: VehicleItem, dealerSlug: string = 'rxm'): Promise<RepositorySaveResult> {
     // 1. Salvare în localStorage
-    const local = readLocalCache();
+    const local = readLocalCache(dealerSlug);
     const existingIndex = local.findIndex((v) => v.id === vehicle.id);
     let updatedLocal: VehicleItem[];
     if (existingIndex >= 0) {
@@ -479,7 +526,7 @@ export const vehicleRepository = {
     } else {
       updatedLocal = [vehicle, ...local];
     }
-    writeLocalCache(updatedLocal);
+    writeLocalCache(updatedLocal, dealerSlug);
 
     // 2. Salvare pe Serverul VPS Netcup (Self-Hosted Micro-API)
     try {
@@ -523,7 +570,7 @@ export const vehicleRepository = {
     metadata?: Partial<Pick<VehicleItem, 'soldPriceEur' | 'soldAt'>>,
     dealerSlug: string = 'rxm'
   ): Promise<boolean> {
-    const local = readLocalCache();
+    const local = readLocalCache(dealerSlug);
     const target = local.find((v) => v.id === id);
     if (target) {
       const updated: VehicleItem = {
@@ -543,9 +590,9 @@ export const vehicleRepository = {
    */
   async deleteVehicle(id: string, dealerSlug: string = 'rxm'): Promise<boolean> {
     // 1. Ștergere locală
-    const local = readLocalCache();
+    const local = readLocalCache(dealerSlug);
     const filtered = local.filter((v) => v.id !== id);
-    writeLocalCache(filtered);
+    writeLocalCache(filtered, dealerSlug);
 
     // 2. Curățare IndexedDB
     try {

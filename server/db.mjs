@@ -64,7 +64,7 @@ export async function initDatabase() {
         status              VARCHAR(30)   DEFAULT 'active' NOT NULL,
         max_vehicles_quota  INTEGER       DEFAULT 25 NOT NULL,
         theme_preset        VARCHAR(50)   DEFAULT 'obsidian_gold' NOT NULL,
-        features            JSONB         NOT NULL DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true}'::jsonb,
+        features            JSONB         NOT NULL DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true,"financingPortfolio":false,"reconTracker":false,"googleDriveVault":false}'::jsonb,
         integrations        JSONB         NOT NULL DEFAULT '{}'::jsonb,
         is_active           BOOLEAN       NOT NULL DEFAULT TRUE,
         config              JSONB         NOT NULL DEFAULT '{}'::jsonb,
@@ -83,7 +83,8 @@ export async function initDatabase() {
     await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS status VARCHAR(30) DEFAULT 'active' NOT NULL;`;
     await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS max_vehicles_quota INTEGER DEFAULT 25 NOT NULL;`;
     await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS theme_preset VARCHAR(50) DEFAULT 'obsidian_gold' NOT NULL;`;
-    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS features JSONB NOT NULL DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true}'::jsonb;`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS features JSONB NOT NULL DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true,"financingPortfolio":false,"reconTracker":false,"googleDriveVault":false}'::jsonb;`;
+    await sql`ALTER TABLE dealers ALTER COLUMN features SET DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true,"financingPortfolio":false,"reconTracker":false,"googleDriveVault":false}'::jsonb;`;
     await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS integrations JSONB NOT NULL DEFAULT '{}'::jsonb;`;
     await sql`CREATE INDEX IF NOT EXISTS idx_dealers_domain ON dealers(domain);`;
     await sql`CREATE INDEX IF NOT EXISTS idx_dealers_is_active ON dealers(is_active);`;
@@ -192,6 +193,42 @@ export async function initDatabase() {
         features = COALESCE(dealers.features, EXCLUDED.features),
         config = EXCLUDED.config,
         is_active = EXCLUDED.is_active;
+    `;
+
+    // Fill rollout keys only when absent. `||` never overwrites an existing true or false.
+    // True is written solely for slugs whose dealer.ts profile already stores that flag as true.
+    await sql`
+      UPDATE dealers
+      SET features = features || '{"financingPortfolio": true}'::jsonb
+      WHERE slug IN ('rxm', 'rxm_sandbox')
+        AND NOT (features ? 'financingPortfolio')
+    `;
+    await sql`
+      UPDATE dealers
+      SET features = features || '{"reconTracker": true}'::jsonb
+      WHERE slug IN ('mpi_auto', 'rxm_sandbox')
+        AND NOT (features ? 'reconTracker')
+    `;
+    await sql`
+      UPDATE dealers
+      SET features = features || '{"googleDriveVault": true}'::jsonb
+      WHERE slug IN ('mpi_auto', 'rxm_sandbox')
+        AND NOT (features ? 'googleDriveVault')
+    `;
+    await sql`
+      UPDATE dealers
+      SET features = features || '{"reconTracker": false}'::jsonb
+      WHERE NOT (features ? 'reconTracker')
+    `;
+    await sql`
+      UPDATE dealers
+      SET features = features || '{"financingPortfolio": false}'::jsonb
+      WHERE NOT (features ? 'financingPortfolio')
+    `;
+    await sql`
+      UPDATE dealers
+      SET features = features || '{"googleDriveVault": false}'::jsonb
+      WHERE NOT (features ? 'googleDriveVault')
     `;
 
     // 1. Inițializare tabelă vehicule

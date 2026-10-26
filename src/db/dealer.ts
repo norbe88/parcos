@@ -14,6 +14,22 @@ export const DEFAULT_TENANT_FEATURES: TenantFeatures = {
   googleDriveVault: false,   // Rollout controlat per tenant
 };
 
+/**
+ * A rollout flag is on only when the JSON says `true`.
+ * A missing key stays off, except for a slug whose seed profile already stores `true`
+ * (legacy rows that never received the key). An explicit `false` always wins.
+ */
+export function isTenantFeatureEnabled(
+  features: Partial<TenantFeatures> | null | undefined,
+  key: keyof TenantFeatures,
+  slug?: string | null,
+): boolean {
+  if (features?.[key] === true) return true;
+  if (features?.[key] === false) return false;
+  if (!slug) return false;
+  return seededSlugKeepsMissingFeature(key, slug);
+}
+
 // ─── Config Landing Default (fallback sigur pentru orice dealer nou) ──────────
 export const DEFAULT_LANDING_CONFIG: DealerLandingConfig = {
   layoutVariant: 'luxury_cinematic',
@@ -311,3 +327,24 @@ export const DEALER_PARTNER_TEMPLATES: Record<string, DealerProfile> = {
   mpi_auto: DEALER_MPI_AUTO,
   top_auto: DEALER_TOP_AUTO
 };
+
+const ROLLOUT_FEATURE_KEYS = ['reconTracker', 'financingPortfolio', 'googleDriveVault'] as const;
+type RolloutFeatureKey = (typeof ROLLOUT_FEATURE_KEYS)[number];
+
+function isRolloutFeatureKey(key: keyof TenantFeatures): key is RolloutFeatureKey {
+  return (ROLLOUT_FEATURE_KEYS as readonly string[]).includes(key);
+}
+
+/** Allow-list built only from profiles that already store an explicit true. False parks are never listed. */
+function seededSlugKeepsMissingFeature(key: keyof TenantFeatures, slug: string): boolean {
+  if (!isRolloutFeatureKey(key)) return false;
+  const normalized = slug.trim().toLowerCase();
+  if (!normalized) return false;
+  const profiles: DealerProfile[] = [SEED_DEALER, ...Object.values(TENANT_DEALERS)];
+  for (const profile of profiles) {
+    if (profile.slug?.trim().toLowerCase() === normalized && profile.features?.[key] === true) {
+      return true;
+    }
+  }
+  return false;
+}

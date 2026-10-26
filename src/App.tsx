@@ -33,7 +33,7 @@ import { initExchangeRateScheduler } from './utils/exchangeRateSync';
 import { initShowroomInteractionTracker } from './services/leadService';
 import { useTenant } from './hooks/useTenant';
 import { WorkspaceProvider } from './context/WorkspaceContext';
-import { vehicleRepository, RXM_INVENTORY_VERSION } from './services/vehicleRepository';
+import { vehicleRepository, RXM_INVENTORY_VERSION, inventoryStorageKey } from './services/vehicleRepository';
 import { getTabSessionId } from './utils/broadcastSession';
 import { getAdminAuthHeaders, isCurrentSessionAdmin } from './utils/adminAuth';
 import { updateSeoMetadata } from './utils/seoTenantInjector';
@@ -109,9 +109,6 @@ export default function App() {
     }
   }, [handleReplayIntro]);
   
-  // Versiune catalog pentru invalidare automată cache browser (sincronizare automată Oferta Săptămânii + căi canonice /cars/)
-  const RXM_INVENTORY_VERSION = 'v9_inventory_sold_sync_2026_10_17';
-
   // Helper: garantează că cel puțin o mașină are Oferta Săptămânii activă
   const ensureDealOfWeekActive = (carList: VehicleItem[]): VehicleItem[] => {
     const hasActiveDeal = carList.some(c => c.isDealOfWeek || c.isPinnedToTop || !!(c.oldPriceEur && c.oldPriceEur > c.priceEur));
@@ -128,6 +125,8 @@ export default function App() {
 
   // Persistență automată și citire sincronă instant (0ms) din Unified Vehicle Repository (SWR)
   const currentDealerSlug = tenantId || tenant?.slug || 'rxm';
+  const inventorySlugRef = useRef(currentDealerSlug);
+  inventorySlugRef.current = currentDealerSlug;
   const [cars, setCars] = useState<VehicleItem[]>(() => {
     const raw = vehicleRepository.getVehicles(currentDealerSlug);
     const seen = new Set<string>();
@@ -199,6 +198,7 @@ export default function App() {
         channel.onmessage = (event) => {
           // 🛡️ Ignorăm mesajele difuzate de aceeași filă pentru a preveni bucla infinită de re-randare
           if (event.data?.senderId === APP_TAB_SESSION_ID) return;
+          if (event.data?.dealerSlug !== inventorySlugRef.current) return;
           if (event.data?.type === 'INVENTORY_UPDATED' && Array.isArray(event.data?.cars)) {
             setCars(prev => {
               const seen = new Set<string>();
@@ -218,7 +218,7 @@ export default function App() {
     }
 
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'rxm_cars_inventory' && e.newValue) {
+      if (e.key === inventoryStorageKey(inventorySlugRef.current) && e.newValue) {
         try {
           const updated = JSON.parse(e.newValue);
           if (Array.isArray(updated) && updated.length > 0) {
@@ -883,14 +883,21 @@ export default function App() {
   }, [selectedCar, isAdminAuthenticated, viewMode]);
 
   // Salvare automată în localStorage la orice modificare a stocului sau cheltuielilor + difuzare cross-tab
+  const persistedInventorySlugRef = useRef(currentDealerSlug);
   useEffect(() => {
+    if (!currentDealerSlug) return;
+    if (persistedInventorySlugRef.current !== currentDealerSlug) {
+      persistedInventorySlugRef.current = currentDealerSlug;
+      return;
+    }
+    const storageKey = inventoryStorageKey(currentDealerSlug);
     try {
-      localStorage.setItem('rxm_cars_inventory', JSON.stringify(cars));
-      localStorage.setItem('rxm_cars_version', RXM_INVENTORY_VERSION);
+      localStorage.setItem(storageKey, JSON.stringify(cars));
+      localStorage.setItem(`${storageKey}:version`, RXM_INVENTORY_VERSION);
 
       if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
         const channel = new BroadcastChannel('rxm_inventory_channel');
-        channel.postMessage({ type: 'INVENTORY_UPDATED', cars, senderId: APP_TAB_SESSION_ID });
+        channel.postMessage({ type: 'INVENTORY_UPDATED', cars, dealerSlug: currentDealerSlug, senderId: APP_TAB_SESSION_ID });
         channel.close();
       }
     } catch (e) {
@@ -899,13 +906,13 @@ export default function App() {
       try {
         localStorage.removeItem('rxm_olx_snapshot_cache');
         localStorage.removeItem('rxm_market_evaluations_cache');
-        localStorage.setItem('rxm_cars_inventory', JSON.stringify(cars));
-        localStorage.setItem('rxm_cars_version', RXM_INVENTORY_VERSION);
+        localStorage.setItem(storageKey, JSON.stringify(cars));
+        localStorage.setItem(`${storageKey}:version`, RXM_INVENTORY_VERSION);
       } catch (innerErr) {
         console.warn('Stocul conține imagini de dimensiune mare; datele sunt păstrate în memorie dar nu pot fi serializate complet în localStorage:', innerErr);
       }
     }
-  }, [cars]);
+  }, [cars, currentDealerSlug]);
 
   // Menținem mașina selectată sincronizată cu lista de mașini la modificări
   useEffect(() => {

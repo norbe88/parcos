@@ -5,7 +5,7 @@ import {
   ShieldCheck, Layers, Building2, ChevronRight, CheckCircle2, DollarSign, Mail,
   Sun, Moon, CreditCard, Puzzle, Wrench
 } from 'lucide-react';
-import { DealerProfile, SEED_DEALER } from '../../db/seed';
+import { DealerProfile, SEED_DEALER, isTenantFeatureEnabled } from '../../db/seed';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { getSavedFinancingDossiers } from '../../services/financingService';
 
@@ -82,8 +82,8 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
     if (onCloseMobile) onCloseMobile();
   };
 
-  const isReconEnabled = dealer.features?.reconTracker !== false;
-  const isFinancingEnabled = dealer.features?.financingPortfolio !== false;
+  const isReconEnabled = isTenantFeatureEnabled(dealer.features, 'reconTracker', dealer.slug);
+  const isFinancingEnabled = isTenantFeatureEnabled(dealer.features, 'financingPortfolio', dealer.slug);
 
   const navItems = [
     {

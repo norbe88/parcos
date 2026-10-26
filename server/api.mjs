@@ -809,6 +809,27 @@ const SECURITY_HEADERS = {
   ...(isStagingDeployment ? { 'X-Robots-Tag': 'noindex, nofollow, noarchive' } : {})
 };
 
+const PLATFORM_CONSOLE_HOSTS = new Set(['app.parcos.ro', 'admin.parcos.ro']);
+const CANONICAL_DEALER_HOSTS = {
+  'rxmautomobile.ro': 'rxm',
+  'mpiauto.ro': 'mpi_auto',
+  'topautotransilvania.ro': 'top_auto',
+};
+const INFRA_HEALTH_HOSTS = new Set(['152.53.158.65']);
+
+function isUnconfiguredTenant(tenant) {
+  return !tenant || tenant.unconfigured === true;
+}
+
+function sendUnconfiguredShowroom(res) {
+  return sendJson(res, 404, { success: false, error: 'Showroom neconfigurat' });
+}
+
+function cacheTenantHost(host, profile) {
+  tenantConfigCache.set(`host:${host}`, { data: profile, timestamp: Date.now() });
+  return profile;
+}
+
 export async function resolveTenant(req, urlObj) {
   // 1. Deducere domeniu real din antetul Host (fără spoofing din exterior)
   const rawHost = (req?.headers?.['host'] || '').split(':')[0].toLowerCase().trim();
@@ -858,39 +879,30 @@ export async function resolveTenant(req, urlObj) {
       return cached.data;
     }
 
-    // Mapare canonică garantată pentru domeniile de producție
-    if (host.includes('rxmautomobile.ro')) {
-      const profile = DEFAULT_DEALER_PROFILES.rxm;
-      tenantConfigCache.set(`host:${host}`, { data: profile, timestamp: Date.now() });
-      return profile;
+    // Listă închisă de host-uri de platformă. Nu folosi host.includes('parcos.ro'):
+    // un subdomeniu de parc trebuie să ajungă la getDealerByDomain, nu la marketing.
+    // www. este deja eliminat din `host`, deci www.parcos.ro intră pe parcos.ro.
+    if (host === 'parcos.ro' || PLATFORM_CONSOLE_HOSTS.has(host)) {
+      return cacheTenantHost(host, DEFAULT_DEALER_PROFILES.parcos);
     }
-    if (host.includes('mpiauto.ro')) {
-      const profile = DEFAULT_DEALER_PROFILES.mpi_auto;
-      tenantConfigCache.set(`host:${host}`, { data: profile, timestamp: Date.now() });
-      return profile;
-    }
-    if (host.includes('topautotransilvania.ro')) {
-      const profile = DEFAULT_DEALER_PROFILES.top_auto;
-      tenantConfigCache.set(`host:${host}`, { data: profile, timestamp: Date.now() });
-      return profile;
-    }
-    if (host.includes('parcos.ro')) {
-      const profile = DEFAULT_DEALER_PROFILES.parcos;
-      tenantConfigCache.set(`host:${host}`, { data: profile, timestamp: Date.now() });
-      return profile;
+    const canonicalSlug = CANONICAL_DEALER_HOSTS[host];
+    if (canonicalSlug && DEFAULT_DEALER_PROFILES[canonicalSlug]) {
+      return cacheTenantHost(host, DEFAULT_DEALER_PROFILES[canonicalSlug]);
     }
 
-    // Căutare dinamică în baza de date după domeniu (pentru dealeri noi înrolați)
-    if (!isLocalDev && !host.includes('152.53.158.65')) {
+    // Producție: rândul din dealers bate fallback-ul. Lipsa rândului nu cade pe RXM.
+    // IP-ul de infrastructură rămâne pe fallback, ca health-check-ul să nu primească 404.
+    const isInfraHost = INFRA_HEALTH_HOSTS.has(host);
+    if (!isLocalDev && !isInfraHost) {
       const dbDealer = await getDealerByDomain(host);
       if (dbDealer) {
-        tenantConfigCache.set(`host:${host}`, { data: dbDealer, timestamp: Date.now() });
-        return dbDealer;
+        return cacheTenantHost(host, dbDealer);
       }
+      return cacheTenantHost(host, { unconfigured: true });
     }
   }
 
-  // 4. Fallback garantat: dealer implicit configurat (DEALER_SLUG sau rxm)
+  // 4. Fallback doar pentru localhost, 127.0.0.1, ::1, *.local și IP-ul de infrastructură.
   const fallbackSlug = normalizeSlug(DEALER_SLUG) || 'rxm';
   const cachedFallback = tenantConfigCache.get(`slug:${fallbackSlug}`);
   if (cachedFallback && (Date.now() - cachedFallback.timestamp < TENANT_CACHE_TTL)) {
@@ -950,9 +962,11 @@ async function renderDynamicHtml(html, req, urlObj) {
   const searchParams = urlObj?.searchParams || new URLSearchParams();
   const queryDealer = searchParams.get('dealer') || searchParams.get('dealer_slug');
 
-  const isParcos = host === 'parcos.ro' || 
-                   host === 'parcos.local' || 
-                   host.includes('parcos') || 
+  const isPlatformParcosHost = host === 'parcos.ro' ||
+                   host === 'app.parcos.ro' ||
+                   host === 'admin.parcos.ro' ||
+                   host === 'parcos.local';
+  const isParcos = isPlatformParcosHost ||
                    pathname.startsWith('/saas') || 
                    searchParams.has('saas') ||
                    queryDealer === 'parcos';
@@ -1018,15 +1032,20 @@ async function renderDynamicHtml(html, req, urlObj) {
     const carId = searchParams.get('car') || pathname.match(/^\/(?:cars|masini)\/([^\/]+)/)?.[1];
 
     let vehicle = null;
+    let showroomUnconfigured = false;
     if (carId) {
       try {
         const currentTenant = await resolveTenant(req, { searchParams });
-        const tenantSlug = currentTenant?.slug || (isRxm ? 'rxm' : 'rxm');
-        vehicle = await getPublicVehicleById(carId, tenantSlug);
+        if (isUnconfiguredTenant(currentTenant)) {
+          showroomUnconfigured = true;
+        } else {
+          const tenantSlug = currentTenant?.slug || (isRxm ? 'rxm' : 'rxm');
+          vehicle = await getPublicVehicleById(carId, tenantSlug);
+        }
       } catch (e) {
         // Ignoră eroare DB temporară
       }
-      if (!vehicle) {
+      if (!vehicle && !showroomUnconfigured) {
         try {
           const seedsPath = path.resolve('server/seeds.json');
           if (fs.existsSync(seedsPath)) {
@@ -1100,16 +1119,28 @@ async function renderDynamicHtml(html, req, urlObj) {
           }
         };
       } else {
-        const tenant = (await resolveTenant(req, urlObj)) || DEFAULT_DEALER_PROFILES.rxm;
-        title = `${tenant.name} — Autovehicule Rulate Verificate`;
-        description = `Parc auto autorizat ${tenant.city || 'România'}. Garanție extinsă, kilometri certificați și rate fixe fără avans.`;
-        canonicalUrl = `https://${host}/`;
-        ogSiteName = tenant.name;
-        ogType = 'website';
-        ogTitle = title;
-        ogDescription = description;
-        ogImage = `https://${host}/rxm/images/rxm-emblem.png`;
-        ogUrl = canonicalUrl;
+        const tenant = await resolveTenant(req, urlObj);
+        if (isUnconfiguredTenant(tenant) || showroomUnconfigured) {
+          title = 'Showroom neconfigurat';
+          description = 'Acest domeniu nu are un showroom configurat.';
+          canonicalUrl = host ? `https://${host}/` : 'https://parcos.ro/';
+          ogSiteName = 'ParcOS';
+          ogType = 'website';
+          ogTitle = title;
+          ogDescription = description;
+          ogImage = 'https://parcos.ro/brand/parcos-og-icon.png';
+          ogUrl = canonicalUrl;
+        } else {
+          title = `${tenant.name} — Autovehicule Rulate Verificate`;
+          description = `Parc auto autorizat ${tenant.city || 'România'}. Garanție extinsă, kilometri certificați și rate fixe fără avans.`;
+          canonicalUrl = `https://${host}/`;
+          ogSiteName = tenant.name;
+          ogType = 'website';
+          ogTitle = title;
+          ogDescription = description;
+          ogImage = `https://${host}/rxm/images/rxm-emblem.png`;
+          ogUrl = canonicalUrl;
+        }
       }
     }
   }
@@ -1660,6 +1691,16 @@ export const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && pathname === '/api/health') {
       if (isAuthorizedAdmin(req)) {
         const tenant = await resolveTenant(req, urlObj);
+        if (isUnconfiguredTenant(tenant)) {
+          return sendJson(res, 200, {
+            status: 'healthy',
+            version: 'v20_multi_tenant_ready',
+            vatRate: 0.21,
+            warrantyTerm: 'Cont de Garanție',
+            uptime: Math.floor(process.uptime()),
+            time: new Date().toISOString(),
+          });
+        }
         return sendJson(res, 200, {
           status: 'healthy',
           dealer: tenant.slug,
@@ -1678,6 +1719,7 @@ export const server = http.createServer(async (req, res) => {
     // 0.01 GET /api/tenant-config & /api/tenant/config - Configurație Dinamică Showroom (PMH-T02)
     if (req.method === 'GET' && (pathname === '/api/tenant-config' || pathname === '/api/tenant/config')) {
       const tenant = await resolveTenant(req, urlObj);
+      if (isUnconfiguredTenant(tenant)) return sendUnconfiguredShowroom(res);
       return sendJson(res, 200, {
         success: true,
         dealer: {
@@ -1707,6 +1749,7 @@ export const server = http.createServer(async (req, res) => {
     // 0.02 GET /api/tenant/resolve - Rezoluție Rapidă Tenant ID
     if (req.method === 'GET' && pathname === '/api/tenant/resolve') {
       const tenant = await resolveTenant(req, urlObj);
+      if (isUnconfiguredTenant(tenant)) return sendUnconfiguredShowroom(res);
       return sendJson(res, 200, {
         success: true,
         slug: tenant.slug,
@@ -2321,6 +2364,7 @@ export const server = http.createServer(async (req, res) => {
         });
       }
       const tenant = await resolveTenant(req, urlObj);
+      if (isUnconfiguredTenant(tenant)) return sendUnconfiguredShowroom(res);
       const rows = await getAllAdminVehicles(tenant.slug);
       return sendJson(res, 200, {
         success: true,
@@ -2341,6 +2385,7 @@ export const server = http.createServer(async (req, res) => {
       const id = decodeURIComponent(pathname.replace('/api/admin/vehicles/', '')).trim();
       const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '_');
       const tenant = await resolveTenant(req, urlObj);
+      if (isUnconfiguredTenant(tenant)) return sendUnconfiguredShowroom(res);
       const vehicle = await getAdminVehicleById(safeId, tenant.slug);
       if (!vehicle) {
         return sendJson(res, 404, { success: false, error: 'Vehiculul nu a fost găsit' });
@@ -3061,7 +3106,8 @@ REGULI STRICTE & INVARIANTE HOLDING:
       if (!dealerSlug) {
         try {
           const tenant = await resolveTenant(req, urlObj);
-          dealerSlug = tenant?.slug || 'rxm';
+          if (isUnconfiguredTenant(tenant)) return sendUnconfiguredShowroom(res);
+          dealerSlug = tenant.slug || 'rxm';
         } catch {
           dealerSlug = 'rxm';
         }
@@ -3287,6 +3333,7 @@ REGULI STRICTE & INVARIANTE HOLDING:
     // 3. GET /api/vehicles - Listare publică vehicule din stoc (Read-Only, Sanitizat Fără raw_data)
     if (req.method === 'GET' && pathname === '/api/vehicles') {
       const tenant = await resolveTenant(req, urlObj);
+      if (isUnconfiguredTenant(tenant)) return sendUnconfiguredShowroom(res);
       const rows = await getAllPublicVehicles(tenant.slug);
       return sendJson(res, 200, {
         success: true,
@@ -3301,6 +3348,7 @@ REGULI STRICTE & INVARIANTE HOLDING:
       const id = decodeURIComponent(pathname.replace('/api/vehicles/', '')).trim();
       const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '_');
       const tenant = await resolveTenant(req, urlObj);
+      if (isUnconfiguredTenant(tenant)) return sendUnconfiguredShowroom(res);
       const vehicle = await getPublicVehicleById(safeId, tenant.slug);
       if (!vehicle) {
         return sendJson(res, 404, { success: false, error: 'Vehiculul nu a fost găsit' });
@@ -3370,6 +3418,7 @@ REGULI STRICTE & INVARIANTE HOLDING:
       }
 
       const tenant = await resolveTenant(req, urlObj);
+      if (isUnconfiguredTenant(tenant)) return sendUnconfiguredShowroom(res);
       const isSuperAdmin = isAuthorizedSuperAdmin(req);
       const targetSlug = isSuperAdmin
         ? (vehicleData.dealerSlug || vehicleData.dealer_slug || tenant.slug)
@@ -3433,6 +3482,7 @@ REGULI STRICTE & INVARIANTE HOLDING:
       }
 
       const tenant = await resolveTenant(req, urlObj);
+      if (isUnconfiguredTenant(tenant)) return sendUnconfiguredShowroom(res);
       await deleteVehicle(safeId, tenant.slug);
       await deleteCarMediaFromDisk(safeId);
       return sendJson(res, 200, { success: true, deletedId: safeId });
@@ -3456,6 +3506,7 @@ REGULI STRICTE & INVARIANTE HOLDING:
       }
 
       const tenant = await resolveTenant(req, urlObj);
+      if (isUnconfiguredTenant(tenant) && !payload.tenantSlug) return sendUnconfiguredShowroom(res);
       const tenantSlug = String(payload.tenantSlug || tenant.slug || 'rxm').trim().toLowerCase().replace(/[^a-zA-Z0-9_-]/g, '_');
       const mediaType = ['car', 'branding', 'landing'].includes(payload.mediaType) ? payload.mediaType : 'car';
       const carId = payload.carId ? String(payload.carId).trim().replace(/[^a-zA-Z0-9_-]/g, '_') : undefined;

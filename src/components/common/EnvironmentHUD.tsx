@@ -19,6 +19,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { DealerProfile } from '../../db/types';
+import { isTenantFeatureEnabled } from '../../db/dealer';
 
 interface EnvironmentHUDProps {
   currentTenant: DealerProfile;
@@ -161,9 +162,9 @@ export const EnvironmentHUD: React.FC<EnvironmentHUDProps> = ({
     );
   }
 
-  const isReconActive = currentTenant.features?.reconTracker !== false;
-  const isVaultActive = currentTenant.features?.googleDriveVault !== false;
-  const isFinancingActive = currentTenant.features?.financingPortfolio !== false;
+  const isReconActive = isTenantFeatureEnabled(currentTenant.features, 'reconTracker', currentTenant.slug);
+  const isVaultActive = isTenantFeatureEnabled(currentTenant.features, 'googleDriveVault', currentTenant.slug);
+  const isFinancingActive = isTenantFeatureEnabled(currentTenant.features, 'financingPortfolio', currentTenant.slug);
 
   return (
     <aside 

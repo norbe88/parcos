@@ -24,9 +24,12 @@ export interface TenantInfo {
   features?: TenantFeatures;
 }
 
+export type TenantBootState = 'pending' | 'ready' | 'unconfigured';
+
 export interface TenantContextType {
   tenant: DealerProfile;
   tenantId: string;
+  tenantBoot: TenantBootState;
   theme: ThemeConfig;
   setTenantId: (id: string) => void;
   availableTenants: TenantInfo[];
@@ -105,6 +108,79 @@ function hexToRgb(hex: string): string {
   return '245, 158, 11';
 }
 
+type HostBootKind = 'rxm' | 'local' | 'console' | 'production';
+
+function bareHostname(hostname: string): string {
+  return hostname.toLowerCase().replace(/^www\./, '');
+}
+
+function isLocalDevHost(hostname: string): boolean {
+  const host = bareHostname(hostname);
+  return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.local');
+}
+
+function isPlatformConsoleHost(hostname: string): boolean {
+  const host = bareHostname(hostname);
+  return host === 'app.parcos.ro' || host === 'admin.parcos.ro';
+}
+
+function hostBootKind(hostname: string): HostBootKind {
+  const host = hostname.toLowerCase();
+  if (host.includes('rxmautomobile.ro')) return 'rxm';
+  if (isLocalDevHost(host)) return 'local';
+  if (isPlatformConsoleHost(host)) return 'console';
+  return 'production';
+}
+
+function initialTenantBoot(): { tenantId: string; boot: TenantBootState } {
+  if (typeof window === 'undefined') return { tenantId: 'rxm', boot: 'ready' };
+  if (hostBootKind(window.location.hostname) === 'rxm') return { tenantId: 'rxm', boot: 'ready' };
+  return { tenantId: '', boot: 'pending' };
+}
+
+function localTenantResolveUrl(): string {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const fromQuery = params.get('dealer') || params.get('dealer_slug') || params.get('tenant');
+    if (fromQuery) return `/api/tenant/resolve?dealer=${encodeURIComponent(fromQuery)}`;
+    if (window.location.hash.includes('dealer=')) {
+      const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+      const fromHash = hashParams.get('dealer');
+      if (fromHash) return `/api/tenant/resolve?dealer=${encodeURIComponent(fromHash)}`;
+    }
+    const saved = localStorage.getItem('rxm_tenant_id');
+    if (saved) return `/api/tenant/resolve?dealer=${encodeURIComponent(saved)}`;
+  } catch {}
+  return '/api/tenant/resolve';
+}
+
+function blankDealerProfile(slug: string, name?: string, domain?: string): DealerProfile {
+  return {
+    name: name || slug || 'Showroom',
+    slug: slug || undefined,
+    domain,
+    cui: '',
+    address: '',
+    bankName: '',
+    ibanRon: '',
+    phonePrimary: '',
+    phoneSecondary: '',
+    phoneFinance: '',
+    whatsappNumber: '',
+    whatsappFinance: '',
+    financeContactName: '',
+    generalContactName: '',
+    email: '',
+    tiktokHandle: '',
+    tiktokUrl: '',
+    facebookUrl: '',
+    instagramUrl: '',
+    openingHours: '',
+    financingPartners: [],
+    themePreset: 'obsidian_gold',
+  };
+}
+
 export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
   // Stocare dinamică a registrului complet de tenanți pentru SuperAdmin Control Plane
   const [tenantsMap, setTenantsMap] = useState<Record<string, DealerProfile>>(() => {
@@ -147,6 +223,9 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         } catch {}
         return 'rxm';
       }
+
+      // Host de producție: slug-ul vine din /api/tenant/resolve, nu din query sau cache local.
+      if (!isLocalDevHost(hostname)) return '';
 
       // 0. Server-injected meta tag (ex: via Nginx X-Dealer-Slug or SSR)
       const metaDealer = document.querySelector('meta[name="x-dealer-slug"]')?.getAttribute('content');
@@ -200,26 +279,108 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     return 'rxm';
   };
 
-  const [tenantId, setTenantIdState] = useState<string>(detectInitialTenant);
+  const [tenantId, setTenantIdState] = useState<string>(() => initialTenantBoot().tenantId);
+  const [tenantBoot, setTenantBoot] = useState<TenantBootState>(() => initialTenantBoot().boot);
+  const [resolvedHint, setResolvedHint] = useState<{ slug: string; name?: string; domain?: string } | null>(null);
   const [dynamicConfig, setDynamicConfig] = useState<Partial<DealerProfile> | null>(null);
 
   const setTenantId = (id: string) => {
-    if (typeof window !== 'undefined' && window.location.hostname.toLowerCase().includes('rxmautomobile.ro')) {
+    if (typeof window === 'undefined') return;
+    const hostname = window.location.hostname.toLowerCase();
+    const kind = hostBootKind(hostname);
+    if (kind === 'rxm') {
       setTenantIdState('rxm');
+      setTenantBoot('ready');
       return;
     }
+    if (kind === 'production' && !isShowcaseEnvironment()) return;
 
     const resolved = resolveTenantKey(id);
     if (tenantsMap[resolved] || TENANT_DEALERS[resolved]) {
       setTenantIdState(resolved);
+      setTenantBoot('ready');
       try {
         localStorage.setItem('rxm_tenant_id', resolved);
-        const url = new URL(window.location.href);
-        url.searchParams.set('dealer', resolved);
-        window.history.replaceState({}, '', url.toString());
+        if (kind === 'local') {
+          const url = new URL(window.location.href);
+          url.searchParams.set('dealer', resolved);
+          window.history.replaceState({}, '', url.toString());
+        }
       } catch {}
     }
   };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    let cancelled = false;
+    const kind = hostBootKind(window.location.hostname);
+
+    const fail = () => {
+      if (cancelled) return;
+      if (kind === 'rxm') return;
+      if (kind === 'local') {
+        setTenantIdState(detectInitialTenant() || 'rxm');
+        setTenantBoot('ready');
+        return;
+      }
+      if (kind === 'console') {
+        setResolvedHint({
+          slug: 'parcos',
+          name: 'ParcOS — Dealership Operating System',
+          domain: bareHostname(window.location.hostname),
+        });
+        setTenantIdState('parcos');
+        setTenantBoot('ready');
+        return;
+      }
+      setTenantIdState('');
+      setTenantBoot('unconfigured');
+    };
+
+    const succeed = (slugRaw: string, name?: string, domain?: string) => {
+      if (cancelled) return;
+      const slug = resolveTenantKey(slugRaw);
+      if (!slug) {
+        fail();
+        return;
+      }
+      if (kind === 'rxm' && slug !== 'rxm') return;
+      setResolvedHint({ slug, name, domain });
+      setTenantIdState(slug);
+      setDynamicConfig((prev) => ({
+        ...(prev || {}),
+        name: name || prev?.name,
+        slug,
+        domain: domain || prev?.domain,
+      }));
+      setTenantBoot('ready');
+    };
+
+    const url = kind === 'local' ? localTenantResolveUrl() : '/api/tenant/resolve';
+    fetch(url, { headers: { Accept: 'application/json' } })
+      .then(async (res) => {
+        if (cancelled) return;
+        if (!res.ok) {
+          fail();
+          return;
+        }
+        const json = await res.json();
+        if (json && json.success && typeof json.slug === 'string' && json.slug.trim()) {
+          succeed(
+            json.slug,
+            typeof json.name === 'string' ? json.name : undefined,
+            typeof json.domain === 'string' ? json.domain : undefined
+          );
+          return;
+        }
+        fail();
+      })
+      .catch(() => fail());
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Reîmprospătare dinamică a listei de chiriași direct din PostgreSQL via SuperAdmin API
   const refreshTenantsFromBackend = useCallback(async (): Promise<void> => {
@@ -367,6 +528,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
 
   // Interogare backend pentru profilul dinamic al tenantului curent
   useEffect(() => {
+    if (tenantBoot !== 'ready' || !tenantId) return;
     let isCancelled = false;
     const fetchTenantConfig = async () => {
       try {
@@ -396,11 +558,15 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     return () => {
       isCancelled = true;
     };
-  }, [tenantId]);
+  }, [tenantId, tenantBoot]);
 
   const isPitchModeAllowed = useMemo(() => isShowcaseEnvironment(), []);
 
-  const baseTenant = tenantsMap[tenantId] || TENANT_DEALERS[tenantId] || SEED_DEALER;
+  const knownTenant = tenantId ? (tenantsMap[tenantId] || TENANT_DEALERS[tenantId]) : undefined;
+  const hintedTenant = resolvedHint && tenantId && resolvedHint.slug === tenantId
+    ? blankDealerProfile(resolvedHint.slug, resolvedHint.name, resolvedHint.domain)
+    : undefined;
+  const baseTenant = knownTenant || hintedTenant || (tenantId === 'rxm' ? SEED_DEALER : blankDealerProfile(tenantId));
   const tenant = useMemo(() => {
     if (!dynamicConfig) return baseTenant;
     return {
@@ -466,6 +632,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       value={{
         tenant,
         tenantId,
+        tenantBoot,
         theme,
         setTenantId,
         availableTenants,
@@ -482,7 +649,15 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         hostingProvider: 'Netcup VPS (152.53.158.65)',
       }}
     >
-      {children}
+      {tenantBoot === 'unconfigured' ? (
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 text-center">
+          <h1 className="text-lg sm:text-xl font-semibold">Showroom neconfigurat</h1>
+        </div>
+      ) : tenantBoot === 'pending' ? (
+        <div className="min-h-screen bg-background" aria-busy="true" />
+      ) : (
+        children
+      )}
     </TenantContext.Provider>
   );
 };
@@ -494,6 +669,7 @@ export const useTenantContext = (): TenantContextType => {
     return {
       tenant: SEED_DEALER,
       tenantId: 'rxm',
+      tenantBoot: 'ready',
       theme: fallbackTheme,
       setTenantId: () => {},
       availableTenants: [{ 

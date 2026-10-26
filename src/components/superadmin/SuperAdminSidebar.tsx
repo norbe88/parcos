@@ -6,7 +6,7 @@ import {
   Sliders, Check, X, ShieldAlert, Download, Eye, Zap, Database, Clock,
   ChevronDown, Landmark, Globe, Key, Mail, Radio, DollarSign, Cpu, Wrench
 } from 'lucide-react';
-import { DealerProfile } from '../../db/seed';
+import { DealerProfile, isTenantFeatureEnabled } from '../../db/seed';
 
 export type SuperAdminNavTab = 
   | 'tenants_overview'     // 🏢 Registru Parcuri & Flotă
@@ -52,6 +52,7 @@ export const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
   const [tenantSearchFilter, setTenantSearchFilter] = useState('');
 
   const currentTenant = tenants.find(t => (t.slug || '').toLowerCase() === selectedTenantSlug.toLowerCase()) || tenants[0];
+  const reconTrackerOn = isTenantFeatureEnabled(currentTenant?.features, 'reconTracker', currentTenant?.slug);
 
   const filteredTenants = tenants.filter(t => 
     t.name.toLowerCase().includes(tenantSearchFilter.toLowerCase()) ||
@@ -103,8 +104,8 @@ export const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
           id: 'recon_tracker' as SuperAdminNavTab,
           label: 'Service & Pregătire Flotă',
           icon: Wrench,
-          badge: currentTenant?.features?.reconTracker !== false ? 'Recon & Acte' : 'Inactiv',
-          badgeColor: currentTenant?.features?.reconTracker !== false
+          badge: reconTrackerOn ? 'Recon & Acte' : 'Inactiv',
+          badgeColor: reconTrackerOn
             ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
             : 'bg-zinc-800 text-zinc-500 border-zinc-700'
         }
