@@ -78,6 +78,7 @@ import { handleBackupRoutes } from './routes/backups.mjs';
 import { handleAnafRoutes } from './routes/anaf.mjs';
 import { handleAuthRoutes } from './routes/auth.mjs';
 import { handleLeadRoutes } from './routes/leads.mjs';
+import { handleFinancingRoutes } from './routes/financing.mjs';
 
 const PORT = process.env.PORT || 3000;
 const DEALER_SLUG = process.env.DEALER_SLUG || 'rxm';
@@ -1685,6 +1686,15 @@ export const server = http.createServer(async (req, res) => {
     }
 
     if (await handleLeadRoutes(req, res, urlObj, pathname, {
+      sendJson,
+      readRequestBody,
+      resolveTenant,
+      isAuthorizedAdmin,
+    })) {
+      return;
+    }
+
+    if (await handleFinancingRoutes(req, res, urlObj, pathname, {
       sendJson,
       readRequestBody,
       resolveTenant,

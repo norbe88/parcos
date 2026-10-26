@@ -19,7 +19,7 @@ import {
   deleteSharedLead,
   importSharedLeads,
 } from '../../services/leadService';
-import { createDossierFromLead } from '../../services/financingService';
+import { createSharedDossierFromLead } from '../../services/financingService';
 
 const SEED_LEADS: DealerLeadItem[] = [
   {
@@ -280,8 +280,15 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
       showToast(`Lead avansat la stadiul: ${getStatusLabel(nextStatus)}`);
       if (nextStatus === 'financing' && targetLead && isTenantFeatureEnabled(dealer?.features, 'financingPortfolio', dealer?.slug)) {
         const associatedCar = targetLead.carId ? cars.find(c => c.id === targetLead.carId) : null;
-        createDossierFromLead(targetLead, associatedCar, dealer?.financeContactName || 'Consilier Finanțare');
-        showToast(`Dosar de finanțare inițiat pentru ${targetLead.clientName}`);
+        void createSharedDossierFromLead(targetLead, associatedCar, dealer?.financeContactName || 'Consilier Finanțare').then((result) => {
+          if (!result.ok) {
+            showToast('Dosarul de finanțare nu a fost creat pe server.');
+            return;
+          }
+          showToast(result.duplicate
+            ? `Dosarul de finanțare pentru ${targetLead.clientName} este deja pe server.`
+            : `Dosar de finanțare inițiat pentru ${targetLead.clientName}`);
+        });
       }
     });
   };

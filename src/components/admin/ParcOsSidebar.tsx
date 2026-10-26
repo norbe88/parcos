@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { DealerProfile, SEED_DEALER, isTenantFeatureEnabled } from '../../db/seed';
 import { useWorkspace } from '../../context/WorkspaceContext';
-import { getSavedFinancingDossiers } from '../../services/financingService';
+import { fetchSharedDossiers } from '../../services/financingService';
 
 export type AdminTabType = 
   | 'inventory'       // 🚗 Stoc & Inventar
@@ -62,28 +62,37 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
   const { settings, toggleDisplayMode } = useWorkspace();
   const displayMode = settings.displayMode;
   const [pendingFinancingCount, setPendingFinancingCount] = useState<number>(0);
+  const isReconEnabled = isTenantFeatureEnabled(dealer.features, 'reconTracker', dealer.slug);
+  const isFinancingEnabled = isTenantFeatureEnabled(dealer.features, 'financingPortfolio', dealer.slug);
 
   useEffect(() => {
-    const updateCount = () => {
-      try {
-        const dossiers = getSavedFinancingDossiers();
-        const pending = dossiers.filter((d) => ['docs_pending', 'under_review', 'submitted'].includes(d.status)).length;
+    if (!isFinancingEnabled) {
+      setPendingFinancingCount(0);
+      return;
+    }
+    let cancelled = false;
+    const load = () => {
+      void fetchSharedDossiers().then((result) => {
+        if (cancelled || !result.ok) return;
+        const pending = result.dossiers.filter((d) => ['docs_pending', 'under_review', 'submitted'].includes(d.status)).length;
         setPendingFinancingCount(pending);
-      } catch (err) {
-        // silent
-      }
+      });
     };
-    updateCount();
-    window.addEventListener('rxm_financing_updated', updateCount);
-    return () => window.removeEventListener('rxm_financing_updated', updateCount);
-  }, []);
+    load();
+    const onUpdate = (event: Event) => {
+      const detail = (event as CustomEvent).detail;
+      if (detail?.source === 'server') load();
+    };
+    window.addEventListener('rxm_financing_updated', onUpdate);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('rxm_financing_updated', onUpdate);
+    };
+  }, [isFinancingEnabled, dealer.slug]);
   const handleSelectTab = (tab: AdminTabType) => {
     onTabChange(tab);
     if (onCloseMobile) onCloseMobile();
   };
-
-  const isReconEnabled = isTenantFeatureEnabled(dealer.features, 'reconTracker', dealer.slug);
-  const isFinancingEnabled = isTenantFeatureEnabled(dealer.features, 'financingPortfolio', dealer.slug);
 
   const navItems = [
     {

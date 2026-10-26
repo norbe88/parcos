@@ -9,9 +9,146 @@ import { SEED_FINANCING_DOSSIERS } from '../db/financingSeed';
 import { DealerLeadItem } from '../db/types';
 import { VehicleItem } from '../db/types';
 import { convertEurToRon, getBtExchangeRate } from '../utils/currencyEngine';
+import { getAdminAuthHeaders } from '../utils/adminAuth';
 
 export const FINANCING_STORAGE_KEY = 'rxm_financing_dossiers_store';
 export const FINANCING_CLEARED_KEY = 'rxm_financing_cleared_by_user';
+const DOSSIERS_CACHE_KEY = 'parcos_financing_dossiers_cache';
+
+export interface SharedDossiersResult {
+  ok: boolean;
+  dossiers: FinancingDossierItem[];
+  dealerSlug?: string;
+}
+
+export interface DossierWriteResult {
+  ok: boolean;
+  status: number;
+  dossier?: FinancingDossierItem;
+  duplicate?: boolean;
+}
+
+export interface DossierImportResult {
+  ok: boolean;
+  imported: number;
+  skipped: number;
+  acceptedIds: string[];
+}
+
+function notifyServerDossiers(): void {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('rxm_financing_updated', { detail: { source: 'server' } }));
+}
+
+/**
+ * Citește cheia locală fără să o populeze cu dosare demo.
+ * Lista parcului nu pornește de aici.
+ */
+export function readLocalFinancingBackup(): FinancingDossierItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(FINANCING_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function forgetLocalFinancingDossiers(ids: string[]): void {
+  if (typeof window === 'undefined' || ids.length === 0) return;
+  const drop = new Set(ids);
+  try {
+    const remaining = readLocalFinancingBackup().filter((dossier) => !drop.has(dossier.id));
+    localStorage.setItem(FINANCING_STORAGE_KEY, JSON.stringify(remaining));
+  } catch {
+    // backup-ul local rămâne dacă storage-ul refuză scrierea
+  }
+}
+
+export async function fetchSharedDossiers(): Promise<SharedDossiersResult> {
+  try {
+    const res = await fetch('/api/financing-dossiers', {
+      headers: { Accept: 'application/json', ...getAdminAuthHeaders() },
+    });
+    if (!res.ok) return { ok: false, dossiers: [] };
+    const json = await res.json();
+    const dossiers = Array.isArray(json?.dossiers) ? json.dossiers as FinancingDossierItem[] : [];
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(DOSSIERS_CACHE_KEY, JSON.stringify(dossiers));
+      } catch {
+        // cache-ul poate eșua fără să piardă lista de pe server
+      }
+    }
+    return {
+      ok: true,
+      dossiers,
+      dealerSlug: typeof json?.dealerSlug === 'string' ? json.dealerSlug : undefined,
+    };
+  } catch {
+    return { ok: false, dossiers: [] };
+  }
+}
+
+export async function createSharedDossier(dossier: FinancingDossierItem): Promise<DossierWriteResult> {
+  try {
+    const res = await fetch('/api/financing-dossiers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json', ...getAdminAuthHeaders() },
+      body: JSON.stringify(dossier),
+    });
+    const json = await res.json().catch(() => null);
+    if (!res.ok) return { ok: false, status: res.status };
+    notifyServerDossiers();
+    return {
+      ok: true,
+      status: res.status,
+      dossier: json?.dossier,
+      duplicate: json?.duplicate === true,
+    };
+  } catch {
+    return { ok: false, status: 0 };
+  }
+}
+
+export async function patchSharedDossier(dossierId: string, updates: Partial<FinancingDossierItem>): Promise<DossierWriteResult> {
+  try {
+    const res = await fetch(`/api/financing-dossiers/${encodeURIComponent(dossierId)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json', ...getAdminAuthHeaders() },
+      body: JSON.stringify(updates),
+    });
+    const json = await res.json().catch(() => null);
+    if (!res.ok) return { ok: false, status: res.status };
+    notifyServerDossiers();
+    return { ok: true, status: res.status, dossier: json?.dossier };
+  } catch {
+    return { ok: false, status: 0 };
+  }
+}
+
+export async function importSharedDossiers(dossiers: FinancingDossierItem[]): Promise<DossierImportResult> {
+  try {
+    const res = await fetch('/api/financing-dossiers/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json', ...getAdminAuthHeaders() },
+      body: JSON.stringify({ dossiers }),
+    });
+    const json = await res.json().catch(() => null);
+    if (!res.ok) return { ok: false, imported: 0, skipped: 0, acceptedIds: [] };
+    notifyServerDossiers();
+    return {
+      ok: true,
+      imported: Number(json?.imported) || 0,
+      skipped: Number(json?.skipped) || 0,
+      acceptedIds: Array.isArray(json?.acceptedIds) ? json.acceptedIds : [],
+    };
+  } catch {
+    return { ok: false, imported: 0, skipped: 0, acceptedIds: [] };
+  }
+}
 
 /**
  * Calculează rata lunară prin formula standard de anuitate:
@@ -142,26 +279,24 @@ export function deleteFinancingDossier(id: string): void {
 }
 
 /**
- * Helper: Creează automat un dosar de credit pornind de la un Lead CRM
+ * Construiește dosarul pornind de la un lead. Nu îl salvează.
+ * Rata și comisionul din obiect sunt orientative: serverul le rescrie.
  */
-export function createDossierFromLead(
+export function buildDossierFromLead(
   lead: DealerLeadItem,
   car?: VehicleItem | null,
   assignedOfficer: string = 'Consilier Finanțare'
 ): FinancingDossierItem {
-  const existing = getSavedFinancingDossiers();
-  const alreadyExists = existing.find((d) => d.leadId === lead.id);
-  if (alreadyExists) return alreadyExists;
-
   const priceEur = lead.carPriceEur || car?.priceEur || 0;
   const priceRon = convertEurToRon(priceEur);
   const tenureMonths = 60;
-  const interestRatePct = 7.9; // Rata TBI / BT implicită
+  const interestRatePct = 7.9;
   const financedAmountRon = priceRon;
   const monthlyInstallmentRon = calculateMonthlyRate(financedAmountRon, tenureMonths, interestRatePct);
   const brokerCommissionRon = calculateDealerCommission(financedAmountRon, 2.0);
+  const now = new Date().toISOString();
 
-  const newDossier: FinancingDossierItem = {
+  return {
     id: `dossier_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
     leadId: lead.id,
     carId: lead.carId || car?.id || 'necunoscut',
@@ -192,12 +327,40 @@ export function createDossierFromLead(
     commissionPayoutStatus: 'pending',
     assignedOfficer,
     internalNotes: `Inițiat automat din lead CRM (${lead.source}). Note lead: ${lead.notes || 'fără note'}`,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
   };
+}
 
+/**
+ * Helper local: păstrat pentru backup-ul din browser.
+ * Conducta comună folosește createSharedDossierFromLead.
+ */
+export function createDossierFromLead(
+  lead: DealerLeadItem,
+  car?: VehicleItem | null,
+  assignedOfficer: string = 'Consilier Finanțare'
+): FinancingDossierItem {
+  const existing = getSavedFinancingDossiers();
+  const alreadyExists = existing.find((d) => d.leadId === lead.id);
+  if (alreadyExists) return alreadyExists;
+
+  const newDossier = buildDossierFromLead(lead, car, assignedOfficer);
   saveFinancingDossier(newDossier);
   return newDossier;
+}
+
+/**
+ * Un singur dosar pe server pentru lead-ul parcului.
+ * Al doilea apel cu același leadId primește dosarul existent.
+ */
+export async function createSharedDossierFromLead(
+  lead: DealerLeadItem,
+  car?: VehicleItem | null,
+  assignedOfficer: string = 'Consilier Finanțare'
+): Promise<DossierWriteResult> {
+  const dossier = buildDossierFromLead(lead, car, assignedOfficer);
+  return createSharedDossier(dossier);
 }
 
 /**
@@ -260,9 +423,9 @@ export function createDossierFromCalculator(params: {
 }
 
 /**
- * Creează manual un dosar F&I nou gol
+ * Construiește un dosar manual. Nu îl salvează.
  */
-export function createManualDossier(car?: VehicleItem | null): FinancingDossierItem {
+export function draftManualDossier(car?: VehicleItem | null): FinancingDossierItem {
   const priceEur = car?.priceEur || 10000;
   const priceRon = convertEurToRon(priceEur);
   const tenureMonths = 60;
@@ -270,8 +433,9 @@ export function createManualDossier(car?: VehicleItem | null): FinancingDossierI
   const financedAmountRon = priceRon;
   const monthlyInstallmentRon = calculateMonthlyRate(financedAmountRon, tenureMonths, interestRatePct);
   const brokerCommissionRon = calculateDealerCommission(financedAmountRon, 2.0);
+  const now = new Date().toISOString();
 
-  const newDossier: FinancingDossierItem = {
+  return {
     id: `dos_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
     carId: car?.id || 'manual',
     carTitle: car ? `${car.brand} ${car.model} (${car.year})` : 'Vehicul Selectat',
@@ -300,10 +464,16 @@ export function createManualDossier(car?: VehicleItem | null): FinancingDossierI
     commissionPayoutStatus: 'pending',
     assignedOfficer: 'Consilier Finanțare',
     internalNotes: 'Creat manual din panoul F&I.',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
   };
+}
 
+/**
+ * Creează manual un dosar F&I nou gol în backup-ul local.
+ */
+export function createManualDossier(car?: VehicleItem | null): FinancingDossierItem {
+  const newDossier = draftManualDossier(car);
   saveFinancingDossier(newDossier);
   return newDossier;
 }

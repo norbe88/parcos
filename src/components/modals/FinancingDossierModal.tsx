@@ -124,8 +124,6 @@ export const FinancingDossierModal: React.FC<FinancingDossierModalProps> = ({
     };
 
     onSave(updated);
-    showToast(`✅ Dosar ${updated.clientName} actualizat cu succes!`);
-    onClose();
   };
 
   const completedDocsCount = Object.values(documents).filter(Boolean).length;

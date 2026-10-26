@@ -254,6 +254,51 @@ export async function initDatabase() {
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_dealer_leads_slug_created ON dealer_leads (dealer_slug, created_at DESC);`;
 
+    // Dosare F&I comune per parc. Sumele rămân nule până la completare. TVA vehiculului nu se recalculează aici.
+    await sql`
+      CREATE TABLE IF NOT EXISTS financing_dossiers (
+        id                        TEXT          PRIMARY KEY,
+        dealer_slug               TEXT          NOT NULL,
+        lead_id                   TEXT,
+        car_id                    TEXT,
+        car_title                 TEXT,
+        car_price_eur             NUMERIC(12,2),
+        car_price_ron             NUMERIC(12,2),
+        client_name               TEXT,
+        client_phone              TEXT,
+        client_email              TEXT,
+        client_cnp                TEXT,
+        client_employment_type    TEXT,
+        monthly_net_income_ron    NUMERIC(12,2),
+        existing_debts_ron        NUMERIC(12,2),
+        creditor                  TEXT,
+        down_payment_eur          NUMERIC(12,2),
+        down_payment_ron          NUMERIC(12,2),
+        down_payment_pct          NUMERIC(6,2),
+        financed_amount_ron       NUMERIC(12,2),
+        tenure_months             INTEGER,
+        interest_rate_pct         NUMERIC(6,2),
+        monthly_installment_ron   NUMERIC(12,2),
+        status                    TEXT          NOT NULL DEFAULT 'draft',
+        rejection_reason          TEXT,
+        condition_notes           TEXT,
+        documents                 JSONB         NOT NULL DEFAULT '{"idCardUploaded":false,"anafConsentSigned":false,"incomeProofUploaded":false,"bankContractUploaded":false}'::jsonb,
+        broker_commission_pct     NUMERIC(6,2),
+        broker_commission_ron     NUMERIC(12,2),
+        commission_payout_status  TEXT          NOT NULL DEFAULT 'pending',
+        assigned_officer          TEXT,
+        internal_notes            TEXT,
+        created_at                TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+        updated_at                TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+      );
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_financing_dossiers_slug_updated ON financing_dossiers (dealer_slug, updated_at DESC);`;
+    await sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_financing_dossiers_dealer_lead
+      ON financing_dossiers (dealer_slug, lead_id)
+      WHERE lead_id IS NOT NULL;
+    `;
+
     // 1. Inițializare tabelă vehicule
     await sql`
       CREATE TABLE IF NOT EXISTS vehicles (
@@ -1626,5 +1671,153 @@ export async function deleteDealerLead(id, dealerSlug) {
     RETURNING id
   `;
   return rows.length > 0;
+}
+
+/**
+ * Dosarele F&I ale unui singur parc, cele mai recent actualizate primele.
+ */
+export async function listFinancingDossiers(dealerSlug) {
+  const sql = getSql();
+  const slug = cleanDealerSlug(dealerSlug);
+  return await sql`
+    SELECT * FROM financing_dossiers
+    WHERE dealer_slug = ${slug}
+    ORDER BY updated_at DESC
+  `;
+}
+
+export async function findFinancingDossierOwner(id) {
+  const sql = getSql();
+  const rows = await sql`SELECT dealer_slug FROM financing_dossiers WHERE id = ${id} LIMIT 1`;
+  return rows[0]?.dealer_slug ? String(rows[0].dealer_slug) : null;
+}
+
+export async function findFinancingDossierByLead(dealerSlug, leadId) {
+  const lead = String(leadId || '').trim();
+  if (!lead) return null;
+  const sql = getSql();
+  const slug = cleanDealerSlug(dealerSlug);
+  const rows = await sql`
+    SELECT * FROM financing_dossiers
+    WHERE dealer_slug = ${slug} AND lead_id = ${lead}
+    LIMIT 1
+  `;
+  return rows[0] || null;
+}
+
+export async function findFinancingDossier(id, dealerSlug) {
+  const sql = getSql();
+  const slug = cleanDealerSlug(dealerSlug);
+  const rows = await sql`
+    SELECT * FROM financing_dossiers
+    WHERE id = ${id} AND dealer_slug = ${slug}
+    LIMIT 1
+  `;
+  return rows[0] || null;
+}
+
+export async function insertFinancingDossier(row) {
+  const sql = getSql();
+  try {
+    const rows = await sql`
+      INSERT INTO financing_dossiers (
+        id, dealer_slug, lead_id, car_id, car_title,
+        car_price_eur, car_price_ron,
+        client_name, client_phone, client_email, client_cnp, client_employment_type,
+        monthly_net_income_ron, existing_debts_ron,
+        creditor, down_payment_eur, down_payment_ron, down_payment_pct,
+        financed_amount_ron, tenure_months, interest_rate_pct, monthly_installment_ron,
+        status, rejection_reason, condition_notes, documents,
+        broker_commission_pct, broker_commission_ron, commission_payout_status,
+        assigned_officer, internal_notes, created_at, updated_at
+      ) VALUES (
+        ${row.id},
+        ${cleanDealerSlug(row.dealerSlug)},
+        ${row.leadId ?? null},
+        ${row.carId ?? null},
+        ${row.carTitle ?? null},
+        ${row.carPriceEur ?? null},
+        ${row.carPriceRon ?? null},
+        ${row.clientName ?? null},
+        ${row.clientPhone ?? null},
+        ${row.clientEmail ?? null},
+        ${row.clientCnp ?? null},
+        ${row.clientEmploymentType ?? null},
+        ${row.monthlyNetIncomeRon ?? null},
+        ${row.existingDebtsRon ?? null},
+        ${row.creditor ?? null},
+        ${row.downPaymentEur ?? null},
+        ${row.downPaymentRon ?? null},
+        ${row.downPaymentPct ?? null},
+        ${row.financedAmountRon ?? null},
+        ${row.tenureMonths ?? null},
+        ${row.interestRatePct ?? null},
+        ${row.monthlyInstallmentRon ?? null},
+        ${row.status || 'draft'},
+        ${row.rejectionReason ?? null},
+        ${row.conditionNotes ?? null},
+        ${sql.json(row.documents || {})},
+        ${row.brokerCommissionPct ?? null},
+        ${row.brokerCommissionRon ?? null},
+        ${row.commissionPayoutStatus || 'pending'},
+        ${row.assignedOfficer ?? null},
+        ${row.internalNotes ?? null},
+        ${row.createdAt || new Date().toISOString()},
+        ${row.updatedAt || new Date().toISOString()}
+      )
+      ON CONFLICT (id) DO NOTHING
+      RETURNING *
+    `;
+    return rows[0] || null;
+  } catch (err) {
+    if (err && err.code === '23505') return null;
+    throw err;
+  }
+}
+
+export async function updateFinancingDossier(id, dealerSlug, row) {
+  const sql = getSql();
+  const slug = cleanDealerSlug(dealerSlug);
+  try {
+    const rows = await sql`
+      UPDATE financing_dossiers SET
+        lead_id = ${row.leadId ?? null},
+        car_id = ${row.carId ?? null},
+        car_title = ${row.carTitle ?? null},
+        car_price_eur = ${row.carPriceEur ?? null},
+        car_price_ron = ${row.carPriceRon ?? null},
+        client_name = ${row.clientName ?? null},
+        client_phone = ${row.clientPhone ?? null},
+        client_email = ${row.clientEmail ?? null},
+        client_cnp = ${row.clientCnp ?? null},
+        client_employment_type = ${row.clientEmploymentType ?? null},
+        monthly_net_income_ron = ${row.monthlyNetIncomeRon ?? null},
+        existing_debts_ron = ${row.existingDebtsRon ?? null},
+        creditor = ${row.creditor ?? null},
+        down_payment_eur = ${row.downPaymentEur ?? null},
+        down_payment_ron = ${row.downPaymentRon ?? null},
+        down_payment_pct = ${row.downPaymentPct ?? null},
+        financed_amount_ron = ${row.financedAmountRon ?? null},
+        tenure_months = ${row.tenureMonths ?? null},
+        interest_rate_pct = ${row.interestRatePct ?? null},
+        monthly_installment_ron = ${row.monthlyInstallmentRon ?? null},
+        status = ${row.status || 'draft'},
+        rejection_reason = ${row.rejectionReason ?? null},
+        condition_notes = ${row.conditionNotes ?? null},
+        documents = ${sql.json(row.documents || {})},
+        broker_commission_pct = ${row.brokerCommissionPct ?? null},
+        broker_commission_ron = ${row.brokerCommissionRon ?? null},
+        commission_payout_status = ${row.commissionPayoutStatus || 'pending'},
+        assigned_officer = ${row.assignedOfficer ?? null},
+        internal_notes = ${row.internalNotes ?? null},
+        updated_at = NOW()
+      WHERE id = ${id} AND dealer_slug = ${slug}
+      RETURNING *
+    `;
+    return rows[0] || null;
+  } catch (err) {
+    if (err && err.code === '23505') return null;
+    throw err;
+  }
 }
 

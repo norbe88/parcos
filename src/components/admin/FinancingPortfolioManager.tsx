@@ -14,14 +14,14 @@ import {
   DealerProfile 
 } from '../../db/types';
 import { 
-  getSavedFinancingDossiers, 
-  saveFinancingDossier, 
-  updateDossierStatus, 
-  deleteFinancingDossier, 
-  createManualDossier, 
-  updateCommissionPayoutStatus, 
-  downloadFinancingCsv, 
-  hardResetAllFinancingDossiers 
+  readLocalFinancingBackup,
+  forgetLocalFinancingDossiers,
+  fetchSharedDossiers,
+  createSharedDossier,
+  patchSharedDossier,
+  importSharedDossiers,
+  draftManualDossier,
+  downloadFinancingCsv,
 } from '../../services/financingService';
 import { 
   convertEurToRon, 
@@ -111,22 +111,35 @@ export const FinancingPortfolioManager: React.FC<FinancingPortfolioManagerProps>
   onStatusChange,
   onOpenSalesDocs,
 }) => {
-  const [dossiers, setDossiers] = useState<FinancingDossierItem[]>(() => getSavedFinancingDossiers());
+  const [dossiers, setDossiers] = useState<FinancingDossierItem[]>([]);
   const [activeTab, setActiveTab] = useState<MainTab>('pipeline');
   const [viewMode, setViewMode] = useState<ViewMode>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCreditor, setSelectedCreditor] = useState<string>('all');
   const [selectedDossier, setSelectedDossier] = useState<FinancingDossierItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [localBackupCount, setLocalBackupCount] = useState(0);
+  const [importingDossiers, setImportingDossiers] = useState(false);
 
-  // Ascultare evenimente stocare reactivă
+  const replaceDossier = (next: FinancingDossierItem) => {
+    setDossiers((prev) => prev.map((item) => (item.id === next.id ? next : item)));
+  };
+
   useEffect(() => {
-    const handleUpdate = () => {
-      setDossiers(getSavedFinancingDossiers());
+    let cancelled = false;
+    setLocalBackupCount(readLocalFinancingBackup().length);
+    void fetchSharedDossiers().then((result) => {
+      if (cancelled) return;
+      if (!result.ok) {
+        showToast('Portofoliul comun nu a putut fi încărcat.');
+        return;
+      }
+      setDossiers(result.dossiers);
+    });
+    return () => {
+      cancelled = true;
     };
-    window.addEventListener('rxm_financing_updated', handleUpdate);
-    return () => window.removeEventListener('rxm_financing_updated', handleUpdate);
-  }, []);
+  }, [dealer?.slug]);
 
   // Filtrare dosare
   const filteredDossiers = useMemo(() => {
@@ -177,33 +190,66 @@ export const FinancingPortfolioManager: React.FC<FinancingPortfolioManagerProps>
 
   // Schimbare status cu sincronizare stoc (Ticket 10)
   const handleQuickStatusChange = (dossier: FinancingDossierItem, newStatus: FinancingDossierStatus) => {
-    updateDossierStatus(dossier.id, newStatus);
-    showToast(`Status actualizat la: ${newStatus.toUpperCase()}`);
+    void patchSharedDossier(dossier.id, { status: newStatus }).then((result) => {
+      if (!result.ok || !result.dossier) {
+        showToast(result.status === 404
+          ? 'Acest dosar nu aparține parcului curent.'
+          : 'Stadiul dosarului nu a fost salvat pe server.');
+        return;
+      }
+      replaceDossier(result.dossier);
+      showToast(`Status actualizat la: ${newStatus.toUpperCase()}`);
 
-    // Sincronizare stoc mașină (Anti-Vânzare Dublă)
-    if (dossier.carId && onStatusChange) {
-      const targetCar = cars.find((c) => c.id === dossier.carId);
-      if (targetCar) {
-        if (['approved', 'contract_signed'].includes(newStatus) && targetCar.status === 'in_stock') {
-          onStatusChange(targetCar.id, 'reserved');
-          showToast(`🚗 Vehiculul "${targetCar.brand} ${targetCar.model}" a fost marcat automat ca REZERVAT.`);
-        } else if (newStatus === 'funded' && targetCar.status !== 'sold') {
-          onStatusChange(targetCar.id, 'sold', dossier.carPriceEur, new Date().toISOString());
-          showToast(`🎉 Dosar decontat! Vehiculul "${targetCar.brand} ${targetCar.model}" a fost marcat ca VÂNDUT.`);
-        } else if (['rejected', 'canceled'].includes(newStatus) && targetCar.status === 'reserved') {
-          onStatusChange(targetCar.id, 'in_stock');
-          showToast(`ℹ️ Dosar închis. Vehiculul "${targetCar.brand} ${targetCar.model}" a revenit ÎN STOC.`);
+      if (dossier.carId && onStatusChange) {
+        const targetCar = cars.find((c) => c.id === dossier.carId);
+        if (targetCar) {
+          if (['approved', 'contract_signed'].includes(newStatus) && targetCar.status === 'in_stock') {
+            onStatusChange(targetCar.id, 'reserved');
+            showToast(`🚗 Vehiculul "${targetCar.brand} ${targetCar.model}" a fost marcat automat ca REZERVAT.`);
+          } else if (newStatus === 'funded' && targetCar.status !== 'sold') {
+            onStatusChange(targetCar.id, 'sold', dossier.carPriceEur, new Date().toISOString());
+            showToast(`🎉 Dosar decontat! Vehiculul "${targetCar.brand} ${targetCar.model}" a fost marcat ca VÂNDUT.`);
+          } else if (['rejected', 'canceled'].includes(newStatus) && targetCar.status === 'reserved') {
+            onStatusChange(targetCar.id, 'in_stock');
+            showToast(`ℹ️ Dosar închis. Vehiculul "${targetCar.brand} ${targetCar.model}" a revenit ÎN STOC.`);
+          }
         }
       }
-    }
+    });
   };
 
   // Creare manuală dosar
   const handleCreateNew = () => {
-    const fresh = createManualDossier(cars[0] || null);
-    setSelectedDossier(fresh);
-    setIsModalOpen(true);
-    showToast('Dosar nou F&I creat. Completați datele clientului.');
+    const fresh = draftManualDossier(cars[0] || null);
+    void createSharedDossier(fresh).then((result) => {
+      if (!result.ok || !result.dossier) {
+        showToast('Dosarul nou nu a fost creat pe server.');
+        return;
+      }
+      setDossiers((prev) => [result.dossier!, ...prev.filter((item) => item.id !== result.dossier!.id)]);
+      setSelectedDossier(result.dossier);
+      setIsModalOpen(true);
+      showToast('Dosar nou F&I creat. Completați datele clientului.');
+    });
+  };
+
+  const handleImportLocalDossiers = () => {
+    if (importingDossiers) return;
+    const localDossiers = readLocalFinancingBackup();
+    if (localDossiers.length === 0) return;
+    setImportingDossiers(true);
+    void importSharedDossiers(localDossiers).then(async (result) => {
+      setImportingDossiers(false);
+      if (!result.ok) {
+        showToast('Importul nu a ajuns pe server. Lista locală a rămas neschimbată.');
+        return;
+      }
+      forgetLocalFinancingDossiers(result.acceptedIds);
+      setLocalBackupCount(readLocalFinancingBackup().length);
+      const refreshed = await fetchSharedDossiers();
+      if (refreshed.ok) setDossiers(refreshed.dossiers);
+      showToast(`Import încheiat: ${result.imported} dosare noi, ${result.skipped} sărite.`);
+    });
   };
 
   const handleOpenDossier = (dossier: FinancingDossierItem) => {
@@ -212,9 +258,18 @@ export const FinancingPortfolioManager: React.FC<FinancingPortfolioManagerProps>
   };
 
   const handleSaveModal = (updated: FinancingDossierItem) => {
-    saveFinancingDossier(updated);
-    setIsModalOpen(false);
-    showToast('Dosarul de finanțare a fost actualizat cu succes.');
+    void patchSharedDossier(updated.id, updated).then((result) => {
+      if (!result.ok || !result.dossier) {
+        showToast(result.status === 404
+          ? 'Acest dosar nu aparține parcului curent.'
+          : 'Dosarul nu a fost salvat pe server.');
+        return;
+      }
+      replaceDossier(result.dossier);
+      setSelectedDossier(result.dossier);
+      setIsModalOpen(false);
+      showToast('Dosarul de finanțare a fost actualizat cu succes.');
+    });
   };
 
   // Link WhatsApp direct
@@ -252,6 +307,16 @@ export const FinancingPortfolioManager: React.FC<FinancingPortfolioManagerProps>
 
         {/* Butoane Acțiuni Top */}
         <div className="flex items-center gap-2 flex-wrap">
+          {localBackupCount > 0 && (
+            <button
+              type="button"
+              onClick={handleImportLocalDossiers}
+              disabled={importingDossiers}
+              className="px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-card text-foreground border border-border min-h-[44px] touch-manipulation active:scale-[0.98] disabled:opacity-60"
+            >
+              {importingDossiers ? 'Se importă...' : `Importă ${localBackupCount} dosare locale`}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => downloadFinancingCsv(dossiers)}
@@ -725,8 +790,15 @@ export const FinancingPortfolioManager: React.FC<FinancingPortfolioManagerProps>
                           <select
                             value={payoutStatus}
                             onChange={(e) => {
-                              updateCommissionPayoutStatus(dossier.id, e.target.value as any);
-                              showToast(`Status comision actualizat: ${e.target.value.toUpperCase()}`);
+                              const payout = e.target.value as FinancingDossierItem['commissionPayoutStatus'];
+                              void patchSharedDossier(dossier.id, { commissionPayoutStatus: payout }).then((result) => {
+                                if (!result.ok || !result.dossier) {
+                                  showToast('Comisionul nu a fost salvat pe server.');
+                                  return;
+                                }
+                                replaceDossier(result.dossier);
+                                showToast(`Status comision actualizat: ${payout.toUpperCase()}`);
+                              });
                             }}
                             aria-label="Schimbă statusul plății comisionului"
                             className="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-[11px] text-zinc-300 focus:outline-none focus:border-amber-500/40 cursor-pointer"
