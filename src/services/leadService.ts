@@ -5,10 +5,31 @@
  */
 
 import { DealerLeadItem, DealerLeadStatus } from '../db/types';
+import { getAdminAuthHeaders } from '../utils/adminAuth';
 
 export const LEADS_STORAGE_KEY = 'rxm_dealer_leads_store';
 export const INTERACTIONS_STORAGE_KEY = 'rxm_showroom_interactions_store';
 export const CLEARED_BY_USER_KEY = 'rxm_leads_cleared_by_user';
+const LEADS_CACHE_KEY = 'parcos_dealer_leads_cache';
+
+export interface SharedLeadsResult {
+  ok: boolean;
+  leads: DealerLeadItem[];
+  dealerSlug?: string;
+}
+
+export interface LeadWriteResult {
+  ok: boolean;
+  status: number;
+  lead?: DealerLeadItem;
+}
+
+export interface LeadImportResult {
+  ok: boolean;
+  imported: number;
+  skipped: number;
+  acceptedIds: string[];
+}
 
 export interface ShowroomInteractionItem {
   id: string;
@@ -25,8 +46,140 @@ function getDefaultRecontactDate(): string {
   return d.toISOString().split('T')[0];
 }
 
+function readLeadsCache(): DealerLeadItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(LEADS_CACHE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeLeadsCache(leads: DealerLeadItem[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(LEADS_CACHE_KEY, JSON.stringify(leads));
+  } catch {
+    // cache-ul local poate eșua fără să piardă lista de pe server
+  }
+}
+
+function forgetLocalLead(leadId: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const remaining = getSavedLeads().filter((lead) => lead.id !== leadId);
+    localStorage.setItem(LEADS_STORAGE_KEY, JSON.stringify(remaining));
+  } catch {
+    // backup-ul local rămâne dacă storage-ul refuză scrierea
+  }
+}
+
+export function forgetLocalLeads(ids: string[]): void {
+  if (typeof window === 'undefined' || ids.length === 0) return;
+  const drop = new Set(ids);
+  try {
+    const remaining = getSavedLeads().filter((lead) => !drop.has(lead.id));
+    localStorage.setItem(LEADS_STORAGE_KEY, JSON.stringify(remaining));
+  } catch {
+    // păstrăm backup-ul dacă nu poate fi rescris
+  }
+}
+
 /**
- * Returnează toate lead-urile salvate din depozitul persistent
+ * Ultima listă primită de la server. Nu este sursa de lead-uri noi.
+ */
+export function readSharedLeadsCache(): DealerLeadItem[] {
+  return readLeadsCache();
+}
+
+export async function fetchSharedLeads(): Promise<SharedLeadsResult> {
+  try {
+    const res = await fetch('/api/leads', {
+      headers: { Accept: 'application/json', ...getAdminAuthHeaders() },
+    });
+    if (!res.ok) return { ok: false, leads: readLeadsCache() };
+    const json = await res.json();
+    const leads = Array.isArray(json?.leads) ? json.leads as DealerLeadItem[] : [];
+    writeLeadsCache(leads);
+    return {
+      ok: true,
+      leads,
+      dealerSlug: typeof json?.dealerSlug === 'string' ? json.dealerSlug : undefined,
+    };
+  } catch {
+    return { ok: false, leads: readLeadsCache() };
+  }
+}
+
+export async function createSharedLead(lead: DealerLeadItem): Promise<LeadWriteResult> {
+  try {
+    const res = await fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json', ...getAdminAuthHeaders() },
+      body: JSON.stringify(lead),
+    });
+    const json = await res.json().catch(() => null);
+    if (!res.ok) return { ok: false, status: res.status };
+    return { ok: true, status: res.status, lead: json?.lead };
+  } catch {
+    return { ok: false, status: 0 };
+  }
+}
+
+export async function patchSharedLead(leadId: string, updates: Partial<DealerLeadItem>): Promise<LeadWriteResult> {
+  try {
+    const res = await fetch(`/api/leads/${encodeURIComponent(leadId)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json', ...getAdminAuthHeaders() },
+      body: JSON.stringify(updates),
+    });
+    const json = await res.json().catch(() => null);
+    if (!res.ok) return { ok: false, status: res.status };
+    return { ok: true, status: res.status, lead: json?.lead };
+  } catch {
+    return { ok: false, status: 0 };
+  }
+}
+
+export async function deleteSharedLead(leadId: string): Promise<LeadWriteResult> {
+  try {
+    const res = await fetch(`/api/leads/${encodeURIComponent(leadId)}`, {
+      method: 'DELETE',
+      headers: { Accept: 'application/json', ...getAdminAuthHeaders() },
+    });
+    if (!res.ok) return { ok: false, status: res.status };
+    return { ok: true, status: res.status };
+  } catch {
+    return { ok: false, status: 0 };
+  }
+}
+
+export async function importSharedLeads(leads: DealerLeadItem[]): Promise<LeadImportResult> {
+  try {
+    const res = await fetch('/api/leads/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json', ...getAdminAuthHeaders() },
+      body: JSON.stringify({ leads }),
+    });
+    const json = await res.json().catch(() => null);
+    if (!res.ok) return { ok: false, imported: 0, skipped: 0, acceptedIds: [] };
+    return {
+      ok: true,
+      imported: Number(json?.imported) || 0,
+      skipped: Number(json?.skipped) || 0,
+      acceptedIds: Array.isArray(json?.acceptedIds) ? json.acceptedIds : [],
+    };
+  } catch {
+    return { ok: false, imported: 0, skipped: 0, acceptedIds: [] };
+  }
+}
+
+/**
+ * Backup local pentru cererile care nu au ajuns pe server.
+ * Nu alimentează lista din Kanban.
  */
 export function getSavedLeads(): DealerLeadItem[] {
   if (typeof window === 'undefined') return [];
@@ -141,8 +294,6 @@ export function recordIncomingLead(leadData: {
       const updated = [newLead, ...existing];
       localStorage.setItem(LEADS_STORAGE_KEY, JSON.stringify(updated));
       localStorage.removeItem(CLEARED_BY_USER_KEY);
-      window.dispatchEvent(new CustomEvent('rxm_lead_created', { detail: newLead }));
-      // Înregistrăm și ca interacțiune
       recordShowroomInteraction(
         leadData.scheduledTestDriveAt ? 'testdrive' : leadData.source === 'whatsapp' ? 'whatsapp' : 'call',
         { carId: leadData.carId, carTitle: leadData.carTitle }
@@ -150,6 +301,10 @@ export function recordIncomingLead(leadData: {
     } catch (err) {
       console.error('Eroare la salvarea lead-ului:', err);
     }
+    void createSharedLead(newLead).then((result) => {
+      if (result.ok) forgetLocalLead(newLead.id);
+      window.dispatchEvent(new CustomEvent('rxm_lead_created', { detail: newLead }));
+    });
   }
 
   return newLead;
@@ -214,7 +369,7 @@ export function archiveLeadAsLost(leadId: string, lossReason?: string): void {
  * Returnează lead-urile care necesită recontactare astăzi sau sunt depășite
  */
 export function getPendingFollowUps(): { dueToday: DealerLeadItem[]; overdue: DealerLeadItem[] } {
-  const all = getSavedLeads().filter(l => l.status !== 'closed_won' && l.status !== 'closed_lost');
+  const all = readLeadsCache().filter(l => l.status !== 'closed_won' && l.status !== 'closed_lost');
   const today = new Date().toISOString().split('T')[0];
 
   const dueToday = all.filter(l => l.recontactDate === today);
@@ -227,7 +382,7 @@ export function getPendingFollowUps(): { dueToday: DealerLeadItem[]; overdue: De
  * Exportă registrul complet de oportunități în format CSV compatibil Excel / Google Sheets
  */
 export function exportLeadsToCsv(leadsParam?: DealerLeadItem[]): void {
-  const leads = leadsParam && leadsParam.length > 0 ? leadsParam : getSavedLeads();
+  const leads = leadsParam && leadsParam.length > 0 ? leadsParam : readLeadsCache();
   if (leads.length === 0) {
     alert('Nu există lead-uri salvate în sistem pentru export.');
     return;

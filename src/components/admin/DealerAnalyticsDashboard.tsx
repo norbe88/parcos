@@ -7,7 +7,7 @@ import {
   Flame, HelpCircle, Info, SlidersHorizontal, ArrowDownUp,
   Percent, ChevronRight, ExternalLink, ShieldAlert, Tag, Star
 } from 'lucide-react';
-import { VehicleItem, MarketPriceEvaluation } from '../../db/types';
+import { VehicleItem, MarketPriceEvaluation, DealerLeadItem } from '../../db/types';
 import { 
   calculateVehicleFinancials, 
   getStockNumber, 
@@ -19,9 +19,9 @@ import {
 import { evaluateMarketPrice } from '../../utils/marketPriceEngine';
 import { DealPriceModal, DealPricingData } from './DealPriceModal';
 import { 
-  getSavedLeads, 
   getSavedInteractions, 
-  hardResetAllLeadsAndAnalytics 
+  hardResetAllLeadsAndAnalytics,
+  fetchSharedLeads,
 } from '../../services/leadService';
 
 export type TimeframeMode = 'today' | '7d' | '30d' | 'month' | 'year' | 'all' | 'custom';
@@ -97,20 +97,24 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
   // Lead-uri și interacțiuni reale din depozitul local
-  const [realLeads, setRealLeads] = useState(() => getSavedLeads());
+  const [realLeads, setRealLeads] = useState<DealerLeadItem[]>([]);
   const [realInteractions, setRealInteractions] = useState(() => getSavedInteractions());
 
-  // Ascultăm evenimente pentru sincronizare în timp real
   useEffect(() => {
-    const handleLeadsUpdated = () => setRealLeads(getSavedLeads());
+    let cancelled = false;
+    const refreshLeads = () => {
+      void fetchSharedLeads().then((result) => {
+        if (!cancelled) setRealLeads(result.leads);
+      });
+    };
+    refreshLeads();
     const handleInteractionsUpdated = () => setRealInteractions(getSavedInteractions());
-    window.addEventListener('rxm_leads_updated' as any, handleLeadsUpdated);
-    window.addEventListener('rxm_lead_created' as any, handleLeadsUpdated);
-    window.addEventListener('rxm_interactions_updated' as any, handleInteractionsUpdated);
+    window.addEventListener('rxm_lead_created', refreshLeads);
+    window.addEventListener('rxm_interactions_updated', handleInteractionsUpdated);
     return () => {
-      window.removeEventListener('rxm_leads_updated' as any, handleLeadsUpdated);
-      window.removeEventListener('rxm_lead_created' as any, handleLeadsUpdated);
-      window.removeEventListener('rxm_interactions_updated' as any, handleInteractionsUpdated);
+      cancelled = true;
+      window.removeEventListener('rxm_lead_created', refreshLeads);
+      window.removeEventListener('rxm_interactions_updated', handleInteractionsUpdated);
     };
   }, []);
 
@@ -324,9 +328,9 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
   // Handler executare Hard Reset Lead-uri
   const handleExecuteHardReset = () => {
     hardResetAllLeadsAndAnalytics();
-    setRealLeads([]);
     setRealInteractions([]);
     setIsResetConfirmOpen(false);
+    void fetchSharedLeads().then((result) => setRealLeads(result.leads));
   };
 
   // =========================================================================
@@ -1412,9 +1416,9 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
               <RotateCcw className="w-6 h-6" />
             </div>
             <div className="text-center">
-              <h3 className="text-base font-bold text-white">Resetare Lead-uri la 0</h3>
+              <h3 className="text-base font-bold text-white">Reset contoare locale</h3>
               <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-                Sigur doriți să resetați toate lead-urile și interacțiunile din sistem la <strong className="text-white">0</strong>? Toate numărătorile vor reîncepe curat de la zero.
+                Se golesc interacțiunile și backup-ul din acest browser. Lead-urile comune ale parcului rămân pe server.
               </p>
             </div>
             <div className="flex items-center gap-3 pt-2">

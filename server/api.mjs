@@ -77,6 +77,7 @@ import { handleSuperAdminRoutes } from './routes/superadmin.mjs';
 import { handleBackupRoutes } from './routes/backups.mjs';
 import { handleAnafRoutes } from './routes/anaf.mjs';
 import { handleAuthRoutes } from './routes/auth.mjs';
+import { handleLeadRoutes } from './routes/leads.mjs';
 
 const PORT = process.env.PORT || 3000;
 const DEALER_SLUG = process.env.DEALER_SLUG || 'rxm';
@@ -1680,6 +1681,15 @@ export const server = http.createServer(async (req, res) => {
     // Izolare strictă: Se servește DOAR pe parcos.ro & www.parcos.ro la / și /lp-assets/*
     // Toate celelalte căi și domeniile tenanților merg neschimbate către aplicație
     if (await tryServeLanding(req, res, urlObj, pathname)) {
+      return;
+    }
+
+    if (await handleLeadRoutes(req, res, urlObj, pathname, {
+      sendJson,
+      readRequestBody,
+      resolveTenant,
+      isAuthorizedAdmin,
+    })) {
       return;
     }
 

@@ -7,15 +7,17 @@ import {
   Pencil, Trash2, Archive, DollarSign, TrendingUp, AlertTriangle, RefreshCw,
   GripVertical
 } from 'lucide-react';
-import { VehicleItem, DealerLeadItem, DealerLeadStatus, SEED_DEALER, DealerProfile } from '../../db/seed';
+import { VehicleItem, DealerLeadItem, DealerLeadStatus, SEED_DEALER, DealerProfile, isTenantFeatureEnabled } from '../../db/seed';
 import { 
   downloadLeadsCsv, 
   hardResetAllLeadsAndAnalytics, 
-  LEADS_STORAGE_KEY, 
-  CLEARED_BY_USER_KEY,
-  deleteLead,
-  archiveLeadAsLost,
-  updateLead
+  getSavedLeads,
+  forgetLocalLeads,
+  fetchSharedLeads,
+  createSharedLead,
+  patchSharedLead,
+  deleteSharedLead,
+  importSharedLeads,
 } from '../../services/leadService';
 import { createDossierFromLead } from '../../services/financingService';
 
@@ -116,27 +118,10 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
   onStatusChange,
   onOpenSalesDocs
 }) => {
-  const [leads, setLeads] = useState<DealerLeadItem[]>(() => {
-    try {
-      const isCleared = localStorage.getItem(CLEARED_BY_USER_KEY);
-      if (isCleared === 'true') {
-        const saved = localStorage.getItem(LEADS_STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) return parsed;
-        }
-        return [];
-      }
-      const saved = localStorage.getItem(LEADS_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {
-      console.warn('Nu s-au putut încărca lead-urile din localStorage:', e);
-    }
-    return [];
-  });
+  const [leads, setLeads] = useState<DealerLeadItem[]>([]);
+  const [leadsStale, setLeadsStale] = useState(false);
+  const [localBackupCount, setLocalBackupCount] = useState(0);
+  const [importingLeads, setImportingLeads] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileStageFilter, setMobileStageFilter] = useState<'all' | DealerLeadStatus>('all');
@@ -180,38 +165,67 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
   const [editTestDriveAt, setEditTestDriveAt] = useState('');
   const [editRecontactDate, setEditRecontactDate] = useState('');
 
-  // Sincronizare la evenimente de actualizare externă a lead-urilor
-  useEffect(() => {
-    const handleLeadsUpdated = (e: any) => {
-      if (Array.isArray(e.detail)) {
-        setLeads(e.detail);
-      }
-    };
-    window.addEventListener('rxm_leads_updated' as any, handleLeadsUpdated);
-    return () => window.removeEventListener('rxm_leads_updated' as any, handleLeadsUpdated);
-  }, []);
+  const refreshLocalBackupCount = () => setLocalBackupCount(getSavedLeads().length);
 
-  // Salvare persistentă în localStorage
+  const loadSharedLeads = async () => {
+    const result = await fetchSharedLeads();
+    setLeads(result.leads);
+    setLeadsStale(!result.ok);
+    return result.ok;
+  };
+
   useEffect(() => {
-    try {
-      localStorage.setItem(LEADS_STORAGE_KEY, JSON.stringify(leads));
-    } catch (e) {
-      console.error(e);
-    }
-  }, [leads]);
+    let cancelled = false;
+    refreshLocalBackupCount();
+    fetchSharedLeads().then((result) => {
+      if (cancelled) return;
+      setLeads(result.leads);
+      setLeadsStale(!result.ok);
+    });
+    const handleCreated = () => {
+      refreshLocalBackupCount();
+      void loadSharedLeads();
+    };
+    window.addEventListener('rxm_lead_created', handleCreated);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('rxm_lead_created', handleCreated);
+    };
+  }, [dealer?.slug]);
 
   const handleHardReset = () => {
     hardResetAllLeadsAndAnalytics();
-    setLeads([]);
+    refreshLocalBackupCount();
     setIsResetConfirmOpen(false);
-    showToast('🧹 Hard Reset complet: Toate lead-urile și datele analitice au început de la 0!');
+    void loadSharedLeads();
+    showToast('Contoarele locale au fost resetate. Conducta comună a parcului a rămas pe server.');
   };
 
-  const handleLoadDemoLeads = () => {
-    localStorage.removeItem(CLEARED_BY_USER_KEY);
-    setLeads(SEED_LEADS);
-    localStorage.setItem(LEADS_STORAGE_KEY, JSON.stringify(SEED_LEADS));
-    showToast('📋 Au fost reîncărcate 5 lead-uri demo pentru testarea conductei CRM.');
+  const handleLoadDemoLeads = async () => {
+    const result = await importSharedLeads(SEED_LEADS);
+    if (!result.ok) {
+      showToast('Lead-urile demo nu au ajuns pe server.');
+      return;
+    }
+    await loadSharedLeads();
+    showToast('Cele 5 lead-uri demo au fost încărcate în conducta parcului.');
+  };
+
+  const handleImportLocalLeads = async () => {
+    if (importingLeads || !dealer?.slug) return;
+    const localLeads = getSavedLeads();
+    if (localLeads.length === 0) return;
+    setImportingLeads(true);
+    const result = await importSharedLeads(localLeads);
+    setImportingLeads(false);
+    if (!result.ok) {
+      showToast('Importul nu a ajuns pe server. Lista locală a rămas neschimbată.');
+      return;
+    }
+    forgetLocalLeads(result.acceptedIds);
+    refreshLocalBackupCount();
+    await loadSharedLeads();
+    showToast(`Import încheiat: ${result.imported} lead-uri noi, ${result.skipped} sărite.`);
   };
 
   // Navigare stadii cu detecție sincronizare rezervare/vânzare stoc
@@ -249,19 +263,27 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
 
   const executeStatusMove = (leadId: string, nextStatus: DealerLeadStatus) => {
     const targetLead = leads.find(l => l.id === leadId);
+    const previous = leads;
     setLeads(prev => prev.map(l => l.id === leadId ? {
       ...l,
       status: nextStatus,
       updatedAt: new Date().toISOString()
     } : l));
-    showToast(`Lead avansat la stadiul: ${getStatusLabel(nextStatus)}`);
-
-    // Auto-inițiere dosar F&I pe chiriașii cu modulul activ
-    if (nextStatus === 'financing' && targetLead && dealer?.features?.financingPortfolio) {
-      const associatedCar = targetLead.carId ? cars.find(c => c.id === targetLead.carId) : null;
-      createDossierFromLead(targetLead, associatedCar, dealer?.financeContactName || 'Consilier Finanțare');
-      showToast(`📁 Dosar de finanțare inițiat automat pentru ${targetLead.clientName}`);
-    }
+    void patchSharedLead(leadId, { status: nextStatus }).then((result) => {
+      if (!result.ok) {
+        setLeads(previous);
+        showToast(result.status === 403
+          ? 'Acest lead aparține altui parc și nu a fost modificat.'
+          : 'Stadiul nu a fost salvat pe server.');
+        return;
+      }
+      showToast(`Lead avansat la stadiul: ${getStatusLabel(nextStatus)}`);
+      if (nextStatus === 'financing' && targetLead && isTenantFeatureEnabled(dealer?.features, 'financingPortfolio', dealer?.slug)) {
+        const associatedCar = targetLead.carId ? cars.find(c => c.id === targetLead.carId) : null;
+        createDossierFromLead(targetLead, associatedCar, dealer?.financeContactName || 'Consilier Finanțare');
+        showToast(`Dosar de finanțare inițiat pentru ${targetLead.clientName}`);
+      }
+    });
   };
 
   // Confirmare sincronizare status vehicul în stoc
@@ -284,13 +306,25 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
     const car = cars.find(c => c.id === carId);
     if (!car) return;
 
-    setLeads(prev => prev.map(l => l.id === leadId ? {
-      ...l,
+    const updates = {
       carId: car.id,
       carTitle: `${car.brand} ${car.model} ${car.year}`,
       carPriceEur: car.priceEur,
+    };
+    const previous = leads;
+    setLeads(prev => prev.map(l => l.id === leadId ? {
+      ...l,
+      ...updates,
       updatedAt: new Date().toISOString()
     } : l));
+    void patchSharedLead(leadId, updates).then((result) => {
+      if (!result.ok) {
+        setLeads(previous);
+        showToast(result.status === 403
+          ? 'Acest lead aparține altui parc și nu a fost modificat.'
+          : 'Asocierea nu a fost salvată pe server.');
+      }
+    });
 
     showToast(`Vehicul asociat cu succes: ${car.brand} ${car.model}`);
   };
@@ -319,7 +353,7 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
     }
   };
 
-  const handleAddLead = (e: React.FormEvent) => {
+  const handleAddLead = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newLeadName.trim() || !newLeadPhone.trim()) {
       showToast('Te rugăm să completezi numele și telefonul clientului.');
@@ -344,7 +378,12 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
       recontactDate: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0]
     };
 
-    setLeads(prev => [newLead, ...prev]);
+    const result = await createSharedLead(newLead);
+    if (!result.ok) {
+      showToast('Lead-ul nu a fost salvat pe server.');
+      return;
+    }
+    setLeads(prev => [result.lead || newLead, ...prev]);
     showToast(`Lead adăugat cu succes: ${newLead.clientName}!`);
     setIsAddModalOpen(false);
     setNewLeadName('');
@@ -373,7 +412,7 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
     setEditRecontactDate(lead.recontactDate || '');
   };
 
-  const handleSaveEditLead = (e: React.FormEvent) => {
+  const handleSaveEditLead = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingLead) return;
     if (!editName.trim() || !editPhone.trim()) {
@@ -398,52 +437,76 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
       updatedAt: new Date().toISOString()
     };
 
-    updateLead(editingLead.id, updates);
-    setLeads(prev => prev.map(l => l.id === editingLead.id ? { ...l, ...updates } : l));
+    const result = await patchSharedLead(editingLead.id, updates);
+    if (!result.ok) {
+      showToast(result.status === 403
+        ? 'Acest lead aparține altui parc și nu a fost modificat.'
+        : 'Modificarea nu a fost salvată pe server.');
+      return;
+    }
+    setLeads(prev => prev.map(l => l.id === editingLead.id ? { ...l, ...updates, ...(result.lead || {}) } : l));
     setEditingLead(null);
     showToast(`✓ Datele lead-ului pentru ${editName} au fost actualizate.`);
   };
 
   // Handlers pentru ștergere și marcare ca pierdut (Ticket 02)
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteModalLead) return;
     const targetId = deleteModalLead.id;
     const targetName = deleteModalLead.clientName;
-    deleteLead(targetId);
+    const result = await deleteSharedLead(targetId);
+    if (!result.ok) {
+      showToast(result.status === 403
+        ? 'Acest lead aparține altui parc și nu a fost șters.'
+        : 'Ștergerea nu a fost salvată pe server.');
+      return;
+    }
     setLeads(prev => prev.filter(l => l.id !== targetId));
     setDeleteModalLead(null);
-    showToast(`🗑️ Lead-ul pentru ${targetName} a fost șters definitiv din sistem.`);
+    showToast(`Lead-ul pentru ${targetName} a fost șters din conducta parcului.`);
   };
 
-  const handleConfirmMarkAsLost = () => {
+  const handleConfirmMarkAsLost = async () => {
     if (!deleteModalLead) return;
     const targetId = deleteModalLead.id;
     const targetName = deleteModalLead.clientName;
     const finalReason = selectedLossReason === 'Alt motiv' ? (customLossReason.trim() || 'Nespecificat') : selectedLossReason;
-
-    archiveLeadAsLost(targetId, finalReason);
+    const notes = `${deleteModalLead.notes ? `${deleteModalLead.notes} • ` : ''}[Pierdut: ${finalReason}]`;
+    const result = await patchSharedLead(targetId, { status: 'closed_lost', notes });
+    if (!result.ok) {
+      showToast(result.status === 403
+        ? 'Acest lead aparține altui parc și nu a fost modificat.'
+        : 'Arhivarea nu a fost salvată pe server.');
+      return;
+    }
     setLeads(prev => prev.map(l => l.id === targetId ? {
       ...l,
       status: 'closed_lost',
-      notes: `${l.notes ? `${l.notes} • ` : ''}[Pierdut: ${finalReason}]`,
+      notes,
       updatedAt: new Date().toISOString()
     } : l));
 
     setDeleteModalLead(null);
     setCustomLossReason('');
-    showToast(`📁 Lead-ul pentru ${targetName} a fost arhivat ca Pierdut (${finalReason}).`);
+    showToast(`Lead-ul pentru ${targetName} a fost arhivat ca Pierdut (${finalReason}).`);
   };
 
-  const handleReactivateLostLead = (leadId: string) => {
+  const handleReactivateLostLead = async (leadId: string) => {
     const target = leads.find(l => l.id === leadId);
     if (!target) return;
-    updateLead(leadId, { status: 'new' });
+    const result = await patchSharedLead(leadId, { status: 'new' });
+    if (!result.ok) {
+      showToast(result.status === 403
+        ? 'Acest lead aparține altui parc și nu a fost modificat.'
+        : 'Reactivarea nu a fost salvată pe server.');
+      return;
+    }
     setLeads(prev => prev.map(l => l.id === leadId ? {
       ...l,
       status: 'new',
       updatedAt: new Date().toISOString()
     } : l));
-    showToast(`✓ Lead-ul pentru ${target.clientName} a fost reactivat și repus în Contact Nou!`);
+    showToast(`Lead-ul pentru ${target.clientName} a fost reactivat și repus în Contact Nou.`);
   };
 
   // Separare lead-uri active vs lead-uri pierdute (Ticket 02 & 04)
@@ -576,11 +639,22 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
             type="button"
             onClick={() => setIsResetConfirmOpen(true)}
             className="py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 hover:text-rose-200 border border-rose-500/30 text-xs font-semibold flex items-center justify-center gap-1.5 min-h-[44px] touch-manipulation active:scale-[0.98] transition-all"
-            title="Resetează complet lead-urile și interacțiunile la 0"
+            title="Resetează contoarele locale. Conducta comună rămâne pe server."
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset la 0</span>
           </button>
+
+          {localBackupCount > 0 && dealer?.slug && (
+            <button
+              type="button"
+              onClick={() => { void handleImportLocalLeads(); }}
+              disabled={importingLeads}
+              className="py-2.5 px-3 rounded-xl bg-card text-foreground border border-border text-xs font-semibold min-h-[44px] touch-manipulation active:scale-[0.98] disabled:opacity-60"
+            >
+              {importingLeads ? 'Se importă...' : `Importă ${localBackupCount} lead-uri locale`}
+            </button>
+          )}
 
           <button
             type="button"
@@ -646,6 +720,12 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
           </button>
         )}
       </div>
+
+      {leadsStale && (
+        <div className="rounded-xl border border-border bg-card text-foreground px-4 py-3 text-sm" role="status">
+          Lista din server nu s-a reîmprospătat. Arăți ultima copie salvată în acest browser. Nu s-au creat lead-uri din cache.
+        </div>
+      )}
 
       {/* Banner Stare 0 Lead-uri */}
       {leads.length === 0 && (
@@ -1240,9 +1320,9 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
               <RotateCcw className="w-6 h-6" />
             </div>
             <div className="text-center">
-              <h3 className="text-base font-bold text-white">Confirmare Hard Reset Lead-uri & Analytics</h3>
+              <h3 className="text-base font-bold text-white">Reset contoare locale</h3>
               <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-                Sigur doriți să resetați toate lead-urile și contorizările la <strong className="text-white">0</strong>? Această acțiune va goli registrul CRM și va reinițializa toate conversiile din Rapoarte & Analytics de la zero.
+                Se golesc doar contoarele și backup-ul din acest browser. Lead-urile comune ale parcului rămân pe server și reapar după reîncărcare.
               </p>
             </div>
             <div className="flex items-center gap-3 pt-2">
@@ -1606,9 +1686,16 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
                         <button
                           type="button"
                           onClick={() => {
-                            deleteLead(lead.id);
-                            setLeads(prev => prev.filter(l => l.id !== lead.id));
-                            showToast(`Lead-ul pentru ${lead.clientName} a fost șters definitiv.`);
+                            void deleteSharedLead(lead.id).then((result) => {
+                              if (!result.ok) {
+                                showToast(result.status === 403
+                                  ? 'Acest lead aparține altui parc și nu a fost șters.'
+                                  : 'Ștergerea nu a fost salvată pe server.');
+                                return;
+                              }
+                              setLeads(prev => prev.filter(l => l.id !== lead.id));
+                              showToast(`Lead-ul pentru ${lead.clientName} a fost șters din conducta parcului.`);
+                            });
                           }}
                           className="w-9 h-9 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 active:scale-95 text-rose-400 border border-rose-500/20 flex items-center justify-center transition-all touch-manipulation"
                           title="Șterge definitiv"

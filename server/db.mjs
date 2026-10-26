@@ -231,6 +231,29 @@ export async function initDatabase() {
       WHERE NOT (features ? 'googleDriveVault')
     `;
 
+    // Lead-uri comune per parc. Contactul poate lipsi la un click de test drive.
+    await sql`
+      CREATE TABLE IF NOT EXISTS dealer_leads (
+        id                       TEXT          PRIMARY KEY,
+        dealer_slug              TEXT          NOT NULL,
+        client_name              TEXT,
+        client_phone             TEXT,
+        client_email             TEXT,
+        car_id                   TEXT,
+        car_title                TEXT,
+        car_price_eur            NUMERIC(12,2),
+        deal_type                TEXT,
+        source                   TEXT,
+        status                   TEXT          NOT NULL DEFAULT 'new',
+        notes                    TEXT,
+        created_at               TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+        updated_at               TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+        scheduled_test_drive_at  TIMESTAMPTZ,
+        recontact_date           DATE
+      );
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_dealer_leads_slug_created ON dealer_leads (dealer_slug, created_at DESC);`;
+
     // 1. Inițializare tabelă vehicule
     await sql`
       CREATE TABLE IF NOT EXISTS vehicles (
@@ -1492,5 +1515,116 @@ export async function insertLandingLead(lead) {
     console.warn('[DB] Eroare la salvarea lead-ului în PostgreSQL (fallback local):', err.message);
     return { id: Date.now(), created_at: new Date().toISOString() };
   }
+}
+
+function cleanDealerSlug(dealerSlug) {
+  return String(dealerSlug || '').trim().toLowerCase();
+}
+
+/**
+ * Lead-urile unui singur parc, cele mai noi primele.
+ */
+export async function listDealerLeads(dealerSlug) {
+  const sql = getSql();
+  const slug = cleanDealerSlug(dealerSlug);
+  return await sql`
+    SELECT * FROM dealer_leads
+    WHERE lower(dealer_slug) = ${slug}
+    ORDER BY created_at DESC
+  `;
+}
+
+export async function findDealerLeadOwner(id) {
+  const sql = getSql();
+  const rows = await sql`SELECT dealer_slug FROM dealer_leads WHERE id = ${id} LIMIT 1`;
+  return rows[0]?.dealer_slug ? String(rows[0].dealer_slug) : null;
+}
+
+/**
+ * Același telefon și același vehicul, în ultimele 5 minute, pentru același parc.
+ * Telefonul trebuie să aibă cel puțin 6 cifre. Lipsa vehiculului se potrivește doar cu lipsa vehiculului.
+ */
+export async function findRecentDealerLead({ dealerSlug, phoneDigits, carId }) {
+  const digits = String(phoneDigits || '').replace(/\D/g, '');
+  if (digits.length < 6) return null;
+  const sql = getSql();
+  const slug = cleanDealerSlug(dealerSlug);
+  const carKey = carId ? String(carId) : '';
+  const rows = await sql`
+    SELECT * FROM dealer_leads
+    WHERE lower(dealer_slug) = ${slug}
+      AND regexp_replace(coalesce(client_phone, ''), '[^0-9]', '', 'g') = ${digits}
+      AND coalesce(car_id, '') = ${carKey}
+      AND created_at > NOW() - INTERVAL '5 minutes'
+    ORDER BY created_at DESC
+    LIMIT 1
+  `;
+  return rows[0] || null;
+}
+
+export async function insertDealerLead(lead) {
+  const sql = getSql();
+  const rows = await sql`
+    INSERT INTO dealer_leads (
+      id, dealer_slug, client_name, client_phone, client_email,
+      car_id, car_title, car_price_eur, deal_type, source, status,
+      notes, created_at, updated_at, scheduled_test_drive_at, recontact_date
+    ) VALUES (
+      ${lead.id},
+      ${cleanDealerSlug(lead.dealerSlug)},
+      ${lead.clientName ?? null},
+      ${lead.clientPhone ?? null},
+      ${lead.clientEmail ?? null},
+      ${lead.carId ?? null},
+      ${lead.carTitle ?? null},
+      ${lead.carPriceEur ?? null},
+      ${lead.dealType ?? null},
+      ${lead.source ?? null},
+      ${lead.status || 'new'},
+      ${lead.notes ?? null},
+      ${lead.createdAt || new Date().toISOString()},
+      ${lead.updatedAt || new Date().toISOString()},
+      ${lead.scheduledTestDriveAt ?? null},
+      ${lead.recontactDate ?? null}
+    )
+    ON CONFLICT (id) DO NOTHING
+    RETURNING *
+  `;
+  return rows[0] || null;
+}
+
+export async function updateDealerLead(id, dealerSlug, patch) {
+  const sql = getSql();
+  const slug = cleanDealerSlug(dealerSlug);
+  const rows = await sql`
+    UPDATE dealer_leads SET
+      client_name = COALESCE(${patch.clientName ?? null}, client_name),
+      client_phone = COALESCE(${patch.clientPhone ?? null}, client_phone),
+      client_email = COALESCE(${patch.clientEmail ?? null}, client_email),
+      car_id = COALESCE(${patch.carId ?? null}, car_id),
+      car_title = COALESCE(${patch.carTitle ?? null}, car_title),
+      car_price_eur = COALESCE(${patch.carPriceEur ?? null}, car_price_eur),
+      deal_type = COALESCE(${patch.dealType ?? null}, deal_type),
+      source = COALESCE(${patch.source ?? null}, source),
+      status = COALESCE(${patch.status ?? null}, status),
+      notes = COALESCE(${patch.notes ?? null}, notes),
+      scheduled_test_drive_at = COALESCE(${patch.scheduledTestDriveAt ?? null}, scheduled_test_drive_at),
+      recontact_date = COALESCE(${patch.recontactDate ?? null}, recontact_date),
+      updated_at = NOW()
+    WHERE id = ${id} AND lower(dealer_slug) = ${slug}
+    RETURNING *
+  `;
+  return rows[0] || null;
+}
+
+export async function deleteDealerLead(id, dealerSlug) {
+  const sql = getSql();
+  const slug = cleanDealerSlug(dealerSlug);
+  const rows = await sql`
+    DELETE FROM dealer_leads
+    WHERE id = ${id} AND lower(dealer_slug) = ${slug}
+    RETURNING id
+  `;
+  return rows.length > 0;
 }
 
