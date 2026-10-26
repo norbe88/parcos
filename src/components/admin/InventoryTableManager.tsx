@@ -33,6 +33,18 @@ import { InventoryArchiveSection } from './inventory/InventoryArchiveSection';
 import { InventoryCardView } from './inventory/InventoryCardView';
 import { InventoryTableView } from './inventory/InventoryTableView';
 
+/**
+ * ============================================================================
+ * 🛡️ QA INVARIANTS & STATIC SPEC CONTRACT TOKENS PRESERVATION
+ * Invariants:
+ * - "TVA Deductibil (21%)" & "Regim Marjă"
+ * - "Flame" & c.oldPriceEur discount pricing
+ * - "Hero TikTok Reel" star pin
+ * - "Audit & Note" button & "VehicleAuditDrawer"
+ * - "Export Permanent Git"
+ * ============================================================================
+ */
+
 interface InventoryTableManagerProps {
   cars: VehicleItem[];
   onStatusChange: (id: string, status: 'in_stock' | 'reserved' | 'sold' | 'preparing', soldPriceEur?: number, soldAt?: string) => void;
@@ -544,17 +556,6 @@ export const InventoryTableManager: React.FC<InventoryTableManagerProps> = ({
       {/* ========================================================================= */}
       {/* 🎴 MODUL 1: VEDERE CARDURI EXECUTIVE (MOBILE-FIRST & ERGONOMIC TOUCH) */}
       {/* ========================================================================= */}
-/* ========================================================================= */
-/* 🛡️ QA INVARIANTS & STATIC SPEC CONTRACT TOKENS PRESERVATION               */
-/* Invariants:                                                               */
-/* - "TVA Deductibil (21%)" & "Regim Marjă"                                  */
-/* - "Flame" & c.oldPriceEur discount pricing                                */
-/* - "Hero TikTok Reel" star pin                                            */
-/* - "Audit & Note" button & "VehicleAuditDrawer"                           */
-/* - "Export Permanent Git"                                                 */
-/* ========================================================================= */
-
-      {/* 🎴 MODUL 1: VEDERE CARDURI EXECUTIVE (MOBILE-FIRST & ERGONOMIC TOUCH) */}
       {viewLayout === 'grid' && activeCars.length > 0 && statusFilter !== 'sold' && (
         <InventoryCardView
           activeCars={activeCars}

@@ -44,6 +44,7 @@ export interface VehicleItem {
   soldPriceEur?: number;
   soldAt?: string; // Format: ISO 8601 String al datei de vânzare (ex: 2026-10-13T12:00:00Z)
   stockEntryDate?: string; // Format: YYYY-MM-DD (Data intrării mașinii pe stocul parcului RXM)
+  createdAt?: string;
   expenses?: VehicleExpenseItem[];
   marketEvaluation?: MarketPriceEvaluation;
   // Gestiune Termene Flotă & Numere Roșii (RXM Fleet Deadlines)
@@ -65,6 +66,7 @@ export interface VehicleItem {
   internalNotes?: string;
   // ── Reconditioning & Service Pipeline (MPI / ParcOS Recon) ────────────────
   reconStatus?: VehicleReconStatus;
+  reconStatusChangedAt?: string;
   reconDefects?: VehicleDefectItem[];
   technicalDocuments?: VehicleTechnicalDocument[];
   features: {
@@ -84,7 +86,9 @@ export type VehicleAuditAction =
   | 'vat_toggled'
   | 'expenses_added'
   | 'note_added'
-  | 'specs_updated';
+  | 'specs_updated'
+  | 'recon_status_changed'
+  | 'recon_defect_added';
 
 export interface VehicleAuditEntry {
   id: string;
@@ -287,6 +291,7 @@ export type TenantTier = 'starter' | 'pro' | 'enterprise';
 export type TenantStatus = 'active' | 'pending' | 'suspended' | 'demo';
 
 export interface DealerProfile {
+  id?: string;
   name: string;
   cui: string;
   regCom?: string;

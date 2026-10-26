@@ -28,7 +28,7 @@ export default defineConfig({
     host: true,
     cors: true,
     watch: {
-      ignored: ['**/public/**', '**/.git/**'],
+      ignored: ['**/public/**', '**/.git/**', '**/backups/**', '**/staged_imports/**', '**/dist/**'],
     },
     proxy: {
       '/api/lead': {

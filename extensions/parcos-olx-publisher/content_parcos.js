@@ -10,9 +10,9 @@
     try {
       document.documentElement.setAttribute('data-parcos-olx-extension', 'installed');
       window.dispatchEvent(new CustomEvent('parcos-olx-extension-ready', { 
-        detail: { version: '1.0.0', status: 'ready' } 
+        detail: { version: '1.0.8', status: 'ready' } 
       }));
-      window.postMessage({ type: 'PARCOS_OLX_PONG', version: '1.0.0', status: 'ready' }, '*');
+      window.postMessage({ type: 'PARCOS_OLX_PONG', version: '1.0.8', status: 'ready' }, '*');
     } catch (e) {}
   }
 
@@ -32,17 +32,19 @@
     // 2. Export mașină pentru publicare pe OLX
     if (event.data.type === 'PARCOS_OLX_EXPORT') {
       const payload = event.data.payload;
-      console.log('[ParcOS Extension] Export detectat din ParcOS UI:', payload?.title);
+      const openTab = event.data.openTab !== false;
+      console.log('[ParcOS Extension] Export detectat din ParcOS UI:', payload?.title, 'openTab:', openTab);
 
       try {
         chrome.runtime.sendMessage({
-          action: 'SAVE_PENDING_CAR',
+          action: openTab ? 'SAVE_AND_OPEN_OLX' : 'SAVE_PENDING_CAR',
           payload: payload
         }, (response) => {
           console.log('[ParcOS Extension] Răspuns salvare în background:', response);
           window.postMessage({ 
             type: 'PARCOS_OLX_EXPORT_SAVED', 
             success: Boolean(response?.success),
+            openedTab: Boolean(openTab && response?.tabId),
             title: payload?.title
           }, '*');
         });

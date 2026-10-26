@@ -3636,7 +3636,8 @@ REGULI STRICTE & INVARIANTE HOLDING:
             'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
             'ETag': etag,
             'Last-Modified': lastModified,
-            'Access-Control-Allow-Origin': resolveCorsOrigin(req),
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
             'Vary': 'Origin',
           });
           return res.end();
@@ -3649,7 +3650,8 @@ REGULI STRICTE & INVARIANTE HOLDING:
           'ETag': etag,
           'Last-Modified': lastModified,
           'X-Content-Type-Options': 'nosniff',
-          'Access-Control-Allow-Origin': resolveCorsOrigin(req),
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
           'Vary': 'Origin',
         });
         if (req.method === 'HEAD') return res.end();
@@ -3746,7 +3748,9 @@ REGULI STRICTE & INVARIANTE HOLDING:
         const headers = {
           'Content-Type': contentType,
           'Cache-Control': 'public, max-age=31536000, immutable',
-          'X-Content-Type-Options': 'nosniff'
+          'X-Content-Type-Options': 'nosniff',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS'
         };
         res.writeHead(200, headers);
         if (req.method === 'HEAD') return res.end();

@@ -43,6 +43,7 @@ export interface OlxVehiclePayload {
   photos: string[]; // max 8
   exportedAt: string;
   vehicleId: string;
+  origin?: string;
 }
 
 /**
@@ -92,25 +93,115 @@ export function mapToOlxFuel(rawFuel?: string): 'Diesel' | 'Benzina' | 'Hibrid' 
 }
 
 /**
+ * Mapează tipul de transmisie / titlu la opțiunea OLX ('automat' | 'manual')
+ */
+export function mapToOlxGearbox(rawTransmission?: string, title?: string): 'automat' | 'manual' {
+  const t = (rawTransmission || '').toLowerCase();
+  const tit = (title || '').toLowerCase();
+  if (
+    t.includes('auto') ||
+    t.includes('dsg') ||
+    t.includes('step') ||
+    t.includes('tip') ||
+    t.includes('s-tronic') ||
+    t.includes('stronic') ||
+    t.includes('edc') ||
+    t.includes('pdk') ||
+    t.includes('7g') ||
+    t.includes('9g') ||
+    tit.includes('automat') ||
+    tit.includes('dsg')
+  ) {
+    return 'automat';
+  }
+  return 'manual';
+}
+
+/**
+ * Curăță modelul de prefixul mărcii dacă există (ex: "Dacia Duster" -> "Duster")
+ */
+export function cleanCarModel(brand?: string, model?: string): string {
+  if (!model) return '';
+  let cleanM = model.trim();
+  const b = (brand || '').trim().toLowerCase();
+  if (b && cleanM.toLowerCase().startsWith(b)) {
+    cleanM = cleanM.slice(b.length).trim();
+  }
+  return cleanM || model.trim();
+}
+
+/**
+ * Curăță și elimină redundanțele de marcă/model din versiune/echipare (version_trim)
+ */
+export function cleanCarTrim(brand?: string, model?: string, trim?: string): string {
+  if (!trim) return '';
+  let cleanTrim = trim.trim();
+  const b = (brand || '').trim().toLowerCase();
+  const m = (model || '').trim().toLowerCase();
+  const combined = `${b} ${m}`.trim();
+
+  // 1. Dacă trim-ul începe cu marca + model (ex: "Dacia Duster 1.2 TCe")
+  if (combined && cleanTrim.toLowerCase().startsWith(combined)) {
+    cleanTrim = cleanTrim.slice(combined.length).trim();
+  }
+  // 2. Dacă trim-ul începe cu modelul (ex: "Duster 1.5 dCi")
+  else if (m && cleanTrim.toLowerCase().startsWith(m)) {
+    cleanTrim = cleanTrim.slice(m.length).trim();
+  }
+  // 3. Dacă trim-ul începe cu marca (ex: "Dacia 1.2 TCe")
+  else if (b && cleanTrim.toLowerCase().startsWith(b)) {
+    cleanTrim = cleanTrim.slice(b.length).trim();
+  }
+
+  // 4. Dacă după curățare este identic cu brand, model sau marca+model
+  const lower = cleanTrim.toLowerCase();
+  if (lower === b || lower === m || lower === combined) {
+    cleanTrim = '';
+  }
+
+  return cleanTrim;
+}
+
+/**
+ * Elimină repetițiile accidentale de cuvinte și fraze consecutive (ex: "Dacia Duster Dacia Duster" -> "Dacia Duster")
+ */
+export function deduplicateRepeatedPhrases(text: string): string {
+  if (!text) return '';
+  let result = text.replace(/\s+/g, ' ').trim();
+  result = result.replace(/\b([a-zA-Z0-9_-]+)\s+\1\b/gi, '$1');
+  result = result.replace(/\b([a-zA-Z0-9_-]+\s+[a-zA-Z0-9_-]+)\s+\1\b/gi, '$1');
+  result = result.replace(/\b([a-zA-Z0-9_-]+\s+[a-zA-Z0-9_-]+\s+[a-zA-Z0-9_-]+)\s+\1\b/gi, '$1');
+  return result.replace(/\s+/g, ' ').trim();
+}
+
+/**
  * Generează titlul comercial optimizat pentru indexare și căutare pe OLX (max 70 caractere)
  */
 export function generateOlxTitle(car: VehicleItem): string {
   const brand = car.brand.trim();
-  const model = car.model.trim();
-  const trim = (car.versionTrim || '').trim();
+  const rawModel = car.model.trim();
+  const model = cleanCarModel(brand, rawModel);
+  const trim = cleanCarTrim(brand, model, car.versionTrim);
   const isAuto = car.transmission?.toLowerCase().includes('auto');
   const engine = car.engineCc ? `${(car.engineCc / 1000).toFixed(1)}` : '';
   const year = car.year;
 
   // Încercăm varianta completă
   let fullTitle = `${brand} ${model} ${trim} ${isAuto ? 'Automat' : ''} ${engine ? `${engine}L` : ''} ${year}`.replace(/\s+/g, ' ').trim();
+  fullTitle = deduplicateRepeatedPhrases(fullTitle);
   if (fullTitle.length <= 70) {
     return fullTitle;
   }
 
   // Fallback mai scurt dacă depășește 70 caractere
-  let shorterTitle = `${brand} ${model} ${isAuto ? 'Automat' : ''} ${year}`.replace(/\s+/g, ' ').trim();
-  return shorterTitle.slice(0, 70);
+  let shorterTitle = `${brand} ${model} ${trim} ${year}`.replace(/\s+/g, ' ').trim();
+  shorterTitle = deduplicateRepeatedPhrases(shorterTitle);
+  if (shorterTitle.length <= 70) {
+    return shorterTitle;
+  }
+
+  let minimalTitle = `${brand} ${model} ${isAuto ? 'Automat' : ''} ${year}`.replace(/\s+/g, ' ').trim();
+  return deduplicateRepeatedPhrases(minimalTitle).slice(0, 70);
 }
 
 /**
@@ -148,13 +239,64 @@ export function pickRecommendedOlxPhotos(images: string[]): string[] {
   return picked.slice(0, 8);
 }
 
+export interface OlxDealerTemplateConfig {
+  includeFinancing: boolean;
+  includeWarranty: boolean;
+  warrantyMonths: number;
+  includeContGarantie: boolean;
+  includeBuyBack: boolean;
+  includeDelivery: boolean;
+  includeVinInText: boolean;
+  customHeader?: string;
+  customFooter?: string;
+  customNotes?: string;
+}
+
+export const DEFAULT_OLX_TEMPLATE_CONFIG: OlxDealerTemplateConfig = {
+  includeFinancing: true,
+  includeWarranty: true,
+  warrantyMonths: 12,
+  includeContGarantie: true,
+  includeBuyBack: true,
+  includeDelivery: true,
+  includeVinInText: true,
+  customHeader: '',
+  customFooter: '',
+  customNotes: ''
+};
+
+export function getDealerOlxTemplate(dealerId?: string): OlxDealerTemplateConfig {
+  if (typeof window === 'undefined') return DEFAULT_OLX_TEMPLATE_CONFIG;
+  try {
+    const key = dealerId ? `parcos_olx_dealer_template_${dealerId}` : 'parcos_olx_dealer_template_default';
+    const stored = localStorage.getItem(key);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return { ...DEFAULT_OLX_TEMPLATE_CONFIG, ...parsed };
+    }
+  } catch (e) {}
+  return DEFAULT_OLX_TEMPLATE_CONFIG;
+}
+
+export function saveDealerOlxTemplate(config: OlxDealerTemplateConfig, dealerId?: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const key = dealerId ? `parcos_olx_dealer_template_${dealerId}` : 'parcos_olx_dealer_template_default';
+    localStorage.setItem(key, JSON.stringify(config));
+    window.dispatchEvent(new CustomEvent('parcos-olx-template-changed', { detail: config }));
+  } catch (e) {}
+}
+
 export interface OlxDescriptionOptions {
   includeFinancing?: boolean;
   includeWarranty?: boolean;
+  warrantyMonths?: number;
   includeBuyBack?: boolean;
   includeDelivery?: boolean;
   includeVinInText?: boolean;
   includeContGarantie?: boolean;
+  customHeader?: string;
+  customFooter?: string;
   customNotes?: string;
 }
 
@@ -169,44 +311,56 @@ export function generateOlxDescription(
   const {
     includeFinancing = true,
     includeWarranty = true,
+    warrantyMonths = 12,
     includeBuyBack = true,
     includeDelivery = true,
     includeVinInText = true,
     includeContGarantie = true,
+    customHeader = '',
+    customFooter = '',
     customNotes = ''
   } = options;
 
-  const brand = car.brand.toUpperCase();
-  const model = car.model.toUpperCase();
-  const trim = (car.versionTrim || '').toUpperCase();
+  const brand = car.brand.trim();
+  const rawModel = car.model.trim();
+  const model = cleanCarModel(brand, rawModel);
+  const trim = cleanCarTrim(brand, model, car.versionTrim);
   const year = car.year;
   const mileageKm = car.mileageKm ? Number(car.mileageKm).toLocaleString('ro-RO') : '0';
-  const engineCc = car.engineCc ? `${car.engineCc} cm³` : '';
+  const engineCc = car.engineCc ? `${car.engineCc} cmc` : '';
   const powerHp = car.powerHp ? `${car.powerHp} CP` : '';
   const fuel = car.fuelType || 'Diesel';
-  const transmission = car.transmission || 'Transmisie Automată';
+  const transmission = car.transmission || 'Transmisie Automata';
   const dealerName = dealer?.name || 'RXM Automobile Cluj-Napoca';
-  const phone = dealer?.phonePrimary || '0748 892 937';
+  const phone = formatPhoneForOlx(dealer?.phonePrimary || '0748 892 937');
   const address = dealer?.address || dealer?.showroomAddress || 'Cluj-Napoca, jud. Cluj';
 
-  let text = `=== ${brand} ${model}${trim ? ` ${trim}` : ''} (${year}) ===\n`;
-  text += `Parc Auto Partener Autorizat — ${dealerName}\n\n`;
+  let headerTitle = `${brand} ${model}${trim ? ` ${trim}` : ''} (${year})`;
+  headerTitle = deduplicateRepeatedPhrases(headerTitle);
 
-  text += `📌 SPECIFICAȚII TEHNICE PRINCIPALE:\n`;
-  text += `• Rulaj garantat pe factură: ${mileageKm} km\n`;
-  text += `• An fabricație: ${year}\n`;
-  text += `• Motorizare: ${engineCc} ${fuel} ${powerHp ? `(${powerHp})` : ''}\n`;
-  text += `• Transmisie: ${transmission}\n`;
+  let text = `${headerTitle.toUpperCase()}\n`;
+  text += `Parc Auto Partener Autorizat - ${dealerName}\n\n`;
+
+  if (customHeader.trim()) {
+    text += `${customHeader.trim()}\n\n`;
+  }
+
+  text += `SPECIFICATII TEHNICE PRINCIPALE:\n`;
+  text += `- Rulaj garantat pe factura: ${mileageKm} km\n`;
+  text += `- An fabricatie: ${year}\n`;
+  text += `- Motorizare: ${engineCc} ${fuel} ${powerHp ? `(${powerHp})` : ''}\n`;
+  text += `- Transmisie: ${transmission}\n`;
   if (car.drivetrain) {
-    text += `• Tracțiune: ${car.drivetrain}\n`;
+    text += `- Tractiune: ${car.drivetrain}\n`;
   }
   if (car.vatDeductible) {
-    text += `• Regim fiscal: TVA deductibil 21% inclus în preț (eligibil deducere integrală persoane juridice)\n`;
+    text += `- Regim fiscal: TVA deductibil 21% inclus in pret (eligibil deducere integrala persoane juridice)\n`;
   } else {
-    text += `• Regim fiscal: Regim special al marjei (TVA inclus și nedeductibil conform Codului Fiscal Art. 312)\n`;
+    text += `- Regim fiscal: Regim special al marjei (TVA inclus si nedeductibil conform Codului Fiscal Art. 312)\n`;
   }
   if (includeVinInText && car.vin) {
-    text += `• Serie de șasiu (VIN): ${car.vin}\n`;
+    const cleanVin = car.vin.replace(/\*/g, 'X');
+    text += `- Serie de sasiu (VIN): ${cleanVin}\n`;
   }
   text += `\n`;
 
@@ -224,57 +378,131 @@ export function generateOlxDescription(
 
   const features = getPrioritizedShowroomFeatures(rawFeatures);
   if (features.length > 0) {
-    text += `✨ DOTĂRI ȘI OPȚIONALE RELEVANTE:\n`;
+    text += `DOTARI SI OPTIONALE RELEVANTE:\n`;
     features.slice(0, 12).forEach(f => {
-      text += `✔ ${f}\n`;
+      text += `- ${f}\n`;
     });
     if (features.length > 12) {
-      text += `✔ Pachet complet cu ${features.length} dotări verificabile la vizionare în showroom.\n`;
+      text += `- Pachet complet cu ${features.length} dotari verificabile la vizionare in showroom.\n`;
     }
     text += `\n`;
   }
 
   // Finanțare în rate
   if (includeFinancing) {
-    text += `💳 FINANȚARE ÎN RATE RAPIDE & LEASING AUTO:\n`;
-    text += `• Aprobare online rapidă în 1-2 ore, doar cu buletinul, fără adeverință de venit obligatorie\n`;
-    text += `• Parteneri financiari oficiali: TBI Bank, Banca Transilvania (BT Direct), UniCredit Consumer Financing\n`;
-    text += `• Posibilitate finanțare cu Avans 0% pe o perioadă de până la 60 luni cu rate fixe\n`;
-    text += `• Eligibil pentru persoane fizice, contracte de muncă externe (diurne), pensionari sau persoane juridice (SRL / PFA)\n\n`;
+    text += `FINANTARE IN RATE RAPIDE & LEASING AUTO:\n`;
+    text += `- Aprobare online rapida in 1-2 ore, doar cu buletinul, fara adeverinta de venit obligatorie\n`;
+    text += `- Parteneri financiari oficiali: TBI Bank, Banca Transilvania (BT Direct), UniCredit Consumer Financing\n`;
+    text += `- Posibilitate finantare cu Avans 0% pe o perioada de pana la 60 luni cu rate fixe\n`;
+    text += `- Eligibil pentru persoane fizice, contracte de munca externe (diurne), pensionari sau persoane juridice (SRL / PFA)\n\n`;
   }
 
   // Garanție și siguranță
   if (includeWarranty || includeContGarantie) {
-    text += `🛡️ SIGURANȚĂ & GARANȚIE:\n`;
+    text += `SIGURANTA & GARANTIE:\n`;
     if (includeWarranty) {
-      text += `• Garanție comercială scrisă de 12 luni inclusă în preț (fără costuri ascunse)\n`;
+      text += `- Garantie comerciala scrisa de ${warrantyMonths} luni inclusa in pret (fara costuri ascunse)\n`;
     }
     if (includeContGarantie) {
-      text += `• Tranzacție 100% securizată: acceptăm plată prin Cont de Garanție sau transfer bancar securizat\n`;
+      text += `- Tranzactie 100% securizata: acceptam plata prin Cont de Garantie sau transfer bancar securizat\n`;
     }
-    text += `• Kilometraj atestat contractual și trecut expres pe factura fiscală\n`;
-    text += `• Autoturism inspectat tehnic în atelier autorizat (acceptăm orice testare autorizată)\n\n`;
+    text += `- Kilometraj atestat contractual si trecut expres pe factura fiscala\n`;
+    text += `- Autoturism inspectat tehnic in atelier autorizat (acceptam orice testare autorizata)\n\n`;
   }
 
   // Buy-back și livrare
   if (includeBuyBack || includeDelivery) {
-    text += `🔄 SERVICII SUPLIMENTARE SHOWROOM:\n`;
+    text += `SERVICII SUPLIMENTARE SHOWROOM:\n`;
     if (includeBuyBack) {
-      text += `• BUY-BACK / TRADE-IN: preluăm mașina dumneavoastră actuală ca avans pentru mașina nouă\n`;
+      text += `- BUY-BACK / TRADE-IN: preluam masina dumneavoastra actuala ca avans pentru masina noua\n`;
     }
     if (includeDelivery) {
-      text += `• Numere provizorii (roșii) eliberate pe loc sau transport asigurat pe platformă oriunde în România\n`;
+      text += `- Numere provizorii (rosii) eliberate pe loc sau transport asigurat pe platforma oriunde in Romania\n`;
     }
     text += `\n`;
   }
 
   if (customNotes.trim()) {
-    text += `📝 NOTE SPECIALE DEALER:\n${customNotes.trim()}\n\n`;
+    text += `NOTE SPECIALE DEALER:\n${customNotes.trim()}\n\n`;
   }
 
-  text += `📍 VIZIONARE & TEST DRIVE:\n`;
-  text += `Locație parc auto: ${address}\n`;
-  text += `📞 Informații și programări test drive: ${phone}\n`;
+  if (customFooter.trim()) {
+    text += `${customFooter.trim()}\n\n`;
+  }
 
-  return text.trim();
+  text += `VIZIONARE & TEST DRIVE:\n`;
+  text += `Locatie parc auto: ${address}\n`;
+  text += `Informatii si programari test drive: ${phone}\n`;
+
+  return sanitizeForOlx(text);
+}
+
+/**
+ * Formatează numărul de telefon conform cerințelor de afișare și anti-mascare OLX:
+ * 0748_892_937 (grupuri de 4_3_3 separate prin underscore)
+ */
+export function formatPhoneForOlx(rawPhone?: string): string {
+  if (!rawPhone) return '0748_892_937';
+  let digits = rawPhone.replace(/\D/g, '');
+  if (digits.startsWith('0040')) {
+    digits = digits.slice(4);
+  } else if (digits.startsWith('40') && digits.length >= 11) {
+    digits = digits.slice(2);
+  }
+  if (digits.length === 9 && digits.startsWith('7')) {
+    digits = '0' + digits;
+  }
+  if (digits.length === 10) {
+    return `${digits.slice(0, 4)}_${digits.slice(4, 7)}_${digits.slice(7, 10)}`;
+  }
+  if (digits.length > 10) {
+    const last10 = digits.slice(-10);
+    if (last10.startsWith('07')) {
+      return `${last10.slice(0, 4)}_${last10.slice(4, 7)}_${last10.slice(7, 10)}`;
+    }
+  }
+  return rawPhone.trim();
+}
+
+/**
+ * Curăță descrierea pentru a respecta strict validatorul OLX România:
+ * "Scrie doar litere si cifre (fara caractere speciale)"
+ * Păstrează underscore-ul '_' pentru formatul numerelor de telefon (0748_892_937).
+ */
+export function sanitizeForOlx(text: string): string {
+  if (!text) return '';
+
+  let cleaned = text
+    // 0. Formatare automată a numerelor de telefon în formatul cerut de OLX (07xx_xxx_xxx)
+    .replace(/(?:(?:\+?40|0040)\s*|0)(7\d{2})[\s.\-_]?(\d{3})[\s.\-_]?(\d{3})\b/g, '0$1_$2_$3')
+    // 1. Înlocuire superscript / subscript
+    .replace(/cm³/gi, 'cmc')
+    .replace(/m³/gi, 'm3')
+    .replace(/³/g, '3')
+    .replace(/²/g, '2')
+    // 2. Înlocuire bullet points și simboluri grafice cu cratimă normală
+    .replace(/[•●○◦‣⁃*]/g, '-')
+    .replace(/[✔✓☑]/g, '-')
+    // 3. Înlocuire em-dash, en-dash, tilde cu cratimă normală (păstrăm underscore-ul _ pentru numere de telefon)
+    .replace(/[—–~]/g, '-')
+    // 4. Înlocuire paranteze pătrate sau acolade cu paranteze rotunde
+    .replace(/[\[\{]/g, '(')
+    .replace(/[\]\}]/g, ')')
+    // 5. Înlocuire ghilimele speciale
+    .replace(/[„”«»]/g, '"')
+    .replace(/[''‚‛]/g, "'")
+    // 6. Eliminare secvențe decorative de egal sau minus repetat (=== sau ---)
+    .replace(/={2,}/g, '')
+    // 7. Eliminare completă a tuturor emoji-urilor și simbolurilor speciale Unicode
+    .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2300}-\u{23FF}\u{2B50}\u{200D}\u{FE0F}]/gu, '')
+    // 8. Filtrare strictă: permitem DOAR litere (inclusiv diacritice românești), cifre, spații, newlines, underscore și semne uzuale de punctuație
+    .replace(/[^\p{L}\p{N}\s.,:;!?()\-/%+&"'_]/gu, ' ')
+    // 9. Curățare spații multiple pe aceeași linie
+    .split('\n')
+    .map(line => line.replace(/[ \t]+/g, ' ').trim())
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  return cleaned;
 }

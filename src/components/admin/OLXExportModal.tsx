@@ -3,18 +3,24 @@ import {
   X, ExternalLink, Image as ImageIcon, Sparkles, CheckCircle2, 
   AlertCircle, ShieldCheck, CreditCard, RefreshCw, Bookmark, 
   Copy, Check, Phone, MapPin, User, ChevronDown, ChevronUp,
-  Sliders, Layers, Tag, Puzzle, Download
+  Sliders, Layers, Tag, Puzzle, Download, Save, Truck, Shield
 } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../db/seed';
 import { DealerProfile } from '../../db/types';
 import { 
   OlxVehiclePayload,
+  OlxDealerTemplateConfig,
+  getDealerOlxTemplate,
+  saveDealerOlxTemplate,
   generateOlxTitle, 
   generateOlxDescription, 
   pickRecommendedOlxPhotos,
   mapToOlxCarBody,
   mapToOlxColor,
-  mapToOlxFuel
+  mapToOlxFuel,
+  mapToOlxGearbox,
+  cleanCarModel,
+  sanitizeForOlx
 } from '../../utils/olxPosterPayload';
 import { generateOlxBookmarkletUrl } from '../../utils/olxBookmarkletGenerator';
 
@@ -37,6 +43,7 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
 }) => {
   // State formular export
   const [title, setTitle] = useState('');
+  const [model, setModel] = useState('');
   const [price, setPrice] = useState<number>(0);
   const [currency, setCurrency] = useState<'€' | 'lei'>('€');
   const [isNegotiable, setIsNegotiable] = useState(false);
@@ -44,8 +51,10 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
   const [autoExtension, setAutoExtension] = useState(false); // Default false (fără costuri surpriză)
   const [carBody, setCarBody] = useState('Berlina');
   const [color, setColor] = useState('Negru');
+  const [doors, setDoors] = useState('4 sau 5');
   const [fuel, setFuel] = useState<'Diesel' | 'Benzina' | 'Hibrid' | 'Electric' | 'GPL'>('Diesel');
   const [gearbox, setGearbox] = useState<'automat' | 'manual'>('automat');
+  const [registration, setRegistration] = useState<'registered' | 'unregistered'>('unregistered');
   
   // Date de contact
   const [location, setLocation] = useState('Cluj-Napoca');
@@ -68,6 +77,7 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
   const [activeTab, setActiveTab] = useState<'form' | 'bookmarklet'>('form');
   const [isCopied, setIsCopied] = useState(false);
   const [isExtensionInstalled, setIsExtensionInstalled] = useState(false);
+  const [extensionVersion, setExtensionVersion] = useState<string>('');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -83,11 +93,16 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
     const handleMessage = (e: MessageEvent) => {
       if (e.data?.type === 'PARCOS_OLX_PONG' || e.data?.type === 'PARCOS_OLX_EXPORT_SAVED') {
         setIsExtensionInstalled(true);
+        if (e.data?.version) setExtensionVersion(e.data.version);
       }
     };
 
     window.addEventListener('message', handleMessage);
-    window.addEventListener('parcos-olx-extension-ready', () => setIsExtensionInstalled(true));
+    const handleReady = (e: any) => {
+      setIsExtensionInstalled(true);
+      if (e?.detail?.version) setExtensionVersion(e.detail.version);
+    };
+    window.addEventListener('parcos-olx-extension-ready', handleReady as EventListener);
 
     // Trimite un ping către content script
     window.postMessage({ type: 'PARCOS_OLX_PING' }, '*');
@@ -98,24 +113,33 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
 
     return () => {
       window.removeEventListener('message', handleMessage);
+      window.removeEventListener('parcos-olx-extension-ready', handleReady as EventListener);
       clearInterval(timer);
     };
   }, [isOpen]);
+
+  const dealerId = dealer?.id || dealer?.slug || dealer?.cui;
 
   // Inițializare stare la selectarea mașinii
   useEffect(() => {
     if (!car) return;
 
+    const template = getDealerOlxTemplate(dealerId);
+
     setTitle(generateOlxTitle(car));
+    setModel(cleanCarModel(car.brand, car.model));
     setPrice(car.priceEur || 0);
     setCurrency('€');
     setIsNegotiable(false);
-    setIncludeVin(Boolean(car.vin && car.vin.trim().length > 5));
+    setIncludeVin(template.includeVinInText && Boolean(car.vin && car.vin.trim().length > 5));
     setAutoExtension(false);
     setCarBody(mapToOlxCarBody(car.bodyType));
     setColor(mapToOlxColor(car.color));
+    const isCoupeOrCabrio = (car.bodyType || '').toLowerCase().includes('coupe') || (car.bodyType || '').toLowerCase().includes('cabrio');
+    setDoors(isCoupeOrCabrio ? '2 sau 3' : '4 sau 5');
     setFuel(mapToOlxFuel(car.fuelType));
-    setGearbox(car.transmission?.toLowerCase().includes('auto') ? 'automat' : 'manual');
+    setGearbox(mapToOlxGearbox(car.transmission, `${car.brand} ${car.model} ${car.versionTrim || ''}`));
+    setRegistration('unregistered');
 
     // Contact din profil dealer
     const loc = dealer.serviceLocation || dealer.showroomAddress || 'Cluj-Napoca';
@@ -124,27 +148,72 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
     setContactPerson(dealer.generalContactName ? `${dealer.generalContactName} - ${dealer.name.split(' ')[0]}` : dealer.name);
     setContactPhone(dealer.phonePrimary ? dealer.phonePrimary.replace(/\s+/g, '') : '0748892937');
 
+    // Opțiuni comerciale încărcate din template-ul dealerului
+    setIncludeFinancing(template.includeFinancing);
+    setIncludeWarranty(template.includeWarranty);
+    setIncludeBuyBack(template.includeBuyBack);
+    setIncludeDelivery(template.includeDelivery);
+    setIncludeContGarantie(template.includeContGarantie);
+    setCustomNotes(template.customNotes || '');
+
     // Fotografii: selectăm automat cele 8 recomandate
     const recommended = pickRecommendedOlxPhotos(car.images || []);
     setSelectedPhotos(recommended);
 
-    // Descriere inițială
+    // Descriere inițială pe baza template-ului configurat
     const initialDesc = generateOlxDescription(car, dealer, {
-      includeFinancing: true,
-      includeWarranty: true,
-      includeBuyBack: true,
-      includeDelivery: true,
-      includeVinInText: Boolean(car.vin),
-      includeContGarantie: true,
-      customNotes: ''
+      includeFinancing: template.includeFinancing,
+      includeWarranty: template.includeWarranty,
+      warrantyMonths: template.warrantyMonths,
+      includeBuyBack: template.includeBuyBack,
+      includeDelivery: template.includeDelivery,
+      includeVinInText: template.includeVinInText && Boolean(car.vin),
+      includeContGarantie: template.includeContGarantie,
+      customHeader: template.customHeader,
+      customFooter: template.customFooter,
+      customNotes: template.customNotes
     });
     setDescription(initialDesc);
-  }, [car, dealer]);
+  }, [car, dealer, dealerId]);
 
   // Recalculare descriere la modificarea opțiunilor de text
-  const handleRegenerateDescription = () => {
+  const handleRegenerateDescription = (customOverrides?: Partial<{
+    includeFinancing: boolean;
+    includeWarranty: boolean;
+    includeBuyBack: boolean;
+    includeDelivery: boolean;
+    includeVinInText: boolean;
+    includeContGarantie: boolean;
+  }>) => {
     if (!car) return;
+    const template = getDealerOlxTemplate(dealerId);
+    const fin = customOverrides?.includeFinancing !== undefined ? customOverrides.includeFinancing : includeFinancing;
+    const war = customOverrides?.includeWarranty !== undefined ? customOverrides.includeWarranty : includeWarranty;
+    const bb = customOverrides?.includeBuyBack !== undefined ? customOverrides.includeBuyBack : includeBuyBack;
+    const del = customOverrides?.includeDelivery !== undefined ? customOverrides.includeDelivery : includeDelivery;
+    const vin = customOverrides?.includeVinInText !== undefined ? customOverrides.includeVinInText : includeVin;
+    const cg = customOverrides?.includeContGarantie !== undefined ? customOverrides.includeContGarantie : includeContGarantie;
+
     const newDesc = generateOlxDescription(car, dealer, {
+      includeFinancing: fin,
+      includeWarranty: war,
+      warrantyMonths: template.warrantyMonths,
+      includeBuyBack: bb,
+      includeDelivery: del,
+      includeVinInText: vin,
+      includeContGarantie: cg,
+      customHeader: template.customHeader,
+      customFooter: template.customFooter,
+      customNotes
+    });
+    setDescription(newDesc);
+  };
+
+  // Salvează opțiunile curente ca șablon implicit pentru parc
+  const handleSaveAsDefaultTemplate = () => {
+    const currentTpl = getDealerOlxTemplate(dealerId);
+    const updatedConfig: OlxDealerTemplateConfig = {
+      ...currentTpl,
       includeFinancing,
       includeWarranty,
       includeBuyBack,
@@ -152,9 +221,9 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
       includeVinInText: includeVin,
       includeContGarantie,
       customNotes
-    });
-    setDescription(newDesc);
-    showToast('✓ Descrierea comercială a fost regenerată conform opțiunilor!');
+    };
+    saveDealerOlxTemplate(updatedConfig, dealerId);
+    showToast('✓ Șablonul implicit OLX pentru parcul tău a fost actualizat cu succes!');
   };
 
   // Toggle selecție poză cu limită la 8
@@ -181,18 +250,26 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
   // Construire Payload complet
   const buildPayload = (): OlxVehiclePayload | null => {
     if (!car) return null;
+    const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001';
+    const absolutePhotos = selectedPhotos.map(p => {
+      if (p.startsWith('http://') || p.startsWith('https://') || p.startsWith('data:')) {
+        return p;
+      }
+      return `${currentOrigin}${p.startsWith('/') ? '' : '/'}${p}`;
+    });
+
     return {
       title: title.trim(),
       brand: car.brand,
-      model: car.model,
+      model: model.trim() || cleanCarModel(car.brand, car.model),
       carBody,
       color,
-      doors: '4',
+      doors,
       fuel,
       gearbox,
       state: 'used',
       steeringWheel: 'lhd',
-      registration: 'registered',
+      registration: registration || 'unregistered',
       sellerType: 'business',
       engineCc: car.engineCc,
       powerHp: car.powerHp,
@@ -206,10 +283,11 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
       location,
       contactPerson,
       contactPhone,
-      description,
-      photos: selectedPhotos,
+      description: sanitizeForOlx(description),
+      photos: absolutePhotos,
       exportedAt: new Date().toISOString(),
-      vehicleId: car.id
+      vehicleId: car.id,
+      origin: currentOrigin
     };
   };
 
@@ -233,18 +311,41 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
       }));
 
       // 2. Copiere în clipboard ca fallback instant garantat
-      navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).catch(() => {});
+      await navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).catch(() => {});
 
-      // 3. PostMessage către content scriptul extensiei
-      window.postMessage({ type: 'PARCOS_OLX_EXPORT', payload }, '*');
+      let handledByExtension = false;
 
-      showToast('🚀 Datele au fost transmise extensiei! Se deschide OLX...');
+      // 3. Dacă extensia este prezentă, trimitem comanda cu openTab: true
+      const exportSavedPromise = new Promise<boolean>((resolve) => {
+        const handler = (e: MessageEvent) => {
+          if (e.data?.type === 'PARCOS_OLX_EXPORT_SAVED' && e.data?.openedTab) {
+            window.removeEventListener('message', handler);
+            resolve(true);
+          }
+        };
+        window.addEventListener('message', handler);
+        setTimeout(() => {
+          window.removeEventListener('message', handler);
+          resolve(false);
+        }, 500);
+      });
 
-      // 4. Așteptăm 350ms pentru a fi siguri că background service worker a salvat în chrome.storage.local
-      await new Promise((r) => setTimeout(r, 350));
+      window.postMessage({ type: 'PARCOS_OLX_EXPORT', payload, openTab: true }, '*');
 
-      // 5. Deschidere tab olx.ro/adding/
-      window.open('https://www.olx.ro/adding/', '_blank', 'noopener,noreferrer');
+      if (isExtensionInstalled) {
+        showToast('🚀 Date transmise extensiei! OLX se deschide și se completează automat...');
+      }
+
+      handledByExtension = await exportSavedPromise;
+
+      // 4. Dacă extensia NU a deschis tab-ul (sau nu este instalată), îl deschidem noi ca fallback
+      if (!handledByExtension) {
+        if (!isExtensionInstalled) {
+          showToast('📋 Datele mașinii au fost copiate! Pe pagina OLX dă 1 click pe Bookmarklet-ul ParcOS din bara de sus.');
+        }
+        window.open('https://www.olx.ro/adding/', '_blank');
+      }
+
       onClose();
     } catch (err) {
       console.error('[ParcOS] Eroare export OLX', err);
@@ -288,7 +389,7 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-zinc-400">
-                {car.brand} {car.model} ({car.year}) · Pre-completare inteligentă a formularului OLX
+                {car.brand} {cleanCarModel(car.brand, car.model)} ({car.year}) · Pre-completare inteligentă a formularului OLX
               </p>
             </div>
           </div>
@@ -327,6 +428,44 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
               className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Indicator Conectivitate Extensie / Bookmarklet */}
+        <div className={`px-4 py-2 border-b text-xs flex flex-wrap items-center justify-between gap-2 ${
+          isExtensionInstalled
+            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
+            : 'bg-amber-500/10 border-amber-500/20 text-amber-200'
+        }`}>
+          <div className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${isExtensionInstalled ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+            {isExtensionInstalled ? (
+              <span>
+                <strong>Extensie ParcOS v{extensionVersion || '1.0.2'} Conectată:</strong> La deschiderea paginii OLX formularul se va completa 100% automat.
+              </span>
+            ) : (
+              <span>
+                <strong>Extensia nu este detectată în acest tab:</strong> Folosește <strong>Bookmarklet-ul 1-Click</strong> din bara de sus (zero instalare) sau reîncarcă extensia în <code>chrome://extensions/</code>.
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {!isExtensionInstalled && onOpenInstallModal && (
+              <button
+                type="button"
+                onClick={onOpenInstallModal}
+                className="text-[11px] px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold border border-amber-500/30 cursor-pointer"
+              >
+                Ghid Instalare
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setActiveTab(activeTab === 'form' ? 'bookmarklet' : 'form')}
+              className="text-[11px] underline text-zinc-400 hover:text-white font-medium cursor-pointer"
+            >
+              {activeTab === 'form' ? 'Cum funcționează Bookmarklet?' : 'Înapoi la Formular'}
             </button>
           </div>
         </div>
@@ -494,7 +633,31 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
                 )}
               </div>
 
-              {/* 2. Titlu, Preț & Monedă */}
+              {/* 2. Marcă & Model OLX */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                <div className="sm:col-span-4 space-y-1.5">
+                  <label className="text-xs font-semibold text-zinc-300">Marcă Autoturism</label>
+                  <div className="w-full bg-[#18181b]/70 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-amber-300 font-bold flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>{car.brand}</span>
+                  </div>
+                </div>
+                <div className="sm:col-span-8 space-y-1.5">
+                  <label className="text-xs font-semibold text-zinc-300 flex items-center justify-between">
+                    <span>Model OLX (Selecție inteligentă din listă)</span>
+                    <span className="text-[10px] text-zinc-400">Canonic OLX (ex: Clio, Megane, Golf, Seria 3)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    className="w-full bg-[#18181b] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-amber-400/50"
+                    placeholder="Ex: Clio"
+                  />
+                </div>
+              </div>
+
+              {/* 3. Titlu, Preț & Monedă */}
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
                 <div className="sm:col-span-7 space-y-1.5">
                   <label className="text-xs font-semibold text-zinc-300 flex items-center justify-between">
@@ -556,7 +719,7 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
               </div>
 
               {/* 3. Parametri Tehnici & Bife de Control */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-zinc-400">Caroserie</label>
                   <select
@@ -616,6 +779,30 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
                     <option value="Hibrid">Hibrid</option>
                     <option value="Electric">Electric</option>
                     <option value="GPL">GPL</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-zinc-400">Număr Uși</label>
+                  <select
+                    value={doors}
+                    onChange={(e) => setDoors(e.target.value)}
+                    className="w-full bg-[#18181b] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400/50 cursor-pointer"
+                  >
+                    <option value="4 sau 5">4 / 5 Uși</option>
+                    <option value="2 sau 3">2 / 3 Uși</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-zinc-400">Înmatriculare</label>
+                  <select
+                    value={registration}
+                    onChange={(e) => setRegistration(e.target.value as any)}
+                    className="w-full bg-[#18181b] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400/50 cursor-pointer"
+                  >
+                    <option value="unregistered">Neînmatriculat (Implicit)</option>
+                    <option value="registered">Înmatriculat</option>
                   </select>
                 </div>
               </div>
@@ -707,43 +894,125 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
                 </div>
               </div>
 
-              {/* 5. Descriere Comercială cu Opțiuni Rapide */}
+              {/* 5. Descriere Comercială cu Opțiuni Rapide & Template Personalizat */}
               <div className="space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <label className="text-xs font-semibold text-zinc-300">
-                    Descriere Comercială Anunț (Șablon Certificat)
-                  </label>
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-zinc-300">
+                      Descriere Comercială Anunț (Șablon Certificat)
+                    </label>
+                    <span className="text-[10px] text-zinc-500 hidden sm:inline">
+                      · Personalizabil per dealer
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* Cont de Garanție Toggle */}
                     <button
                       type="button"
-                      onClick={() => setIncludeFinancing(!includeFinancing)}
-                      className={`text-[10px] px-2 py-0.5 rounded-md border font-semibold transition-all cursor-pointer ${
-                        includeFinancing ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-white/5 text-zinc-400 border-white/10'
+                      onClick={() => {
+                        const next = !includeContGarantie;
+                        setIncludeContGarantie(next);
+                        handleRegenerateDescription({ includeContGarantie: next });
+                      }}
+                      className={`text-[10px] px-2 py-0.5 rounded-md border font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+                        includeContGarantie 
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-sm' 
+                          : 'bg-white/5 text-zinc-500 border-white/10 opacity-70'
+                      }`}
+                      title={includeContGarantie ? 'Clauza Cont de Garanție este inclusă în text' : 'Clauza Cont de Garanție este exclusă'}
+                    >
+                      <ShieldCheck className="w-3 h-3" />
+                      <span>Cont Garanție</span>
+                    </button>
+
+                    {/* Rate TBI / BT Toggle */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = !includeFinancing;
+                        setIncludeFinancing(next);
+                        handleRegenerateDescription({ includeFinancing: next });
+                      }}
+                      className={`text-[10px] px-2 py-0.5 rounded-md border font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+                        includeFinancing 
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-sm' 
+                          : 'bg-white/5 text-zinc-500 border-white/10 opacity-70'
                       }`}
                     >
-                      💳 Rate TBI/BT
+                      <CreditCard className="w-3 h-3" />
+                      <span>Rate TBI/BT</span>
                     </button>
+
+                    {/* Garanție Toggle */}
                     <button
                       type="button"
-                      onClick={() => setIncludeWarranty(!includeWarranty)}
-                      className={`text-[10px] px-2 py-0.5 rounded-md border font-semibold transition-all cursor-pointer ${
-                        includeWarranty ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-white/5 text-zinc-400 border-white/10'
+                      onClick={() => {
+                        const next = !includeWarranty;
+                        setIncludeWarranty(next);
+                        handleRegenerateDescription({ includeWarranty: next });
+                      }}
+                      className={`text-[10px] px-2 py-0.5 rounded-md border font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+                        includeWarranty 
+                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-sm' 
+                          : 'bg-white/5 text-zinc-500 border-white/10 opacity-70'
                       }`}
                     >
-                      🛡️ Garanție 12L
+                      <Shield className="w-3 h-3" />
+                      <span>Garanție</span>
                     </button>
+
+                    {/* Buy-Back Toggle */}
                     <button
                       type="button"
-                      onClick={() => setIncludeBuyBack(!includeBuyBack)}
-                      className={`text-[10px] px-2 py-0.5 rounded-md border font-semibold transition-all cursor-pointer ${
-                        includeBuyBack ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' : 'bg-white/5 text-zinc-400 border-white/10'
+                      onClick={() => {
+                        const next = !includeBuyBack;
+                        setIncludeBuyBack(next);
+                        handleRegenerateDescription({ includeBuyBack: next });
+                      }}
+                      className={`text-[10px] px-2 py-0.5 rounded-md border font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+                        includeBuyBack 
+                          ? 'bg-blue-500/20 text-blue-300 border-blue-500/40 shadow-sm' 
+                          : 'bg-white/5 text-zinc-500 border-white/10 opacity-70'
                       }`}
                     >
-                      🔄 Buy-Back
+                      <RefreshCw className="w-3 h-3" />
+                      <span>Buy-Back</span>
                     </button>
+
+                    {/* Livrare Toggle */}
                     <button
                       type="button"
-                      onClick={handleRegenerateDescription}
+                      onClick={() => {
+                        const next = !includeDelivery;
+                        setIncludeDelivery(next);
+                        handleRegenerateDescription({ includeDelivery: next });
+                      }}
+                      className={`text-[10px] px-2 py-0.5 rounded-md border font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+                        includeDelivery 
+                          ? 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-sm' 
+                          : 'bg-white/5 text-zinc-500 border-white/10 opacity-70'
+                      }`}
+                    >
+                      <Truck className="w-3 h-3" />
+                      <span>Livrare</span>
+                    </button>
+
+                    {/* Salvează ca implicit */}
+                    <button
+                      type="button"
+                      onClick={handleSaveAsDefaultTemplate}
+                      className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold transition-all cursor-pointer flex items-center gap-1"
+                      title="Salvează aceste selecții ca șablon implicit pentru toate anunțurile viitoare"
+                    >
+                      <Save className="w-3 h-3" />
+                      <span>Setează ca Șablon Implicit</span>
+                    </button>
+
+                    {/* Buton Regenerare manuală */}
+                    <button
+                      type="button"
+                      onClick={() => handleRegenerateDescription()}
                       className="text-[10px] px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-zinc-200 border border-white/10 font-semibold transition-all cursor-pointer flex items-center gap-1"
                       title="Regenerează textul complet"
                     >
@@ -802,7 +1071,7 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
               className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-black text-xs sm:text-sm font-black shadow-lg shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <ExternalLink className="w-4 h-4 text-black" />
-              <span>🚀 Exportă & Deschide OLX</span>
+              <span>{isExtensionInstalled ? '🚀 Exportă & Deschide OLX' : '🚀 Deschide OLX & Exportă Date'}</span>
             </button>
           </div>
         </div>

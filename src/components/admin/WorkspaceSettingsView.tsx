@@ -11,6 +11,7 @@ import { DealerProfile, SEED_DEALER } from '../../db/seed';
 import { generateOlxBookmarkletUrl } from '../../utils/olxBookmarkletGenerator';
 
 import { FinancingSettingsManager } from './FinancingSettingsManager';
+import { OlxTemplateSettingsManager } from './OlxTemplateSettingsManager';
 
 interface WorkspaceSettingsViewProps {
   dealer?: DealerProfile;
@@ -432,6 +433,11 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* ========================================================================= */}
+      {/* 📝 CONFIGURARE TEMPLATE PERSONALIZAT ANUNȚURI OLX (OPȚIUNI & CONT GARANȚIE) */}
+      {/* ========================================================================= */}
+      <OlxTemplateSettingsManager dealer={activeDealer} showToast={showToast} />
 
       {/* ========================================================================= */}
       {/* 🔌 INTEGRARE EXTENSIE CHROME OLX PUBLISHER & SMART BOOKMARKLET (NETCUP VPS) */}
