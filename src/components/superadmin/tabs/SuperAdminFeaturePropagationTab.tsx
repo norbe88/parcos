@@ -10,7 +10,8 @@ import {
   RefreshCw, 
   Sparkles, 
   Layers,
-  Check
+  Check,
+  ExternalLink
 } from 'lucide-react';
 import { DealerProfile } from '../../../db/seed';
 import { TenantFeatures } from '../../../db/types';
@@ -35,9 +36,12 @@ export const SuperAdminFeaturePropagationTab: React.FC<SuperAdminFeaturePropagat
   onToggleFeature
 }) => {
   const [confirmPromoteKey, setConfirmPromoteKey] = useState<keyof TenantFeatures | null>(null);
+  const [selectedStagingSlug, setSelectedStagingSlug] = useState<string>(() => {
+    return currentTenant.slug || 'rxm_sandbox';
+  });
 
-  // Identificare Staging vs. Producție (RXM Sandbox vs. RXM Production)
-  const stagingTenant = allTenants.find((t) => t.slug === 'rxm_sandbox') || currentTenant;
+  // Identificare Staging vs. Producție (Selectabil per showroom)
+  const stagingTenant = allTenants.find((t) => t.slug === selectedStagingSlug) || allTenants.find((t) => t.slug === 'rxm_sandbox') || currentTenant;
   const prodTenant = allTenants.find((t) => t.slug === 'rxm') || allTenants[0];
 
   // Identificare diferențe (Drift)
@@ -94,7 +98,24 @@ export const SuperAdminFeaturePropagationTab: React.FC<SuperAdminFeaturePropagat
               <ArrowRight className="w-4 h-4 text-zinc-500" />
               <span>Producție ({prodTenant?.name || 'RXM Automobile Producție'})</span>
             </h3>
-            <p className="text-xs text-zinc-400 mt-0.5">
+            
+            {/* Selector Tenant Staging */}
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="text-[11px] text-zinc-400 font-medium">Parc Țintă Test:</span>
+              <select
+                value={selectedStagingSlug}
+                onChange={(e) => setSelectedStagingSlug(e.target.value)}
+                className="bg-black/60 border border-amber-500/30 rounded-lg px-2.5 py-0.5 text-xs text-amber-300 font-bold focus:outline-none focus:border-amber-400 cursor-pointer"
+              >
+                {allTenants.map((t) => (
+                  <option key={t.slug || t.cui} value={t.slug} className="bg-zinc-900 text-white">
+                    {t.name} ({t.slug})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <p className="text-xs text-zinc-400 mt-1">
               Comparație în timp real a invariantelor de feature flag între mediul de testare și magazinul live.
             </p>
           </div>
@@ -216,7 +237,23 @@ export const SuperAdminFeaturePropagationTab: React.FC<SuperAdminFeaturePropagat
 
       {/* 3. Matrice de Feature Flags per Showroom Activ */}
       <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-6 space-y-4">
-        <h3 className="text-sm font-bold text-white">Matrice Module per Showroom Activ ({currentTenant.name})</h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-white/[0.06]">
+          <div>
+            <h3 className="text-sm font-bold text-white">Matrice Module per Showroom Activ ({currentTenant.name})</h3>
+            <p className="text-xs text-zinc-400">Activează sau blochează granular funcții doar pentru acest parc.</p>
+          </div>
+
+          <a
+            href={`https://staging.parcos.ro?dealer=${currentTenant.slug || 'rxm'}#admin`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold transition-all cursor-pointer shadow-sm"
+            title="Deschide consola DMS a acestui dealer în mediul de Staging (App 7)"
+          >
+            <span>↗ Testează pe Staging</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {featureDefinitions.map((def) => {

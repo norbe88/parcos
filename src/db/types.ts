@@ -279,6 +279,8 @@ export interface TenantFeatures {
   whatsappLeadsBot: boolean;    // Simulator cotații & leaduri WhatsApp
   fgoInvoicing?: boolean;       // Conectare Facturare & Proforme FGO.ro API v2
   financingPortfolio?: boolean; // Modul F&I & Portofoliu Dosare Credit
+  reconTracker?: boolean;       // Service & Pregătire Flotă / Pipeline Recondiționare & Defecte
+  googleDriveVault?: boolean;   // Arhivare Cloud Securizată Google Drive PRO Vault (Facturi, Bonuri, CIV)
 }
 
 export type TenantTier = 'starter' | 'pro' | 'enterprise';

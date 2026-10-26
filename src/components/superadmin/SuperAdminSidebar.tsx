@@ -4,7 +4,7 @@ import {
   ExternalLink, CheckCircle2, AlertTriangle, Layers, Palette, 
   FileText, QrCode, Share2, Film, RefreshCw, LogOut, ArrowRight, 
   Sliders, Check, X, ShieldAlert, Download, Eye, Zap, Database, Clock,
-  ChevronDown, Landmark, Globe, Key, Mail, Radio, DollarSign, Cpu
+  ChevronDown, Landmark, Globe, Key, Mail, Radio, DollarSign, Cpu, Wrench
 } from 'lucide-react';
 import { DealerProfile } from '../../db/seed';
 
@@ -18,7 +18,8 @@ export type SuperAdminNavTab =
   | 'integrations_mail'    // 📧 ParcOS Mail Hub (SES / Inbound)
   | 'feature_propagation'  // 🚀 Matrice Module (1-Click Rollout Global)
   | 'vps_monitoring'       // 📊 Telemetrie VPS Netcup (RAM, SSD, Docker)
-  | 'backup_rollback';     // 🛡️ Backup & Rollback Disaster Recovery (VPS -> Google Drive)
+  | 'backup_rollback'      // 🛡️ Backup & Rollback Disaster Recovery (VPS -> Google Drive)
+  | 'recon_tracker';       // 🔧 Service, Inspecție Tehnică & Pregătire Flotă (Recon & Vault)
 
 export interface SuperAdminSidebarProps {
   activeTab: SuperAdminNavTab;
@@ -92,6 +93,20 @@ export const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
           icon: Palette,
           badge: currentTenant?.themePreset || 'Temă',
           badgeColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30'
+        }
+      ]
+    },
+    {
+      group: `OPERAȚIUNI STOC & SERVICE (${currentTenant?.name?.split(' ')[0] || 'PARC'})`,
+      items: [
+        {
+          id: 'recon_tracker' as SuperAdminNavTab,
+          label: 'Service & Pregătire Flotă',
+          icon: Wrench,
+          badge: currentTenant?.features?.reconTracker !== false ? 'Recon & Acte' : 'Inactiv',
+          badgeColor: currentTenant?.features?.reconTracker !== false
+            ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+            : 'bg-zinc-800 text-zinc-500 border-zinc-700'
         }
       ]
     },

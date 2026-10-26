@@ -10,6 +10,8 @@ export const DEFAULT_TENANT_FEATURES: TenantFeatures = {
   financingCalculator: true,
   whatsappLeadsBot: true,
   financingPortfolio: false, // Strict blocat implicit pe producție
+  reconTracker: false,       // Rollout controlat (activat per tenant)
+  googleDriveVault: false,   // Rollout controlat per tenant
 };
 
 // ─── Config Landing Default (fallback sigur pentru orice dealer nou) ──────────
@@ -149,6 +151,8 @@ export const DEALER_MPI_AUTO: DealerProfile = {
     ...DEFAULT_TENANT_FEATURES,
     tikTokStudio: false,
     autolicitPush: false,
+    reconTracker: true,       // Activ pentru gestiune mecanică & defecte MPI AUTO
+    googleDriveVault: true,   // Activ pentru arhivare bonuri & documente optimizate
   },
   landingConfig: {
     layoutVariant: 'compact_inventory',
@@ -275,6 +279,8 @@ export const DEALER_RXM_SANDBOX: DealerProfile = {
     ...DEFAULT_TENANT_FEATURES,
     fgoInvoicing: true,
     financingPortfolio: true, // Activ pentru testare pe staging
+    reconTracker: true,       // Activ pentru testare completă pe Staging Sandbox
+    googleDriveVault: true,   // Activ pentru testare Vault pe Staging Sandbox
   },
   config: {
     ...(SEED_DEALER.config || {}),

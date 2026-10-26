@@ -25,6 +25,7 @@ const ParcOSSaaSPage = lazy(() => import('./components/saas/ParcOSSaaSPage').the
 const ParcOSSuperAdminHub = lazy(() => import('./components/superadmin/ParcOSSuperAdminHub').then(m => ({ default: m.ParcOSSuperAdminHub })));
 const GhidAutoHub = lazy(() => import('./components/ghid/GhidAutoHub').then(m => ({ default: m.GhidAutoHub })));
 import { CookieConsentBanner } from './components/common/CookieConsentBanner';
+import { EnvironmentHUD } from './components/common/EnvironmentHUD';
 import { extractOlxId, normalizeCarImageUrl } from './utils/helpers';
 import { preloadMediaKeys } from './utils/mediaVaultDb';
 import { getStandardDocumentFileName, printWithDocumentTitle } from './utils/pdfGenerator';
@@ -41,7 +42,8 @@ import { updateSeoMetadata } from './utils/seoTenantInjector';
 const APP_TAB_SESSION_ID = getTabSessionId();
 
 export default function App() {
-  const { tenant, tenantId, setTenantId } = useTenant();
+  const { tenant, tenantId, setTenantId, allTenants, updateTenantFeatures } = useTenant();
+  const allTenantsList = useMemo(() => Object.values(allTenants), [allTenants]);
 
   // 🌐 Sincronizare automată SEO, OpenGraph și AutoDealer JSON-LD per Tenant (Ticket 05)
   useEffect(() => {
@@ -1588,6 +1590,33 @@ export default function App() {
         </div>
       )}
 
+      {/* 🟡 BARA DE CONTROL MEDIU & ROLLOUT (STAGING VS PRODUCȚIE HUD) */}
+      <EnvironmentHUD
+        currentTenant={tenant}
+        allTenants={allTenantsList}
+        onSelectTenant={(slug) => {
+          setTenantId(slug);
+          if (typeof window !== 'undefined') {
+            const url = new URL(window.location.href);
+            url.searchParams.set('dealer', slug);
+            window.history.pushState(null, '', url.toString());
+          }
+          showToast(`🏢 Comutat la parcul: ${slug.toUpperCase()}`);
+        }}
+        currentViewMode={viewMode}
+        onSelectViewMode={(newMode) => {
+          if (newMode === 'superadmin' || newMode === 'admin') {
+            setIsAdminAuthenticated(true);
+          }
+          handleSetViewMode(newMode as any);
+        }}
+        onToggleFeature={(slug, featureKey, currentVal) => {
+          updateTenantFeatures(slug, { [featureKey]: !currentVal } as any);
+          showToast(`⚡ Modul "${featureKey}" ${!currentVal ? 'ACTIVAT' : 'DEZACTIVAT'} pentru ${slug}!`);
+        }}
+        showToast={showToast}
+      />
+
       {/* ========================================================================= */}
       {/* 🚀 VEDEREA 0: PAGINA DE PREZENTARE B2B SAAS (PARCOS.RO / RUTA /saas)      */}
       {/* ========================================================================= */}
@@ -1659,6 +1688,9 @@ export default function App() {
             </div>
           ) : (
             <ParcOSSuperAdminHub 
+              cars={cars}
+              onUpdateCar={handleUpdateCar}
+              onAddExpense={handleAddExpense}
               onBackToSaas={() => handleSetViewMode('saas')}
               onLogoutSuperAdmin={handleLogoutAdmin}
               onImpersonateTenant={(slug) => {
@@ -1703,6 +1735,9 @@ export default function App() {
             />
           ) : (isParcosDomain(window.location.hostname, window.location.port) && !isMasquerading) ? (
             <ParcOSSuperAdminHub 
+              cars={cars}
+              onUpdateCar={handleUpdateCar}
+              onAddExpense={handleAddExpense}
               onBackToSaas={() => handleSetViewMode('saas')}
               onLogoutSuperAdmin={handleLogoutAdmin}
               onImpersonateTenant={(slug) => {

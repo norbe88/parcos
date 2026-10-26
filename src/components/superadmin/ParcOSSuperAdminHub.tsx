@@ -5,11 +5,12 @@ import {
   FileText, QrCode, Share2, Film, RefreshCw, LogOut, ArrowRight, 
   Sliders, Check, X, ShieldAlert, Download, Eye, Zap, Database, Clock,
   Menu, Landmark, Globe, Key, Mail, Radio, DollarSign, Cpu, Copy,
-  CheckCircle, SlidersHorizontal, Lock, Save, CreditCard
+  CheckCircle, SlidersHorizontal, Lock, Save, CreditCard, Wrench, HardDrive
 } from 'lucide-react';
 import { useTenant } from '../../hooks/useTenant';
 import { DealerProfile, SEED_DEALER } from '../../db/seed';
-import { TenantFeatures, TenantTier, TenantStatus, DealerThemePreset, DealerLandingConfig } from '../../db/types';
+import { TenantFeatures, TenantTier, TenantStatus, DealerThemePreset, DealerLandingConfig, VehicleItem, VehicleExpenseItem } from '../../db/types';
+import { VehicleReconBoard } from '../admin/service-tracker/VehicleReconBoard';
 import { SuperAdminOnboardingModal } from '../admin/SuperAdminOnboardingModal';
 import { SuperAdminSidebar, SuperAdminNavTab } from './SuperAdminSidebar';
 import { LandingCustomizerHUD } from './LandingCustomizerHUD';
@@ -35,6 +36,9 @@ import {
 } from '../../utils/superAdminApi';
 
 interface ParcOSSuperAdminHubProps {
+  cars?: VehicleItem[];
+  onUpdateCar?: (updatedCar: VehicleItem) => void;
+  onAddExpense?: (carId: string, expense: Omit<VehicleExpenseItem, 'id'>) => void;
   onBackToSaas: () => void;
   onImpersonateTenant: (slug: string) => void;
   onLogoutSuperAdmin?: () => void;
@@ -51,10 +55,15 @@ const FEATURE_DEFINITIONS: { key: keyof TenantFeatures; label: string; desc: str
   { key: 'windowStickersQr', label: 'Fișe Parbriz Smart QR', desc: 'Fișe A4 printabile cu cod QR direct către pagina mașinii', icon: QrCode },
   { key: 'whatsappLeadsBot', label: 'Lead Bot WhatsApp', desc: 'Pre-completare cotații și preluare rapidă clienți pe WhatsApp', icon: Sparkles },
   { key: 'financingPortfolio', label: 'Portofoliu Credite & F&I', desc: 'Gestiune dosare finanțare TBI/BT, scoring ANAF și urmărire comisioane dealer', icon: CreditCard },
+  { key: 'reconTracker', label: 'Service & Pregătire Flotă (Recon)', desc: 'Board de urmărire statusuri atelier, defecte mecanice, devize și pregătire showroom', icon: Wrench },
+  { key: 'googleDriveVault', label: 'Google Drive PRO Vault', desc: 'Arhivare cloud securizată a facturilor, bonurilor și documentelor tehnice (CIV/Talon) optimizate', icon: HardDrive },
   { key: 'autolicitPush', label: 'AutoLicit.ro B2B Push', desc: 'Export 1-click în bursa licitațiilor auto B2B holding CARVANA SRL', icon: Share2 },
 ];
 
 export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
+  cars = [],
+  onUpdateCar,
+  onAddExpense,
   onBackToSaas,
   onImpersonateTenant,
   onLogoutSuperAdmin,
@@ -229,6 +238,13 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
   const currentTenant = useMemo(() => {
     return tenantsList.find(t => (t.slug || '').toLowerCase() === selectedTenantSlug.toLowerCase()) || tenantsList[0] || SEED_DEALER;
   }, [tenantsList, selectedTenantSlug]);
+
+  // Vehicule asociate tenantului selectat pentru boardul de service & pregătire flotă
+  const tenantCars = useMemo(() => {
+    const slug = (selectedTenantSlug || 'rxm').toLowerCase();
+    const matched = (cars || []).filter(c => !c.dealerSlug || c.dealerSlug.toLowerCase() === slug);
+    return matched.length > 0 ? matched : (cars || []);
+  }, [cars, selectedTenantSlug]);
 
   // Sincronizare formular când se schimbă tenantul selectat
   useEffect(() => {
@@ -752,6 +768,36 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
               dealer={currentTenant}
               showToast={showToast}
             />
+          )}
+
+          {/* TAB 11: OPERAȚIUNI SERVICE & PREGĂTIRE FLOTĂ (RECON TRACKER & VAULT) */}
+          {activeNavTab === 'recon_tracker' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/[0.08] gap-3">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                    <Wrench className="w-6 h-6 text-amber-400" />
+                    Service, Inspecție Tehnică & Pregătire Flotă ({currentTenant.name})
+                  </h2>
+                  <p className="text-xs text-zinc-400 mt-1">
+                    Urmărire completă Kanban: defecte constatate, devize de reparații, acte tehnice (CIV/Talon) și arhivare în Google Drive PRO Vault.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold">
+                    {currentTenant.slug || 'rxm'} • {tenantCars.length} vehicule în flux
+                  </span>
+                </div>
+              </div>
+
+              <VehicleReconBoard
+                cars={tenantCars}
+                onUpdateCar={onUpdateCar}
+                onAddExpense={onAddExpense}
+                showToast={showToast}
+              />
+            </div>
           )}
 
         </main>

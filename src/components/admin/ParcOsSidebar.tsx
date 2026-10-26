@@ -82,6 +82,9 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
     if (onCloseMobile) onCloseMobile();
   };
 
+  const isReconEnabled = dealer.features?.reconTracker !== false;
+  const isFinancingEnabled = dealer.features?.financingPortfolio !== false;
+
   const navItems = [
     {
       group: 'OPERAȚIUNI STOC',
@@ -93,13 +96,13 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
           badge: `${stats.inStock} activ`,
           badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
         },
-        {
+        ...(isReconEnabled ? [{
           id: 'recon_tracker' as AdminTabType,
           label: 'Service & Pregătire',
           icon: Wrench,
           badge: 'Recon & Acte',
           badgeColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-        },
+        }] : []),
         {
           id: 'crm' as AdminTabType,
           label: 'Conductă CRM Kanban',
@@ -107,7 +110,7 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
           badge: 'Lead-uri',
           badgeColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30'
         },
-        {
+        ...(isFinancingEnabled ? [{
           id: 'financing' as AdminTabType,
           label: 'Finanțări (F&I)',
           icon: CreditCard,
@@ -115,7 +118,7 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
           badgeColor: pendingFinancingCount > 0 
             ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse'
             : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-        },
+        }] : []),
 
         {
           id: 'mail' as AdminTabType,
