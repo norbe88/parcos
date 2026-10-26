@@ -333,9 +333,20 @@ export default function App() {
   // Verificare inițială dacă ruta accesată este /admin, /#admin, /portal, /#portal sau query ?admin/?portal
   const checkIsAdminPath = () => {
     if (typeof window === 'undefined') return false;
+    const hostname = window.location.hostname.toLowerCase();
     const path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();
     const search = window.location.search.toLowerCase();
+
+    // 1. Pe subdomeniul app.parcos.ro sau admin.parcos.ro când se solicită gestiunea unui dealer specific
+    if (hostname.startsWith('app.') || hostname.startsWith('admin.')) {
+      const urlParams = new URLSearchParams(search);
+      const targetDealer = urlParams.get('dealer');
+      if (targetDealer && targetDealer !== 'parcos') {
+        return true;
+      }
+    }
+
     return (
       path.endsWith('/admin') ||
       path === '/admin' || 
@@ -489,7 +500,19 @@ export default function App() {
       return true;
     }
 
-    // 2. Pe domeniul central ParcOS (parcos.ro) sau portul 3001, /admin sau #admin este implicit SuperAdmin
+    // 2. Subdomeniul dedicat de aplicație app.parcos.ro sau admin.parcos.ro (implicit SuperAdmin dacă nu se specifică alt dealer)
+    if (
+      (hostname.startsWith('app.') || hostname.startsWith('admin.')) &&
+      (isParcosDomain(hostname, port) || port === '3001')
+    ) {
+      const urlParams = new URLSearchParams(search);
+      const targetDealer = urlParams.get('dealer');
+      if (!targetDealer || targetDealer === 'parcos') {
+        return true;
+      }
+    }
+
+    // 3. Pe domeniul central ParcOS (parcos.ro) sau portul 3001, /admin sau #admin este implicit SuperAdmin
     // (cu excepția cazului în care s-a cerut explicit gestiunea unui dealer: ?dealer=...)
     const cleanPath = path.replace(/\/+$/, '');
     const cleanHash = hash.replace(/\/+$/, '');

@@ -1,7 +1,7 @@
 import http from 'http';
 import assert from 'assert';
 
-const PORT = 3001;
+const PORT = process.env.TEST_PORT ? parseInt(process.env.TEST_PORT, 10) : 3289;
 process.env.PORT = String(PORT);
 process.env.ADMIN_PASSWORD_HASH = 'dbc1d0952684f4b89cc86bc7ffdd52cacc2a79e667b7e0765953069e05bb6589'; // Luna.RXM
 process.env.SUPERADMIN_PASSWORD_HASH = 'e180c917ef121846cee6c6b488b9d7a159c12c96880c1901b5a309ca66efb7c2'; // Olaf.0311

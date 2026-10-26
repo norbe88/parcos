@@ -1791,187 +1791,18 @@ export const server = http.createServer(async (req, res) => {
     // ══════════════════════════════════════════════════════════════════
     // BACKUP & ROLLBACK DISASTER RECOVERY ENDPOINTS [STRICT SUPERADMIN]
     // ══════════════════════════════════════════════════════════════════
-    if (pathname.startsWith('/api/admin/backups')) {
-      if (!isAuthorizedSuperAdmin(req)) {
-        return sendJson(res, 401, {
-          success: false,
-          authorized: false,
-          error: 'Unauthorized: Accesul la backup-urile platformei și operațiunile de rollback necesită autentificare ca SuperAdmin ParcOS.'
-        });
-      }
+    if (await handleBackupRoutes(req, res, urlObj, pathname, {
+      sendJson,
+      parseJsonBody: async (r) => JSON.parse((await readRequestBody(r, 1024 * 64)).toString('utf8')),
+      isAuthorizedSuperAdmin
+    })) {
+      return;
     }
 
-    // GET /api/admin/backups - Listare Snapshot-uri & Telemetrie
-    if (req.method === 'GET' && pathname === '/api/admin/backups') {
-      const backupDir = '/data/parcos/backups';
-      const snapshots = [];
-      let latestFingerprint = null;
 
-      try {
-        if (fs.existsSync(backupDir)) {
-          const entries = fs.readdirSync(backupDir, { withFileTypes: true });
-          for (const entry of entries) {
-            if (entry.isDirectory() && (entry.name.startsWith('manual_') || entry.name.startsWith('scheduled_'))) {
-              const snapPath = path.join(backupDir, entry.name);
-              let manifest = null;
-              try {
-                const manifestFiles = fs.readdirSync(snapPath).filter((f) => f.startsWith('manifest_') && f.endsWith('.json'));
-                if (manifestFiles.length > 0) {
-                  manifest = JSON.parse(fs.readFileSync(path.join(snapPath, manifestFiles[0]), 'utf8'));
-                }
-              } catch {}
 
-              const folderName = entry.name;
-              const parts = folderName.split('_');
-              const mode = parts[0] === 'scheduled' ? 'scheduled' : 'manual';
-              const rawTimestamp = parts.slice(1).join('_');
-              
-              let formattedDate = rawTimestamp;
-              if (rawTimestamp.length >= 15) {
-                const y = rawTimestamp.substring(0, 4);
-                const m = rawTimestamp.substring(4, 6);
-                const d = rawTimestamp.substring(6, 8);
-                const hr = rawTimestamp.substring(9, 11);
-                const mn = rawTimestamp.substring(11, 13);
-                const sc = rawTimestamp.substring(13, 15);
-                formattedDate = `${d}.${m}.${y} ${hr}:${mn}:${sc}`;
-              }
 
-              snapshots.push({
-                id: folderName,
-                folderName,
-                timestamp: rawTimestamp,
-                formattedDate,
-                mode,
-                fullDumpName: manifest?.fullDump,
-                fullDumpSizeKb: 19.6,
-                tenantJsonName: manifest?.tenants?.[0]?.jsonFile,
-                tenantVehiclesCount: manifest?.tenants?.[0]?.vehiclesCount || 39,
-                mediaStatus: manifest?.media?.status || 'updated',
-                mediaArchiveName: manifest?.media?.archive,
-                mediaSizeMb: manifest?.media?.status === 'unmodified_skipped' ? '0 (Skip Inteligent)' : `${manifest?.media?.sizeMb || 71.6} MB`,
-                mediaReusedFrom: manifest?.media?.reusedFrom,
-                gdriveSynced: true,
-                deltaSummary: manifest?.media?.delta ? {
-                  newCarsCount: manifest.media.delta.newCarsCount || 0,
-                  updatedCarsCount: manifest.media.delta.updatedCarsCount || 0
-                } : undefined
-              });
-            }
-          }
-          snapshots.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
-        }
 
-        const fpPath = path.join(backupDir, 'latest_fingerprint.json');
-        if (fs.existsSync(fpPath)) {
-          latestFingerprint = JSON.parse(fs.readFileSync(fpPath, 'utf8'));
-        }
-      } catch (err) {
-        console.warn('[Backups API] Eroare la citirea backup-urilor:', err.message);
-      }
-
-      return sendJson(res, 200, {
-        success: true,
-        snapshots,
-        fingerprint: latestFingerprint,
-        telemetry: {
-          serverHost: '152.53.158.65 (Netcup VPS)',
-          dbContainer: '6fezufnklecoapemrupsqpxh (parcos)',
-          gdriveRemote: 'gdrive:Carvana_Backups/ParcOS_RXM',
-          cronSchedule: 'Zilnic la 01:15 AM CEST',
-          retentionDays: 30,
-          liveVehicles: 39,
-          livePhotos: 347,
-          latestFingerprintHash: latestFingerprint?.mediaHash || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-        }
-      });
-    }
-
-    // POST /api/admin/backups/trigger - Lansare Snapshot Manual
-    if (req.method === 'POST' && pathname === '/api/admin/backups/trigger') {
-      try {
-        const { exec } = await import('node:child_process');
-        exec('node /data/parcos/scripts/parcos_backup.mjs manual', (err, stdout) => {
-          if (err) console.error('[Backup Trigger Error]:', err);
-          else console.log('[Backup Trigger Success]:', (stdout || '').substring(0, 200));
-        });
-        return sendJson(res, 200, {
-          success: true,
-          message: 'Snapshot manual inițiat pe server. Sincronizarea Google Drive rulează autonom.'
-        });
-      } catch (err) {
-        return sendJson(res, 500, { success: false, error: err.message });
-      }
-    }
-
-    // POST /api/admin/backups/dry-run - Simulare Rollback
-    if (req.method === 'POST' && pathname === '/api/admin/backups/dry-run') {
-      const body = await parseJsonBody(req);
-      const tenantSlug = body.tenantSlug || 'rxm';
-      const snapshotId = body.snapshotId;
-      const withMedia = !!body.withMedia;
-
-      return sendJson(res, 200, {
-        success: true,
-        simulatedAt: new Date().toISOString(),
-        snapshotId,
-        targetTenant: tenantSlug,
-        currentLiveVehicles: 39,
-        backupVehicles: 39,
-        unchangedVehicles: 39,
-        toInsertVehicles: 0,
-        toDeleteVehicles: 0,
-        mediaAction: withMedia ? 'Dezarhivare completă 347 fișiere în /data/parcos/cars' : 'Neschimbat (DOAR baza de date SQL)',
-        estimatedExecutionTime: '1.2 secunde',
-        safetyAssessment: `Risc Scăzut — Toate cele 39 de mașini ale tenantului ${tenantSlug.toUpperCase()} coincid cu snapshot-ul.`
-      });
-    }
-
-    // POST /api/admin/backups/rollback - Executare Rollback Chirurgical
-    if (req.method === 'POST' && pathname === '/api/admin/backups/rollback') {
-      const body = await parseJsonBody(req);
-      const tenantSlug = (body.tenantSlug || 'rxm').toLowerCase().trim();
-      const confirmation = (body.confirmation || '').trim();
-      const withMedia = !!body.withMedia;
-      const snapshotId = body.snapshotId || '';
-
-      const expected = `ROLLBACK ${tenantSlug.toUpperCase()}`;
-      if (confirmation !== expected) {
-        return sendJson(res, 400, {
-          success: false,
-          error: `Confirmare invalidă. Tastați exact "${expected}".`
-        });
-      }
-
-      try {
-        const { execSync } = await import('node:child_process');
-        const mediaFlag = withMedia ? '--with-media' : '';
-        const tsFlag = snapshotId ? `--timestamp=${snapshotId.replace(/^(manual_|scheduled_)/, '')}` : '';
-        const cmd = `node /data/parcos/scripts/restore_tenant_backup.cjs --tenant=${tenantSlug} ${tsFlag} ${mediaFlag} --execute`;
-        
-        let output = '';
-        try {
-          output = execSync(cmd, { encoding: 'utf8', timeout: 30000 });
-        } catch (e) {
-          output = e.stdout || e.message;
-        }
-
-        return sendJson(res, 200, {
-          success: true,
-          status: 'SUCCESS',
-          executedAt: new Date().toISOString(),
-          tenant: tenantSlug,
-          snapshotId,
-          restoredVehiclesCount: 39,
-          restoredUsersCount: 1,
-          mediaUnpacked: withMedia,
-          cliOutput: output,
-          message: `Tenantul ${tenantSlug.toUpperCase()} a fost restaurat cu succes la starea din snapshot-ul selectat.`
-        });
-      } catch (err) {
-        return sendJson(res, 500, { success: false, error: err.message });
-      }
-    }
 
     // 0.04 POST /api/dealers - Onboarding / Configurare Dealer [SuperAdmin Required]
     if (req.method === 'POST' && pathname === '/api/dealers') {
@@ -1992,234 +1823,31 @@ export const server = http.createServer(async (req, res) => {
     }
 
     // 0.05 GET /api/anaf/:cui - Interogare oficială serviciu ANAF v9 pentru autocompletare CUI [Admin Required]
-    if (req.method === 'GET' && pathname.startsWith('/api/anaf/')) {
-      if (!isAuthorizedAdmin(req)) {
-        return sendJson(res, 401, { success: false, error: 'Acces restricționat: Autentificare de administrator necesară pentru interogare ANAF.' });
-      }
-      const cuiRaw = pathname.replace('/api/anaf/', '').replace(/\D/g, '');
-      const cleanCui = parseInt(cuiRaw, 10);
-      if (!cleanCui || String(cleanCui).length < 6 || String(cleanCui).length > 10) {
-        return sendJson(res, 400, { success: false, error: 'CUI invalid (6-10 cifre)' });
-      }
-
-      // Rate limit per token admin (max 30 req/min)
-      const adminToken = (req.headers['authorization'] || req.headers['x-admin-token'] || '').slice(0, 64);
-      const rateEntry = anafRateMap.get(adminToken) || { count: 0, windowStart: Date.now() };
-      if (Date.now() - rateEntry.windowStart > ANAF_RATE_WINDOW) {
-        rateEntry.count = 0;
-        rateEntry.windowStart = Date.now();
-      }
-      rateEntry.count++;
-      anafRateMap.set(adminToken, rateEntry);
-      if (rateEntry.count > ANAF_RATE_LIMIT) {
-        return sendJson(res, 429, { success: false, error: 'Limită interogări ANAF depășită. Max 30 interogări/minut.' });
-      }
-
-      // Verificare cache 24h
-      const cached = anafCache.get(cleanCui);
-      if (cached && Date.now() - cached.cachedAt < ANAF_CACHE_TTL) {
-        return sendJson(res, 200, cached.data);
-      }
-
-      try {
-        const today = new Date().toISOString().split('T')[0];
-        const anafRes = await fetch('https://webservicesp.anaf.ro/api/PlatitorTvaRest/v9/tva', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify([{ cui: cleanCui, data: today }]),
-        });
-        if (!anafRes.ok) {
-          return sendJson(res, 502, { success: false, error: `Eroare serviciu ANAF: HTTP ${anafRes.status}` });
-        }
-        const data = await anafRes.json();
-        if (!data.found || data.found.length === 0) {
-          return sendJson(res, 404, { success: false, error: 'CUI negăsit în registrul oficial ANAF' });
-        }
-        const c = data.found[0];
-        const gen = c.date_generale || {};
-        const tva = c.inregistrare_scop_Tva || {};
-        const payload = {
-          success: true,
-          cui: `RO${cleanCui}`,
-          rawCui: cleanCui,
-          name: gen.denumire || '',
-          regCom: gen.nrRegCom || '',
-          legalAddress: gen.adresa || '',
-          phone: gen.telefon || '',
-          postalCode: gen.codPostal || '',
-          isVatPayer: Boolean(tva.scpTVA),
-        };
-        anafCache.set(cleanCui, { data: payload, cachedAt: Date.now() });
-        return sendJson(res, 200, payload);
-      } catch (err) {
-        return sendJson(res, 500, { success: false, error: err.message });
-      }
+    if (await handleAnafRoutes(req, res, urlObj, pathname, { sendJson, isAuthorizedAdmin })) {
+      return;
     }
 
-    // 0.1 POST /api/auth/login - Autentificare Administrator & Emitere Token Sesiune (Decuplare Canonică SuperAdmin vs Dealer)
-    if (req.method === 'POST' && pathname === '/api/auth/login') {
-      const rawBody = await readRequestBody(req, 1024 * 64);
-      let payload;
-      try {
-        payload = JSON.parse(rawBody.toString('utf8'));
-      } catch {
-        return sendJson(res, 400, { success: false, error: 'Format JSON invalid' });
-      }
-
-      const password = String(payload.password || '').trim();
-      if (!password) {
-        return sendJson(res, 400, { success: false, error: 'Parola este obligatorie' });
-      }
-
-      const inputHash = crypto.createHash('sha256').update(password).digest('hex');
-
-      // Deducere context tenant & domeniu
-      const rawHost = (req.headers['host'] || '').split(':')[0].toLowerCase().trim().replace(/^www\./, '');
-      const reqTenant = normalizeSlug(payload.tenantId || payload.tenant_id || payload.dealerId || req.headers['x-tenant-id'] || '');
-      const isParcosContext = reqTenant === 'parcos' || rawHost.includes('parcos.ro');
-
-      // 👑 CAZUL 1: AUTENTIFICARE CONSOLĂ SUPERADMIN PARCOS (parcos.ro / tenant 'parcos')
-      if (isParcosContext) {
-        let isSuperAdminMatch = false;
-        try {
-          isSuperAdminMatch = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(SUPERADMIN_PASSWORD_HASH));
-        } catch {
-          isSuperAdminMatch = (inputHash === SUPERADMIN_PASSWORD_HASH);
-        }
-        if (!isSuperAdminMatch && (password === SUPERADMIN_MASTER_KEY || inputHash === crypto.createHash('sha256').update(SUPERADMIN_MASTER_KEY).digest('hex'))) {
-          isSuperAdminMatch = true;
-        }
-
-        if (!isSuperAdminMatch) {
-          // Detectare încercare folosire parolă showroom pe consola SuperAdmin
-          let isDealerPwd = false;
-          try {
-            isDealerPwd = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(ADMIN_PASSWORD_HASH));
-          } catch {
-            isDealerPwd = (inputHash === ADMIN_PASSWORD_HASH);
-          }
-          if (isDealerPwd) {
-            return sendJson(res, 401, {
-              success: false,
-              error: 'Parola introdusă este parola de showroom. Pe consola SuperAdmin ParcOS este necesară parola de platformă (Olaf.0311).'
-            });
-          }
-          return sendJson(res, 401, {
-            success: false,
-            error: 'Parolă incorectă pentru Consola SuperAdmin ParcOS. Accesul este rezervat exclusiv administratorilor Carvana SRL.'
-          });
-        }
-
-        const superToken = generateSuperAdminSessionToken();
-        return sendJson(res, 200, {
-          success: true,
-          token: superToken,
-          role: 'superadmin',
-          tenantId: 'parcos',
-          expiresIn: 86400,
-          message: '👑 Autentificare SuperAdmin ParcOS reușită'
-        });
-      }
-
-      // 🚗 CAZUL 2: AUTENTIFICARE SHOWROOM / DEALER (rxmautomobile.ro sau alt tenant)
-      // 2.1 Verificare Master SuperAdmin Override pe showroom (Olaf.0311 funcționează ca master key)
-      let isSuperOverride = false;
-      try {
-        isSuperOverride = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(SUPERADMIN_PASSWORD_HASH));
-      } catch {
-        isSuperOverride = (inputHash === SUPERADMIN_PASSWORD_HASH);
-      }
-      if (!isSuperOverride && (password === SUPERADMIN_MASTER_KEY || inputHash === crypto.createHash('sha256').update(SUPERADMIN_MASTER_KEY).digest('hex'))) {
-        isSuperOverride = true;
-      }
-
-      if (isSuperOverride) {
-        const superToken = generateSuperAdminSessionToken();
-        return sendJson(res, 200, {
-          success: true,
-          token: superToken,
-          role: 'superadmin',
-          tenantId: reqTenant || 'rxm',
-          expiresIn: 86400,
-          message: '👑 Autentificare Master SuperAdmin Override reușită pe showroom'
-        });
-      }
-
-      // 2.2 Verificare Parolă Showroom Admin (Luna.RXM)
-      let isDealerMatch = false;
-      try {
-        isDealerMatch = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(ADMIN_PASSWORD_HASH));
-      } catch {
-        isDealerMatch = (inputHash === ADMIN_PASSWORD_HASH);
-      }
-
-      if (!isDealerMatch) {
-        return sendJson(res, 401, {
-          success: false,
-          error: 'Parolă incorectă. Accesul este rezervat exclusiv administratorilor showroom-ului.'
-        });
-      }
-
-      const dealerToken = generateSessionToken('dealer_admin');
-      return sendJson(res, 200, {
-        success: true,
-        token: dealerToken,
-        role: 'dealer_admin',
-        dealerSlug: reqTenant || 'rxm',
-        expiresIn: 86400,
-        message: 'Autentificare administrator showroom reușită'
-      });
-    }
-
-    // 0.2 POST /api/auth/logout - Invalidare sesiune administrator
-    if (req.method === 'POST' && pathname === '/api/auth/logout') {
-      const authHeader = req.headers['authorization'] || '';
-      const tokenHeader = req.headers['x-admin-token'] || '';
-      let token = authHeader.startsWith('Bearer ') ? authHeader.substring(7).trim() : (authHeader.trim() || String(tokenHeader).trim());
-      revokeSessionToken(token);
-      return sendJson(res, 200, { success: true, message: 'Deconectare reușită' });
-    }
-
-    // 0.3 GET /api/auth/verify - Verificare stare sesiune administrator
-    if (req.method === 'GET' && pathname === '/api/auth/verify') {
-      if (isAuthorizedAdmin(req)) {
-        return sendJson(res, 200, { success: true, authenticated: true });
-      }
-      return sendJson(res, 401, { success: false, authenticated: false, error: 'Sesiune neautorizată sau expirată' });
-    }
 
     // ══════════════════════════════════════════════════════════════════
-    // PARCOS SUPERADMIN MASTER CONTROL PLANE AUTH & GUARD (SA-02)
+    // AUTHENTICATION & SUPERADMIN VERIFY ROUTES (MODULAR: server/routes/auth.mjs)
     // ══════════════════════════════════════════════════════════════════
-
-    // 0.35 POST & GET /api/superadmin/auth/verify - Verificare Cheie Master SuperAdmin
-    if ((req.method === 'POST' || req.method === 'GET') && pathname === '/api/superadmin/auth/verify') {
-      if (isAuthorizedSuperAdmin(req)) {
-        return sendJson(res, 200, {
-          success: true,
-          authorized: true,
-          user: 'ParcOS Master Architect',
-          role: 'superadmin',
-          timestamp: new Date().toISOString()
-        });
-      }
-      return sendJson(res, 401, {
-        success: false,
-        authorized: false,
-        error: 'Unauthorized: Invalid SuperAdmin credentials'
-      });
+    // Note: Suportă pathname === '/api/superadmin/auth/verify', /api/auth/login, /api/auth/logout, /api/auth/verify
+    if (await handleAuthRoutes(req, res, urlObj, pathname, {
+      sendJson,
+      readRequestBody,
+      SUPERADMIN_PASSWORD_HASH,
+      ADMIN_PASSWORD_HASH,
+      SUPERADMIN_MASTER_KEY,
+      generateSuperAdminSessionToken,
+      generateSessionToken,
+      revokeSessionToken,
+      isAuthorizedAdmin,
+      isAuthorizedSuperAdmin,
+      normalizeSlug
+    })) {
+      return;
     }
 
-    // Guard mecanic SuperAdmin pe toate celelalte rute /api/superadmin/*
-    if (pathname.startsWith('/api/superadmin/')) {
-      if (!isAuthorizedSuperAdmin(req)) {
-        return sendJson(res, 401, {
-          success: false,
-          authorized: false,
-          error: 'Unauthorized: Invalid SuperAdmin credentials'
-        });
-      }
-    }
 
     // ══════════════════════════════════════════════════════════════════
     // PARCOS MAIL HUB ROUTES (PMH-201, PMH-202, PMH-203)
