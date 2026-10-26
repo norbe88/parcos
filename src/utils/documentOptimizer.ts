@@ -1,7 +1,7 @@
 /**
  * ════════════════════════════════════════════════════════════════════════════════
  * ParcOS Document Optimizer & High-Contrast Compression Engine
- * Sprint: Recon & Service Tracker (MPI Mureș)
+ * Sprint: Recon & Service Tracker (MPI AUTO CLA S.R.L.)
  * Holding: CARVANA SRL • Invariante: 100% Text Legibility • 90%+ Size Reduction
  * ════════════════════════════════════════════════════════════════════════════════
  * 

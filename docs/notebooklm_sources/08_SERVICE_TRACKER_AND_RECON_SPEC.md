@@ -1,7 +1,7 @@
 # 🔬 RAPORT CERCETARE & SPECIFICAȚIE ARHITECTURALĂ: VEHICLE RECON & SERVICE TRACKER + HIGH-RES DOCUMENT VAULT (PARCOS 2026)
 > **Data & Ora:** 2026-10-26 01:40:00  
 > **Sursă Grounding:** NotebookLM Master Brain (`[CARVANA] RXM Automobile Showroom Brain` • `86c800a6-9429-46c4-a9a9-894d205df501`)  
-> **Target:** Gestiune Operațională Parc Auto (MPI Mureș / RXM Automobile / Chiriași ParcOS)  
+> **Target:** Gestiune Operațională Parc Auto (MPI AUTO CLA S.R.L. / RXM Automobile / Chiriași ParcOS)  
 > **Holding:** CARVANA SRL
 
 ---

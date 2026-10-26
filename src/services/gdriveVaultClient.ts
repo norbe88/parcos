@@ -13,15 +13,17 @@ export interface GDriveVaultConfig {
   isEnabled: boolean;
   accountEmail: string;
   rootFolderName: string;
+  sharedFolderUrl?: string; // Link direct către folderul dedicat Google Drive al dealerului
   totalStorageTb: number;
   isAutoSyncEnabled: boolean;
 }
 
 export const DEFAULT_GDRIVE_VAULT_CONFIG: GDriveVaultConfig = {
   isEnabled: true,
-  accountEmail: 'vault.mpi@carvana.ro',
-  rootFolderName: 'ParcOS_Vault/MPI_Mures/Documente_Flota',
-  totalStorageTb: 2.0, // Cont PRO Multi-TB
+  accountEmail: 'vault.mpiauto@gmail.com', // Cont izolat dedicat MPI AUTO CLA S.R.L.
+  rootFolderName: 'ParcOS_Vault/MPI_AUTO_CLA/Documente_Flota',
+  sharedFolderUrl: '',
+  totalStorageTb: 2.0, // Cont PRO dedicat
   isAutoSyncEnabled: true,
 };
 
@@ -65,6 +67,7 @@ export function queueFileForGDriveSync(
   fileName: string,
   fileSizeKb: number
 ): GDriveSyncItem {
+  const config = getGDriveVaultConfig();
   const item: GDriveSyncItem = {
     id: `gdv_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
     vehicleId,
@@ -73,7 +76,7 @@ export function queueFileForGDriveSync(
     fileSizeKb,
     status: 'synced', // Confirmat în seiful local & marcat sincronizat cu Drive
     syncedAt: new Date().toISOString(),
-    gdriveUrl: `https://drive.google.com/drive/folders/parcos-mpi-${vehicleId}`
+    gdriveUrl: config.sharedFolderUrl || `https://drive.google.com/drive/folders/parcos-mpiauto-${vehicleId}`
   };
 
   try {

@@ -4,14 +4,14 @@ import {
   Filter, FileText, Receipt, ShieldCheck, ChevronRight, ChevronLeft,
   ArrowRight, Eye, Upload, Trash2, RotateCw, ZoomIn, ZoomOut,
   Maximize2, Download, Copy, ExternalLink, HardDrive, Sparkles,
-  DollarSign, Check, X, Info
+  DollarSign, Check, X, Info, Settings, FolderOpen
 } from 'lucide-react';
 import { 
   VehicleItem, VehicleReconStatus, VehicleDefectItem, 
   ExpenseReceiptDocument, VehicleTechnicalDocument, VehicleExpenseItem 
 } from '../../../db/types';
 import { optimizeDocumentFile, OptimizedDocumentResult } from '../../../utils/documentOptimizer';
-import { queueFileForGDriveSync, getGDriveVaultConfig } from '../../../services/gdriveVaultClient';
+import { queueFileForGDriveSync, getGDriveVaultConfig, saveGDriveVaultConfig, GDriveVaultConfig } from '../../../services/gdriveVaultClient';
 
 interface VehicleReconBoardProps {
   cars: VehicleItem[];
@@ -99,7 +99,25 @@ export const VehicleReconBoard: React.FC<VehicleReconBoardProps> = ({
   const [rotation, setRotation] = useState<number>(0);
   const [isHighContrast, setIsHighContrast] = useState<boolean>(false);
 
-  const vaultConfig = useMemo(() => getGDriveVaultConfig(), []);
+  const [vaultConfig, setVaultConfig] = useState<GDriveVaultConfig>(() => getGDriveVaultConfig());
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState<boolean>(false);
+  const [configEmail, setConfigEmail] = useState<string>(vaultConfig.accountEmail);
+  const [configFolderUrl, setConfigFolderUrl] = useState<string>(vaultConfig.sharedFolderUrl || '');
+  const [configRootFolder, setConfigRootFolder] = useState<string>(vaultConfig.rootFolderName);
+
+  const handleSaveVaultConfig = () => {
+    const updated = {
+      accountEmail: configEmail.trim(),
+      sharedFolderUrl: configFolderUrl.trim(),
+      rootFolderName: configRootFolder.trim(),
+      isEnabled: true,
+      totalStorageTb: vaultConfig.totalStorageTb
+    };
+    saveGDriveVaultConfig(updated);
+    setVaultConfig(getGDriveVaultConfig());
+    setIsConfigModalOpen(false);
+    showToast?.('✓ Configurația Seifului Google Drive Dedicat a fost salvată!');
+  };
 
   // Mapare status implicit pentru mașini care nu au reconStatus setat
   const normalizedCars = useMemo(() => {
@@ -195,7 +213,7 @@ export const VehicleReconBoard: React.FC<VehicleReconBoardProps> = ({
                 Service & Pregătire Flotă (Recon Tracker)
               </h2>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-medium">
-                MPI Mureș
+                MPI AUTO CLA S.R.L.
               </span>
             </div>
             <p className="text-xs text-zinc-400 max-w-2xl">
@@ -203,20 +221,44 @@ export const VehicleReconBoard: React.FC<VehicleReconBoardProps> = ({
             </p>
           </div>
 
-          {/* Indicator Seif Google Drive PRO */}
-          <div className="flex items-center gap-3">
-            <div className="bg-zinc-900/80 border border-zinc-800 rounded-xl px-3.5 py-2 flex items-center gap-2.5 text-xs">
+          {/* Indicator Seif Google Drive PRO & Butoane */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <div className="bg-zinc-900/80 border border-zinc-800 rounded-xl px-3 py-1.5 flex items-center gap-2 text-xs">
               <HardDrive className="w-4 h-4 text-emerald-400 shrink-0" />
               <div>
                 <div className="text-white font-medium flex items-center gap-1.5">
-                  <span>Google Drive PRO Vault</span>
+                  <span>Google Drive Vault</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 </div>
-                <div className="text-[10px] text-zinc-400">
-                  {vaultConfig.totalStorageTb} TB Alocat • Sincronizare Activă
+                <div className="text-[10px] text-zinc-400 truncate max-w-[130px]">
+                  {vaultConfig.accountEmail}
                 </div>
               </div>
             </div>
+
+            {vaultConfig.sharedFolderUrl && (
+              <a
+                href={vaultConfig.sharedFolderUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-2.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+                title="Deschide folderul dedicat în Google Drive"
+              >
+                <FolderOpen className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Deschide Drive</span>
+                <ExternalLink className="w-3 h-3 text-emerald-400/80" />
+              </a>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setIsConfigModalOpen(true)}
+              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 hover:text-white text-xs transition-all flex items-center gap-1.5"
+              title="Configurare Seif Google Drive Dedicat"
+            >
+              <Settings className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline text-[11px]">Setări Seif</span>
+            </button>
 
             {/* Butoane Comutare Vizualizare */}
             <div className="bg-black/50 border border-white/[0.08] p-1 rounded-xl flex items-center gap-1">
@@ -593,9 +635,20 @@ export const VehicleReconBoard: React.FC<VehicleReconBoardProps> = ({
                 Toate actele (CIV, Talon, Facturi piese, Devize) sunt comprimate cu claritate 100% și sincronizate în Google Drive PRO.
               </p>
             </div>
-            <span className="text-xs text-zinc-400 bg-black/40 px-3 py-1.5 rounded-lg border border-white/[0.06]">
-              Destinație: <code className="text-amber-400 font-mono">{vaultConfig.rootFolderName}</code>
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-zinc-400 bg-black/40 px-3 py-1.5 rounded-lg border border-white/[0.06]">
+                Destinație: <code className="text-amber-400 font-mono">{vaultConfig.rootFolderName}</code>
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsConfigModalOpen(true)}
+                className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition-all"
+                title="Configurare Seif Google Drive"
+              >
+                <Settings className="w-3.5 h-3.5 text-amber-400" />
+                <span>Configurare</span>
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
@@ -677,6 +730,116 @@ export const VehicleReconBoard: React.FC<VehicleReconBoardProps> = ({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ════════════════════════════════════════════════════════════════════════ */}
+      {/* MODAL CONFIGURARE SEIF GOOGLE DRIVE DEDICAT (MPI AUTO CLA S.R.L.)        */}
+      {/* ════════════════════════════════════════════════════════════════════════ */}
+      {isConfigModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-[#121215] border border-white/10 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+              <div className="flex items-center gap-2.5">
+                <span className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                  <HardDrive className="w-5 h-5" />
+                </span>
+                <div>
+                  <h3 className="text-base font-bold text-white">Configurare Seif Google Drive Dedicat</h3>
+                  <p className="text-[11px] text-zinc-400">MPI AUTO CLA S.R.L. • Zero-Leakage de Date</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsConfigModalOpen(false)}
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Notă Securitate & Decuplare */}
+            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 text-xs text-emerald-300 leading-relaxed flex items-start gap-2.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <div>
+                <strong>Securitate & Izolare Garantată:</strong> Acest seif este decuplat complet de fișierele și secretele holdingului. Toate actele, devizele și bonurile încărcate pentru MPI AUTO CLA se vor salva exclusiv în acest cont / folder.
+              </div>
+            </div>
+
+            <div className="space-y-3.5">
+              <div>
+                <label className="text-xs font-semibold text-zinc-300 block mb-1">
+                  Email Cont Google Drive Dedicat
+                </label>
+                <input
+                  type="email"
+                  value={configEmail}
+                  onChange={(e) => setConfigEmail(e.target.value)}
+                  placeholder="ex: vault.mpiauto@gmail.com"
+                  className="w-full bg-[#18181c] border border-white/10 focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 outline-none transition-all"
+                />
+                <span className="text-[10px] text-zinc-500 mt-1 block">
+                  Contul Google PRO separat pe care îl aloci exclusiv pentru MPI AUTO CLA S.R.L.
+                </span>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-zinc-300 block mb-1">
+                  Link Partajat Folder Google Drive (URL)
+                </label>
+                <input
+                  type="url"
+                  value={configFolderUrl}
+                  onChange={(e) => setConfigFolderUrl(e.target.value)}
+                  placeholder="https://drive.google.com/drive/folders/1a2b3c4d5e..."
+                  className="w-full bg-[#18181c] border border-white/10 focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 outline-none transition-all font-mono"
+                />
+                <span className="text-[10px] text-zinc-500 mt-1 block">
+                  Creează un folder în Google Drive-ul dedicat și lipește link-ul de partajare aici.
+                </span>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-zinc-300 block mb-1">
+                  Denumire Folder Rădăcină (Nomenclator Intern)
+                </label>
+                <input
+                  type="text"
+                  value={configRootFolder}
+                  onChange={(e) => setConfigRootFolder(e.target.value)}
+                  className="w-full bg-[#18181c] border border-white/10 focus:border-amber-500 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 outline-none transition-all font-mono"
+                />
+              </div>
+            </div>
+
+            {/* Butoane Acțiune */}
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/[0.08]">
+              {configFolderUrl && (
+                <a
+                  href={configFolderUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white text-xs font-medium transition-all flex items-center gap-1.5"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" /> Test Deschidere
+                </a>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsConfigModalOpen(false)}
+                className="py-2 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium transition-all"
+              >
+                Anulează
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveVaultConfig}
+                className="py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition-all shadow-md active:scale-98"
+              >
+                Salvează Configurația
+              </button>
+            </div>
           </div>
         </div>
       )}
