@@ -3,7 +3,7 @@ import {
   Car, Users, FileText, Radio, QrCode, Share2, BarChart3, 
   Settings, Plus, ExternalLink, HelpCircle, LogOut, X, 
   ShieldCheck, Layers, Building2, ChevronRight, CheckCircle2, DollarSign, Mail,
-  Sun, Moon, CreditCard, Puzzle
+  Sun, Moon, CreditCard, Puzzle, Wrench
 } from 'lucide-react';
 import { DealerProfile, SEED_DEALER } from '../../db/seed';
 import { useWorkspace } from '../../context/WorkspaceContext';
@@ -11,6 +11,7 @@ import { getSavedFinancingDossiers } from '../../services/financingService';
 
 export type AdminTabType = 
   | 'inventory'       // 🚗 Stoc & Inventar
+  | 'recon_tracker'   // 🔧 Service & Pregătire (Recon & Document Vault)
   | 'crm'             // 📋 Conducta CRM Kanban
   | 'mail'            // 📧 ParcOS Mail Hub (PMH-301)
   | 'sales_docs'      // 📑 Centru Acte Vânzare (1-Click OCR)
@@ -91,6 +92,13 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
           icon: Car,
           badge: `${stats.inStock} activ`,
           badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+        },
+        {
+          id: 'recon_tracker' as AdminTabType,
+          label: 'Service & Pregătire',
+          icon: Wrench,
+          badge: 'Recon & Acte',
+          badgeColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30'
         },
         {
           id: 'crm' as AdminTabType,

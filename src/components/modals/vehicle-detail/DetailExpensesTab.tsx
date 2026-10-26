@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   DollarSign, Plus, Trash2, TrendingUp, TrendingDown, Receipt, 
-  ShieldCheck, AlertCircle, Wrench, Calendar, Sparkles, Tag
+  ShieldCheck, AlertCircle, Wrench, Calendar, Sparkles, Tag,
+  Upload, Eye, X, ZoomIn, ZoomOut, RotateCw
 } from 'lucide-react';
-import { VehicleItem, VehicleExpenseItem, VehicleExpenseCategory } from '../../../db/types';
+import { VehicleItem, VehicleExpenseItem, VehicleExpenseCategory, ExpenseReceiptDocument } from '../../../db/types';
 import { calculateVehicleFinancials, getExpenseCategoryLabel } from '../../../utils/helpers';
+import { optimizeDocumentFile } from '../../../utils/documentOptimizer';
+import { queueFileForGDriveSync } from '../../../services/gdriveVaultClient';
 
 interface DetailExpensesTabProps {
   car: VehicleItem;
@@ -31,6 +34,16 @@ export const DetailExpensesTab: React.FC<DetailExpensesTabProps> = ({
   const [amountStr, setAmountStr] = useState('');
   const [invoiceRef, setInvoiceRef] = useState('');
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
+  
+  // Atașare bon optimizat
+  const [attachedReceipt, setAttachedReceipt] = useState<ExpenseReceiptDocument | null>(null);
+  const [isOptimizingReceipt, setIsOptimizingReceipt] = useState<boolean>(false);
+  const receiptInputRef = useRef<HTMLInputElement>(null);
+
+  // Previzualizare Bon / Factură High-Res
+  const [previewDoc, setPreviewDoc] = useState<ExpenseReceiptDocument | null>(null);
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [rotation, setRotation] = useState<number>(0);
 
   // Editare inline preț de achiziție
   const [isEditingPurchasePrice, setIsEditingPurchasePrice] = useState(false);
@@ -60,6 +73,36 @@ export const DetailExpensesTab: React.FC<DetailExpensesTabProps> = ({
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsOptimizingReceipt(true);
+    try {
+      const result = await optimizeDocumentFile(file, {
+        maxDimension: 1800,
+        quality: 0.78,
+        enhanceContrast: true
+      });
+      queueFileForGDriveSync(car.id, 'receipt', result.fileName, result.fileSizeKb);
+      setAttachedReceipt({
+        id: `rcp_${Date.now()}`,
+        name: result.fileName,
+        type: 'receipt',
+        fileSizeKb: result.fileSizeKb,
+        originalSizeKb: result.originalSizeKb,
+        compressionRatio: result.compressionRatio,
+        dataUrl: result.dataUrl,
+        uploadedAt: new Date().toISOString()
+      });
+      showToast?.(`Bon optimizat: ${result.originalSizeKb} KB ➔ ${result.fileSizeKb} KB (-${result.compressionRatio}%)`);
+    } catch (err: any) {
+      showToast?.(`Eroare la procesarea bonului: ${err.message}`);
+    } finally {
+      setIsOptimizingReceipt(false);
+      if (receiptInputRef.current) receiptInputRef.current.value = '';
+    }
+  };
+
   const handleSubmitExpense = (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseInt(amountStr, 10);
@@ -74,13 +117,15 @@ export const DetailExpensesTab: React.FC<DetailExpensesTabProps> = ({
         title: title.trim(),
         amountEur: amount,
         date: date || new Date().toISOString().split('T')[0],
-        invoiceRef: invoiceRef.trim() || undefined
+        invoiceRef: invoiceRef.trim() || undefined,
+        receipts: attachedReceipt ? [attachedReceipt] : undefined
       });
       showToast?.(`Cheltuiala de ${amount} € a fost adăugată cu succes.`);
       // Resetare formular
       setTitle('');
       setAmountStr('');
       setInvoiceRef('');
+      setAttachedReceipt(null);
     }
   };
 
@@ -309,7 +354,7 @@ export const DetailExpensesTab: React.FC<DetailExpensesTabProps> = ({
           </div>
         </form>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-white/[0.05]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3 pt-3 border-t border-white/[0.05]">
           <div>
             <label className="block text-[10px] text-zinc-400 mb-1">Data Înregistrării</label>
             <input 
@@ -328,6 +373,40 @@ export const DetailExpensesTab: React.FC<DetailExpensesTabProps> = ({
               onChange={(e) => setInvoiceRef(e.target.value)}
               className="w-full bg-[#1b1b1f] border border-white/10 rounded-lg px-2.5 py-1 text-xs text-zinc-300 placeholder-zinc-600 focus:outline-none"
             />
+          </div>
+          <div>
+            <label className="block text-[10px] text-zinc-400 mb-1">Atașează Bon / Factură Foto</label>
+            <input
+              ref={receiptInputRef}
+              type="file"
+              accept="image/*,application/pdf"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            {attachedReceipt ? (
+              <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/25 rounded-lg px-2.5 py-1 text-xs text-emerald-300">
+                <span className="truncate text-[11px] font-mono">
+                  🧾 {attachedReceipt.name} ({attachedReceipt.fileSizeKb} KB)
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setAttachedReceipt(null)}
+                  className="text-zinc-400 hover:text-white ml-1 p-0.5"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                disabled={isOptimizingReceipt}
+                onClick={() => receiptInputRef.current?.click()}
+                className="w-full bg-[#1b1b1f] hover:bg-[#25252b] border border-dashed border-white/15 rounded-lg px-2.5 py-1 text-xs text-zinc-400 hover:text-amber-400 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>{isOptimizingReceipt ? 'Se comprimă...' : 'Atașează Bon (-95%)'}</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -357,7 +436,7 @@ export const DetailExpensesTab: React.FC<DetailExpensesTabProps> = ({
                   <th className="py-2.5 px-4">Categorie</th>
                   <th className="py-2.5 px-4">Descriere</th>
                   <th className="py-2.5 px-4">Dată</th>
-                  <th className="py-2.5 px-4">Ref. Factură</th>
+                  <th className="py-2.5 px-4">Ref. Factură & Bon</th>
                   <th className="py-2.5 px-4 text-right">Sumă EUR</th>
                   <th className="py-2.5 px-4 text-right">Acțiuni</th>
                 </tr>
@@ -365,6 +444,8 @@ export const DetailExpensesTab: React.FC<DetailExpensesTabProps> = ({
               <tbody className="divide-y divide-white/[0.04]">
                 {expensesList.map((exp) => {
                   const meta = getExpenseCategoryLabel(exp.category);
+                  const firstReceipt = exp.receipts?.[0];
+
                   return (
                     <tr key={exp.id} className="hover:bg-white/[0.02] transition-colors">
                       <td className="py-3 px-4 whitespace-nowrap">
@@ -374,7 +455,25 @@ export const DetailExpensesTab: React.FC<DetailExpensesTabProps> = ({
                       </td>
                       <td className="py-3 px-4 font-medium text-white">{exp.title}</td>
                       <td className="py-3 px-4 font-mono text-[11px] text-zinc-400">{exp.date}</td>
-                      <td className="py-3 px-4 text-zinc-500 text-[11px]">{exp.invoiceRef || '—'}</td>
+                      <td className="py-3 px-4 text-zinc-500 text-[11px]">
+                        <div className="flex items-center gap-2">
+                          <span>{exp.invoiceRef || '—'}</span>
+                          {firstReceipt?.dataUrl && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPreviewDoc(firstReceipt);
+                                setZoomLevel(1);
+                                setRotation(0);
+                              }}
+                              className="px-2 py-0.5 rounded bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 font-medium text-[10px] flex items-center gap-1 transition-colors"
+                              title="Deschide bonul fiscal / factura"
+                            >
+                              <Eye className="w-3 h-3" /> Bon ({firstReceipt.fileSizeKb} KB)
+                            </button>
+                          )}
+                        </div>
+                      </td>
                       <td className="py-3 px-4 text-right font-mono font-bold text-amber-300">
                         {exp.amountEur.toLocaleString('ro-RO')} €
                       </td>
@@ -398,6 +497,77 @@ export const DetailExpensesTab: React.FC<DetailExpensesTabProps> = ({
           </div>
         )}
       </div>
+
+      {/* 🔍 Modal Previzualizare Bon / Factură */}
+      {previewDoc && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-between p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-4xl flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white">
+            <div className="flex items-center gap-3">
+              <Receipt className="w-5 h-5 text-cyan-400" />
+              <div>
+                <h4 className="text-sm font-bold truncate">{previewDoc.name}</h4>
+                <div className="text-[11px] text-zinc-400 flex items-center gap-2">
+                  <span>{previewDoc.fileSizeKb} KB</span>
+                  {previewDoc.compressionRatio && (
+                    <span className="text-emerald-400 font-medium">
+                      (Comprimat -{previewDoc.compressionRatio}% • 100% Claritate)
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setZoomLevel(prev => Math.min(prev + 0.25, 3.5))}
+                className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
+              >
+                <ZoomIn className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setZoomLevel(prev => Math.max(prev - 0.25, 0.5))}
+                className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
+              >
+                <ZoomOut className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setRotation(prev => (prev + 90) % 360)}
+                className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
+              >
+                <RotateCw className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setPreviewDoc(null)}
+                className="p-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 ml-2"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 w-full max-w-4xl flex items-center justify-center overflow-auto p-4 my-2">
+            <div 
+              style={{
+                transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
+                transition: 'transform 0.15s ease-out'
+              }}
+              className="max-h-[75vh] flex items-center justify-center"
+            >
+              {previewDoc.dataUrl && (
+                <img
+                  src={previewDoc.dataUrl}
+                  alt={previewDoc.name}
+                  className="rounded-lg shadow-2xl object-contain max-h-[70vh] border border-zinc-700"
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="text-zinc-500 text-xs">
+            Apasă ESC sau butonul de închidere pentru a reveni.
+          </div>
+        </div>
+      )}
 
     </div>
   );

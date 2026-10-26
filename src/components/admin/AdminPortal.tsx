@@ -36,6 +36,8 @@ import { OLXExtensionInstallModal } from './OLXExtensionInstallModal';
 import { convertEurToRon } from '../../utils/currencyEngine';
 import { DealPricingData } from './DealPriceModal';
 import { useWorkspace } from '../../context/WorkspaceContext';
+import { VehicleReconBoard } from './service-tracker/VehicleReconBoard';
+import { VehicleExpenseItem } from '../../db/types';
 
 interface AdminPortalProps {
   cars: VehicleItem[];
@@ -72,6 +74,8 @@ interface AdminPortalProps {
   onUpdateAutolicitSync?: (carId: string, syncData?: NonNullable<VehicleItem['autolicitSync']>) => void;
   onUpdatePrice?: (carId: string, newPriceEur: number, oldPriceEur?: number, auditNote?: string) => void;
   onEditCar?: (car: VehicleItem) => void;
+  onUpdateCar?: (car: VehicleItem) => void;
+  onAddExpense?: (carId: string, expense: Omit<VehicleExpenseItem, 'id'>) => void;
 }
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({
@@ -100,7 +104,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   onUpdateInternalNotes,
   onUpdateAutolicitSync,
   onUpdatePrice,
-  onEditCar
+  onEditCar,
+  onUpdateCar,
+  onAddExpense
 }) => {
   const { tenant } = useTenant();
   const { settings } = useWorkspace();
@@ -537,6 +543,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               }}
             />
           </div>
+        )}
+
+        {/* 1.5 Operațiuni Stoc: Service & Pregătire Flotă (Recon Tracker & High-Res Document Vault) */}
+        {activeAdminTab === 'recon_tracker' && (
+          <VehicleReconBoard
+            cars={cars}
+            onUpdateCar={onUpdateCar || onEditCar}
+            onAddExpense={onAddExpense}
+            showToast={showToast}
+          />
         )}
 
         {/* 2. Operațiuni Stoc: Conductă CRM Kanban */}

@@ -1749,6 +1749,8 @@ export default function App() {
                 onUpdateInternalNotes={handleUpdateInternalNotes}
                 onUpdateAutolicitSync={handleUpdateAutolicitSync}
                 onUpdatePrice={handleUpdatePrice}
+                onUpdateCar={handleUpdateCar}
+                onAddExpense={handleAddExpense}
               />
 
               {/* 🚗 Modal Extins Adăugare / Editare Mașină (CIV OCR) */}

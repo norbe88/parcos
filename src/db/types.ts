@@ -63,6 +63,10 @@ export interface VehicleItem {
   // Jurnal Evenimente & Audit Trail (Ticket 03) + Note Administrative (Ticket 04)
   auditLog?: VehicleAuditEntry[];
   internalNotes?: string;
+  // ── Reconditioning & Service Pipeline (MPI / ParcOS Recon) ────────────────
+  reconStatus?: VehicleReconStatus;
+  reconDefects?: VehicleDefectItem[];
+  technicalDocuments?: VehicleTechnicalDocument[];
   features: {
     safety: string[];
     comfort: string[];
@@ -103,6 +107,50 @@ export type VehicleExpenseCategory =
   | 'parts' 
   | 'other';
 
+export type VehicleReconStatus = 
+  | 'intake_inspection'  // 📥 1. Preluare & Diagnoză (Check-in, listă defecte)
+  | 'in_workshop'        // 🔧 2. Mecanică & Piese (La elevator / Reparații)
+  | 'detailing'          // 🎨 3. Tinichigerie & Detailing (Polish, Curățare chimică)
+  | 'rar_itp'            // 📑 4. RAR & Acte (Omologare, ITP, Numere roșii)
+  | 'ready_for_sale';    // ✨ 5. Gata de Vânzare (Expusă în Showroom)
+
+export interface VehicleDefectItem {
+  id: string;
+  title: string;
+  severity: 'low' | 'medium' | 'critical';
+  resolved: boolean;
+  resolvedAt?: string;
+  mechanicNote?: string;
+  linkedExpenseId?: string; // Legătură automată cu cheltuiala de piese/service
+  createdAt: string;
+}
+
+export interface ExpenseReceiptDocument {
+  id: string;
+  name: string;
+  type: 'receipt' | 'invoice' | 'warranty' | 'other';
+  fileSizeKb: number;
+  originalSizeKb?: number;
+  compressionRatio?: number; // ex: 94% economisire spațiu
+  dataUrl?: string;          // imagine optimizată comprimată (base64) pentru inspecție rapidă
+  gdriveFileId?: string;     // Google Drive Vault remote ID
+  gdriveWebViewLink?: string;// Link vizualizare Google Drive PRO
+  uploadedAt: string;
+}
+
+export interface VehicleTechnicalDocument {
+  id: string;
+  type: 'civ' | 'talon' | 'purchase_invoice' | 'diagnosis_tuv' | 'warranty_book' | 'other';
+  title: string;
+  fileSizeKb: number;
+  originalSizeKb?: number;
+  compressionRatio?: number;
+  dataUrl?: string;          // imagine / preview PDF comprimat de înaltă claritate
+  gdriveFileId?: string;     // Google Drive Vault backup ID
+  gdriveWebViewLink?: string;
+  uploadedAt: string;
+}
+
 export interface VehicleExpenseItem {
   id: string;
   category: VehicleExpenseCategory;
@@ -111,6 +159,7 @@ export interface VehicleExpenseItem {
   date: string;
   invoiceRef?: string;
   notes?: string;
+  receipts?: ExpenseReceiptDocument[]; // 🧾 Bonuri & facturi optimizate (Google Drive Vault)
 }
 
 export interface DealerMarketBenchmark {
