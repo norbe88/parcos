@@ -79,3 +79,66 @@
 - **Terminologie Garanții:** Strict „Cont de Garanție” / „Garanție de Rezervare”. 0 apariții ale termenilor interziși („escrow”, „cont fiduciar”).
 - **Verificare Typecheck:** `npx tsc --noEmit` rulează cu 0 erori.
 - **Verificare Build Producție:** `npm run build` finalizează în 14.94s cu exit code 0.
+
+---
+
+## 5. QA Run — 2026-10-27T19:07:00Z (Orchestrator: Orchi)
+### Modul Țintă: OLX Auto-Link, Smart Inventory Signature & Reconciler Engine (`scripts/qa_olx_reconciler_suite.ts`)
+
+### Matrice Verificare (51 Scenarii — 100% PASS):
+- [ PASS ] [WorkyOne] Signature conține tagul corect de inventar #RXM-7412 — 19:07:16Z
+- [ PASS ] [WorkyOne] Signature conține seria VIN curățată — 19:07:16Z
+- [ PASS ] [WorkyOne] Signature respectă politica OLX (fără linii decorative de separare) — 19:07:16Z
+- [ PASS ] [WorkyOne] Formatează număr 10 cifre în format 0748_892_937 — 19:07:16Z
+- [ PASS ] [WorkyOne] Formatează număr internațional +40 în 0748_892_937 — 19:07:16Z
+- [ PASS ] [WorkyOne] Formatează prefix 0040 în 0748_892_937 — 19:07:16Z
+- [ PASS ] [WorkyOne] Convertește cm³ în cmc conform regulilor OLX — 19:07:16Z
+- [ PASS ] [WorkyOne] Elimină linkurile web externe (interzise pe OLX) — 19:07:16Z
+- [ PASS ] [WorkyOne] Formatează numărul de telefon în formatul aprobat OLX — 19:07:16Z
+- [ PASS ] [WorkyTwo] Mapează Sedan -> Berlina — 19:07:16Z
+- [ PASS ] [WorkyTwo] Mapează Touring -> Break — 19:07:16Z
+- [ PASS ] [WorkyTwo] Mapează Crossover -> SUV — 19:07:16Z
+- [ PASS ] [WorkyTwo] Mapează Negru Metalizat -> Negru — 19:07:16Z
+- [ PASS ] [WorkyTwo] Mapează Gri Daytona -> Gri — 19:07:16Z
+- [ PASS ] [WorkyTwo] Mapează Diesel corect — 19:07:16Z
+- [ PASS ] [WorkyTwo] Mapează Hybrid -> Hibrid — 19:07:16Z
+- [ PASS ] [WorkyTwo] Mapează Automata -> automat — 19:07:16Z
+- [ PASS ] [WorkyTwo] Mapează Manuala -> manual — 19:07:16Z
+- [ PASS ] [WorkyTwo] Descrierea completă OLX conține amprenta de inventar — 19:07:16Z
+- [ PASS ] [WorkyTwo] Lungimea descrierii respectă limita maximă OLX de 9000 caractere — 19:07:16Z
+- [ PASS ] [WorkyTwo] Extrage stockNumber standard RXM-7412 — 19:07:17Z
+- [ PASS ] [WorkyTwo] Extrage VIN standard WBA5D31080D741216 — 19:07:17Z
+- [ PASS ] [WorkyTwo] Extrage stockNumber cu diacritice românești (ID Referință) — 19:07:17Z
+- [ PASS ] [WorkyTwo] Extrage VIN cu diacritice (Serie Șasiu) — 19:07:17Z
+- [ PASS ] [WorkyTwo] Extrage tag inline #RXM-8890 din text liber — 19:07:17Z
+- [ PASS ] [WorkyTwo] Extrage VIN fără etichetă completă — 19:07:17Z
+- [ PASS ] [WorkyTwo] Nu extrage stockNumber pe text fără legătură (zero false-positives) — 19:07:17Z
+- [ PASS ] [WorkyTwo] Nu extrage VIN pe text fără legătură — 19:07:17Z
+- [ PASS ] [WorkyThree] Extrage OLX ID din URL standard web — 19:07:17Z
+- [ PASS ] [WorkyThree] Extrage OLX ID din URL mobil — 19:07:17Z
+- [ PASS ] [WorkyThree] Extrage OLX ID numeric cu prefix cratimă — 19:07:17Z
+- [ PASS ] [WorkyThree] Prioritate 1: Potrivire deterministă după Stock Number — 19:07:17Z
+- [ PASS ] [WorkyThree] Mașina identificată corect după Stock Number — 19:07:17Z
+- [ PASS ] [WorkyThree] Prioritate 2: Potrivire după VIN când tagul lipsește — 19:07:17Z
+- [ PASS ] [WorkyThree] Mașina identificată corect după VIN — 19:07:17Z
+- [ PASS ] [WorkyThree] Prioritate 3: Potrivire după OLX ID deja înregistrat — 19:07:17Z
+- [ PASS ] [WorkyThree] Mașina Audi asociată corect prin OLX ID — 19:07:17Z
+- [ PASS ] [WorkyThree] Respinge anunțuri fără identificator comun (matchType: none) — 19:07:17Z
+- [ PASS ] [WorkyThree] matchedCar este null pe anunț extern — 19:07:17Z
+- [ PASS ] [WorkyFour] Reconcilierea în lot identifică exact cele 2 mașini din parc — 19:07:17Z
+- [ PASS ] [WorkyFour] Setează corect flagul wasUnlinked pentru mașina legată nou — 19:07:17Z
+- [ PASS ] [WorkyFour] Detectează discrepanță critică: Vândută în showroom dar activă pe OLX — 19:07:18Z
+- [ PASS ] [WorkyFour] Detectează discrepanță: În stoc fizic dar expirată pe OLX — 19:07:18Z
+- [ PASS ] [WorkyFour] Nicio discrepanță când mașina în stoc este activă pe OLX — 19:07:18Z
+- [ PASS ] [WorkyFour] Nicio discrepanță falsă când mașina nu este încă legată la OLX — 19:07:18Z
+- [ PASS ] [WorkyFour] Cooldown Guard activ în perioada de așteptare — 19:07:18Z
+- [ PASS ] [WorkyFour] Calculează corect minutele rămase din cooldown — 19:07:18Z
+- [ PASS ] [WorkyFour] Invariant TVA 21%: Mențiune clară de TVA deductibil 21% — 19:07:18Z
+- [ PASS ] [WorkyFour] Invariant Terminologie: Strict „Cont de Garantie” (prezent în descriere) — 19:07:18Z
+- [ PASS ] [WorkyFour] Invariant Securitate: Eliminare completă a termenului „escrow” — 19:07:18Z
+- [ PASS ] [WorkyFour] Invariant Securitate: Fără „cont fiduciar” — 19:07:18Z
+
+### Vulnerabilități Descoperite & Patch-uri Aplicate (`WorkyThree`):
+1. **Sanitizare Linkuri Web Externe pe OLX:** Adăugat regex de curățare a URL-urilor `http://` și `www.` în `sanitizeForOlx` pentru conformitate strictă cu politicile anti-spam OLX.
+2. **Extragere OLX ID Numeric cu cratimă:** Îmbunătățit regex-ul din `extractOlxId` (`src/utils/helpers.ts`) pentru a captura ID-urile numerice precedate de cratimă (ex: `-9182371.html`).
+

@@ -514,7 +514,10 @@ export function sanitizeForOlx(text: string): string {
   if (!text) return '';
 
   let cleaned = text
-    // 0. Formatare automată a numerelor de telefon în formatul cerut de OLX (07xx_xxx_xxx)
+    // 0. Eliminare linkuri web externe (OLX respinge descrierile cu linkuri http:// sau www)
+    .replace(/https?:\/\/[^\s]+/gi, '')
+    .replace(/\bwww\.[^\s]+/gi, '')
+    // 0.1 Formatare automată a numerelor de telefon în formatul cerut de OLX (07xx_xxx_xxx)
     .replace(/(?:(?:\+?40|0040)\s*|0)(7\d{2})[\s.\-_]?(\d{3})[\s.\-_]?(\d{3})\b/g, '0$1_$2_$3')
     // 1. Înlocuire superscript / subscript
     .replace(/cm³/gi, 'cmc')

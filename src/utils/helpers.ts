@@ -378,8 +378,8 @@ export function extractOlxId(url?: string): string | null {
   if (idMatch && idMatch[1]) {
     return idMatch[1];
   }
-  // Caută /oferta/... sau cifre la final
-  const numMatch = url.match(/\/([0-9]{7,12})(?:\/|\.html|$)/);
+  // Caută /oferta/... sau cifre la final (precedate de / sau -)
+  const numMatch = url.match(/[\/-]([0-9]{7,12})(?:\/|\.html|$)/);
   if (numMatch && numMatch[1]) {
     return numMatch[1];
   }

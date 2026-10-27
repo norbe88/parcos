@@ -62,7 +62,7 @@ Aplicația este împachetată într-un singur container Docker ultra-eficient (m
 ```ini
 PORT=3000
 NODE_ENV=production
-DATABASE_URL=postgres://parcos_admin:parola@parcos-db:5432/parcos_production
+DATABASE_URL=postgres://<USER>:<PASSWORD>@parcos-db:5432/parcos_production
 ADMIN_API_KEY=cheie_securizata_minim_32_caractere
 GEMINI_API_KEY=cheie_gemini_pentru_ocr_si_descrieri
 MEDIA_STORAGE_PATH=/data/parcos/cars
