@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode, useCallback } from 'react';
-import { DealerProfile, SEED_DEALER, TENANT_DEALERS, DEFAULT_TENANT_FEATURES, explicitVehicleQuota } from '../db/seed';
+import { DealerProfile, SEED_DEALER, TENANT_DEALERS, DEFAULT_TENANT_FEATURES, explicitVehicleQuota, withSeededFinancingPortfolio } from '../db/seed';
 import { TenantFeatures, TenantTier, TenantStatus, DealerLandingConfig } from '../db/types';
 import { getThemeConfig, ThemeConfig } from '../utils/themePresets';
 import {
@@ -154,6 +154,14 @@ function localTenantResolveUrl(): string {
   return '/api/tenant/resolve';
 }
 
+function sealFinancingProfiles(map: Record<string, DealerProfile>): Record<string, DealerProfile> {
+  const next: Record<string, DealerProfile> = {};
+  for (const [key, profile] of Object.entries(map)) {
+    next[key] = withSeededFinancingPortfolio({ ...profile, slug: profile.slug || key });
+  }
+  return next;
+}
+
 function blankDealerProfile(slug: string, name?: string, domain?: string): DealerProfile {
   return {
     name: name || slug || 'Showroom',
@@ -189,11 +197,11 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         const saved = localStorage.getItem('parcos_tenants_map');
         if (saved) {
           const parsed = JSON.parse(saved);
-          return { ...TENANT_DEALERS, ...parsed };
+          return sealFinancingProfiles({ ...TENANT_DEALERS, ...parsed });
         }
       }
     } catch {}
-    return { ...TENANT_DEALERS };
+    return sealFinancingProfiles({ ...TENANT_DEALERS });
   });
 
   // Rezolvă alias-uri scurte (ex: mpi -> mpi_auto, top -> top_auto)
@@ -391,10 +399,11 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
           const updated: Record<string, DealerProfile> = { ...prev };
           backendTenants.forEach(t => {
             const slug = t.slug || resolveTenantKey(t.name);
-            updated[slug] = {
+            updated[slug] = withSeededFinancingPortfolio({
               ...(prev[slug] || {}),
-              ...t
-            };
+              ...t,
+              slug: t.slug || slug,
+            });
           });
           try {
             if (typeof window !== 'undefined') {
@@ -421,13 +430,14 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     const resolved = resolveTenantKey(tId);
     setTenantsMap(prev => {
       const current = prev[resolved] || TENANT_DEALERS[resolved] || SEED_DEALER;
-      const updated: DealerProfile = {
+      const updated: DealerProfile = withSeededFinancingPortfolio({
         ...current,
+        slug: current.slug || resolved,
         features: {
           ...(current.features || DEFAULT_TENANT_FEATURES),
           ...features,
         }
-      };
+      });
       const nextMap = { ...prev, [resolved]: updated };
       try {
         if (typeof window !== 'undefined') {
@@ -437,8 +447,9 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       return nextMap;
     });
 
-    // Sincronizare asincronă cu PostgreSQL backend
-    saveTenantFeaturesToBackend(resolved, features).catch(err => {
+    const seedKeepsFinancing = (TENANT_DEALERS[resolved] || (resolved === 'rxm' ? SEED_DEALER : undefined))?.features?.financingPortfolio === true;
+    const persisted = seedKeepsFinancing ? { ...features, financingPortfolio: true } : features;
+    saveTenantFeaturesToBackend(resolved, persisted).catch(err => {
       console.warn(`[TenantContext] Salvare features în backend pentru ${resolved} eșuată:`, err.message);
     });
   };
@@ -568,15 +579,17 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     : undefined;
   const baseTenant = knownTenant || hintedTenant || (tenantId === 'rxm' ? SEED_DEALER : blankDealerProfile(tenantId));
   const tenant = useMemo(() => {
-    if (!dynamicConfig) return baseTenant;
-    return {
-      ...baseTenant,
-      ...dynamicConfig,
-      name: dynamicConfig.name || baseTenant.name,
-      cui: dynamicConfig.cui || baseTenant.cui,
-      themePreset: (dynamicConfig.themePreset as any) || baseTenant.themePreset,
-      landingConfig: dynamicConfig.landingConfig || baseTenant.landingConfig,
-    };
+    const merged = !dynamicConfig
+      ? baseTenant
+      : {
+          ...baseTenant,
+          ...dynamicConfig,
+          name: dynamicConfig.name || baseTenant.name,
+          cui: dynamicConfig.cui || baseTenant.cui,
+          themePreset: (dynamicConfig.themePreset as any) || baseTenant.themePreset,
+          landingConfig: dynamicConfig.landingConfig || baseTenant.landingConfig,
+        };
+    return withSeededFinancingPortfolio(merged);
   }, [baseTenant, dynamicConfig]);
 
   const theme = useMemo(() => getThemeConfig(tenant.themePreset), [tenant.themePreset]);

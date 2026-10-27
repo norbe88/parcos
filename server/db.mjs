@@ -197,6 +197,8 @@ export async function initDatabase() {
 
     // Fill rollout keys only when absent. `||` never overwrites an existing true or false.
     // True is written solely for slugs whose dealer.ts profile already stores that flag as true.
+    // financingPortfolio is the exception below: the column default already inserts false,
+    // so the absent-key update never reaches RXM and the admin sidebar loses F&I and BNR/BT.
     await sql`
       UPDATE dealers
       SET features = features || '{"financingPortfolio": true}'::jsonb
@@ -240,6 +242,17 @@ export async function initDatabase() {
       UPDATE dealers
       SET features = features || '{"mailHub": false}'::jsonb
       WHERE NOT (features ? 'mailHub')
+    `;
+    await sql`
+      UPDATE dealers
+      SET features = jsonb_set(
+        COALESCE(features, '{}'::jsonb),
+        '{financingPortfolio}',
+        'true'::jsonb,
+        true
+      )
+      WHERE slug IN ('rxm', 'rxm_sandbox')
+        AND COALESCE(features->>'financingPortfolio', 'false') IS DISTINCT FROM 'true'
     `;
 
     // Lead-uri comune per parc. Contactul poate lipsi la un click de test drive.

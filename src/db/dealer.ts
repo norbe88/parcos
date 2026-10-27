@@ -22,13 +22,17 @@ export const DEFAULT_TENANT_FEATURES: TenantFeatures = {
 /**
  * A rollout flag is on only when the JSON says `true`.
  * A missing key stays off, except for a slug whose seed profile already stores `true`
- * (legacy rows that never received the key). An explicit `false` always wins.
+ * (legacy rows that never received the key). An explicit `false` wins for every flag
+ * except `financingPortfolio`: RXM and the sandbox seed keep that module on, because the
+ * `dealers.features` column default writes the key as false and was hiding Finanțări plus
+ * the BNR/BT settings from the admin sidebar.
  */
 export function isTenantFeatureEnabled(
   features: Partial<TenantFeatures> | null | undefined,
   key: keyof TenantFeatures,
   slug?: string | null,
 ): boolean {
+  if (key === 'financingPortfolio' && slug && seededSlugKeepsMissingFeature(key, slug)) return true;
   if (features?.[key] === true) return true;
   if (features?.[key] === false) return false;
   if (!slug) return false;
@@ -353,4 +357,18 @@ function seededSlugKeepsMissingFeature(key: keyof TenantFeatures, slug: string):
     }
   }
   return false;
+}
+
+/** Keep F&I on for parks whose seed already stores financingPortfolio: true. */
+export function withSeededFinancingPortfolio<T extends { slug?: string | null; features?: Partial<TenantFeatures> | null }>(profile: T): T {
+  const slug = profile.slug?.trim().toLowerCase();
+  if (!slug || profile.features?.financingPortfolio === true) return profile;
+  if (!seededSlugKeepsMissingFeature('financingPortfolio', slug)) return profile;
+  return {
+    ...profile,
+    features: {
+      ...(profile.features || {}),
+      financingPortfolio: true,
+    },
+  };
 }

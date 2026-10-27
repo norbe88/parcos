@@ -1,6 +1,6 @@
 import React from 'react';
 import { Phone, MessageCircle } from 'lucide-react';
-import { VehicleItem, SEED_DEALER } from '../../../db/seed';
+import { VehicleItem, SEED_DEALER, isTenantFeatureEnabled } from '../../../db/seed';
 import { getWhatsAppFinanceUrl } from '../../../utils/helpers';
 import { convertEurToRon, getExchangeRateDisclaimer } from '../../../utils/currencyEngine';
 import { recordIncomingLead, recordShowroomInteraction } from '../../../services/leadService';
@@ -39,7 +39,7 @@ export const DetailFinanceTab: React.FC<DetailFinanceTabProps> = ({
       notes: `Simulare rate showroom: Avans ${advancePercent}% (${Math.round(car.priceEur * (advancePercent / 100))} €), ${periodMonths} luni, rată ${currentRate} €/lună (~${convertEurToRon(currentRate)} RON).`
     });
 
-    if (dealer.features?.financingPortfolio) {
+    if (isTenantFeatureEnabled(dealer.features, 'financingPortfolio', dealer.slug)) {
       const downPaymentEur = Math.round(car.priceEur * (advancePercent / 100));
       const downPaymentRon = convertEurToRon(downPaymentEur);
       const financedAmountRon = convertEurToRon(car.priceEur - downPaymentEur);

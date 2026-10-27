@@ -1045,7 +1045,7 @@ export const LeadPipelineKanban: React.FC<LeadPipelineKanbanProps> = ({
                         )}
 
                         {/* Indicator Dosar Finanțare (Ticket 04) */}
-                        {lead.status === 'financing' && dealer?.features?.financingPortfolio && (
+                        {lead.status === 'financing' && isTenantFeatureEnabled(dealer?.features, 'financingPortfolio', dealer?.slug) && (
                           <div className="text-[10px] text-amber-300 flex items-center justify-between font-semibold bg-amber-500/10 px-2 py-1 rounded-md border border-amber-500/20">
                             <span className="flex items-center gap-1">
                               <FileText className="w-3 h-3 text-amber-400 shrink-0" />
