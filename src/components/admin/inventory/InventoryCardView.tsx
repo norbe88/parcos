@@ -162,14 +162,27 @@ export const InventoryCardView: React.FC<InventoryCardViewProps> = ({
                 )}
                 
                 {/* 1. Header Media: Imagine 16:10 + Badge-uri HUD & Preț Neobstrucționat */}
-                <div className="relative aspect-[16/10] bg-black/60 rounded-t-2xl overflow-hidden cursor-pointer" onClick={() => onSelectCar(c, 'specs')}>
+                <div 
+                  data-vehicle-photo
+                  className="relative aspect-[16/10] bg-black/60 rounded-t-2xl overflow-hidden cursor-pointer" 
+                  onClick={() => onSelectCar(c, 'specs')}
+                >
                   {c.images && c.images.length > 0 ? (
-                    <img 
-                      src={normalizeCarImageUrl(c.images[0])} 
-                      alt={c.model}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      loading="lazy"
-                    />
+                    <>
+                      <img 
+                        src={normalizeCarImageUrl(c.images[0])} 
+                        alt={c.model}
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          if (target.src.includes('/rxm/cars/')) {
+                            target.src = target.src.replace('/rxm/cars/', '/cars/');
+                          }
+                        }}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-none" />
+                    </>
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-zinc-900 to-[#0c0c0e] p-4 text-center">
                       <Clock className="w-8 h-8 text-amber-400 mb-2 animate-pulse" />
@@ -177,7 +190,6 @@ export const InventoryCardView: React.FC<InventoryCardViewProps> = ({
                       <span className="text-[10px] text-zinc-400 mt-0.5">Fără fotografii · Ascuns din site</span>
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#121215] via-transparent to-black/60" />
 
                   {/* Badge Stânga Sus: Cod Stoc, Țară & Indicator Foto */}
                   <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap z-10">

@@ -696,15 +696,15 @@ html.admin-light-mode,
 
 /* Gradients that were dark charcoal */
 [data-admin-mode="light"] .bg-gradient-to-b.from-\[\#151518\].to-\[\#101012\],
-[data-admin-mode="light"] [class*="from-[#151518]"],
-[data-admin-mode="light"] [class*="from-[#121215]"],
-[data-admin-mode="light"] [class*="to-[#101012]"],
-[data-admin-mode="light"] [class*="to-[#121215]"],
-.admin-light-mode [class*="from-[#151518]"],
-.admin-light-mode [class*="from-[#121215]"],
-.admin-light-mode [class*="from-[#18181b]"],
-.admin-light-mode [class*="to-[#101012]"],
-.admin-light-mode [class*="to-[#121215]"] {
+[data-admin-mode="light"] [class*="from-[#151518]"]:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+[data-admin-mode="light"] [class*="from-[#121215]"]:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+[data-admin-mode="light"] [class*="to-[#101012]"]:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+[data-admin-mode="light"] [class*="to-[#121215]"]:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+.admin-light-mode [class*="from-[#151518]"]:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+.admin-light-mode [class*="from-[#121215]"]:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+.admin-light-mode [class*="from-[#18181b]"]:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+.admin-light-mode [class*="to-[#101012]"]:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+.admin-light-mode [class*="to-[#121215]"]:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *) {
   background-image: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
 }
 
@@ -734,13 +734,13 @@ html.admin-light-mode,
 }
 
 /* Non-media dark transparent overlays become clean light tinted surfaces */
-[data-admin-mode="light"] .bg-black\/20,
-[data-admin-mode="light"] .bg-black\/30,
-[data-admin-mode="light"] .bg-black\/40,
-[data-admin-mode="light"] .bg-black\/50,
-[data-admin-mode="light"] .bg-black\/60,
-[data-admin-mode="light"] .bg-black\/70,
-[data-admin-mode="light"] .bg-black\/80 {
+[data-admin-mode="light"] .bg-black\/20:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+[data-admin-mode="light"] .bg-black\/30:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+[data-admin-mode="light"] .bg-black\/40:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+[data-admin-mode="light"] .bg-black\/50:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+[data-admin-mode="light"] .bg-black\/60:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+[data-admin-mode="light"] .bg-black\/70:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *),
+[data-admin-mode="light"] .bg-black\/80:not(.aspect-\[16\/10\] *):not(.aspect-video *):not(.aspect-\[16\/9\] *):not(.aspect-\[4\/3\] *):not([data-vehicle-photo] *):not(.group\/thumb *) {
   background-color: #f8fafc !important;
 }
 
@@ -760,7 +760,23 @@ html.admin-light-mode,
 [data-admin-mode="light"] .group\/thumb .text-white,
 [data-admin-mode="light"] .group\/thumb .text-zinc-100,
 [data-admin-mode="light"] .group\/thumb .text-zinc-200,
-[data-admin-mode="light"] .group\/thumb .text-zinc-300 {
+[data-admin-mode="light"] .group\/thumb .text-zinc-300,
+.admin-light-mode .aspect-\[16\/10\] .text-white,
+.admin-light-mode .aspect-\[16\/10\] .text-zinc-100,
+.admin-light-mode .aspect-\[16\/10\] .text-zinc-200,
+.admin-light-mode .aspect-\[16\/10\] .text-zinc-300,
+.admin-light-mode .aspect-video .text-white,
+.admin-light-mode .aspect-video .text-zinc-100,
+.admin-light-mode .aspect-video .text-zinc-200,
+.admin-light-mode .aspect-video .text-zinc-300,
+.admin-light-mode [data-vehicle-photo] .text-white,
+.admin-light-mode [data-vehicle-photo] .text-zinc-100,
+.admin-light-mode [data-vehicle-photo] .text-zinc-200,
+.admin-light-mode [data-vehicle-photo] .text-zinc-300,
+.admin-light-mode .group\/thumb .text-white,
+.admin-light-mode .group\/thumb .text-zinc-100,
+.admin-light-mode .group\/thumb .text-zinc-200,
+.admin-light-mode .group\/thumb .text-zinc-300 {
   color: #ffffff !important;
 }
 
@@ -778,10 +794,39 @@ html.admin-light-mode,
 [data-admin-mode="light"] [data-vehicle-photo] .bg-black\/50,
 [data-admin-mode="light"] [data-vehicle-photo] .bg-black\/40,
 [data-admin-mode="light"] [data-vehicle-photo] .bg-black\/70,
-[data-admin-mode="light"] [data-vehicle-photo] .bg-black\/80 {
+[data-admin-mode="light"] [data-vehicle-photo] .bg-black\/80,
+.admin-light-mode .aspect-\[16\/10\] .bg-black\/60,
+.admin-light-mode .aspect-\[16\/10\] .bg-black\/50,
+.admin-light-mode .aspect-\[16\/10\] .bg-black\/40,
+.admin-light-mode .aspect-\[16\/10\] .bg-black\/70,
+.admin-light-mode .aspect-\[16\/10\] .bg-black\/80,
+.admin-light-mode .aspect-video .bg-black\/60,
+.admin-light-mode .aspect-video .bg-black\/50,
+.admin-light-mode .aspect-video .bg-black\/40,
+.admin-light-mode .aspect-video .bg-black\/70,
+.admin-light-mode .aspect-video .bg-black\/80,
+.admin-light-mode [data-vehicle-photo] .bg-black\/60,
+.admin-light-mode [data-vehicle-photo] .bg-black\/50,
+.admin-light-mode [data-vehicle-photo] .bg-black\/40,
+.admin-light-mode [data-vehicle-photo] .bg-black\/70,
+.admin-light-mode [data-vehicle-photo] .bg-black\/80 {
   background-color: rgba(9, 9, 11, 0.78) !important;
   backdrop-filter: blur(8px) !important;
   border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+/* 4b. Media & Vehicle Photo Scrims: MUST preserve dark-to-transparent gradients in light mode */
+[data-admin-mode="light"] .aspect-\[16\/10\] .bg-gradient-to-t,
+[data-admin-mode="light"] .aspect-video .bg-gradient-to-t,
+[data-admin-mode="light"] .aspect-\[16\/9\] .bg-gradient-to-t,
+[data-admin-mode="light"] .aspect-\[4\/3\] .bg-gradient-to-t,
+[data-admin-mode="light"] [data-vehicle-photo] .bg-gradient-to-t,
+.admin-light-mode .aspect-\[16\/10\] .bg-gradient-to-t,
+.admin-light-mode .aspect-video .bg-gradient-to-t,
+.admin-light-mode .aspect-\[16\/9\] .bg-gradient-to-t,
+.admin-light-mode .aspect-\[4\/3\] .bg-gradient-to-t,
+.admin-light-mode [data-vehicle-photo] .bg-gradient-to-t {
+  background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.6) 100%) !important;
 }
 
 /* 5. Borders Inversion: Hairline White -> Clean Slate 200 */
