@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Clock, AlertTriangle, Images, Flame, Star, Building2, Gavel, 
   FileText, QrCode, Tag, ExternalLink, Share2, Trash2, Gauge, Fuel, Cog, 
@@ -13,7 +13,7 @@ import {
   formatMileage, 
   normalizeCarImageUrl 
 } from '../../../utils/helpers';
-import { formatPriceWithCurrency, WorkspaceSettings } from '../../../context/WorkspaceContext';
+import { formatPriceWithCurrency, WorkspaceSettings, ThumbnailSize } from '../../../context/WorkspaceContext';
 
 export interface InventoryTableViewProps {
   activeCars: VehicleItem[];
@@ -100,6 +100,66 @@ export const InventoryTableView: React.FC<InventoryTableViewProps> = ({
   setPriceEditCar,
   setIsPriceEditModalOpen,
 }) => {
+  // 🚗 Configurare scalare dinamică thumbnail mașină (sm: 64px, md: 96px, lg: 144px, xl: 192px)
+  const [previewCar, setPreviewCar] = useState<{ car: VehicleItem; x: number; y: number } | null>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const thumbSize: ThumbnailSize = workspaceSettings.thumbnailSize || 'md';
+
+  const THUMBNAIL_STYLES: Record<ThumbnailSize, {
+    img: string;
+    placeholder: string;
+    badge: string;
+    colWidth: string;
+  }> = {
+    sm: {
+      img: workspaceSettings.density === 'compact' ? 'w-14 h-9.5 rounded-lg' : 'w-16 h-11 rounded-lg',
+      placeholder: workspaceSettings.density === 'compact' ? 'w-14 h-9.5 rounded-lg' : 'w-16 h-11 rounded-lg',
+      badge: 'bottom-0.5 right-0.5 px-1 text-[8.5px]',
+      colWidth: 'w-[25%] min-w-[240px]',
+    },
+    md: {
+      img: workspaceSettings.density === 'compact' ? 'w-20 h-14 rounded-xl' : 'w-24 h-16 rounded-xl',
+      placeholder: workspaceSettings.density === 'compact' ? 'w-20 h-14 rounded-xl' : 'w-24 h-16 rounded-xl',
+      badge: 'bottom-1 right-1 px-1.5 py-0.2 text-[9px]',
+      colWidth: 'w-[28%] min-w-[290px]',
+    },
+    lg: {
+      img: workspaceSettings.density === 'compact' ? 'w-32 h-20 rounded-xl' : 'w-36 h-24 rounded-xl',
+      placeholder: workspaceSettings.density === 'compact' ? 'w-32 h-20 rounded-xl' : 'w-36 h-24 rounded-xl',
+      badge: 'bottom-1.5 right-1.5 px-2 py-0.5 text-[10px]',
+      colWidth: 'w-[32%] min-w-[360px]',
+    },
+    xl: {
+      img: workspaceSettings.density === 'compact' ? 'w-44 h-28 rounded-2xl' : 'w-48 h-32 rounded-2xl',
+      placeholder: workspaceSettings.density === 'compact' ? 'w-44 h-28 rounded-2xl' : 'w-48 h-32 rounded-2xl',
+      badge: 'bottom-2 right-2 px-2 py-0.5 text-[11px]',
+      colWidth: 'w-[36%] min-w-[420px]',
+    },
+  };
+
+  const thumbStyle = THUMBNAIL_STYLES[thumbSize] || THUMBNAIL_STYLES.md;
+
+  const handleThumbMouseEnter = (e: React.MouseEvent<HTMLElement>, car: VehicleItem) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    const rect = e.currentTarget.getBoundingClientRect();
+    hoverTimeoutRef.current = setTimeout(() => {
+      setPreviewCar({
+        car,
+        x: rect.right + 14,
+        y: Math.max(16, rect.top - 30)
+      });
+    }, 140);
+  };
+
+  const handleThumbMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setPreviewCar(null);
+  };
+
   return (
         <>
           {/* 💻 VEDERE TABEL DESKTOP (MD+) */}
@@ -109,7 +169,7 @@ export const InventoryTableView: React.FC<InventoryTableViewProps> = ({
               <thead className="bg-white/[0.03] border-b border-white/[0.08] text-zinc-400 uppercase tracking-wider font-semibold text-[11px]">
                 <tr>
                   {workspaceSettings.visibleColumns.specs && (
-                    <th className={`${workspaceSettings.density === 'compact' ? 'py-2 px-3' : 'py-3.5 px-4'} w-[26%] min-w-[230px]`}>
+                    <th className={`${workspaceSettings.density === 'compact' ? 'py-2 px-3' : 'py-3.5 px-4'} ${thumbStyle.colWidth}`}>
                       Vehicul & Specificații
                     </th>
                   )}
@@ -153,26 +213,30 @@ export const InventoryTableView: React.FC<InventoryTableViewProps> = ({
                       {workspaceSettings.visibleColumns.specs && (
                         <td className={workspaceSettings.density === 'compact' ? 'py-1.5 px-3' : 'py-3 px-4'}>
                           <div className="flex items-center gap-3">
-                            <div className="relative shrink-0 group/thumb">
+                            <div 
+                              className="relative shrink-0 group/thumb"
+                              onMouseEnter={(e) => handleThumbMouseEnter(e, c)}
+                              onMouseLeave={handleThumbMouseLeave}
+                            >
                               {c.images && c.images.length > 0 ? (
                                 <img 
                                   src={normalizeCarImageUrl(c.images[0])} 
                                   alt={c.model} 
                                   onClick={() => onOpenGallery ? onOpenGallery(c) : onSelectCar(c, 'specs')}
-                                  className={`${workspaceSettings.density === 'compact' ? 'w-11 h-8 rounded-lg' : 'w-14 h-10 rounded-xl'} object-cover bg-zinc-800 border border-white/10 group-hover/row:scale-105 transition-transform cursor-pointer shrink-0`} 
-                                  title="Deschide galeria foto & editorul de plăcuță RXM"
+                                  className={`${thumbStyle.img} object-cover bg-zinc-800 border border-white/10 group-hover/row:scale-[1.03] transition-all cursor-pointer shrink-0 shadow-sm`} 
+                                  title="Deschide galeria foto & editorul de plăcuță RXM (sau ține cursorul pt. zoom)"
                                   loading="lazy"
                                 />
                               ) : (
                                 <div 
                                   onClick={() => onOpenGallery ? onOpenGallery(c) : onSelectCar(c, 'specs')}
-                                  className={`${workspaceSettings.density === 'compact' ? 'w-11 h-8 rounded-lg' : 'w-14 h-10 rounded-xl'} bg-amber-500/10 border border-amber-500/30 flex items-center justify-center cursor-pointer shrink-0 text-amber-400 group-hover/row:scale-105 transition-transform`}
+                                  className={`${thumbStyle.placeholder} bg-amber-500/10 border border-amber-500/30 flex items-center justify-center cursor-pointer shrink-0 text-amber-400 group-hover/row:scale-[1.03] transition-all`}
                                   title="Fără fotografii · Apasă pentru a adăuga poze"
                                 >
                                   <Clock className="w-4 h-4 animate-pulse" />
                                 </div>
                               )}
-                              <span className="absolute bottom-0.5 right-0.5 px-1 rounded bg-black/80 text-[8.5px] font-bold text-zinc-300 pointer-events-none">
+                              <span className={`absolute ${thumbStyle.badge} rounded bg-black/85 font-bold text-zinc-300 pointer-events-none border border-white/10 backdrop-blur-xs`}>
                                 {c.images.length}
                               </span>
                             </div>
@@ -1210,6 +1274,59 @@ export const InventoryTableView: React.FC<InventoryTableViewProps> = ({
             );
           })}
         </div>
+
+        {/* 🔍 FLYOUT POPUP PREVIEW (HOVER TO ZOOM LA MAȘINĂ STIL VAUTO / AUTOTRADER) */}
+        {previewCar && (
+          <div 
+            className="fixed z-50 pointer-events-none w-80 bg-[#141417]/95 border border-amber-500/40 rounded-2xl p-3 shadow-2xl shadow-black/90 backdrop-blur-md animate-in fade-in zoom-in-95 duration-150"
+            style={{
+              left: Math.min(typeof window !== 'undefined' ? window.innerWidth - 340 : 800, previewCar.x),
+              top: Math.min(typeof window !== 'undefined' ? window.innerHeight - 270 : 400, previewCar.y),
+            }}
+          >
+            <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-black/60 border border-white/10 mb-2.5">
+              {previewCar.car.images && previewCar.car.images.length > 0 ? (
+                <img 
+                  src={normalizeCarImageUrl(previewCar.car.images[0])} 
+                  alt={previewCar.car.model} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-zinc-500 text-xs">
+                  Fără fotografii
+                </div>
+              )}
+              <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-sm text-xs font-bold text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                <Images className="w-3.5 h-3.5" />
+                <span>{previewCar.car.images?.length || 0} poze</span>
+              </div>
+              <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-sm text-[10px] font-mono text-zinc-300 border border-white/10">
+                #{getStockNumber(previewCar.car)}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-extrabold text-white text-sm truncate">
+                  {previewCar.car.brand} {previewCar.car.model}
+                </span>
+                <span className="text-xs font-mono font-bold text-amber-400 shrink-0">
+                  {formatPriceWithCurrency(previewCar.car.priceEur, workspaceSettings.currency)}
+                </span>
+              </div>
+              <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 flex-wrap">
+                <span>{previewCar.car.versionTrim || previewCar.car.year}</span>
+                <span>•</span>
+                <span>{formatMileage(previewCar.car.mileageKm)}</span>
+                <span>•</span>
+                <span>{previewCar.car.fuelType} {previewCar.car.transmission}</span>
+              </div>
+              <div className="text-[10px] font-mono text-zinc-500 truncate pt-1 border-t border-white/5 flex items-center justify-between">
+                <span>VIN: {previewCar.car.vin}</span>
+                <span className="text-amber-400/80 font-sans text-[9.5px]">Click poză pt. galerie</span>
+              </div>
+            </div>
+          </div>
+        )}
       </>
   );
 };

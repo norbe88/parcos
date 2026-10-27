@@ -2,9 +2,10 @@ import React from 'react';
 import { 
   Car, Search, LayoutGrid, List, ArrowUpDown, 
   Shield, AlertTriangle, DollarSign, ExternalLink, Clock,
-  UploadCloud, RefreshCw, CloudOff
+  UploadCloud, RefreshCw, CloudOff, Image as ImageIcon
 } from 'lucide-react';
 import { VehicleItem } from '../../../db/seed';
+import { useWorkspace, ThumbnailSize } from '../../../context/WorkspaceContext';
 
 export interface GovernanceStats {
   redPlatesExpiring: number;
@@ -56,6 +57,8 @@ export const InventoryToolbar: React.FC<InventoryToolbarProps> = ({
   isBulkSyncing,
   bulkSyncProgress
 }) => {
+  const { settings: workspaceSettings, setThumbnailSize } = useWorkspace();
+
   return (
     <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
       {/* Rândul 1: Titlu, Căutare & Switcher Carduri / Tabel */}
@@ -151,6 +154,41 @@ export const InventoryToolbar: React.FC<InventoryToolbarProps> = ({
                 <span className="hidden sm:inline">Tabel</span>
               </button>
             </div>
+
+            {/* 🚗 Selector Rapid Dimensiune Thumbnail Auto (Doar în mod Tabel) */}
+            {viewLayout === 'table' && (
+              <div className="hidden sm:inline-flex items-center rounded-xl border border-white/10 p-1 bg-black/40 shrink-0 gap-0.5 animate-in fade-in duration-200">
+                <span className="text-[10px] font-bold text-zinc-400 px-1.5 font-mono uppercase tracking-wider hidden md:inline-flex items-center gap-1">
+                  <ImageIcon className="w-3 h-3 text-amber-400" />
+                  <span>Foto:</span>
+                </span>
+                {(['sm', 'md', 'lg', 'xl'] as const).map((sz) => {
+                  const labels = { sm: 'S', md: 'M', lg: 'L', xl: 'XL' };
+                  const titles = { 
+                    sm: 'Compact (64px) · multe rânduri pe ecran', 
+                    md: 'Standard (96px) · recunoaștere optimă model (Recomandat)', 
+                    lg: 'Generos (144px) · detalii clare caroserie', 
+                    xl: 'Showroom (192px) · inspecție vizuală mare' 
+                  };
+                  const isActive = (workspaceSettings.thumbnailSize || 'md') === sz;
+                  return (
+                    <button
+                      key={sz}
+                      type="button"
+                      onClick={() => setThumbnailSize(sz)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer min-h-[30px] touch-manipulation ${
+                        isActive 
+                          ? 'bg-amber-500 text-black shadow-md shadow-amber-500/20 font-extrabold' 
+                          : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                      }`}
+                      title={titles[sz]}
+                    >
+                      {labels[sz]}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>

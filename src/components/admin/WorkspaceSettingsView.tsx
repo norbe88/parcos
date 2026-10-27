@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Sliders, Eye, EyeOff, Check, RotateCcw, Sparkles,
   Download, ExternalLink, Bookmark, Copy, CheckCircle2,
-  AlertCircle, Puzzle, ShieldCheck, Sun, Moon, Palette, Shield
+  AlertCircle, Puzzle, ShieldCheck, Sun, Moon, Palette, Shield,
+  Image as ImageIcon
 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTenant } from '../../hooks/useTenant';
@@ -28,6 +29,7 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
     setCurrency, 
     setDisplayMode,
     setAutoScanDocuments,
+    setThumbnailSize,
     toggleColumn, 
     resetSettings 
   } = useWorkspace();
@@ -284,7 +286,94 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
 
         </div>
 
-        {/* Opțiunea 3: Selector Coloane Vizibile */}
+        {/* Opțiunea 4: Dimensiune Fotografii Mașină în Tabel (Thumbnail Size) */}
+        <div className="pt-4 border-t border-white/[0.06] space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono flex items-center gap-1.5">
+              <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
+              <span>Dimensiune Fotografii Mașină în Tabel (Thumbnail Size)</span>
+            </label>
+            <span className="text-[10px] text-amber-400 font-mono font-bold">
+              ✨ Hover-to-Zoom activat automat
+            </span>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              {
+                id: 'sm' as const,
+                label: 'Compact (S)',
+                dim: '64 × 40 px',
+                desc: 'Multe rânduri pe ecran, densitate maximă.',
+                previewClass: 'w-10 h-6'
+              },
+              {
+                id: 'md' as const,
+                label: 'Standard (M)',
+                dim: '96 × 64 px',
+                desc: 'Recomandat: modelul și jantele sunt clar vizibile.',
+                recommended: true,
+                previewClass: 'w-14 h-9'
+              },
+              {
+                id: 'lg' as const,
+                label: 'Generos (L)',
+                dim: '144 × 96 px',
+                desc: 'Detalii complete de caroserie și culoare.',
+                previewClass: 'w-16 h-11'
+              },
+              {
+                id: 'xl' as const,
+                label: 'Showroom (XL)',
+                dim: '192 × 128 px',
+                desc: 'Miniatură mare pentru inspecție vizuală rapidă.',
+                previewClass: 'w-20 h-13'
+              }
+            ].map(item => {
+              const isSelected = (settings.thumbnailSize || 'md') === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    setThumbnailSize(item.id);
+                    showToast(`✓ Dimensiune thumbnail setată la: ${item.label} (${item.dim})`);
+                  }}
+                  className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer relative ${
+                    isSelected
+                      ? 'bg-amber-500/15 border-amber-500/50 shadow-md shadow-amber-500/10'
+                      : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05] text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-xs font-bold ${isSelected ? 'text-amber-300' : 'text-white'}`}>
+                        {item.label}
+                      </span>
+                      {item.recommended && (
+                        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
+                          Default
+                        </span>
+                      )}
+                    </div>
+                    {isSelected && <Check className="w-4 h-4 text-amber-400" />}
+                  </div>
+
+                  <div className="text-[10px] font-mono text-zinc-400 mb-2 flex items-center justify-between">
+                    <span>{item.dim}</span>
+                    <div className={`${item.previewClass} rounded border border-amber-500/30 bg-amber-500/10 shrink-0`} />
+                  </div>
+
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Opțiunea 5: Selector Coloane Vizibile */}
         <div className="pt-4 border-t border-white/[0.06] space-y-3">
           <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
             Coloane Vizibile în Tabelul de Stoc
