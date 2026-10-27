@@ -168,7 +168,7 @@ export const InventoryToolbar: React.FC<InventoryToolbarProps> = ({
                 <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase">Doar Local</span>
               </div>
               <p className="text-[11px] text-zinc-400 mt-0.5">
-                Aceste mașini nu sunt încă vizibile pentru public în Showroom. Publică-le acum pe serverul Netcup cu un singur click.
+                Aceste mașini nu sunt încă vizibile pentru public în Showroom. Publică-le acum în Showroom cu un singur click.
               </p>
             </div>
           </div>

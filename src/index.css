@@ -544,42 +544,180 @@ html.admin-light-mode,
 .admin-light-mode aside,
 .admin-light-mode .bg-\[\#09090b\],
 .admin-light-mode .bg-\[\#0c0c0e\],
+.admin-light-mode .bg-\[\#0d0d10\],
+.admin-light-mode .bg-\[\#0d0e11\],
+.admin-light-mode .bg-\[\#0e0e11\],
+.admin-light-mode .bg-\[\#0f0f12\],
+.admin-light-mode .bg-\[\#101012\],
 .admin-light-mode .bg-\[\#121215\],
+.admin-light-mode .bg-\[\#141416\],
 .admin-light-mode .bg-\[\#141417\],
+.admin-light-mode .bg-\[\#141418\],
+.admin-light-mode .bg-\[\#151518\],
+.admin-light-mode .bg-\[\#15151a\],
+.admin-light-mode .bg-\[\#161619\],
+.admin-light-mode .bg-\[\#16161a\],
+.admin-light-mode .bg-\[\#16161b\],
 .admin-light-mode .bg-\[\#18181b\],
+.admin-light-mode .bg-\[\#18181c\],
+.admin-light-mode .bg-\[\#18181d\],
+.admin-light-mode .bg-\[\#19191d\],
+.admin-light-mode .bg-\[\#1a1a1d\],
+.admin-light-mode .bg-\[\#1c1c21\],
+.admin-light-mode .bg-\[\#1e1e24\],
+.admin-light-mode .bg-\[\#1f1f23\],
+.admin-light-mode .bg-\[\#202024\],
+.admin-light-mode .bg-\[\#27272a\],
 [data-admin-mode="light"] aside,
+[data-admin-mode="light"] header.sticky,
+.admin-light-mode header.sticky,
 [data-admin-mode="light"] .bg-\[\#09090b\],
 [data-admin-mode="light"] .bg-\[\#0c0c0e\],
+[data-admin-mode="light"] .bg-\[\#0c0c0f\],
+[data-admin-mode="light"] .bg-\[\#0c0c0f\]\/90,
+[data-admin-mode="light"] .bg-\[\#0c0c0f\]\/95,
+.admin-light-mode .bg-\[\#0c0c0f\],
+.admin-light-mode .bg-\[\#0c0c0f\]\/90,
+.admin-light-mode .bg-\[\#0c0c0f\]\/95,
+[data-admin-mode="light"] .bg-\[\#0d0d10\],
+[data-admin-mode="light"] .bg-\[\#0d0e11\],
+[data-admin-mode="light"] .bg-\[\#0e0e11\],
+[data-admin-mode="light"] .bg-\[\#0f0f12\],
+[data-admin-mode="light"] .bg-\[\#101012\],
 [data-admin-mode="light"] .bg-\[\#121215\],
+[data-admin-mode="light"] .bg-\[\#141416\],
 [data-admin-mode="light"] .bg-\[\#141417\],
+[data-admin-mode="light"] .bg-\[\#141418\],
+[data-admin-mode="light"] .bg-\[\#151518\],
+[data-admin-mode="light"] .bg-\[\#15151a\],
+[data-admin-mode="light"] .bg-\[\#161619\],
+[data-admin-mode="light"] .bg-\[\#16161a\],
+[data-admin-mode="light"] .bg-\[\#16161b\],
 [data-admin-mode="light"] .bg-\[\#18181b\],
+[data-admin-mode="light"] .bg-\[\#18181c\],
+[data-admin-mode="light"] .bg-\[\#18181d\],
+[data-admin-mode="light"] .bg-\[\#19191d\],
+[data-admin-mode="light"] .bg-\[\#1a1a1d\],
+[data-admin-mode="light"] .bg-\[\#1c1c21\],
+[data-admin-mode="light"] .bg-\[\#1e1e24\],
+[data-admin-mode="light"] .bg-\[\#1f1f23\],
+[data-admin-mode="light"] .bg-\[\#202024\],
+[data-admin-mode="light"] .bg-\[\#27272a\],
+[data-admin-mode="light"] .bg-surface,
+[data-admin-mode="light"] .bg-surface-elevated,
 [data-admin-mode="light"] .bg-zinc-950,
 [data-admin-mode="light"] .bg-zinc-900,
+[data-admin-mode="light"] .bg-zinc-900\/90,
+[data-admin-mode="light"] .bg-zinc-900\/80,
 [data-admin-mode="light"] .bg-zinc-900\/50,
 [data-admin-mode="light"] .bg-zinc-900\/40,
 [data-admin-mode="light"] .bg-zinc-900\/30,
-[data-admin-mode="light"] .bg-black\/40,
-[data-admin-mode="light"] .bg-black\/50,
-[data-admin-mode="light"] .bg-black\/60 {
+[data-admin-mode="light"] .bg-zinc-800,
+[data-admin-mode="light"] .bg-zinc-800\/80,
+[data-admin-mode="light"] .bg-zinc-800\/50,
+[data-admin-mode="light"] .bg-zinc-700 {
   background-color: #ffffff !important;
+}
+
+/* Gradients that were dark charcoal */
+[data-admin-mode="light"] .bg-gradient-to-b.from-\[\#151518\].to-\[\#101012\],
+[data-admin-mode="light"] [class*="from-[#151518]"],
+[data-admin-mode="light"] [class*="from-[#121215]"],
+[data-admin-mode="light"] [class*="to-[#101012]"],
+[data-admin-mode="light"] [class*="to-[#121215]"],
+.admin-light-mode [class*="from-[#151518]"],
+.admin-light-mode [class*="from-[#121215]"],
+.admin-light-mode [class*="from-[#18181b]"],
+.admin-light-mode [class*="to-[#101012]"],
+.admin-light-mode [class*="to-[#121215]"] {
+  background-image: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+}
+
+[data-admin-mode="light"] .to-zinc-900,
+[data-admin-mode="light"] .to-zinc-950,
+[data-admin-mode="light"] [class*="to-zinc-900"],
+[data-admin-mode="light"] [class*="to-zinc-950"],
+.admin-light-mode .to-zinc-900,
+.admin-light-mode .to-zinc-950,
+.admin-light-mode [class*="to-zinc-900"],
+.admin-light-mode [class*="to-zinc-950"] {
+  --tw-gradient-to: #ffffff var(--tw-gradient-to-position) !important;
 }
 
 /* Sub-card tinted surfaces / Subtle backgrounds */
 [data-admin-mode="light"] .bg-zinc-900\/20,
 [data-admin-mode="light"] .bg-zinc-900\/10,
+[data-admin-mode="light"] .bg-white\/5,
+[data-admin-mode="light"] .bg-white\/10,
 [data-admin-mode="light"] .bg-white\/\[0\.02\],
 [data-admin-mode="light"] .bg-white\/\[0\.03\],
-[data-admin-mode="light"] .bg-white\/\[0\.04\] {
+[data-admin-mode="light"] .bg-white\/\[0\.04\],
+[data-admin-mode="light"] .bg-white\/\[0\.05\],
+[data-admin-mode="light"] .bg-white\/\[0\.06\],
+[data-admin-mode="light"] .bg-white\/\[0\.08\] {
+  background-color: #f1f5f9 !important; /* Slate 100 */
+}
+
+/* Non-media dark transparent overlays become clean light tinted surfaces */
+[data-admin-mode="light"] .bg-black\/20,
+[data-admin-mode="light"] .bg-black\/30,
+[data-admin-mode="light"] .bg-black\/40,
+[data-admin-mode="light"] .bg-black\/50,
+[data-admin-mode="light"] .bg-black\/60,
+[data-admin-mode="light"] .bg-black\/70,
+[data-admin-mode="light"] .bg-black\/80 {
   background-color: #f8fafc !important;
 }
 
-/* 4. Borders Inversion: Hairline White -> Clean Slate 200 */
+/* 4. Media & Vehicle Photo Overlays: MUST retain white text and dark translucent backdrops on top of vehicle photos */
+[data-admin-mode="light"] .aspect-\[16\/10\] .text-white,
+[data-admin-mode="light"] .aspect-\[16\/10\] .text-zinc-100,
+[data-admin-mode="light"] .aspect-\[16\/10\] .text-zinc-200,
+[data-admin-mode="light"] .aspect-\[16\/10\] .text-zinc-300,
+[data-admin-mode="light"] .aspect-video .text-white,
+[data-admin-mode="light"] .aspect-video .text-zinc-100,
+[data-admin-mode="light"] .aspect-video .text-zinc-200,
+[data-admin-mode="light"] .aspect-video .text-zinc-300,
+[data-admin-mode="light"] [data-vehicle-photo] .text-white,
+[data-admin-mode="light"] [data-vehicle-photo] .text-zinc-100,
+[data-admin-mode="light"] [data-vehicle-photo] .text-zinc-200,
+[data-admin-mode="light"] [data-vehicle-photo] .text-zinc-300,
+[data-admin-mode="light"] .group\/thumb .text-white,
+[data-admin-mode="light"] .group\/thumb .text-zinc-100,
+[data-admin-mode="light"] .group\/thumb .text-zinc-200,
+[data-admin-mode="light"] .group\/thumb .text-zinc-300 {
+  color: #ffffff !important;
+}
+
+[data-admin-mode="light"] .aspect-\[16\/10\] .bg-black\/60,
+[data-admin-mode="light"] .aspect-\[16\/10\] .bg-black\/50,
+[data-admin-mode="light"] .aspect-\[16\/10\] .bg-black\/40,
+[data-admin-mode="light"] .aspect-\[16\/10\] .bg-black\/70,
+[data-admin-mode="light"] .aspect-\[16\/10\] .bg-black\/80,
+[data-admin-mode="light"] .aspect-video .bg-black\/60,
+[data-admin-mode="light"] .aspect-video .bg-black\/50,
+[data-admin-mode="light"] .aspect-video .bg-black\/40,
+[data-admin-mode="light"] .aspect-video .bg-black\/70,
+[data-admin-mode="light"] .aspect-video .bg-black\/80,
+[data-admin-mode="light"] [data-vehicle-photo] .bg-black\/60,
+[data-admin-mode="light"] [data-vehicle-photo] .bg-black\/50,
+[data-admin-mode="light"] [data-vehicle-photo] .bg-black\/40,
+[data-admin-mode="light"] [data-vehicle-photo] .bg-black\/70,
+[data-admin-mode="light"] [data-vehicle-photo] .bg-black\/80 {
+  background-color: rgba(9, 9, 11, 0.78) !important;
+  backdrop-filter: blur(8px) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+/* 5. Borders Inversion: Hairline White -> Clean Slate 200 */
 [data-admin-mode="light"] .border-white\/\[0\.08\],
 [data-admin-mode="light"] .border-white\/\[0\.06\],
 [data-admin-mode="light"] .border-white\/\[0\.05\],
 [data-admin-mode="light"] .border-white\/\[0\.04\],
 [data-admin-mode="light"] .border-white\/10,
 [data-admin-mode="light"] .border-white\/20,
+[data-admin-mode="light"] .border-white\/05,
+[data-admin-mode="light"] .border-white\/06,
 [data-admin-mode="light"] .border-zinc-800,
 [data-admin-mode="light"] .border-zinc-800\/80,
 [data-admin-mode="light"] .border-zinc-800\/60,
@@ -592,29 +730,29 @@ html.admin-light-mode,
   border-color: #e2e8f0 !important; /* Slate 200 */
 }
 
-/* 5. Typography Hierarchy & Contrast (WCAG AA Compliance) */
+/* 6. Typography Hierarchy & Contrast (Strict WCAG AA Compliance >= 4.5:1) */
 [data-admin-mode="light"] .text-white,
 [data-admin-mode="light"] .text-zinc-100 {
-  color: #0f172a !important; /* Slate 900 */
+  color: #0f172a !important; /* Slate 900 (18.0:1) */
 }
 
 [data-admin-mode="light"] .text-zinc-200 {
-  color: #1e293b !important; /* Slate 800 */
+  color: #1e293b !important; /* Slate 800 (13.0:1) */
 }
 
 [data-admin-mode="light"] .text-zinc-300 {
-  color: #334155 !important; /* Slate 700 */
+  color: #334155 !important; /* Slate 700 (9.6:1) */
 }
 
 [data-admin-mode="light"] .text-zinc-400 {
-  color: #64748b !important; /* Slate 500 */
+  color: #334155 !important; /* Slate 700 (9.6:1) */
 }
 
 [data-admin-mode="light"] .text-zinc-500 {
-  color: #94a3b8 !important; /* Slate 400 */
+  color: #475569 !important; /* Slate 600 (7.0:1) */
 }
 
-/* 6. Form Controls: Inputs, Selects, Textareas */
+/* 7. Form Controls: Inputs, Selects, Textareas */
 [data-admin-mode="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 [data-admin-mode="light"] select,
 [data-admin-mode="light"] textarea {
@@ -625,10 +763,10 @@ html.admin-light-mode,
 
 [data-admin-mode="light"] input::placeholder,
 [data-admin-mode="light"] textarea::placeholder {
-  color: #94a3b8 !important;
+  color: #64748b !important; /* Slate 500 */
 }
 
-/* 7. Hover and Interactive Elements */
+/* 8. Hover and Interactive Elements */
 [data-admin-mode="light"] .hover\:bg-white\/\[0\.04\]:hover,
 [data-admin-mode="light"] .hover\:bg-white\/\[0\.05\]:hover,
 [data-admin-mode="light"] .hover\:bg-white\/\[0\.06\]:hover,
@@ -639,46 +777,337 @@ html.admin-light-mode,
   background-color: #f1f5f9 !important; /* Slate 100 */
 }
 
-/* 8. Badge and Pill Contrast Harmonization */
-[data-admin-mode="light"] .text-emerald-300,
-[data-admin-mode="light"] .text-emerald-400 {
-  color: #059669 !important; /* Emerald 600 */
+[data-admin-mode="light"] .hover\:text-white:hover {
+  color: #0f172a !important;
 }
 
-[data-admin-mode="light"] .bg-emerald-500\/10,
-[data-admin-mode="light"] .bg-emerald-500\/15 {
-  background-color: #ecfdf5 !important;
-  border-color: #a7f3d0 !important;
-}
+/* 9. Badge and Pill Contrast Harmonization (WCAG AA >= 4.5:1 across all color scales) */
 
+/* 🟠 AMBER (High-contrast Cognac Amber: >= 5.5:1) */
+[data-admin-mode="light"] .text-amber-200,
 [data-admin-mode="light"] .text-amber-300,
-[data-admin-mode="light"] .text-amber-400 {
-  color: #d97706 !important; /* Amber 600 */
+[data-admin-mode="light"] .text-amber-400,
+[data-admin-mode="light"] .text-amber-400\/90,
+[data-admin-mode="light"] .text-amber-400\/80,
+[data-admin-mode="light"] .text-amber-300\/80,
+[data-admin-mode="light"] .text-amber-200\/90,
+[data-admin-mode="light"] .text-amber-200\/70,
+[data-admin-mode="light"] .hover\:text-amber-300:hover,
+[data-admin-mode="light"] .hover\:text-amber-400:hover {
+  color: #92400e !important; /* Amber 800 */
 }
 
+[data-admin-mode="light"] .bg-amber-500\/5,
+[data-admin-mode="light"] .bg-amber-500\/10,
+[data-admin-mode="light"] .bg-amber-500\/15,
+[data-admin-mode="light"] .bg-amber-500\/20,
+[data-admin-mode="light"] .bg-amber-500\/25,
+[data-admin-mode="light"] .bg-amber-500\/30 {
+  background-color: #fef3c7 !important; /* Amber 100 */
+  border-color: #fcd34d !important;     /* Amber 300 */
+  color: #92400e !important;
+}
+
+/* 🟢 EMERALD (High-contrast Deep Forest: >= 5.5:1) */
+[data-admin-mode="light"] .text-emerald-200,
+[data-admin-mode="light"] .text-emerald-300,
+[data-admin-mode="light"] .text-emerald-400,
+[data-admin-mode="light"] .text-emerald-400\/80,
+[data-admin-mode="light"] .text-emerald-300\/80,
+[data-admin-mode="light"] [class*="text-emerald-300"],
+[data-admin-mode="light"] [class*="text-emerald-400"],
+.admin-light-mode .text-emerald-200,
+.admin-light-mode .text-emerald-300,
+.admin-light-mode .text-emerald-400,
+.admin-light-mode .text-emerald-400\/80,
+.admin-light-mode .text-emerald-300\/80,
+.admin-light-mode [class*="text-emerald-300"],
+.admin-light-mode [class*="text-emerald-400"],
+[data-admin-mode="light"] .hover\:text-emerald-300:hover,
+[data-admin-mode="light"] .hover\:text-emerald-400:hover {
+  color: #065f46 !important; /* Emerald 800 */
+}
+
+[data-admin-mode="light"] .bg-emerald-500\/05,
+[data-admin-mode="light"] .bg-emerald-500\/10,
+[data-admin-mode="light"] .bg-emerald-500\/15,
+[data-admin-mode="light"] .bg-emerald-500\/20,
+[data-admin-mode="light"] .bg-emerald-500\/25,
+.admin-light-mode .bg-emerald-500\/05,
+.admin-light-mode .bg-emerald-500\/10,
+.admin-light-mode .bg-emerald-500\/15,
+.admin-light-mode .bg-emerald-500\/20,
+.admin-light-mode .bg-emerald-500\/25 {
+  background-color: #ecfdf5 !important; /* Emerald 50 */
+  border-color: #6ee7b7 !important;     /* Emerald 300 */
+  color: #065f46 !important;
+}
+
+/* 🟠 ORANGE (High-contrast Rust Orange: >= 6.0:1) */
+[data-admin-mode="light"] .text-orange-200,
+[data-admin-mode="light"] .text-orange-300,
+[data-admin-mode="light"] .text-orange-400,
+[data-admin-mode="light"] .text-orange-400\/80,
+[data-admin-mode="light"] .text-orange-300\/80,
+[data-admin-mode="light"] [class*="text-orange-300"],
+[data-admin-mode="light"] [class*="text-orange-400"],
+.admin-light-mode .text-orange-200,
+.admin-light-mode .text-orange-300,
+.admin-light-mode .text-orange-400,
+.admin-light-mode .text-orange-400\/80,
+.admin-light-mode .text-orange-300\/80,
+.admin-light-mode [class*="text-orange-300"],
+.admin-light-mode [class*="text-orange-400"],
+[data-admin-mode="light"] .hover\:text-orange-300:hover,
+[data-admin-mode="light"] .hover\:text-orange-400:hover {
+  color: #9a3412 !important; /* Orange 800 */
+}
+
+[data-admin-mode="light"] .bg-orange-500\/05,
+[data-admin-mode="light"] .bg-orange-500\/10,
+[data-admin-mode="light"] .bg-orange-500\/15,
+[data-admin-mode="light"] .bg-orange-500\/20,
+[data-admin-mode="light"] .bg-orange-500\/25,
+.admin-light-mode .bg-orange-500\/05,
+.admin-light-mode .bg-orange-500\/10,
+.admin-light-mode .bg-orange-500\/15,
+.admin-light-mode .bg-orange-500\/20,
+.admin-light-mode .bg-orange-500\/25 {
+  background-color: #fff7ed !important; /* Orange 50 */
+  border-color: #fdba74 !important;     /* Orange 300 */
+  color: #9a3412 !important;
+}
+
+/* 📱 WHATSAPP BRAND GREEN (#25D366 -> Deep Accessible Teal-Green) */
+[data-admin-mode="light"] .text-\[\#25D366\],
+[data-admin-mode="light"] .text-\[\#25d366\],
+[data-admin-mode="light"] [class*="text-[#25D366]"],
+[data-admin-mode="light"] [class*="text-[#25d366]"],
+.admin-light-mode .text-\[\#25D366\],
+.admin-light-mode .text-\[\#25d366\],
+.admin-light-mode [class*="text-[#25D366]"],
+.admin-light-mode [class*="text-[#25d366]"] {
+  color: #075e54 !important; /* WhatsApp Deep Green */
+}
+
+[data-admin-mode="light"] .bg-\[\#25D366\]\/15,
+[data-admin-mode="light"] .bg-\[\#25D366\]\/25,
+[data-admin-mode="light"] .bg-\[\#25d366\]\/15,
+[data-admin-mode="light"] .bg-\[\#25d366\]\/25,
+[data-admin-mode="light"] [class*="bg-[#25D366]"],
+[data-admin-mode="light"] [class*="bg-[#25d366]"],
+.admin-light-mode .bg-\[\#25D366\]\/15,
+.admin-light-mode .bg-\[\#25D366\]\/25,
+.admin-light-mode .bg-\[\#25d366\]\/15,
+.admin-light-mode .bg-\[\#25d366\]\/25,
+.admin-light-mode [class*="bg-[#25D366]"],
+.admin-light-mode [class*="bg-[#25d366]"] {
+  background-color: #e8f8f0 !important;
+  border-color: #86efac !important;
+  color: #075e54 !important;
+}
+
+/* 🌐 CYAN (High-contrast Deep Cyan: >= 6.0:1) */
+[data-admin-mode="light"] .text-cyan-200,
+[data-admin-mode="light"] .text-cyan-300,
+[data-admin-mode="light"] .text-cyan-400,
+[data-admin-mode="light"] [class*="text-cyan-300"],
+[data-admin-mode="light"] [class*="text-cyan-400"],
+.admin-light-mode .text-cyan-200,
+.admin-light-mode .text-cyan-300,
+.admin-light-mode .text-cyan-400,
+.admin-light-mode [class*="text-cyan-300"],
+.admin-light-mode [class*="text-cyan-400"],
+[data-admin-mode="light"] .hover\:text-cyan-300:hover,
+[data-admin-mode="light"] .hover\:text-cyan-400:hover {
+  color: #155e75 !important; /* Cyan 800 */
+}
+
+[data-admin-mode="light"] .bg-cyan-500\/10,
+[data-admin-mode="light"] .bg-cyan-500\/15,
+[data-admin-mode="light"] .bg-cyan-500\/25,
+[data-admin-mode="light"] .bg-cyan-500\/35,
+.admin-light-mode .bg-cyan-500\/10,
+.admin-light-mode .bg-cyan-500\/15,
+.admin-light-mode .bg-cyan-500\/25,
+.admin-light-mode .bg-cyan-500\/35 {
+  background-color: #ecfeff !important; /* Cyan 50 */
+  border-color: #67e8f9 !important;     /* Cyan 300 */
+  color: #155e75 !important;
+}
+
+/* 🧩 TEAL (High-contrast Deep Teal: >= 6.2:1) */
+[data-admin-mode="light"] .text-teal-200,
+[data-admin-mode="light"] .text-teal-300,
+[data-admin-mode="light"] .text-teal-400,
+.admin-light-mode .text-teal-200,
+.admin-light-mode .text-teal-300,
+.admin-light-mode .text-teal-400,
+[data-admin-mode="light"] .hover\:text-teal-300:hover,
+[data-admin-mode="light"] .hover\:text-teal-400:hover {
+  color: #115e59 !important; /* Teal 800 */
+}
+
+[data-admin-mode="light"] .bg-teal-500\/10,
+[data-admin-mode="light"] .bg-teal-500\/15,
+[data-admin-mode="light"] .bg-teal-500\/20,
+[data-admin-mode="light"] .bg-teal-500\/30,
+.admin-light-mode .bg-teal-500\/10,
+.admin-light-mode .bg-teal-500\/15,
+.admin-light-mode .bg-teal-500\/20,
+.admin-light-mode .bg-teal-500\/30 {
+  background-color: #f0fdfa !important; /* Teal 50 */
+  border-color: #5eead4 !important;     /* Teal 300 */
+  color: #115e59 !important;
+}
+
+/* 🟣 PURPLE (High-contrast Royal Purple: >= 6.5:1) */
+[data-admin-mode="light"] .text-purple-200,
+[data-admin-mode="light"] .text-purple-300,
+[data-admin-mode="light"] .text-purple-400,
+.admin-light-mode .text-purple-200,
+.admin-light-mode .text-purple-300,
+.admin-light-mode .text-purple-400,
+[data-admin-mode="light"] .hover\:text-purple-300:hover,
+[data-admin-mode="light"] .hover\:text-purple-400:hover {
+  color: #6b21a8 !important; /* Purple 800 */
+}
+
+[data-admin-mode="light"] .bg-purple-500\/10,
+[data-admin-mode="light"] .bg-purple-500\/15,
+[data-admin-mode="light"] .bg-purple-500\/20,
+.admin-light-mode .bg-purple-500\/10,
+.admin-light-mode .bg-purple-500\/15,
+.admin-light-mode .bg-purple-500\/20 {
+  background-color: #f5f3ff !important; /* Purple 50 */
+  border-color: #d8b4fe !important;     /* Purple 300 */
+  color: #6b21a8 !important;
+}
+
+/* 🔵 BLUE & SKY (High-contrast Sapphire: >= 6.5:1) */
+[data-admin-mode="light"] .text-blue-200,
 [data-admin-mode="light"] .text-blue-300,
-[data-admin-mode="light"] .text-blue-400 {
-  color: #2563eb !important; /* Blue 600 */
+[data-admin-mode="light"] .text-blue-400,
+[data-admin-mode="light"] .text-sky-200,
+[data-admin-mode="light"] .text-sky-300,
+[data-admin-mode="light"] .text-sky-400,
+.admin-light-mode .text-blue-200,
+.admin-light-mode .text-blue-300,
+.admin-light-mode .text-blue-400,
+.admin-light-mode .text-sky-200,
+.admin-light-mode .text-sky-300,
+.admin-light-mode .text-sky-400,
+[data-admin-mode="light"] .hover\:text-blue-300:hover,
+[data-admin-mode="light"] .hover\:text-blue-400:hover {
+  color: #1e40af !important; /* Blue 800 */
 }
 
 [data-admin-mode="light"] .bg-blue-500\/10,
-[data-admin-mode="light"] .bg-blue-500\/15 {
-  background-color: #eff6ff !important;
-  border-color: #bfdbfe !important;
+[data-admin-mode="light"] .bg-blue-500\/15,
+[data-admin-mode="light"] .bg-blue-500\/20,
+[data-admin-mode="light"] .bg-sky-500\/10,
+[data-admin-mode="light"] .bg-sky-500\/15,
+.admin-light-mode .bg-blue-500\/10,
+.admin-light-mode .bg-blue-500\/15,
+.admin-light-mode .bg-blue-500\/20,
+.admin-light-mode .bg-sky-500\/10,
+.admin-light-mode .bg-sky-500\/15 {
+  background-color: #eff6ff !important; /* Blue 50 */
+  border-color: #93c5fd !important;     /* Blue 300 */
+  color: #1e40af !important;
 }
 
+/* 🔴 ROSE & RED (High-contrast Crimson: >= 6.0:1) */
+[data-admin-mode="light"] .text-rose-200,
 [data-admin-mode="light"] .text-rose-300,
-[data-admin-mode="light"] .text-rose-400 {
-  color: #e11d48 !important; /* Rose 600 */
+[data-admin-mode="light"] .text-rose-400,
+[data-admin-mode="light"] .text-rose-400\/80,
+[data-admin-mode="light"] .text-rose-300\/80,
+[data-admin-mode="light"] [class*="text-rose-300"],
+[data-admin-mode="light"] [class*="text-rose-400"],
+[data-admin-mode="light"] .text-red-300,
+[data-admin-mode="light"] .text-red-400,
+[data-admin-mode="light"] .text-red-400\/80,
+[data-admin-mode="light"] .text-red-300\/80,
+[data-admin-mode="light"] [class*="text-red-300"],
+[data-admin-mode="light"] [class*="text-red-400"],
+.admin-light-mode .text-rose-200,
+.admin-light-mode .text-rose-300,
+.admin-light-mode .text-rose-400,
+.admin-light-mode .text-rose-400\/80,
+.admin-light-mode .text-rose-300\/80,
+.admin-light-mode [class*="text-rose-300"],
+.admin-light-mode [class*="text-rose-400"],
+.admin-light-mode .text-red-300,
+.admin-light-mode .text-red-400,
+.admin-light-mode .text-red-400\/80,
+.admin-light-mode .text-red-300\/80,
+.admin-light-mode [class*="text-red-300"],
+.admin-light-mode [class*="text-red-400"],
+[data-admin-mode="light"] .hover\:text-rose-300:hover,
+[data-admin-mode="light"] .hover\:text-rose-400:hover {
+  color: #9f1239 !important; /* Rose 800 */
 }
 
+[data-admin-mode="light"] .bg-rose-500\/05,
 [data-admin-mode="light"] .bg-rose-500\/10,
-[data-admin-mode="light"] .bg-rose-500\/15 {
-  background-color: #fff1f2 !important;
-  border-color: #fecdd3 !important;
+[data-admin-mode="light"] .bg-rose-500\/15,
+[data-admin-mode="light"] .bg-rose-500\/20,
+[data-admin-mode="light"] .bg-red-500\/05,
+[data-admin-mode="light"] .bg-red-500\/10,
+[data-admin-mode="light"] .bg-red-500\/15,
+.admin-light-mode .bg-rose-500\/05,
+.admin-light-mode .bg-rose-500\/10,
+.admin-light-mode .bg-rose-500\/15,
+.admin-light-mode .bg-rose-500\/20,
+.admin-light-mode .bg-red-500\/05,
+.admin-light-mode .bg-red-500\/10,
+.admin-light-mode .bg-red-500\/15 {
+  background-color: #fff1f2 !important; /* Rose 50 */
+  border-color: #fda4af !important;     /* Rose 300 */
+  color: #9f1239 !important;
 }
 
-/* 9. Scrollbars in Light Mode */
+/* 10. Maintain Crisp Contrast on Solid Action Buttons */
+[data-admin-mode="light"] button.bg-amber-500,
+[data-admin-mode="light"] a.bg-amber-500,
+[data-admin-mode="light"] .bg-amber-500.text-black,
+[data-admin-mode="light"] .bg-amber-500 .text-black,
+[data-admin-mode="light"] button.bg-gradient-to-r.from-amber-500.to-amber-400,
+.admin-light-mode button.bg-amber-500,
+.admin-light-mode a.bg-amber-500,
+.admin-light-mode .bg-amber-500.text-black,
+.admin-light-mode .bg-amber-500 .text-black {
+  color: #000000 !important; /* Pitch black on amber-500 (>14:1) */
+}
+
+[data-admin-mode="light"] button.bg-black.text-amber-400,
+[data-admin-mode="light"] button.bg-black .text-amber-400,
+[data-admin-mode="light"] .bg-black.text-amber-400,
+[data-admin-mode="light"] .bg-black .text-amber-400,
+.admin-light-mode button.bg-black.text-amber-400,
+.admin-light-mode button.bg-black .text-amber-400,
+.admin-light-mode .bg-black.text-amber-400,
+.admin-light-mode .bg-black .text-amber-400 {
+  color: #fbbf24 !important; /* High contrast amber on solid black (>10:1) */
+}
+
+[data-admin-mode="light"] button.bg-red-500,
+[data-admin-mode="light"] button.bg-red-600,
+[data-admin-mode="light"] button.bg-rose-600,
+[data-admin-mode="light"] button.bg-emerald-600,
+[data-admin-mode="light"] button.bg-blue-600,
+[data-admin-mode="light"] a.bg-emerald-600,
+[data-admin-mode="light"] a[class*="from-emerald-600"],
+[data-admin-mode="light"] .bg-red-500 .text-white,
+[data-admin-mode="light"] .bg-red-600 .text-white,
+[data-admin-mode="light"] .bg-rose-600 .text-white,
+[data-admin-mode="light"] .bg-emerald-600 .text-white,
+[data-admin-mode="light"] .bg-blue-600 .text-white {
+  color: #ffffff !important;
+}
+
+/* 11. Scrollbars in Light Mode */
 .admin-light-mode ::-webkit-scrollbar-track,
 [data-admin-mode="light"] ::-webkit-scrollbar-track {
   background: #f1f5f9;

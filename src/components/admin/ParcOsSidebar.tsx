@@ -334,7 +334,6 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
               : 'bg-white/[0.03] text-zinc-300 border-white/[0.08] hover:bg-white/[0.08] hover:text-white'
           }`}
           title="Comută mod diurn / nocturn pentru ecran"
-          aria-label="Comută mod diurn / nocturn"
         >
           <div className="flex items-center gap-2">
             {displayMode === 'light' ? (
@@ -355,16 +354,16 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
           </span>
         </button>
 
-        {/* Status Sistem & Nod Edge */}
+        {/* Status Sistem & Sincronizare */}
         <div className="p-2.5 rounded-xl bg-black/40 border border-white/[0.06] text-[10.5px]">
           <div className="flex items-center justify-between text-zinc-400 mb-1 font-mono">
-            <span>NOD S9 GATEWAY</span>
+            <span>SINCRONIZARE STOC</span>
             <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> ONLINE
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> ACTIVĂ
             </span>
           </div>
           <div className="text-[10px] text-zinc-400 flex items-center justify-between">
-            <span>Cluster NVMe</span>
+            <span>Securizat SSL</span>
             <span className="text-zinc-400 font-mono">TVA 21% &bull; Art. 312</span>
           </div>
         </div>
@@ -387,7 +386,7 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
           </button>
         )}
 
-        {/* Asistent & Extensie OLX 1-Click */}
+        {/* Asistent & Extensie OLX 1-Click (Vizibil doar pe Desktop) */}
         {onOpenExtensionModal && (
           <button
             type="button"
@@ -395,7 +394,7 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
               onOpenExtensionModal();
               if (onCloseMobile) onCloseMobile();
             }}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-teal-300 hover:text-white hover:bg-teal-500/10 transition-all border border-teal-500/20 bg-teal-500/5 cursor-pointer group"
+            className="hidden md:flex w-full items-center justify-between px-3 py-2 rounded-xl text-xs text-teal-300 hover:text-white hover:bg-teal-500/10 transition-all border border-teal-500/20 bg-teal-500/5 cursor-pointer group"
           >
             <div className="flex items-center gap-2">
               <Puzzle className="w-3.5 h-3.5 text-teal-400 group-hover:rotate-12 transition-transform" />

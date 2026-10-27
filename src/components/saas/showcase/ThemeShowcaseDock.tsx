@@ -85,7 +85,7 @@ const THEME_PRESETS: Record<ThemePresetKey, ThemeConfig> = {
     previewPoster: '/videos/rxm-poster.webp',
     isRealProduction: true,
     videoHighlights: [
-      { label: 'Showroom Live', value: 'rxmautomobile.ro', desc: 'Domeniu propriu client, găzduit pe Netcup VPS dedicat' },
+      { label: 'Showroom Live', value: 'rxmautomobile.ro', desc: 'Domeniu propriu client, găzduit pe cluster dedicat NVMe' },
       { label: 'Procesare Foto AI', value: 'YOLOv8 + WebP', desc: 'Estompare automată a numerelor și comprimare -65%' },
       { label: 'Video Lounge', value: 'TikTok Integrat', desc: 'Prezentare video cinematică și walkaround pentru fiecare mașină' },
       { label: 'Garanție & Siguranță', value: 'carVertical + SPV', desc: 'Rapoarte tehnice complete și facturare e-Factura SPV' }
@@ -398,7 +398,7 @@ export const ThemeShowcaseDock: React.FC<ThemeShowcaseDockProps> = ({
                 </span>
                 <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/15 text-[10px] font-mono text-zinc-300">
                   <Server className="w-3 h-3 text-amber-400 mr-1" />
-                  Găzduit pe Netcup VPS • rxmautomobile.ro
+                  Infrastructură Dedicată NVMe • rxmautomobile.ro
                 </span>
               </div>
 

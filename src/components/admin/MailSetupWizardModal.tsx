@@ -428,12 +428,12 @@ export const MailSetupWizardModal: React.FC<MailSetupWizardModalProps> = ({
           {currentStep === 3 && (
             <div className="space-y-4">
               <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200/90 leading-relaxed">
-                ParcOS protejează Netcup VPS plafonând discul la <strong>500 MB</strong>. Fisierele mari și ofertele arhivate sunt mutate automat în <strong>Google Drive Vault</strong> criptate cu <strong>AES-256-GCM</strong>.
+                ParcOS protejează stocarea plafonând memoria cache locală la <strong>500 MB</strong>. Fisierele mari și ofertele arhivate sunt mutate automat în <strong>Google Drive Vault</strong> criptate cu <strong>AES-256-GCM</strong>.
               </div>
 
               <div className="bg-black/40 border border-[#27272a] rounded-2xl p-4 space-y-3">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#a1a1aa]">Capacitate Stocare Netcup VPS:</span>
+                  <span className="text-[#a1a1aa]">Capacitate Stocare Rapidă:</span>
                   <span className="font-mono text-white font-bold">500 MB Hard Cap</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
@@ -456,7 +456,7 @@ export const MailSetupWizardModal: React.FC<MailSetupWizardModalProps> = ({
 
               <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>Politica de viață a fișierelor este activă și garantează zero risc de umplere a discului VPS.</span>
+                <span>Politica de viață a fișierelor este activă și garantează optimizarea automată a spațiului de stocare.</span>
               </div>
             </div>
           )}

@@ -96,12 +96,12 @@ export const StorageQuotaWidget: React.FC<StorageQuotaWidgetProps> = ({ showToas
           </div>
           <div>
             <h4 className="text-sm font-bold text-white flex items-center gap-2">
-              Stocare ParcOS VPS
+              Stocare Documente & Fișiere Cloud
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 CAP 500 MB
               </span>
             </h4>
-            <p className="text-xs text-[#a1a1aa]">Stocare Cloud VPS Securizată • Arhivare Google Drive Vault</p>
+            <p className="text-xs text-[#a1a1aa]">Stocare Cloud Securizată • Arhivare Vault Criptată</p>
           </div>
         </div>
 

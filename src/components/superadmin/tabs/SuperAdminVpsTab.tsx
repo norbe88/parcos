@@ -22,15 +22,15 @@ export const SuperAdminVpsTab: React.FC<SuperAdminVpsTabProps> = ({
           <div className="flex items-center gap-3">
             <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
               <Cpu className="w-6 h-6 text-emerald-400" />
-              Telemetrie Hardware & Infrastructură Netcup VPS
+              Telemetrie Hardware & Nod Cloud
             </h2>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              CONECTAT LA NETCUP VPS ({telemetry?.host || '152.53.158.65'})
+              CONECTAT LA CLUSTER PRIVAT (Nod Producție Activ)
             </span>
           </div>
           <p className="text-xs text-zinc-400 mt-1">
-            Monitorizare în timp real a nodului de producție (152.53.158.65) și a consumului per showroom.
+            Monitorizare în timp real a nodului de producție și a consumului per showroom.
           </p>
         </div>
 
@@ -144,7 +144,7 @@ export const SuperAdminVpsTab: React.FC<SuperAdminVpsTabProps> = ({
       <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-6 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
-            <Server className="w-4 h-4 text-emerald-400" /> Containere Docker Active (Netcup VPS)
+            <Server className="w-4 h-4 text-emerald-400" /> Containere Active Cluster (Producție)
           </h3>
           {telemetry?.timestamp && (
             <span className="text-[11px] font-mono text-zinc-500">

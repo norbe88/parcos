@@ -289,7 +289,7 @@ export const InventoryCardView: React.FC<InventoryCardViewProps> = ({
                             onClick={(e) => { e.stopPropagation(); handlePublishToCloud(c); }}
                             disabled={syncingCarId === c.id}
                             className="text-[10px] px-2 py-0.5 rounded-lg border font-bold transition-all inline-flex items-center gap-1 cursor-pointer active:scale-95 shadow-md backdrop-blur-md bg-sky-500/80 hover:bg-sky-600 text-white border-sky-400 shadow-sky-500/20 disabled:opacity-50 disabled:cursor-wait"
-                            title="Publică vehiculul și fotografiile în Showroom Live pe serverul Netcup"
+                            title="Publică vehiculul și fotografiile în Showroom Live"
                           >
                             {syncingCarId === c.id ? (
                               <RefreshCw className="w-3 h-3 text-white animate-spin" />
@@ -473,7 +473,7 @@ export const InventoryCardView: React.FC<InventoryCardViewProps> = ({
                               handlePublishToCloud(c);
                             }}
                             disabled={syncingCarId === c.id}
-                            title="Publică vehiculul în Showroom Live pe serverul Netcup"
+                            title="Publică vehiculul în Showroom Live"
                             className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/50 text-sky-300 text-[10px] font-semibold transition-colors cursor-pointer disabled:opacity-50"
                           >
                             {syncingCarId === c.id ? (

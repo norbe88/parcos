@@ -1763,7 +1763,7 @@ export default function App() {
               onCancel={() => handleSetViewMode(isParcosDomain(window.location.hostname, window.location.port) ? 'saas' : 'showroom')}
               cancelLabel={isParcosDomain(window.location.hostname, window.location.port) ? 'Înapoi pe ParcOS.ro' : 'Înapoi la Showroom-ul Public'}
             />
-          ) : (isParcosDomain(window.location.hostname, window.location.port) && !isMasquerading) ? (
+          ) : (isParcosDomain(window.location.hostname, window.location.port) && !isMasquerading && (!tenantId || tenantId === 'parcos')) ? (
             <ParcOSSuperAdminHub 
               cars={cars}
               onUpdateCar={handleUpdateCar}

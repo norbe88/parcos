@@ -161,9 +161,9 @@ export const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
         },
         {
           id: 'vps_monitoring' as SuperAdminNavTab,
-          label: 'Telemetrie VPS Netcup',
+          label: 'Telemetrie Cluster & Nod',
           icon: Cpu,
-          badge: '152.53.158.65',
+          badge: 'NVMe • 99.9%',
           badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
         },
         {
@@ -196,7 +196,7 @@ export const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
               </div>
               <p className="text-[10px] text-zinc-400 font-mono flex items-center gap-1 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                Netcup VPS • Multi-Tenant
+                Cluster NVMe • Multi-Tenant
               </p>
             </div>
           </div>
@@ -379,7 +379,7 @@ export const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
         )}
 
         <div className="text-[10px] text-zinc-400 text-center font-mono pt-1">
-          ParcOS Multi-Tenant OS • Netcup VPS
+          ParcOS Multi-Tenant OS • Cloud Core
         </div>
       </div>
 

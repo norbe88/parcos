@@ -977,7 +977,7 @@ Echipa de Vânzări • ${dealershipName}`;
           </button>
 
           <div className="flex items-center justify-between">
-            <span>Netcup VPS Zero-Daemon</span>
+            <span>ParcOS Engine • Cloud NVMe</span>
             <span className="flex items-center gap-1 text-emerald-400">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               Live

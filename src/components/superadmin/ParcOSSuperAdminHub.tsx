@@ -570,7 +570,7 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
                   Baza de date este complet izolată (<code className="text-orange-400 font-mono">dealer_slug = 'rxm_sandbox'</code>). FGO este forțat pe test UAT, SPV ANAF este oprit. Datele reale RXM Prod sunt 100% protejate.
                 </p>
                 <p className="text-[11px] text-zinc-500 font-mono">
-                  Consum măsurat pe Netcup VPS: ~35 MB RAM (0.6% din resursele libere). Poate rula liniștit 24/7 sau fi pus în Standby la nevoie.
+                  Consum măsurat pe serverul cloud: ~35 MB RAM (0.6% din resursele libere). Poate rula liniștit 24/7 sau fi pus în Standby la nevoie.
                 </p>
               </div>
 

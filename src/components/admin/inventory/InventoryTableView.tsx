@@ -692,7 +692,7 @@ export const InventoryTableView: React.FC<InventoryTableViewProps> = ({
                                       <div className="flex flex-col">
                                         <span className="flex items-center gap-1.5">
                                           <span>Publică în Showroom</span>
-                                          <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded border border-emerald-500/30">Netcup Live</span>
+                                          <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded border border-emerald-500/30">Live Sync</span>
                                         </span>
                                         <span className="text-[10px] text-zinc-400 font-normal">Sincronizează datele și pozele în baza de date</span>
                                       </div>

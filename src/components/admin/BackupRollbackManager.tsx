@@ -84,8 +84,8 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
 
   // Telemetrie mock/live
   const [telemetry, setTelemetry] = useState({
-    serverHost: '152.53.158.65 (Netcup VPS)',
-    dbContainer: '6fezufnklecoapemrupsqpxh (parcos)',
+    serverHost: 'Cloud NVMe Vault (Securizat)',
+    dbContainer: 'PostgreSQL Enterprise (Izolat)',
     gdriveRemote: 'gdrive:Carvana_Backups/ParcOS_RXM',
     cronSchedule: 'Zilnic la 01:15 AM CEST',
     retentionDays: 30,
@@ -188,7 +188,7 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
 
   const handleTriggerManualBackup = async () => {
     setIsTriggering(true);
-    showToast('Pornire snapshot manual pe Netcup VPS... Baza de date și amprenta foto se procesează.', 'info');
+    showToast('Pornire snapshot manual... Baza de date și amprenta foto se procesează.', 'info');
     try {
       const res = await fetch('/api/admin/backups/trigger', {
         method: 'POST',
@@ -199,7 +199,7 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
         showToast('✅ Snapshot manual finalizat și sincronizat direct pe Google Drive!', 'success');
         await loadBackups();
       } else {
-        showToast('Snapshot-ul rulează autonom pe VPS în fundal. Se sincronizează pe Google Drive.', 'info');
+        showToast('Snapshot-ul rulează autonom în fundal. Se sincronizează pe Google Drive.', 'info');
       }
     } catch {
       showToast('Comandă inițiată. Verifică lista în câteva secunde.', 'info');
@@ -350,7 +350,7 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
               Backup & Disaster Recovery &mdash; {dealer?.name || 'ParcOS'}
             </h2>
             <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-2xl">
-              Sincronizare zilnică automată fără consum pe conexiunea mobilă: serverul Netcup VPS transferă direct în Google Drive prin fibră de 1 Gbps, cu protecție Smart Delta împotriva duplicării fotografiilor.
+              Sincronizare zilnică automată fără consum pe conexiunea mobilă: serverul securizat transferă direct în Google Drive prin fibră de 1 Gbps, cu protecție Smart Delta împotriva duplicării fotografiilor.
             </p>
           </div>
 
@@ -383,7 +383,7 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 pt-6 text-xs relative">
           <div className="p-3.5 rounded-xl bg-black/40 border border-white/[0.06]">
             <div className="text-zinc-400 mb-1 flex items-center gap-1.5 font-medium">
-              <Server className="w-3.5 h-3.5 text-amber-400" /> Bază PostgreSQL (VPS)
+              <Server className="w-3.5 h-3.5 text-amber-400" /> Bază PostgreSQL (Cloud)
             </div>
             <div className="font-bold text-white text-sm font-mono truncate">{telemetry.serverHost}</div>
             <div className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1 font-medium">
@@ -397,7 +397,7 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
             </div>
             <div className="font-bold text-white text-sm font-mono">Google Drive</div>
             <div className="text-[11px] text-cyan-300 mt-1 flex items-center gap-1 font-medium">
-              <Check className="w-3 h-3" /> Direct VPS ➔ G-Drive (0 KB Hotspot)
+              <Check className="w-3 h-3" /> Direct Cloud ➔ G-Drive (0 KB Hotspot)
             </div>
           </div>
 
@@ -755,7 +755,7 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
           <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-6 space-y-4">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <Cloud className="w-5 h-5 text-cyan-400" />
-              <span>Arhitectura Direct Netcup VPS ➔ Google Drive (Hotspot-Safe)</span>
+              <span>Arhitectura Direct Cloud ➔ Google Drive (Hotspot-Safe)</span>
             </h3>
             <p className="text-xs text-zinc-300 leading-relaxed max-w-3xl">
               Deoarece vizitezi des dealeri auto și lucrezi conectat prin hotspot 4G/5G de pe telefon pe laptopul tău (Zety), am proiectat fluxul astfel încât <strong>laptopul să nu descarce niciodată arhivele grele de fotografii (70+ MB)</strong>:
@@ -768,7 +768,7 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
                   Server Datacenter Pipe
                 </div>
                 <p className="text-zinc-400 text-[11px]">
-                  Netcup VPS (152.53.158.65) comprimă baza de date și fotografiile și le transmite <strong>direct către Google Drive</strong> prin conexiunea necontorizată de 1 Gbps a datacenter-ului.
+                  Infrastructura cloud dedicată comprimă baza de date și fotografiile și le transmite <strong>direct către Google Drive</strong> prin conexiunea necontorizată de 1 Gbps a datacenter-ului.
                 </p>
               </div>
 
@@ -785,10 +785,10 @@ export const BackupRollbackManager: React.FC<BackupRollbackManagerProps> = ({
               <div className="p-4 rounded-xl bg-black/40 border border-emerald-500/20 space-y-2">
                 <div className="font-bold text-emerald-300 flex items-center gap-2">
                   <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-[10px] font-mono">3</span>
-                  Zero Disk Waste pe VPS
+                  Zero Stocare Reziduală
                 </div>
                 <p className="text-zinc-400 text-[11px]">
-                  Imediat după ce Google Drive confirmă primirea arhivei, fișierul temporar .tar.gz este ștearsă de pe VPS. Discul NVMe rămâne 100% curat.
+                  Imediat după ce Google Drive confirmă primirea arhivei, fișierul temporar este șters automat. Stocarea rămâne 100% curată.
                 </p>
               </div>
             </div>

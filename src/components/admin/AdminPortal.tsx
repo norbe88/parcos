@@ -209,16 +209,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Buton Extensie OLX Mobil */}
-          <button
-            type="button"
-            onClick={() => setIsExtensionModalOpen(true)}
-            className="p-1.5 rounded-lg bg-teal-500/10 border border-teal-500/30 text-teal-300 hover:text-white transition-all cursor-pointer"
-            title="Extensie & Asistent OLX"
-          >
-            <Puzzle className="w-4 h-4 text-teal-400" />
-          </button>
-
           {onBackToShowroom && (
             <button
               type="button"
@@ -798,7 +788,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             <div className="text-zinc-400 mb-1 flex items-center gap-1.5 font-medium">
               <Server className="w-3.5 h-3.5 text-amber-400" /> Infrastructură Cloud NVMe & Securitate
             </div>
-            <div className="font-bold text-white text-sm">Cluster VPS Dedicat NVMe High-Availability</div>
+            <div className="font-bold text-white text-sm">Cluster Cloud Privat NVMe High-Availability</div>
             <div className="text-[11px] text-zinc-400 mt-1">
               Găzduire dedicată NVMe • Uptime garantat 99.9% • Backup automat baze de date & sincronizare stoc.
             </div>

@@ -66,7 +66,7 @@ export const OLXExtensionInstallModal: React.FC<OLXExtensionInstallModalProps> =
                   </span>
                 ) : (
                   <span className="text-[10px] bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
-                    Găzduit pe Netcup VPS
+                    Găzduire Securizată
                   </span>
                 )}
               </div>
@@ -128,7 +128,7 @@ export const OLXExtensionInstallModal: React.FC<OLXExtensionInstallModalProps> =
                 </div>
               ) : (
                 <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-zinc-300 leading-relaxed">
-                  Extensia este găzduită direct pe serverul nostru Netcup VPS. Se instalează în <strong>3 pași simpli</strong> în orice browser bazat pe Chromium (Google Chrome, Brave, Edge).
+                  Extensia este găzduită direct pe infrastructura cloud a platformei. Se instalează în <strong>3 pași simpli</strong> în orice browser bazat pe Chromium (Google Chrome, Brave, Edge).
                 </div>
               )}
 

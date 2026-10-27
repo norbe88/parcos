@@ -459,7 +459,7 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
                   </span>
                 ) : (
                   <span className="text-[10px] bg-amber-500/15 text-amber-300 font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
-                    Găzduit pe Netcup VPS
+                    Găzduire Securizată
                   </span>
                 )}
               </div>
@@ -473,7 +473,7 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
             href="/downloads/parcos-olx-publisher.zip"
             download="parcos-olx-publisher.zip"
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-blue-500/20 transition-all cursor-pointer self-start sm:self-auto shrink-0"
-            title="Descarcă arhiva ZIP a extensiei direct de pe serverul VPS"
+            title="Descarcă arhiva ZIP a extensiei"
           >
             <Download className="w-4 h-4" />
             <span>Descarcă Extensia Chrome (ZIP)</span>
@@ -496,7 +496,7 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
               </div>
               
               <p className="text-xs text-zinc-300 leading-relaxed">
-                Extensia este împachetată și găzduită direct pe serverul Netcup VPS al showroom-ului. Se instalează direct în Chrome în 3 pași simpli fără a fi nevoie de Web Store.
+                Extensia este împachetată și găzduită direct pe serverul dedicat al showroom-ului. Se instalează direct în Chrome în 3 pași simpli fără a fi nevoie de Web Store.
               </p>
 
               <ol className="text-xs text-zinc-400 space-y-2 list-decimal list-inside bg-black/30 p-3 rounded-lg border border-white/5">

@@ -203,7 +203,7 @@ export const LandingCustomizerHUD: React.FC<LandingCustomizerHUDProps> = ({
             Landing Page & Showroom: {tenant.name}
           </h2>
           <p className="text-xs text-zinc-400 mt-1 max-w-2xl">
-            Configurează experiența vizuală a clienților. Modificările se aplică instantaneu și sunt sincronizate cu baza de date pe Netcup VPS.
+            Configurează experiența vizuală a clienților. Modificările se aplică instantaneu și sunt sincronizate securizat cu baza de date.
           </p>
         </div>
 
@@ -379,7 +379,7 @@ export const LandingCustomizerHUD: React.FC<LandingCustomizerHUDProps> = ({
                   <div className="space-y-0.5">
                     <p className="font-bold text-amber-200">Tenant Central RXM Automobile</p>
                     <p className="text-[11px] text-zinc-300">
-                      Modificarea Hero Video-ului afectează direct showroom-ul oficial <code>rxmautomobile.ro</code> găzduit pe Netcup VPS. Asigură-te că folosești materiale optimizate 1080p/4K sub 60MB.
+                      Modificarea Hero Video-ului afectează direct showroom-ul oficial <code>rxmautomobile.ro</code>. Asigură-te că folosești materiale optimizate 1080p/4K sub 60MB.
                     </p>
                   </div>
                 </div>

@@ -312,7 +312,7 @@ export const SuperAdminOnboardingModal: React.FC<SuperAdminOnboardingModalProps>
               <div>
                 <h3 className="text-2xl font-black text-white">{successResult.name} este gata!</h3>
                 <p className="text-sm text-zinc-400 mt-1">
-                  Instanța a fost configurată și este activă în rețeaua Netcup VPS (152.53.158.65).
+                  Instanța a fost configurată și este activă în rețeaua ParcOS Cloud Core.
                 </p>
               </div>
 
@@ -337,8 +337,8 @@ export const SuperAdminOnboardingModal: React.FC<SuperAdminOnboardingModalProps>
                     Clienții din parcul auto trebuie să adauge în registrar/Cloudflare pentru domeniul <strong className="text-amber-300">{successResult.domain}</strong>:
                   </p>
                   <div className="font-mono text-[11px] bg-black/60 p-3 rounded-xl border border-white/10 space-y-1 text-zinc-300">
-                    <div>A &nbsp;&nbsp;&nbsp;&nbsp; @ &nbsp;&nbsp; 152.53.158.65 &nbsp; (Proxied / Netcup VPS)</div>
-                    <div>CNAME www &nbsp; @ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Proxied)</div>
+                    <div>CNAME @ &nbsp; edge.parcos.ro &nbsp; (Proxied / Cloudflare SSL)</div>
+                    <div>CNAME www &nbsp; edge.parcos.ro &nbsp; (Proxied / Cloudflare SSL)</div>
                   </div>
                 </div>
               </div>
@@ -618,7 +618,7 @@ export const SuperAdminOnboardingModal: React.FC<SuperAdminOnboardingModalProps>
                     <ul className="text-[11px] text-zinc-300 list-disc list-inside space-y-0.5">
                       <li>TVA Strict 21% (VAT_RATE = 0.21, Net = Gross / 1.21)</li>
                       <li>Terminologie strictă: Cont de Garanție (Banca Transilvania)</li>
-                      <li>Găzduire dedicată: Netcup VPS (152.53.158.65)</li>
+                      <li>Găzduire dedicată: Cluster Privat NVMe High-Availability</li>
                     </ul>
                   </div>
                 </div>

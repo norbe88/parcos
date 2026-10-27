@@ -659,7 +659,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         vatRate: 0.21, // Invariant strict 21%
         warrantyTerm: 'Cont de Garanție',
         reservationTerm: 'Garanție de Rezervare/Participare',
-        hostingProvider: 'Netcup VPS (152.53.158.65)',
+        hostingProvider: 'Cluster Cloud Privat NVMe',
       }}
     >
       {tenantBoot === 'unconfigured' ? (
@@ -707,7 +707,7 @@ export const useTenantContext = (): TenantContextType => {
       vatRate: 0.21,
       warrantyTerm: 'Cont de Garanție',
       reservationTerm: 'Garanție de Rezervare/Participare',
-      hostingProvider: 'Netcup VPS (152.53.158.65)',
+      hostingProvider: 'Cluster Cloud Privat NVMe',
     };
   }
   return context;
