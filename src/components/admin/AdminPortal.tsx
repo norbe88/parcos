@@ -4,7 +4,7 @@ import {
   ExternalLink, AlertTriangle, Radio, BarChart3, LineChart, DollarSign, Sparkles, FileText, QrCode, Users, LogOut, Building2,
   Share2, HelpCircle, Clock, Menu, Puzzle
 } from 'lucide-react';
-import { VehicleItem, SEED_DEALER, MarketPriceEvaluation } from '../../db/seed';
+import { VehicleItem, SEED_DEALER, MarketPriceEvaluation, isTenantFeatureEnabled } from '../../db/seed';
 import { useTenant } from '../../hooks/useTenant';
 import { getStockNumber, computeOlxDiscrepancy, getOlxStatusBadge, calculateVehicleFinancials } from '../../utils/helpers';
 import { HeroTikTokManager } from './HeroTikTokManager';
@@ -572,9 +572,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         )}
 
         {/* 2.5 Operațiuni Stoc: ParcOS Mail Hub (PMH-301) */}
-        {activeAdminTab === 'mail' && (
+        {activeAdminTab === 'mail' && isTenantFeatureEnabled(activeDealer?.features, 'mailHub', activeDealer?.slug) && (
           <MailboxLayout
-            dealerSlug="rxm"
+            dealerSlug={activeDealer?.slug}
             dealershipName={activeDealer?.name || 'RXM Automobile'}
             dealerProfile={activeDealer}
             cars={cars}

@@ -285,6 +285,7 @@ export interface TenantFeatures {
   financingPortfolio?: boolean; // Modul F&I & Portofoliu Dosare Credit
   reconTracker?: boolean;       // Service & Pregătire Flotă / Pipeline Recondiționare & Defecte
   googleDriveVault?: boolean;   // Arhivare Cloud Securizată Google Drive PRO Vault (Facturi, Bonuri, CIV)
+  mailHub?: boolean;            // Cutia ParcOS Mail Hub. Lipsa cheii înseamnă oprit.
 }
 
 export type TenantTier = 'starter' | 'pro' | 'enterprise';

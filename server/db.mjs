@@ -64,7 +64,7 @@ export async function initDatabase() {
         status              VARCHAR(30)   DEFAULT 'active' NOT NULL,
         max_vehicles_quota  INTEGER       DEFAULT 25 NOT NULL,
         theme_preset        VARCHAR(50)   DEFAULT 'obsidian_gold' NOT NULL,
-        features            JSONB         NOT NULL DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true,"financingPortfolio":false,"reconTracker":false,"googleDriveVault":false}'::jsonb,
+        features            JSONB         NOT NULL DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true,"financingPortfolio":false,"reconTracker":false,"googleDriveVault":false,"mailHub":false}'::jsonb,
         integrations        JSONB         NOT NULL DEFAULT '{}'::jsonb,
         is_active           BOOLEAN       NOT NULL DEFAULT TRUE,
         config              JSONB         NOT NULL DEFAULT '{}'::jsonb,
@@ -83,8 +83,8 @@ export async function initDatabase() {
     await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS status VARCHAR(30) DEFAULT 'active' NOT NULL;`;
     await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS max_vehicles_quota INTEGER DEFAULT 25 NOT NULL;`;
     await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS theme_preset VARCHAR(50) DEFAULT 'obsidian_gold' NOT NULL;`;
-    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS features JSONB NOT NULL DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true,"financingPortfolio":false,"reconTracker":false,"googleDriveVault":false}'::jsonb;`;
-    await sql`ALTER TABLE dealers ALTER COLUMN features SET DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true,"financingPortfolio":false,"reconTracker":false,"googleDriveVault":false}'::jsonb;`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS features JSONB NOT NULL DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true,"financingPortfolio":false,"reconTracker":false,"googleDriveVault":false,"mailHub":false}'::jsonb;`;
+    await sql`ALTER TABLE dealers ALTER COLUMN features SET DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true,"financingPortfolio":false,"reconTracker":false,"googleDriveVault":false,"mailHub":false}'::jsonb;`;
     await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS integrations JSONB NOT NULL DEFAULT '{}'::jsonb;`;
     await sql`CREATE INDEX IF NOT EXISTS idx_dealers_domain ON dealers(domain);`;
     await sql`CREATE INDEX IF NOT EXISTS idx_dealers_is_active ON dealers(is_active);`;
@@ -229,6 +229,17 @@ export async function initDatabase() {
       UPDATE dealers
       SET features = features || '{"googleDriveVault": false}'::jsonb
       WHERE NOT (features ? 'googleDriveVault')
+    `;
+    await sql`
+      UPDATE dealers
+      SET features = features || '{"mailHub": true}'::jsonb
+      WHERE slug = 'rxm'
+        AND NOT (features ? 'mailHub')
+    `;
+    await sql`
+      UPDATE dealers
+      SET features = features || '{"mailHub": false}'::jsonb
+      WHERE NOT (features ? 'mailHub')
     `;
 
     // Lead-uri comune per parc. Contactul poate lipsi la un click de test drive.
@@ -996,7 +1007,8 @@ export const FALLBACK_DEALERS = {
       windowStickersQr: true,
       financingCalculator: true,
       whatsappLeadsBot: true,
-      fgoInvoicing: true
+      fgoInvoicing: true,
+      mailHub: true
     },
     integrations: {
       fgo: { environment: 'live', seriesFiscal: 'RXM', seriesProforma: 'PROF', defaultRegime: 'margin_scheme', autoSendSpv: true }
@@ -1044,7 +1056,8 @@ export const FALLBACK_DEALERS = {
       windowStickersQr: true,
       financingCalculator: true,
       whatsappLeadsBot: true,
-      fgoInvoicing: true
+      fgoInvoicing: true,
+      mailHub: false
     },
     integrations: {},
     is_active: true,
@@ -1090,7 +1103,8 @@ export const FALLBACK_DEALERS = {
       windowStickersQr: true,
       financingCalculator: true,
       whatsappLeadsBot: true,
-      fgoInvoicing: true
+      fgoInvoicing: true,
+      mailHub: false
     },
     integrations: {},
     is_active: true,
@@ -1135,7 +1149,8 @@ export const FALLBACK_DEALERS = {
       windowStickersQr: true,
       financingCalculator: true,
       whatsappLeadsBot: true,
-      fgoInvoicing: true
+      fgoInvoicing: true,
+      mailHub: false
     },
     integrations: {
       fgo: { environment: 'test', seriesFiscal: 'RXM', seriesProforma: 'PROF', defaultRegime: 'margin_scheme', autoSendSpv: false }
@@ -1449,7 +1464,8 @@ export async function upsertDealer(data) {
     windowStickersQr: true,
     financingCalculator: true,
     whatsappLeadsBot: true,
-    fgoInvoicing: true
+    fgoInvoicing: true,
+    mailHub: false
   };
   const integrations = (data.integrations && typeof data.integrations === 'object') ? data.integrations : {};
   const config = (data.config && typeof data.config === 'object') ? data.config : {};

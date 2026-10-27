@@ -13,7 +13,7 @@
  */
 
 import crypto from 'crypto';
-import { getSql } from './db.mjs';
+import { getDealerByDomain, getSql } from './db.mjs';
 
 export const VAT_RATE = 0.21;
 export const WARRANTY_ESCROW_TERM = 'Cont de Garanție';
@@ -568,6 +568,45 @@ export async function saveInboundEmail(parsedEmail, options = {}) {
  * Handler HTTP principal pentru Webhook Inbound SNS / SES (PMH-201)
  * POST /api/mail/webhook
  */
+export function isMailHubEnabled(dealer) {
+  let features = dealer?.features;
+  if (typeof features === 'string') {
+    try { features = JSON.parse(features); } catch { return false; }
+  }
+  if (!features || typeof features !== 'object') return false;
+  return features.mailHub === true;
+}
+
+export function collectRecipientAddresses(...groups) {
+  const out = [];
+  for (const group of groups) {
+    if (!group) continue;
+    const list = Array.isArray(group) ? group : [group];
+    for (const item of list) {
+      if (typeof item === 'string' && item.trim()) out.push(item.trim());
+    }
+  }
+  return out;
+}
+
+export function emailDomain(address) {
+  const match = String(address || '').toLowerCase().match(/@([a-z0-9.-]+\.[a-z]{2,})/);
+  if (!match) return '';
+  return match[1].replace(/^www\./, '').replace(/\.$/, '');
+}
+
+export async function resolveInboundDealer(addresses, lookup = getDealerByDomain) {
+  const seen = new Set();
+  for (const address of addresses) {
+    const domain = emailDomain(address);
+    if (!domain || seen.has(domain)) continue;
+    seen.add(domain);
+    const dealer = await lookup(domain);
+    if (dealer?.slug && dealer.unconfigured !== true) return dealer;
+  }
+  return null;
+}
+
 export async function handleInboundWebhook(rawBodyBuffer, headers, options = {}) {
   let snsPayload;
   try {
@@ -643,8 +682,31 @@ export async function handleInboundWebhook(rawBodyBuffer, headers, options = {})
       }
 
       const parsed = parseRawMimeEmail(emlToParse);
+      const recipients = collectRecipientAddresses(
+        parsed.to,
+        sesNotification.receipt?.recipients,
+        sesNotification.mail?.destination,
+        sesNotification.mail?.commonHeaders?.to,
+        sesNotification.mail?.commonHeaders?.cc,
+      );
+      let dealer = null;
+      try {
+        dealer = await resolveInboundDealer(recipients, options.resolveDealerByDomain);
+      } catch (lookupErr) {
+        console.warn(`[Mail Hub] Rezolvarea domeniului destinatar a eșuat: ${lookupErr.message}`);
+        return { statusCode: 202, body: { success: true, ignored: true, reason: 'unknown_recipient_domain' } };
+      }
+      if (!dealer) {
+        const domains = [...new Set(recipients.map(emailDomain).filter(Boolean))];
+        console.warn(`[Mail Hub] Domeniul destinatar nu rezolvă un dealer (${domains.join(', ') || 'lipsă'}). Webhook 202, fără scriere.`);
+        return { statusCode: 202, body: { success: true, ignored: true, reason: 'unknown_recipient_domain' } };
+      }
+      if (!isMailHubEnabled(dealer)) {
+        console.warn(`[Mail Hub] mailHub oprit pentru ${dealer.slug}. Webhook fără scriere.`);
+        return { statusCode: 404, body: { success: false, error: 'Mail Hub este oprit' } };
+      }
       const saveResult = await saveInboundEmail(parsed, {
-        dealerId: options.dealerId || 'rxm',
+        dealerId: String(dealer.slug).trim().toLowerCase(),
         s3Key,
       });
 

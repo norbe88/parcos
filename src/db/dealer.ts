@@ -12,6 +12,7 @@ export const DEFAULT_TENANT_FEATURES: TenantFeatures = {
   financingPortfolio: false, // Strict blocat implicit pe producție
   reconTracker: false,       // Rollout controlat (activat per tenant)
   googleDriveVault: false,   // Rollout controlat per tenant
+  mailHub: false,            // Cutia de mail pornește doar cu true explicit
 };
 
 /**
@@ -97,6 +98,7 @@ export const SEED_DEALER: DealerProfile = {
   features: { 
     ...DEFAULT_TENANT_FEATURES,
     financingPortfolio: true,
+    mailHub: true,
   },
   socialIntegration: {
     metaEnabled: false,

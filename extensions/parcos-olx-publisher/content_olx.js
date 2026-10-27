@@ -403,11 +403,17 @@
   `;
 
   function renderDock() {
+    const logoUrl = (typeof chrome !== 'undefined' && chrome.runtime?.getURL) 
+      ? chrome.runtime.getURL('icons/icon48.png') 
+      : 'https://parcos.ro/brand/icon-32x32.png';
+
+    const logoHtml = `<img src="${logoUrl}" width="28" height="28" style="border-radius:7px;box-shadow:0 0 10px rgba(245,158,11,0.25);object-fit:cover;" onerror="this.outerHTML='<div style=\\'width:28px;height:28px;border-radius:8px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);display:flex;align-items:center;justify-content:center;color:#f59e0b;font-weight:900;font-size:12px;\\'>P</div>'" alt="ParcOS" />`;
+
     if (!car) {
       dock.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:10px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <div style="width:28px;height:28px;border-radius:8px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);display:flex;align-items:center;justify-content:center;color:#f59e0b;font-weight:900;font-size:12px;">P</div>
+            ${logoHtml}
             <div>
               <div style="font-weight:800;font-size:13px;color:#fff;">ParcOS Auto-Poster</div>
               <div style="font-size:10px;color:#a1a1aa;">Extensie activă în browser</div>
@@ -437,7 +443,7 @@
     dock.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:10px;">
         <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:28px;height:28px;border-radius:8px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);display:flex;align-items:center;justify-content:center;color:#f59e0b;font-weight:900;font-size:12px;">P</div>
+          ${logoHtml}
           <div>
             <div style="font-weight:800;font-size:13px;color:#fff;">ParcOS Auto-Poster</div>
             <div style="font-size:10px;color:#fbbf24;font-weight:600;">${car.brand} ${car.model} (${car.year}) · ${car.price} ${car.currency}</div>

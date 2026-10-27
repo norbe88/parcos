@@ -64,6 +64,7 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
   const [pendingFinancingCount, setPendingFinancingCount] = useState<number>(0);
   const isReconEnabled = isTenantFeatureEnabled(dealer.features, 'reconTracker', dealer.slug);
   const isFinancingEnabled = isTenantFeatureEnabled(dealer.features, 'financingPortfolio', dealer.slug);
+  const isMailEnabled = isTenantFeatureEnabled(dealer.features, 'mailHub', dealer.slug);
 
   useEffect(() => {
     if (!isFinancingEnabled) {
@@ -129,13 +130,13 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
             : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
         }] : []),
 
-        {
+        ...(isMailEnabled ? [{
           id: 'mail' as AdminTabType,
           label: 'ParcOS Mail Hub',
           icon: Mail,
           badge: 'SES • S3',
           badgeColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-        },
+        }] : []),
         {
           id: 'sales_docs' as AdminTabType,
           label: 'Centru Acte Vânzare',

@@ -33,6 +33,7 @@ import { saveCarImageDataUrl, saveCarImageToDisk, deleteCarMediaFromDisk, create
 import { fetchAutovitLive } from '../scripts/marketScraperHelper.js';
 import {
   handleInboundWebhook,
+  isMailHubEnabled,
   handleBounceWebhook,
   handleOutboundSend,
   buildRawMimeMessage,
@@ -81,6 +82,7 @@ import { handleLeadRoutes } from './routes/leads.mjs';
 import { handleFinancingRoutes } from './routes/financing.mjs';
 
 const PORT = process.env.PORT || 3000;
+// Fallback de localhost și IP de infrastructură. Host-ul de producție nu citește această constantă.
 const DEALER_SLUG = process.env.DEALER_SLUG || 'rxm';
 
 // Generare secret efemer dacă variabila de mediu ADMIN_API_KEY nu este setată (Zero hardcoded credentials)
@@ -479,6 +481,7 @@ export const DEFAULT_DEALER_PROFILES = {
     county: 'Cluj',
     vat_number: 'RO48482214',
     is_active: true,
+    features: { mailHub: true },
     config: {
       themePreset: 'obsidian_gold',
       vatRate: 0.21,
@@ -503,6 +506,7 @@ export const DEFAULT_DEALER_PROFILES = {
     county: 'Cluj',
     vat_number: 'RO43460100',
     is_active: true,
+    features: { mailHub: false },
     config: {
       themePreset: 'clean_white',
       vatRate: 0.21,
@@ -527,6 +531,7 @@ export const DEFAULT_DEALER_PROFILES = {
     county: 'Cluj',
     vat_number: 'RO41920199',
     is_active: true,
+    features: { mailHub: false },
     config: {
       themePreset: 'midnight_blue',
       vatRate: 0.21,
@@ -551,6 +556,7 @@ export const DEFAULT_DEALER_PROFILES = {
     county: 'Cluj',
     vat_number: 'RO48482214',
     is_active: true,
+    features: { mailHub: false },
     config: {
       themePreset: 'obsidian_gold',
       vatRate: 0.21,
@@ -825,6 +831,19 @@ function isUnconfiguredTenant(tenant) {
 
 function sendUnconfiguredShowroom(res) {
   return sendJson(res, 404, { success: false, error: 'Showroom neconfigurat' });
+}
+
+async function requireMailHub(req, res, urlObj) {
+  const tenant = await resolveTenant(req, urlObj);
+  if (isUnconfiguredTenant(tenant)) {
+    sendJson(res, 404, { success: false, error: 'Showroom neconfigurat' });
+    return null;
+  }
+  if (!isMailHubEnabled(tenant)) {
+    sendJson(res, 404, { success: false, error: 'Mail Hub este oprit' });
+    return null;
+  }
+  return String(tenant.slug).trim().toLowerCase();
 }
 
 function cacheTenantHost(host, profile) {
@@ -1916,15 +1935,24 @@ export const server = http.createServer(async (req, res) => {
     // PARCOS MAIL HUB ROUTES (PMH-201, PMH-202, PMH-203)
     // ══════════════════════════════════════════════════════════════════
 
+    const inboundWebhook = req.method === 'POST' && pathname === '/api/mail/webhook';
+    const bounceWebhook = req.method === 'POST' && pathname === '/api/mail/webhook/bounce';
+    let mailDealerSlug = null;
+    if (pathname.startsWith('/api/mail/') && !inboundWebhook && !bounceWebhook) {
+      mailDealerSlug = await requireMailHub(req, res, urlObj);
+      if (!mailDealerSlug) return;
+    }
+
     // 0.4 POST /api/mail/webhook - Webhook Inbound SNS / SES (PMH-201)
-    if (req.method === 'POST' && pathname === '/api/mail/webhook') {
+    // Parcul se alege după domeniul destinatar, nu după DEALER_SLUG.
+    if (inboundWebhook) {
       const rawBody = await readRequestBody(req, 1024 * 1024 * 30); // max 30MB
-      const result = await handleInboundWebhook(rawBody, req.headers, { dealerId: DEALER_SLUG });
+      const result = await handleInboundWebhook(rawBody, req.headers, {});
       return sendJson(res, result.statusCode, result.body);
     }
 
     // 0.5 POST /api/mail/webhook/bounce - Webhook Bounce & Complaint SES (PMH-106 / PMH-202)
-    if (req.method === 'POST' && pathname === '/api/mail/webhook/bounce') {
+    if (bounceWebhook) {
       const rawBody = await readRequestBody(req, 1024 * 512);
       const result = await handleBounceWebhook(rawBody);
       return sendJson(res, result.statusCode, result.body);
@@ -1942,7 +1970,7 @@ export const server = http.createServer(async (req, res) => {
       } catch {
         return sendJson(res, 400, { success: false, error: 'Format JSON invalid' });
       }
-      const result = await handleOutboundSend(payload, { dealerId: DEALER_SLUG });
+      const result = await handleOutboundSend(payload, { dealerId: mailDealerSlug });
       return sendJson(res, result.statusCode, result.body);
     }
 
@@ -1957,7 +1985,7 @@ export const server = http.createServer(async (req, res) => {
       const folder = urlObj.searchParams.get('folder') || undefined;
       const limit = urlObj.searchParams.get('limit') || 50;
       const offset = urlObj.searchParams.get('offset') || 0;
-      const data = await getMailThreads(DEALER_SLUG, { status, assignedTo, limit, offset, currentRole, folder });
+      const data = await getMailThreads(mailDealerSlug, { status, assignedTo, limit, offset, currentRole, folder });
       return sendJson(res, 200, { success: true, ...data });
     }
 
@@ -1967,7 +1995,7 @@ export const server = http.createServer(async (req, res) => {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const threadId = pathname.replace('/api/mail/threads/', '');
-      const data = await getMailThreadById(threadId, DEALER_SLUG);
+      const data = await getMailThreadById(threadId, mailDealerSlug);
       if (!data) {
         return sendJson(res, 404, { success: false, error: 'Conversația nu a fost găsită' });
       }
@@ -1984,7 +2012,7 @@ export const server = http.createServer(async (req, res) => {
       let payload;
       try { payload = JSON.parse(rawBody.toString('utf8')); } catch { return sendJson(res, 400, { success: false, error: 'JSON invalid' }); }
       try {
-        const updated = await updateThreadStatus(threadId, payload.status, DEALER_SLUG);
+        const updated = await updateThreadStatus(threadId, payload.status, mailDealerSlug);
         return sendJson(res, 200, { success: true, thread: updated });
       } catch (err) {
         return sendJson(res, 400, { success: false, error: err.message });
@@ -2001,7 +2029,7 @@ export const server = http.createServer(async (req, res) => {
       let payload;
       try { payload = JSON.parse(rawBody.toString('utf8')); } catch { return sendJson(res, 400, { success: false, error: 'JSON invalid' }); }
       try {
-        const updated = await updateThreadVehicle(threadId, payload.vehicleId || null, DEALER_SLUG);
+        const updated = await updateThreadVehicle(threadId, payload.vehicleId || null, mailDealerSlug);
         return sendJson(res, 200, { success: true, thread: updated });
       } catch (err) {
         return sendJson(res, 400, { success: false, error: err.message });
@@ -2018,7 +2046,7 @@ export const server = http.createServer(async (req, res) => {
       let payload;
       try { payload = JSON.parse(rawBody.toString('utf8')); } catch { return sendJson(res, 400, { success: false, error: 'JSON invalid' }); }
       try {
-        const updated = await assignThreadToAccount(threadId, payload.accountId || null, DEALER_SLUG);
+        const updated = await assignThreadToAccount(threadId, payload.accountId || null, mailDealerSlug);
         return sendJson(res, 200, { success: true, thread: updated });
       } catch (err) {
         return sendJson(res, 400, { success: false, error: err.message });
@@ -2035,7 +2063,7 @@ export const server = http.createServer(async (req, res) => {
       let payload;
       try { payload = JSON.parse(rawBody.toString('utf8')); } catch { return sendJson(res, 400, { success: false, error: 'JSON invalid' }); }
       payload.threadId = threadId;
-      const result = await handleOutboundSend(payload, { dealerId: DEALER_SLUG });
+      const result = await handleOutboundSend(payload, { dealerId: mailDealerSlug });
       return sendJson(res, result.statusCode, result.body);
     }
 
@@ -2044,7 +2072,7 @@ export const server = http.createServer(async (req, res) => {
       if (!isAuthorizedAdmin(req)) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
-      const stats = await getMailStats(DEALER_SLUG);
+      const stats = await getMailStats(mailDealerSlug);
       return sendJson(res, 200, { success: true, stats });
     }
 
@@ -2054,7 +2082,7 @@ export const server = http.createServer(async (req, res) => {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const q = urlObj.searchParams.get('q') || '';
-      const results = await searchMail(q, DEALER_SLUG);
+      const results = await searchMail(q, mailDealerSlug);
       return sendJson(res, 200, { success: true, results });
     }
 
@@ -2063,7 +2091,7 @@ export const server = http.createServer(async (req, res) => {
       if (!isAuthorizedAdmin(req)) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
-      const accounts = await getMailAccounts(DEALER_SLUG);
+      const accounts = await getMailAccounts(mailDealerSlug);
       return sendJson(res, 200, { success: true, accounts });
     }
 
@@ -2076,7 +2104,7 @@ export const server = http.createServer(async (req, res) => {
       let payload;
       try { payload = JSON.parse(rawBody.toString('utf8')); } catch { return sendJson(res, 400, { success: false, error: 'JSON invalid' }); }
       try {
-        const created = await createMailAccount(payload, DEALER_SLUG);
+        const created = await createMailAccount(payload, mailDealerSlug);
         return sendJson(res, 201, { success: true, account: created });
       } catch (err) {
         return sendJson(res, 400, { success: false, error: err.message });
@@ -2093,7 +2121,7 @@ export const server = http.createServer(async (req, res) => {
       let payload;
       try { payload = JSON.parse(rawBody.toString('utf8')); } catch { return sendJson(res, 400, { success: false, error: 'JSON invalid' }); }
       try {
-        const updated = await updateMailAccount(accountId, payload, DEALER_SLUG);
+        const updated = await updateMailAccount(accountId, payload, mailDealerSlug);
         return sendJson(res, 200, { success: true, account: updated });
       } catch (err) {
         return sendJson(res, 400, { success: false, error: err.message });
@@ -2118,7 +2146,7 @@ export const server = http.createServer(async (req, res) => {
         } catch {}
       }
       try {
-        const result = await disableMailAccountAndReassign(accountId, targetAccountId, DEALER_SLUG);
+        const result = await disableMailAccountAndReassign(accountId, targetAccountId, mailDealerSlug);
         return sendJson(res, 200, { success: true, ...result });
       } catch (err) {
         return sendJson(res, 400, { success: false, error: err.message });
@@ -2137,7 +2165,7 @@ export const server = http.createServer(async (req, res) => {
       let payload;
       try { payload = JSON.parse(rawBody.toString('utf8')); } catch { return sendJson(res, 400, { success: false, error: 'JSON invalid' }); }
       try {
-        const result = await savePushSubscription(payload.accountId || 'default-agent', payload.subscription, payload.userAgent || '', payload.dealerId || DEALER_SLUG);
+        const result = await savePushSubscription(payload.accountId || 'default-agent', payload.subscription, payload.userAgent || '', mailDealerSlug);
         return sendJson(res, 200, { success: true, ...result });
       } catch (err) {
         return sendJson(res, 400, { success: false, error: err.message });
@@ -2194,7 +2222,7 @@ export const server = http.createServer(async (req, res) => {
 
         const dnsChecklist = buildDnsChecklist(domain, sesResult.dkimTokens, sesResult.spfRecord);
 
-        const domainRecord = await saveDomainRecord(DEALER_SLUG, domain, {
+        const domainRecord = await saveDomainRecord(mailDealerSlug, domain, {
           verificationStatus: sesResult.verificationStatus,
           dkimStatus: sesResult.dkimStatus,
           dkimTokens: sesResult.dkimTokens,
@@ -2239,7 +2267,7 @@ export const server = http.createServer(async (req, res) => {
       const sql = getSql();
       try {
         const rows = await sql`
-          SELECT * FROM mail_domains WHERE dealer_id = ${DEALER_SLUG} ORDER BY created_at DESC
+          SELECT * FROM mail_domains WHERE dealer_id = ${mailDealerSlug} ORDER BY created_at DESC
         `;
         return sendJson(res, 200, { success: true, domains: rows });
       } catch {
