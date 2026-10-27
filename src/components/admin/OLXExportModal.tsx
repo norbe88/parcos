@@ -23,6 +23,7 @@ import {
   sanitizeForOlx
 } from '../../utils/olxPosterPayload';
 import { generateOlxBookmarkletUrl } from '../../utils/olxBookmarkletGenerator';
+import { ADMIN_AUTH_TOKEN_KEY } from '../../utils/adminAuth';
 
 interface OLXExportModalProps {
   isOpen: boolean;
@@ -287,7 +288,8 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
       photos: absolutePhotos,
       exportedAt: new Date().toISOString(),
       vehicleId: car.id,
-      origin: currentOrigin
+      origin: currentOrigin,
+      adminToken: typeof window !== 'undefined' ? (sessionStorage.getItem(ADMIN_AUTH_TOKEN_KEY) || undefined) : undefined
     };
   };
 
@@ -542,10 +544,10 @@ export const OLXExportModal: React.FC<OLXExportModalProps> = ({
                       </button>
                     )}
                     <a
-                      href="/downloads/parcos-olx-publisher.zip"
+                      href="/downloads/parcos-olx-publisher.zip?v=1.1.0"
                       download="parcos-olx-publisher.zip"
                       className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                      title="Descarcă arhiva ZIP oficială a extensiei (9.5 KB)"
+                      title="Descarcă arhiva ZIP oficială a extensiei (v1.1.0 · 66 KB)"
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>Descarcă ZIP</span>

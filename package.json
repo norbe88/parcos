@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "npx tsx scripts/generate_seo_assets.ts && node scripts/generate_og_card.cjs",
+    "package:extension": "node scripts/package_extension.cjs",
+    "prebuild": "npx tsx scripts/generate_seo_assets.ts && node scripts/generate_og_card.cjs && node scripts/package_extension.cjs",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "sitemap": "npx tsx scripts/generate_seo_assets.ts",

@@ -18,6 +18,7 @@ import {
   getAdminVehicleById, 
   upsertVehicle, 
   deleteVehicle, 
+  updateVehicleOlxLink,
   initDatabase,
   getDealerBySlug,
   getDealerByDomain,
@@ -720,7 +721,9 @@ export const ALLOWED_CORS_ORIGINS = new Set([
   'https://carvana.ro',
   'https://www.carvana.ro',
   'https://autolicit.ro',
-  'https://www.autolicit.ro'
+  'https://www.autolicit.ro',
+  'https://www.olx.ro',
+  'https://olx.ro'
 ]);
 
 /**
@@ -823,6 +826,8 @@ function resolveCorsOrigin(req) {
   if (!origin) return 'https://rxmautomobile.ro';
   if (ALLOWED_CORS_ORIGINS.has(origin)) return origin;
   if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return origin;
+  if (/^https?:\/\/(www\.)?olx\.ro$/.test(origin)) return origin;
+  if (origin.startsWith('chrome-extension://')) return origin;
   return 'https://rxmautomobile.ro';
 }
 
@@ -3562,6 +3567,70 @@ REGULI STRICTE & INVARIANTE HOLDING:
       return sendJson(res, 200, { success: true, deletedId: safeId });
     }
 
+    // 5.1 POST /api/vehicles/:id/olx-link & POST /api/admin/vehicles/:id/olx-link - Actualizare automată link OLX (Extension / Sync)
+    const olxLinkMatch = pathname.match(/^\/api\/(?:admin\/)?vehicles\/([^/]+)\/olx-link$/);
+    if (req.method === 'POST' && olxLinkMatch) {
+      const rawCarId = decodeURIComponent(olxLinkMatch[1]).trim();
+      const safeCarId = rawCarId.replace(/[^a-zA-Z0-9_-]/g, '_');
+      
+      const tenant = await resolveTenant(req, urlObj);
+      if (isUnconfiguredTenant(tenant)) return sendUnconfiguredShowroom(res);
+      const isSuper = isAuthorizedSuperAdmin(req);
+      const isAdmin = await isAuthorizedAdmin(req, urlObj);
+
+      const rawBody = await readRequestBody(req, 1024 * 64);
+      let payload = {};
+      try {
+        payload = JSON.parse(rawBody.toString('utf8'));
+      } catch {
+        return sendJson(res, 400, { success: false, error: 'Format JSON invalid' });
+      }
+
+      // Permitem autentificare fie prin sesiune admin clasică, fie prin secret API / adminToken inclus în body de extensie
+      const bodyToken = payload?.adminToken || payload?.token || '';
+      const isBodyTokenValid = bodyToken && (
+        isValidSessionToken(bodyToken, tenant.slug) || 
+        bodyToken === ADMIN_API_KEY || 
+        bodyToken === SUPERADMIN_MASTER_KEY
+      );
+
+      if (!isAdmin && !isSuper && !isBodyTokenValid) {
+        return sendJson(res, 401, {
+          success: false,
+          error: 'Acces neautorizat. Salvarea linkului OLX necesită autentificare de administrator.'
+        });
+      }
+
+      const { olxUrl, olxId, olxStatus = 'active' } = payload;
+      if (!olxUrl || typeof olxUrl !== 'string' || !olxUrl.includes('olx.ro')) {
+        return sendJson(res, 400, {
+          success: false,
+          error: 'Link-ul OLX este invalid sau nu aparține domeniului olx.ro'
+        });
+      }
+
+      const updated = await updateVehicleOlxLink(
+        safeCarId,
+        { olxUrl, olxId, olxStatus },
+        tenant.slug
+      );
+
+      if (!updated) {
+        return sendJson(res, 404, {
+          success: false,
+          error: `Vehiculul cu ID-ul ${safeCarId} nu a fost găsit în stoc.`
+        });
+      }
+
+      console.log(`🔗 [OLX Sync Engine] Link OLX actualizat cu succes pentru ${safeCarId}: ${olxUrl} (status: ${updated.olxStatus})`);
+
+      return sendJson(res, 200, {
+        success: true,
+        message: 'Link-ul OLX a fost actualizat cu succes.',
+        data: updated
+      });
+    }
+
     // 5.5 POST /api/media/presign-upload - Generare Presigned PUT URLs pentru Cloudflare R2 [STRICT ADMIN]
     if (req.method === 'POST' && (pathname === '/api/media/presign-upload' || pathname === '/rxm/api/media/presign-upload')) {
       if (!(await isAuthorizedAdmin(req, urlObj))) {
@@ -3870,13 +3939,21 @@ REGULI STRICTE & INVARIANTE HOLDING:
           return await serveHtmlWithDynamicMeta(req, res, potentialFile, urlObj);
         }
 
+        const isDownload = pathname.startsWith('/downloads/') || ext === '.zip';
+        const cacheControl = isDownload 
+          ? 'public, max-age=60, must-revalidate' 
+          : 'public, max-age=31536000, immutable';
+
         const headers = {
           'Content-Type': contentType,
-          'Cache-Control': 'public, max-age=31536000, immutable',
+          'Cache-Control': cacheControl,
           'X-Content-Type-Options': 'nosniff',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS'
         };
+        if (isDownload) {
+          headers['Content-Disposition'] = `attachment; filename="${path.basename(potentialFile)}"`;
+        }
         res.writeHead(200, headers);
         if (req.method === 'HEAD') return res.end();
         return fs.createReadStream(potentialFile).pipe(res);

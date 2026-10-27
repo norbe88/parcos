@@ -43,6 +43,9 @@ export interface OlxLiveSnapshot {
 const LOCAL_STORAGE_KEY = 'rxm_olx_snapshot_cache';
 
 import { getAdminAuthHeaders } from './adminAuth';
+import { VehicleItem } from '../db/types';
+import { extractOlxId } from './helpers';
+import { extractInventorySignatureFromText } from './olxPosterPayload';
 
 /**
  * Încarcă snapshot-ul cel mai recent din /api/admin/olx-status sau din localStorage cache
@@ -129,4 +132,126 @@ export function checkEdgeNodeCooldown(meta?: OlxSnapshotMeta): {
     remainingSeconds,
     nextAllowedFormatted
   };
+}
+
+export interface OlxRawAdCandidate {
+  url: string;
+  id?: string;
+  title?: string;
+  description?: string;
+}
+
+export interface ReconcileResult {
+  matchedCar: VehicleItem | null;
+  matchType: 'stock_number' | 'vin' | 'olx_id' | 'none';
+  matchedBy: string;
+  olxUrl: string;
+  olxId?: string;
+}
+
+/**
+ * Reconciliază 1:1 un anunț OLX cu stocul fizic ParcOS, bazat pe prioritatea deterministă (Wave 2):
+ * 1. Tag direct de inventar (#RXM-XXXX) din descriere / titlu
+ * 2. Serie de șasiu (VIN) din descriere
+ * 3. OLX ID sau OLX URL deja asociat
+ */
+export function reconcileAdWithInventory(
+  ad: OlxRawAdCandidate,
+  cars: VehicleItem[]
+): ReconcileResult {
+  const combinedText = `${ad.title || ''}\n${ad.description || ''}`;
+  const sig = extractInventorySignatureFromText(combinedText);
+  const candidateOlxId = ad.id || extractOlxId(ad.url);
+
+  // 1. Căutare după Stock Number (#RXM-XXXX)
+  if (sig.stockNumber) {
+    const cleanTargetStock = sig.stockNumber.toUpperCase().replace(/^#+/, '');
+    const foundByStock = cars.find(c => {
+      const cStock = (c.stockNumber || '').toUpperCase().replace(/^#+/, '');
+      const cId = (c.id || '').toUpperCase();
+      return cStock === cleanTargetStock || cId === cleanTargetStock;
+    });
+    if (foundByStock) {
+      return {
+        matchedCar: foundByStock,
+        matchType: 'stock_number',
+        matchedBy: `#${cleanTargetStock}`,
+        olxUrl: ad.url,
+        olxId: candidateOlxId || undefined
+      };
+    }
+  }
+
+  // 2. Căutare după VIN (17 caractere sau mascat)
+  if (sig.vin && sig.vin.length >= 8) {
+    const cleanTargetVin = sig.vin.toUpperCase();
+    const foundByVin = cars.find(c => {
+      if (!c.vin) return false;
+      const cVin = c.vin.toUpperCase();
+      if (cVin === cleanTargetVin) return true;
+      // Dacă seria din mașină are caractere mascate (ex: VF1**********UJ99)
+      if (cVin.includes('*') || cVin.includes('•')) {
+        const prefix = cVin.replace(/[*•]+.*/, '');
+        const suffix = cVin.replace(/.*[*•]+/, '');
+        if (prefix && suffix && cleanTargetVin.startsWith(prefix) && cleanTargetVin.endsWith(suffix)) {
+          return true;
+        }
+      }
+      return false;
+    });
+    if (foundByVin) {
+      return {
+        matchedCar: foundByVin,
+        matchType: 'vin',
+        matchedBy: `VIN: ${cleanTargetVin}`,
+        olxUrl: ad.url,
+        olxId: candidateOlxId || undefined
+      };
+    }
+  }
+
+  // 3. Căutare după OLX ID existent
+  if (candidateOlxId) {
+    const foundById = cars.find(c => c.olxId === candidateOlxId || (c.olxUrl && extractOlxId(c.olxUrl) === candidateOlxId));
+    if (foundById) {
+      return {
+        matchedCar: foundById,
+        matchType: 'olx_id',
+        matchedBy: `OLX-ID: ${candidateOlxId}`,
+        olxUrl: ad.url,
+        olxId: candidateOlxId
+      };
+    }
+  }
+
+  return {
+    matchedCar: null,
+    matchType: 'none',
+    matchedBy: '',
+    olxUrl: ad.url,
+    olxId: candidateOlxId || undefined
+  };
+}
+
+/**
+ * Reconciliază un lot de anunțuri OLX împotriva întregului parc auto și returnează asocierile găsite
+ */
+export function bulkReconcileInventory(
+  ads: OlxRawAdCandidate[],
+  cars: VehicleItem[]
+): Array<ReconcileResult & { carId: string; wasUnlinked: boolean }> {
+  const results: Array<ReconcileResult & { carId: string; wasUnlinked: boolean }> = [];
+
+  for (const ad of ads) {
+    const res = reconcileAdWithInventory(ad, cars);
+    if (res.matchedCar) {
+      results.push({
+        ...res,
+        carId: res.matchedCar.id,
+        wasUnlinked: !res.matchedCar.olxUrl || res.matchedCar.olxStatus === 'unlinked'
+      });
+    }
+  }
+
+  return results;
 }

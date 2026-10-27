@@ -297,9 +297,13 @@
       .replace(/[\]\}]/g, ')')
       .replace(/[„”«»]/g, '"')
       .replace(/[''‚‛]/g, "'")
-      .replace(/={2,}/g, '')
+      // Eliminare completă a liniilor decorative de separare (ex: ----, ====, ____, **** etc.)
+      .replace(/^[ \t]*[.\-!_#%&@*+=<>/\\|~]{3,}[ \t]*$/gm, '')
+      // Strict OLX Invariant: nicio repetiție de simboluri din lista interzisă de mai mult de 2 ori la rând
+      // (OLX afișează eroare dacă oricare din '.', '!', '?', '-', '=', '_', '#', '%', '&', '@', '*', '+', '<', '>', '/', '\', '|', '~' apare > 3 ori)
+      .replace(/([.!?\-=_#%&@*+<>/\\|~])\1{2,}/g, '$1')
       .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2300}-\u{23FF}\u{2B50}\u{200D}\u{FE0F}]/gu, '')
-      .replace(/[^\p{L}\p{N}\s.,:;!?()\-/%+&"'_]/gu, ' ')
+      .replace(/[^\p{L}\p{N}\s.,:;!?()\-/%+&"'_#]/gu, ' ')
       .split('\n')
       .map(line => line.replace(/[ \t]+/g, ' ').trim())
       .join('\n')
@@ -1218,10 +1222,13 @@
       if (progressEl) {
         progressEl.innerHTML += `
           <div style="margin-top:8px;padding:8px;border-radius:8px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:#86efac;font-size:11px;font-weight:600;">
-            🎉 Toate datele mașinii au fost injectate! Aruncă o privire peste câmpuri și apasă butonul galben <strong>[Publică-mi anunțul]</strong> din josul paginii.
+            🎉 Toate datele mașinii au fost injectate! Aruncă o privire peste câmpuri și apasă butonul galben <strong>[Publică-mi anunțul]</strong> din josul paginii. Linkul se va salva automat în ParcOS.
           </div>
         `;
       }
+
+      // Activăm watcher-ul de captură automată la publicare
+      watchForAdSubmission();
 
     } catch (err) {
       console.error('[ParcOS OLX] Eroare în secvența de completare:', err);
@@ -1235,12 +1242,149 @@
     }
   }
 
-  if (car) {
+  // ══════════════════════════════════════════════════════════════════
+  // AUTO-LINK CAPTURE: Detecție & Salvare Link Anunț Nou Creat
+  // ══════════════════════════════════════════════════════════════════
+
+  function showSuccessHud(url, title) {
+    let badge = document.getElementById('parcos-olx-status-badge');
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.id = 'parcos-olx-status-badge';
+      badge.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 99999999;
+        background: #052e16;
+        border: 2px solid #22c55e;
+        color: #f4f4f5;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        padding: 16px 20px;
+        border-radius: 14px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.85), 0 0 30px rgba(34,197,94,0.35);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 12px;
+        min-width: 320px;
+        max-width: 420px;
+      `;
+      document.body.appendChild(badge);
+    }
+    badge.style.background = '#052e16';
+    badge.style.borderColor = '#22c55e';
+    badge.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.15);padding-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:7px;font-weight:800;color:#22c55e;font-size:13px;">
+          <span style="background:#22c55e;color:#000;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:900;">✓ ParcOS</span>
+          <span>Sincronizat cu Succes!</span>
+        </div>
+        <span style="font-size:10px;color:#a1a1aa;">${title || ''}</span>
+      </div>
+      <div style="color:#dcfce7;font-size:12px;line-height:1.4;">
+        Link-ul anunțului a fost legat automat în ParcOS fără copy-paste:<br>
+        <a href="${url}" target="_blank" style="color:#86efac;text-decoration:underline;font-weight:600;word-break:break-all;">
+          ${url}
+        </a>
+      </div>
+    `;
+    setTimeout(() => { if (badge) badge.remove(); }, 16000);
+  }
+
+  function watchForAdSubmission() {
+    document.addEventListener('click', (e) => {
+      const btn = e.target?.closest?.('button');
+      if (!btn) return;
+      const btnText = (btn.innerText || btn.textContent || '').toLowerCase();
+      const isSubmitBtn = btn.getAttribute('type') === 'submit' || 
+                          btn.getAttribute('data-cy')?.includes('submit') ||
+                          btn.getAttribute('data-testid')?.includes('submit') ||
+                          btnText.includes('publică') || 
+                          btnText.includes('continua') || 
+                          btnText.includes('salvează');
+
+      if (isSubmitBtn && car && !car.alreadyLinked) {
+        console.log('[ParcOS OLX] 🚀 Buton de publicare apăsat, activăm auto-captura linkului...');
+        updateStatus('Publicare în curs... Interceptăm linkul noului anunț OLX');
+
+        let attempts = 0;
+        const captureInterval = setInterval(() => {
+          attempts++;
+          const successLink = document.querySelector('a[href*="/d/oferta/"], a[href*="/oferta/"]');
+          if (successLink && successLink.href && car.vehicleId) {
+            clearInterval(captureInterval);
+            console.log('[ParcOS OLX] 🎯 Link capturat din DOM-ul de confirmare:', successLink.href);
+            car.alreadyLinked = true;
+            if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+              chrome.runtime.sendMessage({
+                action: 'SYNC_OLX_LINK_TO_PARCOS',
+                payload: {
+                  vehicleId: car.vehicleId,
+                  olxUrl: successLink.href,
+                  origin: car.origin,
+                  adminToken: car.adminToken
+                }
+              }, () => {
+                showSuccessHud(successLink.href, car.title || `${car.brand} ${car.model}`);
+              });
+            }
+          }
+          if (attempts > 40) clearInterval(captureInterval);
+        }, 500);
+      }
+    }, true);
+  }
+
+  // Ascultare evenimente din background (ex: semnal afișare HUD de succes)
+  if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
+    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+      if (msg && msg.action === 'SHOW_LINK_BOUND_HUD' && msg.olxUrl) {
+        showSuccessHud(msg.olxUrl, msg.carTitle);
+        sendResponse({ success: true });
+      }
+    });
+  }
+
+  // Verificare dacă scriptul rulează direct pe ecranul ofertei nou create sau pe ecranul de succes
+  const currentHref = window.location.href;
+  const isAdPage = currentHref.includes('/d/oferta/') || currentHref.includes('/oferta/') || currentHref.includes('-ID');
+  const isSuccessPage = currentHref.includes('/adding/success') || currentHref.includes('/d/adding/success');
+
+  if (isAdPage || isSuccessPage) {
+    let capturedOfferUrl = isAdPage ? currentHref : null;
+    if (!capturedOfferUrl && isSuccessPage) {
+      const offerLink = document.querySelector('a[href*="/d/oferta/"], a[href*="/oferta/"], a[data-cy*="ad-link"]');
+      if (offerLink && offerLink.href) capturedOfferUrl = offerLink.href;
+    }
+
+    if (capturedOfferUrl && typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+      chrome.runtime.sendMessage({ action: 'GET_PENDING_CAR' }, (resp) => {
+        if (resp && resp.success && resp.car && !resp.car.alreadyLinked && resp.car.vehicleId) {
+          console.log('[ParcOS OLX] 🎯 Link ofertă identificat la deschiderea paginii:', capturedOfferUrl);
+          resp.car.alreadyLinked = true;
+          chrome.runtime.sendMessage({
+            action: 'SYNC_OLX_LINK_TO_PARCOS',
+            payload: {
+              vehicleId: resp.car.vehicleId,
+              olxUrl: capturedOfferUrl,
+              origin: resp.car.origin,
+              adminToken: resp.car.adminToken
+            }
+          }, () => {
+            showSuccessHud(capturedOfferUrl, resp.car.title || `${resp.car.brand} ${resp.car.model}`);
+          });
+        }
+      });
+    }
+  }
+
+  if (car && !isAdPage && !isSuccessPage) {
     runAutofillSequence();
   }
 
   const observer = new MutationObserver(() => {
-    if (car && !isRunning && !hasCompletedOnce && hasFullFormRendered()) {
+    if (car && !isRunning && !hasCompletedOnce && !isAdPage && !isSuccessPage && hasFullFormRendered()) {
       const priceInput = document.querySelector('input[data-testid="price-input"]') || document.querySelector('input[name="price"]');
       if (priceInput && !priceInput.value) {
         console.log('[ParcOS OLX] Formularul extins a apărut prin mutație DOM, reluăm completarea...');

@@ -984,6 +984,97 @@ export async function deleteVehicle(id, dealerSlug = 'rxm') {
   }
 }
 
+/**
+ * Actualizează link-ul și starea OLX pentru un vehicul din stoc (captură extensie / reconciliere)
+ */
+export async function updateVehicleOlxLink(id, { olxUrl, olxId, olxStatus = 'active' }, dealerSlug = 'rxm') {
+  const cleanSlug = String(dealerSlug || 'rxm').trim().toLowerCase();
+  const trimmedUrl = String(olxUrl || '').trim();
+
+  // Extracție id OLX dacă lipsește
+  let finalId = olxId;
+  if (!finalId && trimmedUrl) {
+    const idMatch = trimmedUrl.match(/-ID([a-zA-Z0-9]+)\.html/i);
+    if (idMatch && idMatch[1]) finalId = idMatch[1];
+    else {
+      const numMatch = trimmedUrl.match(/\/([0-9]{7,12})(?:\/|\.html|$)/);
+      if (numMatch && numMatch[1]) finalId = numMatch[1];
+    }
+  }
+
+  const nowIso = new Date().toISOString();
+
+  try {
+    const sql = getSql();
+    const rows = await sql`
+      SELECT raw_data FROM vehicles 
+      WHERE id = ${id} AND lower(dealer_slug) = ${cleanSlug} 
+      LIMIT 1
+    `;
+    if (!rows || rows.length === 0) {
+      return null;
+    }
+
+    const existingRaw = (rows[0]?.raw_data && typeof rows[0].raw_data === 'object') ? rows[0].raw_data : {};
+    const updatedRaw = {
+      ...existingRaw,
+      olxUrl: trimmedUrl,
+      olxId: finalId || existingRaw.olxId || null,
+      olxStatus: trimmedUrl ? (olxStatus || 'active') : 'unlinked',
+      lastOlxSyncAt: nowIso
+    };
+
+    await sql`
+      UPDATE vehicles 
+      SET raw_data = ${sql.json(updatedRaw)}, updated_at = NOW()
+      WHERE id = ${id} AND lower(dealer_slug) = ${cleanSlug}
+    `;
+
+    return {
+      id,
+      dealerSlug: cleanSlug,
+      olxUrl: trimmedUrl,
+      olxId: finalId || existingRaw.olxId || null,
+      olxStatus: updatedRaw.olxStatus,
+      lastOlxSyncAt: nowIso
+    };
+  } catch (err) {
+    console.warn('[DB] updateVehicleOlxLink warning (fallback in-memory):', err.message);
+    if (inMemoryFallbackVehicles.length === 0) {
+      try {
+        const seedsPath = path.join(__dirname, 'seeds.json');
+        if (fs.existsSync(seedsPath)) {
+          inMemoryFallbackVehicles = JSON.parse(fs.readFileSync(seedsPath, 'utf8'));
+        }
+      } catch {}
+    }
+    const car = inMemoryFallbackVehicles.find(
+      v => String(v.id) === String(id) && String(v.dealer_slug || v.dealerSlug || 'rxm').toLowerCase() === cleanSlug
+    );
+    if (!car) return null;
+    const existingRaw = car.raw_data || {};
+    car.raw_data = {
+      ...existingRaw,
+      olxUrl: trimmedUrl,
+      olxId: finalId || existingRaw.olxId || null,
+      olxStatus: trimmedUrl ? (olxStatus || 'active') : 'unlinked',
+      lastOlxSyncAt: nowIso
+    };
+    car.olxUrl = trimmedUrl;
+    car.olxId = finalId || car.olxId || null;
+    car.olxStatus = trimmedUrl ? (olxStatus || 'active') : 'unlinked';
+    car.lastOlxSyncAt = nowIso;
+    return {
+      id,
+      dealerSlug: cleanSlug,
+      olxUrl: trimmedUrl,
+      olxId: finalId || car.olxId || null,
+      olxStatus: car.olxStatus,
+      lastOlxSyncAt: nowIso
+    };
+  }
+}
+
 // ══════════════════════════════════════════════════════════════════
 // DEALER OS — MULTI-TENANT REPOSITORY & SUPERADMIN (PMH-T01 / SA-01)
 // ══════════════════════════════════════════════════════════════════

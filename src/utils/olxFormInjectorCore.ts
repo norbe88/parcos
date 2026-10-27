@@ -376,9 +376,13 @@ export function getUnifiedOlxInjectorSourceCode(): string {
       .replace(/[\]\}]/g, ')')
       .replace(/[„”«»]/g, '"')
       .replace(/[''‚‛]/g, "'")
-      .replace(/={2,}/g, '')
-      .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2300}-\u{23FF}\u{2B50}\u{200D}\u{FE0F}]/gu, '')
-      .replace(/[^\p{L}\p{N}\s.,:;!?()\-/%+&"']/gu, ' ')
+      // Eliminare completă a liniilor decorative de separare (ex: ----, ====, ____, **** etc.)
+      .replace(/^[ \\t]*[.\\-!_#%&@*+=<>/\\\\|~]{3,}[ \\t]*$/gm, '')
+      // Strict OLX Invariant: nicio repetiție de simboluri din lista interzisă de mai mult de 2 ori la rând
+      // (OLX afișează eroare dacă oricare din '.', '!', '?', '-', '=', '_', '#', '%', '&', '@', '*', '+', '<', '>', '/', '\\', '|', '~' apare > 3 ori)
+      .replace(/([.!?\\-=_#%&@*+<>/\\\\|~])\\\\1{2,}/g, '$1')
+      .replace(/[\\u{1F600}-\\u{1F64F}\\u{1F300}-\\u{1F5FF}\\u{1F680}-\\u{1F6FF}\\u{1F700}-\\u{1F77F}\\u{1F780}-\\u{1F7FF}\\u{1F800}-\\u{1F8FF}\\u{1F900}-\\u{1F9FF}\\u{1FA00}-\\u{1FA6F}\\u{1FA70}-\\u{1FAFF}\\u{2600}-\\u{26FF}\\u{2700}-\\u{27BF}\\u{2300}-\\u{23FF}\\u{2B50}\\u{200D}\\u{FE0F}]/gu, '')
+      .replace(/[^\\p{L}\\p{N}\\s.,:;!?()\\-/%+&"'_#]/gu, ' ')
       .split('\n')
       .map(line => line.replace(/[ \t]+/g, ' ').trim())
       .join('\n')
@@ -958,10 +962,51 @@ export function getUnifiedOlxInjectorSourceCode(): string {
     </div>
     <div style="font-size:11px;color:#dcfce7;line-height:1.4;">
       Toate specificațiile pentru <strong>\${car.brand || ''} \${car.model || ''}</strong> au fost injectate.<br>
-      Apasă butonul galben <strong>[Publică-mi anunțul]</strong> din josul paginii.
+      Apasă butonul galben <strong>[Publică-mi anunțul]</strong> din josul paginii. Linkul se va salva automat în ParcOS!
     </div>
   \`;
-  setTimeout(() => { if (badge) badge.remove(); }, 14000);
+
+  // Auto-link capture watcher pe butonul de publicare
+  document.addEventListener('click', (e) => {
+    const btn = e.target?.closest?.('button');
+    if (!btn) return;
+    const btnText = (btn.innerText || btn.textContent || '').toLowerCase();
+    const isSubmit = btn.getAttribute('type') === 'submit' || 
+                     btn.getAttribute('data-cy')?.includes('submit') ||
+                     btn.getAttribute('data-testid')?.includes('submit') ||
+                     btnText.includes('publică') || btnText.includes('continua') || btnText.includes('salvează');
+
+    if (isSubmit && car && car.vehicleId && !car.alreadyLinked) {
+      updateHud('Publicare în curs... Interceptăm linkul noului anunț...');
+      let attempts = 0;
+      const pollLink = setInterval(async () => {
+        attempts++;
+        const linkEl = document.querySelector('a[href*="/d/oferta/"], a[href*="/oferta/"]');
+        if (linkEl && linkEl.href) {
+          clearInterval(pollLink);
+          car.alreadyLinked = true;
+          const targetUrl = linkEl.href;
+          const targetOrigin = (car.origin || window.location.origin).replace(/\\/$/, '');
+          try {
+            const h = { 'Content-Type': 'application/json' };
+            if (car.adminToken) {
+              h['Authorization'] = 'Bearer ' + car.adminToken;
+              h['X-Admin-Token'] = car.adminToken;
+            }
+            await fetch(targetOrigin + '/api/vehicles/' + encodeURIComponent(car.vehicleId) + '/olx-link', {
+              method: 'POST',
+              headers: h,
+              body: JSON.stringify({ olxUrl: targetUrl, olxStatus: 'active', adminToken: car.adminToken })
+            });
+            updateHud('Link OLX salvat automat în ParcOS!', true);
+          } catch(err) {}
+        }
+        if (attempts > 40) clearInterval(pollLink);
+      }, 500);
+    }
+  }, true);
+
+  setTimeout(() => { if (badge) badge.remove(); }, 16000);
   setTimeout(() => { clearInterval(modalJanitor); }, 6000);
 
 })();

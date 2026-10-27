@@ -140,10 +140,10 @@ export const OLXExtensionInstallModal: React.FC<OLXExtensionInstallModalProps> =
                 </div>
                 <div className="pl-7">
                   <p className="text-xs text-zinc-400 mb-2.5">
-                    Apasă butonul de mai jos pentru a salva pachetul oficial (9.5 KB) pe calculator și dezarhivează-l într-un folder (ex: pe Desktop sau în Descărcări).
+                    Apasă butonul de mai jos pentru a salva pachetul oficial v1.1.0 (66 KB) pe calculator și dezarhivează-l într-un folder (ex: pe Desktop sau în Descărcări).
                   </p>
                   <a
-                    href="/downloads/parcos-olx-publisher.zip"
+                    href="/downloads/parcos-olx-publisher.zip?v=1.1.0"
                     download="parcos-olx-publisher.zip"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md shadow-blue-600/20 transition-all cursor-pointer"
                   >

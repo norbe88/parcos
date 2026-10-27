@@ -29,6 +29,7 @@ interface EnvironmentHUDProps {
   onSelectViewMode: (mode: 'showroom' | 'admin' | 'superadmin' | 'saas') => void;
   onToggleFeature: (slug: string, featureKey: string, currentVal: boolean) => void;
   showToast?: (msg: string) => void;
+  isAdminAuthenticated?: boolean;
 }
 
 export const EnvironmentHUD: React.FC<EnvironmentHUDProps> = ({
@@ -38,7 +39,8 @@ export const EnvironmentHUD: React.FC<EnvironmentHUDProps> = ({
   currentViewMode,
   onSelectViewMode,
   onToggleFeature,
-  showToast
+  showToast,
+  isAdminAuthenticated
 }) => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
     try {
@@ -54,9 +56,11 @@ export const EnvironmentHUD: React.FC<EnvironmentHUDProps> = ({
   const hostname = typeof window !== 'undefined' ? window.location.hostname.toLowerCase() : '';
   const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
   
+  const isProdHost = hostname === 'parcos.ro' || hostname === 'www.parcos.ro' || hostname === 'app.parcos.ro' || hostname.includes('rxmautomobile.ro');
   const isStagingDomain = hostname.includes('staging') || hostname.includes('sandbox');
   const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
-  const hasStagingParam = searchParams.get('env') === 'staging' || searchParams.has('staging');
+  // Pe domeniile oficiale de producție, query param-ul ?env=staging este strict ignorat (permis doar pe local sau subdomenii dedicate)
+  const hasStagingParam = (!isProdHost || isLocal) && (searchParams.get('env') === 'staging' || searchParams.has('staging'));
   
   const [localSimulateStaging, setLocalSimulateStaging] = useState<boolean>(() => {
     try {
@@ -92,22 +96,30 @@ export const EnvironmentHUD: React.FC<EnvironmentHUDProps> = ({
     });
   };
 
-  // STRICT SECURITY GUARD: Pe mediul de producție nu randăm niciodată EnvironmentHUD (nici în showroom, nici în admin).
+  // STRICT SECURITY GUARD 1: Pe mediul de producție nu randăm niciodată EnvironmentHUD (nici în showroom, nici în admin).
   // Previne expunerea IP-ului VPS-ului, link-urilor către staging sau ID-urilor de container către utilizatori sau vizitatori.
   if (isProduction) {
     return null;
   }
 
-  // Când suntem pe localhost și nu am activat simularea de staging, lăsăm un comutator discret
+  // STRICT SECURITY GUARD 2: Pe rutele de administrare (admin / superadmin), dacă utilizatorul NU este autentificat
+  // (se află pe ecranul de LoginGate), nu randăm niciodată bara de mediu/tenant switcher pentru a preveni
+  // leak-ul vizual și încercările de bypass de autentificare.
+  const isAdminView = currentViewMode === 'admin' || currentViewMode === 'superadmin';
+  if (isAdminView && !isAdminAuthenticated) {
+    return null;
+  }
+
+  // Când suntem pe localhost și nu am activat simularea de staging, lăsăm un comutator discret la baza ecranului (fără a obstrucționa butoanele de acțiune)
   if (isLocal && !isStagingActive) {
     return (
-      <div className="fixed top-2 right-2 z-50">
+      <div className="fixed bottom-3 right-3 z-50">
         <button
           onClick={handleToggleLocalStaging}
-          className="px-2.5 py-1 rounded-lg bg-black/70 hover:bg-black/90 border border-white/10 hover:border-amber-500/40 text-zinc-400 hover:text-amber-300 text-[10px] font-mono transition-all flex items-center gap-1.5 shadow-lg backdrop-blur-sm cursor-pointer"
+          className="px-2.5 py-1.5 rounded-lg bg-white/95 dark:bg-black/80 hover:bg-white dark:hover:bg-black border border-slate-300 dark:border-white/10 hover:border-amber-500/50 text-slate-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-300 text-[10px] font-mono transition-all flex items-center gap-1.5 shadow-xl backdrop-blur-sm cursor-pointer"
           title="Activează bara de control Staging & Feature Rollout local"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
           <span>Dev Local • Simulează Staging</span>
         </button>
       </div>

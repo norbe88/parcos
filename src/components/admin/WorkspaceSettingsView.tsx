@@ -470,7 +470,7 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
           </div>
 
           <a
-            href="/downloads/parcos-olx-publisher.zip"
+            href="/downloads/parcos-olx-publisher.zip?v=1.1.0"
             download="parcos-olx-publisher.zip"
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-blue-500/20 transition-all cursor-pointer self-start sm:self-auto shrink-0"
             title="Descarcă arhiva ZIP a extensiei"
@@ -491,7 +491,7 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
                   <Puzzle className="w-3.5 h-3.5" /> Metoda 1: Extensie Chrome (1 Minut)
                 </span>
                 <span className="text-[10px] bg-white/5 text-zinc-400 px-2 py-0.5 rounded font-mono">
-                  v1.0.0 · Manifest V3
+                  v1.1.0 · Manifest V3
                 </span>
               </div>
               
@@ -508,12 +508,12 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
 
             <div className="pt-2 flex items-center gap-2">
               <a
-                href="/downloads/parcos-olx-publisher.zip"
+                href="/downloads/parcos-olx-publisher.zip?v=1.1.0"
                 download="parcos-olx-publisher.zip"
                 className="flex-1 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5 text-blue-400" />
-                <span>Descarcă Pachetul (9.5 KB)</span>
+                <span>Descarcă Pachetul (66 KB)</span>
               </a>
               <button
                 type="button"

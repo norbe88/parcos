@@ -544,7 +544,6 @@ html.admin-light-mode,
 .admin-light-mode aside,
 .admin-light-mode .bg-\[\#09090b\],
 .admin-light-mode .bg-\[\#0c0c0e\],
-.admin-light-mode .bg-\[\#0d0d10\],
 .admin-light-mode .bg-\[\#0d0e11\],
 .admin-light-mode .bg-\[\#0e0e11\],
 .admin-light-mode .bg-\[\#0f0f12\],
@@ -558,7 +557,6 @@ html.admin-light-mode,
 .admin-light-mode .bg-\[\#161619\],
 .admin-light-mode .bg-\[\#16161a\],
 .admin-light-mode .bg-\[\#16161b\],
-.admin-light-mode .bg-\[\#18181b\],
 .admin-light-mode .bg-\[\#18181c\],
 .admin-light-mode .bg-\[\#18181d\],
 .admin-light-mode .bg-\[\#19191d\],
@@ -579,7 +577,6 @@ html.admin-light-mode,
 .admin-light-mode .bg-\[\#0c0c0f\],
 .admin-light-mode .bg-\[\#0c0c0f\]\/90,
 .admin-light-mode .bg-\[\#0c0c0f\]\/95,
-[data-admin-mode="light"] .bg-\[\#0d0d10\],
 [data-admin-mode="light"] .bg-\[\#0d0e11\],
 [data-admin-mode="light"] .bg-\[\#0e0e11\],
 [data-admin-mode="light"] .bg-\[\#0f0f12\],
@@ -593,7 +590,6 @@ html.admin-light-mode,
 [data-admin-mode="light"] .bg-\[\#161619\],
 [data-admin-mode="light"] .bg-\[\#16161a\],
 [data-admin-mode="light"] .bg-\[\#16161b\],
-[data-admin-mode="light"] .bg-\[\#18181b\],
 [data-admin-mode="light"] .bg-\[\#18181c\],
 [data-admin-mode="light"] .bg-\[\#18181d\],
 [data-admin-mode="light"] .bg-\[\#19191d\],
@@ -612,11 +608,90 @@ html.admin-light-mode,
 [data-admin-mode="light"] .bg-zinc-900\/50,
 [data-admin-mode="light"] .bg-zinc-900\/40,
 [data-admin-mode="light"] .bg-zinc-900\/30,
-[data-admin-mode="light"] .bg-zinc-800,
+[data-admin-mode="light"] .bg-zinc-800:not(.peer ~ *):not([class*="peer-checked"]),
+.admin-light-mode .bg-zinc-800:not(.peer ~ *):not([class*="peer-checked"]),
 [data-admin-mode="light"] .bg-zinc-800\/80,
 [data-admin-mode="light"] .bg-zinc-800\/50,
 [data-admin-mode="light"] .bg-zinc-700 {
   background-color: #ffffff !important;
+}
+
+/* 3b. Elevated Inner Sub-Cards in Light Mode (Layering & Hierarchy) */
+[data-admin-mode="light"] .bg-\[\#18181b\],
+.admin-light-mode .bg-\[\#18181b\] {
+  background-color: #f8fafc !important; /* Slate 50 subtle elevation */
+  border-color: #e2e8f0 !important;     /* Slate 200 border */
+}
+
+[data-admin-mode="light"] .bg-\[\#18181b\]:hover,
+.admin-light-mode .bg-\[\#18181b\]:hover {
+  background-color: #f1f5f9 !important; /* Slate 100 on hover */
+  border-color: #cbd5e1 !important;     /* Slate 300 */
+}
+
+/* 3c. Embedded Code & Console Previews in Light Mode */
+[data-admin-mode="light"] .bg-\[\#0d0d10\],
+.admin-light-mode .bg-\[\#0d0d10\] {
+  background-color: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+[data-admin-mode="light"] .bg-\[\#0d0d10\] .text-zinc-300,
+.admin-light-mode .bg-\[\#0d0d10\] .text-zinc-300 {
+  color: #1e293b !important;
+}
+
+/* ==========================================================================
+   🎛️ ACCESSIBLE TOGGLE SWITCH ENGINE (LIGHT MODE CONTRAST & WCAG AA)
+   ========================================================================== */
+
+/* 1. Unchecked toggle tracks: crisp Slate 200/300 with Slate 400 perimeter */
+[data-admin-mode="light"] .peer:not(:checked) ~ div,
+.admin-light-mode .peer:not(:checked) ~ div {
+  background-color: #cbd5e1 !important; /* Slate 300 */
+  border: 1px solid #94a3b8 !important; /* Slate 400 */
+}
+
+/* 2. Checked toggle tracks: vibrant semantic colors overriding any surface rules */
+[data-admin-mode="light"] .peer:checked ~ div.peer-checked\:bg-emerald-500,
+.admin-light-mode .peer:checked ~ div.peer-checked\:bg-emerald-500 {
+  background-color: #10b981 !important; /* Emerald 500 */
+  border-color: #059669 !important;
+}
+
+[data-admin-mode="light"] .peer:checked ~ div.peer-checked\:bg-amber-500,
+.admin-light-mode .peer:checked ~ div.peer-checked\:bg-amber-500,
+[data-admin-mode="light"] .peer:checked ~ div.peer-checked\:bg-amber-400,
+.admin-light-mode .peer:checked ~ div.peer-checked\:bg-amber-400 {
+  background-color: #f59e0b !important; /* Amber 500 */
+  border-color: #d97706 !important;
+}
+
+[data-admin-mode="light"] .peer:checked ~ div.peer-checked\:bg-blue-500,
+.admin-light-mode .peer:checked ~ div.peer-checked\:bg-blue-500 {
+  background-color: #3b82f6 !important; /* Blue 500 */
+  border-color: #2563eb !important;
+}
+
+[data-admin-mode="light"] .peer:checked ~ div.peer-checked\:bg-purple-500,
+.admin-light-mode .peer:checked ~ div.peer-checked\:bg-purple-500 {
+  background-color: #a855f7 !important; /* Purple 500 */
+  border-color: #9333ea !important;
+}
+
+[data-admin-mode="light"] .peer:checked ~ div.peer-checked\:bg-teal-500,
+.admin-light-mode .peer:checked ~ div.peer-checked\:bg-teal-500 {
+  background-color: #14b8a6 !important; /* Teal 500 */
+  border-color: #0d9488 !important;
+}
+
+/* 3. Toggle Knob (always pure white with distinct drop shadow) */
+[data-admin-mode="light"] .peer ~ div::after,
+.admin-light-mode .peer ~ div::after {
+  background-color: #ffffff !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Gradients that were dark charcoal */
@@ -710,14 +785,8 @@ html.admin-light-mode,
 }
 
 /* 5. Borders Inversion: Hairline White -> Clean Slate 200 */
-[data-admin-mode="light"] .border-white\/\[0\.08\],
-[data-admin-mode="light"] .border-white\/\[0\.06\],
-[data-admin-mode="light"] .border-white\/\[0\.05\],
-[data-admin-mode="light"] .border-white\/\[0\.04\],
-[data-admin-mode="light"] .border-white\/10,
-[data-admin-mode="light"] .border-white\/20,
-[data-admin-mode="light"] .border-white\/05,
-[data-admin-mode="light"] .border-white\/06,
+[data-admin-mode="light"] [class*="border-white/"],
+.admin-light-mode [class*="border-white/"],
 [data-admin-mode="light"] .border-zinc-800,
 [data-admin-mode="light"] .border-zinc-800\/80,
 [data-admin-mode="light"] .border-zinc-800\/60,
@@ -725,8 +794,11 @@ html.admin-light-mode,
 [data-admin-mode="light"] .border-zinc-800\/40,
 [data-admin-mode="light"] .border-zinc-700,
 [data-admin-mode="light"] .border-zinc-700\/50,
+.admin-light-mode .border-zinc-800,
+.admin-light-mode .border-zinc-700,
 [data-admin-mode="light"] .divide-zinc-800 > :not([hidden]) ~ :not([hidden]),
-[data-admin-mode="light"] .divide-white\/\[0\.08\] > :not([hidden]) ~ :not([hidden]) {
+[data-admin-mode="light"] .divide-white\/\[0\.08\] > :not([hidden]) ~ :not([hidden]),
+.admin-light-mode [class*="divide-white/"] > :not([hidden]) ~ :not([hidden]) {
   border-color: #e2e8f0 !important; /* Slate 200 */
 }
 
@@ -1105,6 +1177,23 @@ html.admin-light-mode,
 [data-admin-mode="light"] .bg-emerald-600 .text-white,
 [data-admin-mode="light"] .bg-blue-600 .text-white {
   color: #ffffff !important;
+}
+
+[data-admin-mode="light"] button.bg-white\/5,
+[data-admin-mode="light"] a.bg-white\/5,
+.admin-light-mode button.bg-white\/5,
+.admin-light-mode a.bg-white\/5 {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+[data-admin-mode="light"] button.bg-white\/5:hover,
+[data-admin-mode="light"] a.bg-white\/5:hover,
+.admin-light-mode button.bg-white\/5:hover,
+.admin-light-mode a.bg-white\/5:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
 }
 
 /* 11. Scrollbars in Light Mode */

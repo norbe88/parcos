@@ -44,6 +44,7 @@ export interface OlxVehiclePayload {
   exportedAt: string;
   vehicleId: string;
   origin?: string;
+  adminToken?: string;
 }
 
 /**
@@ -432,9 +433,49 @@ export function generateOlxDescription(
 
   text += `VIZIONARE & TEST DRIVE:\n`;
   text += `Locatie parc auto: ${address}\n`;
-  text += `Informatii si programari test drive: ${phone}\n`;
+  text += `Informatii si programari test drive: ${phone}\n\n`;
+
+  // 🎯 Smart Inventory Signature (Wave 2 Reconciler)
+  const stockRef = (car.stockNumber || car.id || '').toUpperCase().replace(/^#+/, '');
+  const cleanVin = (car.vin || '').replace(/\*/g, 'X').trim();
+  text += buildOlxInventorySignature(stockRef, cleanVin);
 
   return sanitizeForOlx(text);
+}
+
+/**
+ * Generează amprenta unică de inventar pentru identificare și reconciliere deterministă (Wave 2)
+ * Conform standardelor OLX: fără linii decorative de separare (---) pentru a evita eroarea de validare (>3 simboluri).
+ */
+export function buildOlxInventorySignature(stockNumber: string, vin?: string): string {
+  const stockRef = (stockNumber || '').toUpperCase().replace(/^#+/, '');
+  const cleanVin = (vin || '').replace(/\*/g, 'X').trim();
+  let sig = `\nID Referinta Parc: #${stockRef}\n`;
+  if (cleanVin) {
+    sig += `Serie Sasiu (VIN): ${cleanVin}\n`;
+  }
+  sig += `Vehicul verificat si disponibil in stocul fizic ParcOS.`;
+  return sig;
+}
+
+/**
+ * Extrage identificatorii de inventar (#STOCK_NUMBER și VIN) din descrierea sau titlul unui anunț OLX
+ */
+export function extractInventorySignatureFromText(text: string): { stockNumber: string | null; vin: string | null } {
+  if (!text) return { stockNumber: null, vin: null };
+
+  // 1. Căutare tag direct #RXM-XXXX sau #[A-Z0-9_-]+
+  const stockMatch = text.match(/(?:ID Referin[tț]a Parc:\s*|#)([A-Z0-9]+-[A-Z0-9]+|[A-Z]{2,4}-[0-9]{3,6})/i)
+    || text.match(/#([A-Za-z0-9_-]{3,20})/);
+
+  // 2. Căutare VIN: Serie Sasiu (VIN): [A-HJ-NPR-Z0-9]{8,17} sau format standard 17 caractere
+  const vinMatch = text.match(/(?:Serie\s*(?:de)?\s*[Ss]asiu\s*(?:\(VIN\))?:\s*|VIN:\s*)([A-HJ-NPR-Z0-9]{8,17})/i)
+    || text.match(/\b([A-HJ-NPR-Z0-9]{17})\b/);
+
+  return {
+    stockNumber: stockMatch ? stockMatch[1].toUpperCase() : null,
+    vin: vinMatch ? vinMatch[1].toUpperCase() : null
+  };
 }
 
 /**
@@ -467,7 +508,7 @@ export function formatPhoneForOlx(rawPhone?: string): string {
 /**
  * Curăță descrierea pentru a respecta strict validatorul OLX România:
  * "Scrie doar litere si cifre (fara caractere speciale)"
- * Păstrează underscore-ul '_' pentru formatul numerelor de telefon (0748_892_937).
+ * Păstrează underscore-ul '_' pentru numere de telefon și '#' pentru tagul de inventar.
  */
 export function sanitizeForOlx(text: string): string {
   if (!text) return '';
@@ -491,13 +532,16 @@ export function sanitizeForOlx(text: string): string {
     // 5. Înlocuire ghilimele speciale
     .replace(/[„”«»]/g, '"')
     .replace(/[''‚‛]/g, "'")
-    // 6. Eliminare secvențe decorative de egal sau minus repetat (=== sau ---)
-    .replace(/={2,}/g, '')
-    // 7. Eliminare completă a tuturor emoji-urilor și simbolurilor speciale Unicode
+    // 6. Eliminare completă a liniilor decorative de separare (ex: ----, ====, ____, **** etc.)
+    .replace(/^[ \t]*[.\-!_#%&@*+=<>/\\|~]{3,}[ \t]*$/gm, '')
+    // 7. Strict OLX Invariant: nicio repetiție de simboluri din lista interzisă de mai mult de 2 ori la rând
+    // (OLX afișează eroare dacă oricare din '.', '!', '?', '-', '=', '_', '#', '%', '&', '@', '*', '+', '<', '>', '/', '\', '|', '~' apare > 3 ori)
+    .replace(/([.!?\-=_#%&@*+<>/\\|~])\1{2,}/g, '$1')
+    // 8. Eliminare completă a tuturor emoji-urilor și simbolurilor speciale Unicode
     .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2300}-\u{23FF}\u{2B50}\u{200D}\u{FE0F}]/gu, '')
-    // 8. Filtrare strictă: permitem DOAR litere (inclusiv diacritice românești), cifre, spații, newlines, underscore și semne uzuale de punctuație
-    .replace(/[^\p{L}\p{N}\s.,:;!?()\-/%+&"'_]/gu, ' ')
-    // 9. Curățare spații multiple pe aceeași linie
+    // 9. Filtrare strictă: permitem DOAR litere (inclusiv diacritice românești), cifre, spații, newlines, underscore, # și semne uzuale de punctuație
+    .replace(/[^\p{L}\p{N}\s.,:;!?()\-/%+&"'_#]/gu, ' ')
+    // 10. Curățare spații multiple pe aceeași linie
     .split('\n')
     .map(line => line.replace(/[ \t]+/g, ' ').trim())
     .join('\n')

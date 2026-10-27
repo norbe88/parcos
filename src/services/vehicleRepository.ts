@@ -586,6 +586,33 @@ export const vehicleRepository = {
   },
 
   /**
+   * Actualizează direct linkul OLX pe server și în cache-ul local
+   */
+  async updateOlxLink(
+    id: string,
+    olxUrl: string,
+    olxId?: string,
+    olxStatus: 'active' | 'expired' | 'unlinked' = 'active',
+    dealerSlug: string = 'rxm'
+  ): Promise<boolean> {
+    const trimmed = olxUrl.trim();
+    const local = readLocalCache(dealerSlug);
+    const target = local.find((v) => v.id === id);
+    if (target) {
+      const updated: VehicleItem = {
+        ...target,
+        olxUrl: trimmed,
+        olxId: olxId || target.olxId,
+        olxStatus: trimmed ? olxStatus : 'unlinked',
+        lastOlxSyncAt: new Date().toISOString()
+      };
+      await this.saveVehicle(updated, dealerSlug);
+      return true;
+    }
+    return false;
+  },
+
+  /**
    * Șterge vehiculul din Cloud, localStorage și IndexedDB.
    */
   async deleteVehicle(id: string, dealerSlug: string = 'rxm'): Promise<boolean> {

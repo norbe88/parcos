@@ -10,14 +10,41 @@
     try {
       document.documentElement.setAttribute('data-parcos-olx-extension', 'installed');
       window.dispatchEvent(new CustomEvent('parcos-olx-extension-ready', { 
-        detail: { version: '1.0.8', status: 'ready' } 
+        detail: { version: '1.1.0', status: 'ready' } 
       }));
-      window.postMessage({ type: 'PARCOS_OLX_PONG', version: '1.0.8', status: 'ready' }, '*');
+      window.postMessage({ type: 'PARCOS_OLX_PONG', version: '1.1.0', status: 'ready' }, '*');
     } catch (e) {}
   }
 
   // Semnalizare inițială
   broadcastReady();
+
+  // Ascultare evenimente transmise din background către pagina ParcOS
+  try {
+    if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
+      chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request && request.type === 'PARCOS_OLX_LINK_BOUND') {
+          console.log('[ParcOS Extension] 🔗 Link OLX capturat automat, notificare UI:', request);
+          window.postMessage({
+            type: 'PARCOS_OLX_LINK_BOUND',
+            vehicleId: request.vehicleId,
+            olxUrl: request.olxUrl,
+            olxId: request.olxId
+          }, '*');
+          window.dispatchEvent(new CustomEvent('parcos-olx-link-bound', {
+            detail: {
+              vehicleId: request.vehicleId,
+              olxUrl: request.olxUrl,
+              olxId: request.olxId
+            }
+          }));
+          sendResponse({ received: true });
+        }
+      });
+    }
+  } catch (listenerErr) {
+    console.warn('[ParcOS Extension] Eroare atașare listener onMessage:', listenerErr);
+  }
 
   // Ascultare mesaje de la interfața React ParcOS
   window.addEventListener('message', (event) => {

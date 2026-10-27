@@ -98,7 +98,7 @@ export const OlxTemplateSettingsManager: React.FC<OlxTemplateSettingsManagerProp
           </div>
           <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
             <span>Structură & Clauze Comerciale Predefinite</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 font-mono font-semibold">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 font-mono font-semibold border border-amber-500/20">
               Personalizat per Parc
             </span>
           </h3>
@@ -200,10 +200,10 @@ export const OlxTemplateSettingsManager: React.FC<OlxTemplateSettingsManagerProp
                       key={m}
                       type="button"
                       onClick={() => setConfig(prev => ({ ...prev, warrantyMonths: m }))}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
                         config.warrantyMonths === m
-                          ? 'bg-amber-500 text-black shadow-xs'
-                          : 'bg-white/5 text-zinc-400 hover:text-white'
+                          ? 'bg-amber-500 text-black border-amber-500 shadow-xs'
+                          : 'bg-white/5 text-zinc-400 hover:text-white border-white/10'
                       }`}
                     >
                       {m} Luni

@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
   "name": "ParcOS OLX Publisher",
-  "version": "1.0.8",
-  "description": "Publicare și completare automată a anunțurilor auto din ParcOS direct pe OLX România (olx.ro/adding/).",
+  "version": "1.1.0",
+  "description": "Publicare și completare automată a anunțurilor auto din ParcOS direct pe OLX România cu auto-linkare.",
   "author": "CARVANA SRL / ParcOS",
   "permissions": [
     "storage",
+    "tabs",
     "activeTab",
     "unlimitedStorage",
     "clipboardRead"
@@ -51,7 +52,11 @@
         "*://*.olx.ro/adding/*",
         "*://*.olx.ro/d/ad/new*",
         "*://*.olx.ro/d/ad/*",
-        "*://*.olx.ro/d/adding*"
+        "*://*.olx.ro/d/adding*",
+        "*://*.olx.ro/d/adding/success*",
+        "*://*.olx.ro/adding/success*",
+        "*://*.olx.ro/d/oferta/*",
+        "*://*.olx.ro/oferta/*"
       ],
       "js": ["content_olx.js"],
       "run_at": "document_idle"

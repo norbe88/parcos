@@ -1339,15 +1339,43 @@ export default function App() {
   // Actualizare link OLX (Admin OLX S9 Sync)
   const handleUpdateOlxLink = (id: string, olxUrl: string) => {
     const trimmed = olxUrl.trim();
+    const olxId = extractOlxId(trimmed);
+    const olxStatus = trimmed ? ('active' as const) : ('unlinked' as const);
     setCars(prev => prev.map(c => c.id === id ? { 
       ...c, 
       olxUrl: trimmed,
-      olxId: extractOlxId(trimmed) || c.olxId,
-      olxStatus: trimmed ? ('active' as const) : ('unlinked' as const),
+      olxId: olxId || c.olxId,
+      olxStatus,
       lastOlxSyncAt: new Date().toISOString()
     } : c));
+    vehicleRepository.updateOlxLink(id, trimmed, olxId || undefined, olxStatus, currentDealerSlug);
     showToast('🔗 Link-ul OLX a fost actualizat cu succes!');
   };
+
+  // ⚡ Sincronizare în timp real: Auto-link capturat de Extensia ParcOS OLX Publisher (Wave 1)
+  useEffect(() => {
+    const handleBoundMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'PARCOS_OLX_LINK_BOUND' && event.data?.vehicleId && event.data?.olxUrl) {
+        console.log('[ParcOS UI] 🔗 Auto-link OLX primit de la extensie (postMessage):', event.data);
+        handleUpdateOlxLink(event.data.vehicleId, event.data.olxUrl);
+      }
+    };
+
+    const handleCustomBound = (event: Event) => {
+      const customEvent = event as CustomEvent<{ vehicleId: string; olxUrl: string; olxId?: string }>;
+      if (customEvent.detail?.vehicleId && customEvent.detail?.olxUrl) {
+        console.log('[ParcOS UI] 🔗 Auto-link OLX primit via CustomEvent:', customEvent.detail);
+        handleUpdateOlxLink(customEvent.detail.vehicleId, customEvent.detail.olxUrl);
+      }
+    };
+
+    window.addEventListener('message', handleBoundMessage);
+    window.addEventListener('parcos-olx-link-bound', handleCustomBound);
+    return () => {
+      window.removeEventListener('message', handleBoundMessage);
+      window.removeEventListener('parcos-olx-link-bound', handleCustomBound);
+    };
+  }, [currentDealerSlug]);
 
   // 💰 Gestiune Cheltuieli & Calcul Profit per Mașină (RXM-TIK-01)
   const handleAddExpense = (carId: string, expense: Omit<VehicleExpenseItem, 'id'>) => {
@@ -1624,6 +1652,7 @@ export default function App() {
       <EnvironmentHUD
         currentTenant={tenant}
         allTenants={allTenantsList}
+        isAdminAuthenticated={isAdminAuthenticated}
         onSelectTenant={(slug) => {
           setTenantId(slug);
           if (typeof window !== 'undefined') {
@@ -1635,9 +1664,6 @@ export default function App() {
         }}
         currentViewMode={viewMode}
         onSelectViewMode={(newMode) => {
-          if (newMode === 'superadmin' || newMode === 'admin') {
-            setIsAdminAuthenticated(true);
-          }
           handleSetViewMode(newMode as any);
         }}
         onToggleFeature={(slug, featureKey, currentVal) => {
