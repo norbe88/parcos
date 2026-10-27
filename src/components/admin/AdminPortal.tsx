@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { 
   SlidersHorizontal, Plus, Car, Trash2, Mail, Send, Check, Server, Phone, CheckCircle2, Tag, Star, Film,
   ExternalLink, AlertTriangle, Radio, BarChart3, LineChart, DollarSign, Sparkles, FileText, QrCode, Users, LogOut, Building2,
-  Share2, HelpCircle, Clock, Menu, Puzzle
+  Share2, HelpCircle, Clock, Menu, Puzzle, PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 import { VehicleItem, SEED_DEALER, MarketPriceEvaluation, isTenantFeatureEnabled } from '../../db/seed';
 import { useTenant } from '../../hooks/useTenant';
@@ -109,7 +109,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   onAddExpense
 }) => {
   const { tenant } = useTenant();
-  const { settings } = useWorkspace();
+  const { settings, toggleSidebarCollapsed, setSidebarMode } = useWorkspace();
   const activeDealer = dealer || tenant;
 
   const [activeAdminTab, setActiveAdminTab] = useState<AdminTabType>('inventory');
@@ -263,6 +263,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
       />
 
+      {/* Buton Plutitor Reveal când Sidebar-ul este complet ascuns (Hidden) */}
+      {settings.sidebarMode === 'hidden' && (
+        <button
+          type="button"
+          onClick={() => setSidebarMode('expanded')}
+          className="hidden md:flex fixed left-0 top-20 z-40 bg-[#121215] border border-l-0 border-amber-500/50 hover:border-amber-400 text-amber-400 hover:text-white hover:bg-amber-500/20 px-2.5 py-2.5 rounded-r-xl shadow-2xl items-center gap-1.5 font-bold text-xs transition-all cursor-pointer group"
+          title="Afișează Meniul Lateral (Sidebar)"
+        >
+          <PanelLeftOpen className="w-4 h-4 group-hover:scale-110 transition-transform" />
+          <span className="text-[11px] tracking-wide">Meniu</span>
+        </button>
+      )}
+
       {/* Spațiul de Lucru Principal (Workspace Area) */}
       <main className="flex-1 min-w-0 max-w-full px-4 sm:px-8 py-6 md:py-8 overflow-y-auto">
         
@@ -281,6 +294,33 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </div>
 
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            {/* Buton Comutare Meniu Lateral Desktop (Restrânge / Extinde / Afișează) */}
+            <button
+              type="button"
+              onClick={toggleSidebarCollapsed}
+              className="hidden md:inline-flex items-center justify-center gap-1.5 bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10 font-bold text-xs sm:text-sm h-10 px-3.5 rounded-xl transition-all active:scale-95 touch-manipulation cursor-pointer shrink-0"
+              title={
+                settings.sidebarMode === 'collapsed' 
+                  ? 'Extinde meniul lateral' 
+                  : settings.sidebarMode === 'hidden'
+                  ? 'Afișează meniul lateral'
+                  : 'Restrânge meniul lateral (Compact)'
+              }
+            >
+              {settings.sidebarMode === 'collapsed' || settings.sidebarMode === 'hidden' ? (
+                <PanelLeftOpen className="w-4 h-4 text-amber-400" />
+              ) : (
+                <PanelLeftClose className="w-4 h-4 text-zinc-400" />
+              )}
+              <span>
+                {settings.sidebarMode === 'collapsed' 
+                  ? 'Extinde Meniu' 
+                  : settings.sidebarMode === 'hidden' 
+                  ? 'Afișează Meniu' 
+                  : 'Restrânge Meniu'}
+              </span>
+            </button>
+
             {onBackToShowroom && (
               <button 
                 type="button"

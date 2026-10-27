@@ -24,12 +24,16 @@ export interface WorkspaceColumnVisibility {
 }
 
 export type AdminDisplayMode = 'dark' | 'light';
+export type ThumbnailSize = 'sm' | 'md' | 'lg' | 'xl';
+export type SidebarDisplayMode = 'expanded' | 'collapsed' | 'hidden';
 
 export interface WorkspaceSettings {
   density: 'compact' | 'comfortable';
   currency: 'EUR' | 'RON';
   autoScanDocuments: boolean; // 🚀 Scanare automată CIV / Talon la încărcare document
   displayMode: AdminDisplayMode; // 🌙 Mod Nocturn Întunecat vs ☀️ Mod Diurn Luminos
+  thumbnailSize: ThumbnailSize; // 🚗 Dimensiune poze mașină în admin panel (sm: 56px, md: 96px, lg: 144px, xl: 208px)
+  sidebarMode: SidebarDisplayMode; // 📂 Vizibilitate meniu lateral: expanded (normal), collapsed (icon-bar 72px), hidden (ascuns complet)
   visibleColumns: WorkspaceColumnVisibility;
 }
 
@@ -38,6 +42,8 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   currency: 'EUR',
   autoScanDocuments: true, // Implicit activat (recomandat dealer)
   displayMode: 'dark', // Implicit Dark Luxury
+  thumbnailSize: 'md', // Noul default optim și clar (96px)
+  sidebarMode: 'expanded', // Implicit extins
   visibleColumns: {
     specs: true,
     pricing: true,
@@ -59,6 +65,10 @@ export interface WorkspaceContextType {
   setCurrency: (currency: 'EUR' | 'RON') => void;
   setDisplayMode: (mode: AdminDisplayMode) => void;
   toggleDisplayMode: () => void;
+  setThumbnailSize: (size: ThumbnailSize) => void;
+  setSidebarMode: (mode: SidebarDisplayMode) => void;
+  toggleSidebarCollapsed: () => void;
+  toggleSidebarHidden: () => void;
   resetSettings: () => void;
   invariants: typeof CARVANA_INVARIANTS;
 }
@@ -77,6 +87,8 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({ children 
           currency: parsed.currency === 'RON' ? 'RON' : 'EUR',
           autoScanDocuments: parsed.autoScanDocuments !== undefined ? Boolean(parsed.autoScanDocuments) : DEFAULT_WORKSPACE_SETTINGS.autoScanDocuments,
           displayMode: parsed.displayMode === 'light' ? 'light' : 'dark',
+          thumbnailSize: ['sm', 'md', 'lg', 'xl'].includes(parsed.thumbnailSize) ? parsed.thumbnailSize : DEFAULT_WORKSPACE_SETTINGS.thumbnailSize,
+          sidebarMode: ['expanded', 'collapsed', 'hidden'].includes(parsed.sidebarMode) ? parsed.sidebarMode : DEFAULT_WORKSPACE_SETTINGS.sidebarMode,
           visibleColumns: {
             ...DEFAULT_WORKSPACE_SETTINGS.visibleColumns,
             ...(parsed.visibleColumns || {})
@@ -152,6 +164,26 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({ children 
     updateSettings({ displayMode: settings.displayMode === 'light' ? 'dark' : 'light' });
   };
 
+  const setThumbnailSize = (size: ThumbnailSize) => {
+    updateSettings({ thumbnailSize: size });
+  };
+
+  const setSidebarMode = (mode: SidebarDisplayMode) => {
+    updateSettings({ sidebarMode: mode });
+  };
+
+  const toggleSidebarCollapsed = () => {
+    updateSettings({
+      sidebarMode: settings.sidebarMode === 'collapsed' ? 'expanded' : 'collapsed'
+    });
+  };
+
+  const toggleSidebarHidden = () => {
+    updateSettings({
+      sidebarMode: settings.sidebarMode === 'hidden' ? 'expanded' : 'hidden'
+    });
+  };
+
   const resetSettings = () => {
     setSettings(DEFAULT_WORKSPACE_SETTINGS);
   };
@@ -167,6 +199,10 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({ children 
         setCurrency,
         setDisplayMode,
         toggleDisplayMode,
+        setThumbnailSize,
+        setSidebarMode,
+        toggleSidebarCollapsed,
+        toggleSidebarHidden,
         resetSettings,
         invariants: CARVANA_INVARIANTS
       }}
@@ -188,6 +224,10 @@ export const useWorkspace = (): WorkspaceContextType => {
       setCurrency: () => {},
       setDisplayMode: () => {},
       toggleDisplayMode: () => {},
+      setThumbnailSize: () => {},
+      setSidebarMode: () => {},
+      toggleSidebarCollapsed: () => {},
+      toggleSidebarHidden: () => {},
       resetSettings: () => {},
       invariants: CARVANA_INVARIANTS
     };

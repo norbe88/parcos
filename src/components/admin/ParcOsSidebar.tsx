@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Car, Users, FileText, Radio, QrCode, Share2, BarChart3, 
   Settings, Plus, ExternalLink, HelpCircle, LogOut, X, 
-  ShieldCheck, Layers, Building2, ChevronRight, CheckCircle2, DollarSign, Mail,
-  Sun, Moon, CreditCard, Puzzle, Wrench
+  ShieldCheck, Layers, Building2, ChevronRight, ChevronLeft, CheckCircle2, DollarSign, Mail,
+  Sun, Moon, CreditCard, Puzzle, Wrench, PanelLeftClose, PanelLeftOpen, EyeOff, Eye
 } from 'lucide-react';
 import { DealerProfile, SEED_DEALER, isTenantFeatureEnabled } from '../../db/seed';
 import { useWorkspace } from '../../context/WorkspaceContext';
@@ -59,8 +59,9 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
   isMobileOpen = false,
   onCloseMobile
 }) => {
-  const { settings, toggleDisplayMode } = useWorkspace();
+  const { settings, toggleDisplayMode, setSidebarMode, toggleSidebarCollapsed, toggleSidebarHidden } = useWorkspace();
   const displayMode = settings.displayMode;
+  const sidebarMode = settings.sidebarMode;
   const [pendingFinancingCount, setPendingFinancingCount] = useState<number>(0);
   const isReconEnabled = isTenantFeatureEnabled(dealer.features, 'reconTracker', dealer.slug);
   const isFinancingEnabled = isTenantFeatureEnabled(dealer.features, 'financingPortfolio', dealer.slug);
@@ -234,16 +235,34 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
             </div>
           </div>
 
-          {onCloseMobile && (
+          <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
-              onClick={onCloseMobile}
-              className="md:hidden p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
-              aria-label="Închide meniul"
+              onClick={toggleSidebarCollapsed}
+              className="hidden md:flex p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              title="Restrânge meniul (Compact Icon Bar)"
             >
-              <X className="w-5 h-5" />
+              <PanelLeftClose className="w-4 h-4" />
             </button>
-          )}
+            <button
+              type="button"
+              onClick={toggleSidebarHidden}
+              className="hidden md:flex p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+              title="Ascunde complet meniul lateral"
+            >
+              <EyeOff className="w-3.5 h-3.5" />
+            </button>
+            {onCloseMobile && (
+              <button
+                type="button"
+                onClick={onCloseMobile}
+                className="md:hidden p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+                aria-label="Închide meniul"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* 2. Buton Principal: + Adaugă Mașină (CIV OCR) */}
@@ -432,12 +451,190 @@ export const ParcOsSidebar: React.FC<ParcOsSidebarProps> = ({
     </div>
   );
 
+  const collapsedSidebarContent = (
+    <div className="flex flex-col min-h-full justify-between items-center select-none py-1">
+      {/* 1. Header Collapsed: Logo & Expand Trigger */}
+      <div className="space-y-4 w-full flex flex-col items-center">
+        <div className="flex flex-col items-center gap-2 pb-3 border-b border-white/[0.08] w-full">
+          <div 
+            className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 shadow-sm cursor-pointer hover:border-amber-400 transition-colors"
+            title={`${dealer.name} — Click pentru a extinde`}
+            onClick={toggleSidebarCollapsed}
+          >
+            <Building2 className="w-5 h-5" />
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={toggleSidebarCollapsed}
+              className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              title="Extinde meniul complet"
+            >
+              <PanelLeftOpen className="w-4 h-4 text-amber-400" />
+            </button>
+            <button
+              type="button"
+              onClick={toggleSidebarHidden}
+              className="p-1 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+              title="Ascunde complet meniul lateral"
+            >
+              <EyeOff className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Buton Adaugă Vehicul Mini */}
+        <button
+          type="button"
+          onClick={() => {
+            onOpenAddModal();
+            if (onCloseMobile) onCloseMobile();
+          }}
+          className="w-11 h-11 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:brightness-110 active:scale-95 text-black font-extrabold flex items-center justify-center shadow-lg shadow-amber-500/20 transition-all cursor-pointer relative group"
+          title="Adaugă Vehicul (CIV OCR)"
+        >
+          <Plus className="w-5 h-5 stroke-[2.5]" />
+          <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#18181c] border border-white/10 rounded-xl text-xs font-bold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-2xl z-50">
+            Adaugă Vehicul (CIV OCR)
+          </div>
+        </button>
+
+        {/* Grupuri Navigare Icon-Only cu Tooltips */}
+        <nav className="space-y-1.5 w-full flex flex-col items-center pt-1">
+          {navItems.flatMap(g => g.items).map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleSelectTab(item.id)}
+                className={`relative w-11 h-11 rounded-xl flex items-center justify-center transition-all group cursor-pointer ${
+                  isActive
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm shadow-amber-500/10 font-bold'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.05] border border-transparent'
+                }`}
+                title={item.label}
+              >
+                <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-amber-400' : 'text-zinc-400 group-hover:text-white'}`} />
+                {item.badge && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-[#0c0c0e]" />
+                )}
+                {/* Tooltip flyout la hover */}
+                <div className="absolute left-full ml-3 px-3 py-1.5 bg-[#18181c] border border-white/10 rounded-xl text-xs font-semibold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-2xl z-50 flex items-center gap-2">
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <span className={`px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold border shrink-0 ${item.badgeColor}`}>
+                      {item.badge}
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Footer Collapsed: Comutatoare & Link-uri */}
+      <div className="pt-3 border-t border-white/[0.08] space-y-2 w-full flex flex-col items-center">
+        <button
+          type="button"
+          onClick={toggleDisplayMode}
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.05] border border-white/[0.06] transition-all cursor-pointer relative group"
+          title={displayMode === 'light' ? 'Comută pe Mod Nocturn' : 'Comută pe Mod Diurn'}
+        >
+          {displayMode === 'light' ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-amber-400" />}
+          <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#18181c] border border-white/10 rounded-xl text-xs font-semibold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-2xl z-50">
+            {displayMode === 'light' ? 'Mod Diurn activat' : 'Mod Nocturn activat'}
+          </div>
+        </button>
+
+        {onOpenShowroom && (
+          <button
+            type="button"
+            onClick={() => {
+              onOpenShowroom();
+              if (onCloseMobile) onCloseMobile();
+            }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-amber-400 hover:bg-white/[0.05] border border-white/[0.06] transition-all cursor-pointer relative group"
+            title="Vezi Showroom Public"
+          >
+            <ExternalLink className="w-4 h-4 text-amber-400" />
+            <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#18181c] border border-white/10 rounded-xl text-xs font-semibold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-2xl z-50">
+              Vezi Showroom Public
+            </div>
+          </button>
+        )}
+
+        {onOpenExtensionModal && (
+          <button
+            type="button"
+            onClick={() => {
+              onOpenExtensionModal();
+              if (onCloseMobile) onCloseMobile();
+            }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-teal-400 hover:bg-teal-500/10 border border-teal-500/30 transition-all cursor-pointer relative group"
+            title="Extensie & Asistent OLX"
+          >
+            <Puzzle className="w-4 h-4" />
+            <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#18181c] border border-teal-500/30 rounded-xl text-xs font-semibold text-teal-300 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-2xl z-50">
+              Extensie & Asistent OLX (1-Click)
+            </div>
+          </button>
+        )}
+
+        {onOpenHelp && (
+          <button
+            type="button"
+            onClick={() => {
+              onOpenHelp();
+              if (onCloseMobile) onCloseMobile();
+            }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-blue-400 hover:bg-white/[0.05] border border-white/[0.06] transition-all cursor-pointer relative group"
+            title="Ghid Utilizare & FAQ"
+          >
+            <HelpCircle className="w-4 h-4 text-blue-400" />
+            <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#18181c] border border-white/10 rounded-xl text-xs font-semibold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-2xl z-50">
+              Ghid Utilizare & FAQ
+            </div>
+          </button>
+        )}
+
+        {onLogout && (
+          <button
+            type="button"
+            onClick={() => {
+              onLogout();
+              if (onCloseMobile) onCloseMobile();
+            }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer relative group"
+            title="Ieșire din Panou"
+          >
+            <LogOut className="w-4 h-4" />
+            <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#18181c] border border-white/10 rounded-xl text-xs font-semibold text-rose-300 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-2xl z-50">
+              Ieșire din Panou
+            </div>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <>
-      {/* Sidebar Persistent pe Desktop (Desktop & Tabletă Mare) — Rămâne fix și vizibil la scroll în jos */}
-      <aside className="hidden md:flex flex-col w-64 xl:w-72 shrink-0 bg-[#0c0c0e] border-r border-white/[0.08] p-4 sticky top-0 self-start h-screen max-h-screen overflow-y-auto overscroll-contain z-20">
-        {sidebarContent}
-      </aside>
+      {/* Sidebar Persistent pe Desktop (Desktop & Tabletă Mare) — Suport Extins / Compact / Ascuns */}
+      {sidebarMode !== 'hidden' && (
+        <aside 
+          className={`hidden md:flex flex-col shrink-0 bg-[#0c0c0e] border-r border-white/[0.08] sticky top-0 self-start h-screen max-h-screen overflow-y-auto overscroll-contain z-20 transition-all duration-300 ease-in-out ${
+            sidebarMode === 'collapsed' 
+              ? 'w-[74px] p-2' 
+              : 'w-64 xl:w-72 p-4'
+          }`}
+        >
+          {sidebarMode === 'collapsed' ? collapsedSidebarContent : sidebarContent}
+        </aside>
+      )}
 
       {/* Drawer Glisant pe Mobil (Ecran < 768px) */}
       {isMobileOpen && (
