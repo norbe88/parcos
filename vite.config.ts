@@ -36,6 +36,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      // Prefixul /api/lead nu acoperă dosarele. Aceeași API locală ca lead-urile.
+      '/api/financing-dossiers': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
       '/api/autolicit-sync': {
         target: process.env.VITE_AUTOLICIT_SYNC_URL || 'https://autolicit.ro/api/v1/dealers/sync',
         changeOrigin: true,
