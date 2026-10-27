@@ -1,8 +1,11 @@
 import http from 'http';
+import crypto from 'crypto';
 import assert from 'assert';
 
 const PORT = process.env.TEST_PORT ? parseInt(process.env.TEST_PORT, 10) : 3289;
+const TEST_ADMIN_API_KEY = 'parcos_test_admin_session_key_2026_ok';
 process.env.PORT = String(PORT);
+process.env.ADMIN_API_KEY = TEST_ADMIN_API_KEY;
 process.env.ADMIN_PASSWORD_HASH = 'dbc1d0952684f4b89cc86bc7ffdd52cacc2a79e667b7e0765953069e05bb6589'; // Luna.RXM
 process.env.SUPERADMIN_PASSWORD_HASH = 'e180c917ef121846cee6c6b488b9d7a159c12c96880c1901b5a309ca66efb7c2'; // Olaf.0311
 process.env.SUPERADMIN_MASTER_KEY = 'parcos_superadmin_dev_secret_2026';
@@ -152,8 +155,106 @@ try {
   assert.strictEqual(r8.status, 401, `POST /api/dealers cu token dealer trebuie să fie 401`);
   console.log('✅ [PASS] POST /api/dealers respinge dealer admin (doar SuperAdmin poate crea dealeri)');
 
+  console.log('\n--- 4. Tokenul de dealer este legat de host ---');
+  const tokenParts = String(dealerToken).split('.');
+  assert.strictEqual(tokenParts.length, 4, 'Tokenul nou are patru segmente');
+  assert.strictEqual(tokenParts[1], 'rxm', 'Slug-ul din token este parcul hostului');
+  assert.strictEqual(r3.json?.dealerSlug, 'rxm');
+
+  const spoofed = await request({
+    hostname: '127.0.0.1',
+    port: PORT,
+    path: '/api/auth/login',
+    method: 'POST',
+    headers: { 'Host': 'rxmautomobile.ro', 'Content-Type': 'application/json' }
+  }, { password: 'Luna.RXM', tenantId: 'mpi_auto' });
+  assert.strictEqual(spoofed.status, 200);
+  assert.strictEqual(spoofed.json?.dealerSlug, 'rxm', 'tenantId din body nu alege parcul');
+  assert.strictEqual(String(spoofed.json?.token).split('.')[1], 'rxm');
+  console.log('✅ [PASS] Login-ul stampilează slug-ul hostului, nu tenantId din body');
+
+  const onHome = await request({
+    hostname: '127.0.0.1',
+    port: PORT,
+    path: '/api/auth/verify',
+    method: 'GET',
+    headers: { 'Host': 'rxmautomobile.ro', 'Authorization': `Bearer ${dealerToken}` }
+  });
+  assert.strictEqual(onHome.status, 200, 'Tokenul RXM este acceptat pe hostul RXM');
+
+  const onNeighbor = await request({
+    hostname: '127.0.0.1',
+    port: PORT,
+    path: '/api/auth/verify',
+    method: 'GET',
+    headers: { 'Host': 'mpiauto.ro', 'Authorization': `Bearer ${dealerToken}` }
+  });
+  assert.strictEqual(onNeighbor.status, 401, 'Tokenul RXM este respins pe hostul MPI');
+  console.log('✅ [PASS] Tokenul parcului A este respins pe hostul parcului B');
+
+  const superOnMpi = await request({
+    hostname: '127.0.0.1',
+    port: PORT,
+    path: '/api/auth/verify',
+    method: 'GET',
+    headers: { 'Host': 'mpiauto.ro', 'Authorization': `Bearer ${superToken}` }
+  });
+  assert.strictEqual(superOnMpi.status, 200, 'Sesiunea SuperAdmin rămâne acceptată pe un host de parc');
+  console.log('✅ [PASS] SuperAdmin nu intră în verificarea tokenului de dealer');
+
+  await request({
+    hostname: '127.0.0.1',
+    port: PORT,
+    path: '/api/auth/logout',
+    method: 'POST',
+    headers: { 'Host': 'rxmautomobile.ro', 'Authorization': `Bearer ${dealerToken}` }
+  });
+  const afterLogout = await request({
+    hostname: '127.0.0.1',
+    port: PORT,
+    path: '/api/auth/verify',
+    method: 'GET',
+    headers: { 'Host': 'rxmautomobile.ro', 'Authorization': `Bearer ${dealerToken}` }
+  });
+  assert.strictEqual(afterLogout.status, 200, 'Logout-ul local nu invalidează HMAC-ul înainte de expirare');
+  console.log('✅ [PASS] Logout-ul rămâne local procesului');
+
+  const forgedExpires = Date.now() + 60 * 1000;
+  const forgedRandom = 'ab'.repeat(16);
+  const forgedPayload = `${forgedExpires}.${forgedRandom}`;
+  const forgedHmac = crypto.createHmac('sha256', TEST_ADMIN_API_KEY).update(forgedPayload).digest('hex');
+  const legacyToken = `${forgedPayload}.${forgedHmac}`;
+  const legacyOnRxm = await request({
+    hostname: '127.0.0.1',
+    port: PORT,
+    path: '/api/auth/verify',
+    method: 'GET',
+    headers: { 'Host': 'rxmautomobile.ro', 'Authorization': `Bearer ${legacyToken}` }
+  });
+  const legacyOnMpi = await request({
+    hostname: '127.0.0.1',
+    port: PORT,
+    path: '/api/auth/verify',
+    method: 'GET',
+    headers: { 'Host': 'mpiauto.ro', 'Authorization': `Bearer ${legacyToken}` }
+  });
+  assert.strictEqual(legacyOnRxm.status, 200, 'Tokenul vechi rămâne valabil pe RXM');
+  assert.strictEqual(legacyOnMpi.status, 401, 'Tokenul vechi este respins pe MPI');
+  console.log('✅ [PASS] Forma veche de 3 segmente rămâne doar pe RXM și nu cere harta din memorie');
+
+  const unknownHost = await request({
+    hostname: '127.0.0.1',
+    port: PORT,
+    path: '/api/auth/login',
+    method: 'POST',
+    headers: { 'Host': 'parc-inexistent.example', 'Content-Type': 'application/json' }
+  }, { password: 'Luna.RXM', tenantId: 'rxm' });
+  assert.strictEqual(unknownHost.status, 404, 'Hostul necunoscut nu emite token de dealer');
+  assert.ok(!unknownHost.json?.token, 'Răspunsul nu conține token');
+  console.log('✅ [PASS] Hostul necunoscut nu cade pe slug-ul RXM');
+
   console.log('\n======================================================');
-  console.log('🏆 TOATE CELE 8 TESTE DE DECUPLARE & SECURITATE AU TRECUT!');
+  console.log('🏆 TESTELE DE DECUPLARE, SESIUNE ȘI IZOLARE AU TRECUT');
   console.log('======================================================');
 } finally {
   server.close();

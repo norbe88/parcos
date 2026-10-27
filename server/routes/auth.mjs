@@ -16,7 +16,8 @@ export async function handleAuthRoutes(req, res, urlObj, pathname, {
   revokeSessionToken,
   isAuthorizedAdmin,
   isAuthorizedSuperAdmin,
-  normalizeSlug
+  normalizeSlug,
+  resolveTenant
 }) {
   // 0.1 POST /api/auth/login - Autentificare Administrator & Emitere Token Sesiune
   if (req.method === 'POST' && pathname === '/api/auth/login') {
@@ -128,12 +129,27 @@ export async function handleAuthRoutes(req, res, urlObj, pathname, {
       return true;
     }
 
-    const dealerToken = generateSessionToken('dealer_admin');
+    let tenant;
+    try {
+      tenant = await resolveTenant(req, urlObj);
+    } catch {
+      tenant = null;
+    }
+    const dealerSlug = String(tenant?.slug || '').trim().toLowerCase();
+    if (!tenant || tenant.unconfigured === true || !/^[a-z0-9_]+$/.test(dealerSlug)) {
+      sendJson(res, 404, { success: false, error: 'Showroom neconfigurat' });
+      return true;
+    }
+    const dealerToken = generateSessionToken('dealer_admin', dealerSlug);
+    if (!dealerToken) {
+      sendJson(res, 404, { success: false, error: 'Showroom neconfigurat' });
+      return true;
+    }
     sendJson(res, 200, {
       success: true,
       token: dealerToken,
       role: 'dealer_admin',
-      dealerSlug: reqTenant || 'rxm',
+      dealerSlug,
       expiresIn: 86400,
       message: 'Autentificare administrator showroom reușită'
     });
@@ -152,7 +168,7 @@ export async function handleAuthRoutes(req, res, urlObj, pathname, {
 
   // 0.3 GET /api/auth/verify - Verificare stare sesiune administrator
   if (req.method === 'GET' && pathname === '/api/auth/verify') {
-    if (isAuthorizedAdmin(req)) {
+    if (await isAuthorizedAdmin(req, urlObj)) {
       sendJson(res, 200, { success: true, authenticated: true });
       return true;
     }

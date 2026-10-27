@@ -162,7 +162,7 @@ export async function handleLeadRoutes(req, res, urlObj, pathname, {
   const dealerSlug = String(tenant.slug).trim().toLowerCase();
 
   if (req.method === 'GET' && pathname === '/api/leads') {
-    if (!isAuthorizedAdmin(req)) {
+    if (!(await isAuthorizedAdmin(req, urlObj))) {
       sendJson(res, 401, { success: false, error: 'Acces interzis.' });
       return true;
     }
@@ -176,7 +176,7 @@ export async function handleLeadRoutes(req, res, urlObj, pathname, {
   }
 
   if (req.method === 'POST' && pathname === '/api/leads/import') {
-    if (!isAuthorizedAdmin(req)) {
+    if (!(await isAuthorizedAdmin(req, urlObj))) {
       sendJson(res, 401, { success: false, error: 'Acces interzis.' });
       return true;
     }
@@ -214,7 +214,7 @@ export async function handleLeadRoutes(req, res, urlObj, pathname, {
   }
 
   if (req.method === 'POST' && pathname === '/api/leads') {
-    if (!isAuthorizedAdmin(req) && !allowPublicIntake(req)) {
+    if (!(await isAuthorizedAdmin(req, urlObj)) && !allowPublicIntake(req)) {
       sendJson(res, 429, { success: false, error: 'Prea multe cereri. Încearcă din nou peste câteva minute.' });
       return true;
     }
@@ -244,7 +244,7 @@ export async function handleLeadRoutes(req, res, urlObj, pathname, {
   if (!idMatch) return false;
   if (idMatch[1] === 'import') return false;
 
-  if (!isAuthorizedAdmin(req)) {
+  if (!(await isAuthorizedAdmin(req, urlObj))) {
     sendJson(res, 401, { success: false, error: 'Acces interzis.' });
     return true;
   }

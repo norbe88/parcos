@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode, useCallback } from 'react';
-import { DealerProfile, SEED_DEALER, TENANT_DEALERS, DEFAULT_TENANT_FEATURES } from '../db/seed';
+import { DealerProfile, SEED_DEALER, TENANT_DEALERS, DEFAULT_TENANT_FEATURES, explicitVehicleQuota } from '../db/seed';
 import { TenantFeatures, TenantTier, TenantStatus, DealerLandingConfig } from '../db/types';
 import { getThemeConfig, ThemeConfig } from '../utils/themePresets';
 import {
@@ -507,7 +507,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       slug,
       tier: newTenant.tier || 'starter',
       status: newTenant.status || 'active',
-      maxVehiclesQuota: newTenant.maxVehiclesQuota || 25,
+      maxVehiclesQuota: explicitVehicleQuota(newTenant.maxVehiclesQuota),
       features: newTenant.features || { ...DEFAULT_TENANT_FEATURES },
     };
     setTenantsMap(prev => {

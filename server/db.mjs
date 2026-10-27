@@ -1426,6 +1426,20 @@ export async function propagateFeatureGlobally(featureKey, enabled) {
   }
 }
 
+const ROLLOUT_FLAGS_OFF = {
+  reconTracker: false,
+  financingPortfolio: false,
+  googleDriveVault: false,
+  mailHub: false,
+};
+
+function explicitVehicleQuota(raw) {
+  if (raw === undefined || raw === null || raw === '') return null;
+  const num = Number(raw);
+  if (!Number.isFinite(num) || num <= 0) return null;
+  return num;
+}
+
 /**
  * Adăugare sau actualizare profil dealer (idempotent ON CONFLICT slug)
  */
@@ -1451,11 +1465,13 @@ export async function upsertDealer(data) {
   const ibanEur = data.ibanEur || data.iban_eur || null;
   const tier = String(data.tier || 'starter').toLowerCase();
   const status = String(data.status || 'active').toLowerCase();
-  const maxVehiclesQuota = Number(data.maxVehiclesQuota || data.max_vehicles_quota || 25);
+  const maxVehiclesQuota = explicitVehicleQuota(data.maxVehiclesQuota) ?? explicitVehicleQuota(data.max_vehicles_quota) ?? 25;
   const themePreset = String(data.themePreset || data.theme_preset || 'obsidian_gold');
   const openingHours = data.openingHours || data.opening_hours || null;
   const isActive = data.isActive !== undefined ? Boolean(data.isActive) : (data.is_active !== undefined ? Boolean(data.is_active) : (status !== 'suspended'));
-  const features = (data.features && typeof data.features === 'object') ? data.features : {
+  const features = (data.features && typeof data.features === 'object' && !Array.isArray(data.features))
+    ? { ...ROLLOUT_FLAGS_OFF, ...data.features }
+    : {
     ocrCivTalon: true,
     olxStockSync: true,
     tikTokStudio: true,

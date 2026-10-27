@@ -1,3 +1,4 @@
+import { explicitVehicleQuota } from '../db/dealer';
 import { DealerProfile, TenantFeatures, TenantStatus, TenantTier } from '../db/types';
 
 export const SUPERADMIN_STORAGE_KEY = 'parcos_superadmin_key';
@@ -160,7 +161,7 @@ export async function registerTenantBackend(newTenant: DealerProfile): Promise<D
     ibanEur: newTenant.ibanEur,
     tier: newTenant.tier || 'starter',
     status: newTenant.status || 'active',
-    maxVehiclesQuota: newTenant.maxVehiclesQuota || 25,
+    maxVehiclesQuota: explicitVehicleQuota(newTenant.maxVehiclesQuota),
     themePreset: newTenant.themePreset || 'obsidian_gold',
     features: newTenant.features,
     config: newTenant.config

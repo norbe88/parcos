@@ -215,7 +215,11 @@ export const SuperAdminOnboardingModal: React.FC<SuperAdminOnboardingModalProps>
           financingCalculator: Boolean(modules.financeCalc),
           windowStickersQr: Boolean(modules.windowStickers),
           whatsappLeadsBot: true,
-          autolicitPush: false
+          autolicitPush: false,
+          reconTracker: false,
+          financingPortfolio: false,
+          googleDriveVault: false,
+          mailHub: false,
         },
         config: {
           themePreset,

@@ -107,16 +107,21 @@ export const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || 'dbc1d0952
 // Sesiuni administrator active (token -> { createdAt, expiresAt, role })
 const activeSessions = new Map();
 
-function generateSessionToken(role = 'dealer_admin') {
+const DEALER_SESSION_SLUG = /^[a-z0-9_]+$/;
+
+function generateSessionToken(role = 'dealer_admin', dealerSlug) {
+  const slug = String(dealerSlug || '').trim().toLowerCase();
+  if (!DEALER_SESSION_SLUG.test(slug)) return null;
   const randomPart = crypto.randomBytes(16).toString('hex');
   const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 ore
-  const payload = `${expiresAt}.${randomPart}`;
+  const payload = `${expiresAt}.${slug}.${randomPart}`;
   const hmac = crypto.createHmac('sha256', ADMIN_API_KEY).update(payload).digest('hex');
   const token = `${payload}.${hmac}`;
   activeSessions.set(token, {
     createdAt: Date.now(),
     expiresAt,
-    role
+    role,
+    dealerSlug: slug
   });
   return token;
 }
@@ -135,10 +140,23 @@ export function generateSuperAdminSessionToken() {
   return token;
 }
 
-function isValidSessionToken(token) {
+function hmacMatches(payload, signature) {
+  const expectedSig = crypto.createHmac('sha256', ADMIN_API_KEY).update(payload).digest('hex');
+  const sigBuf = Buffer.from(String(signature));
+  const expectedBuf = Buffer.from(expectedSig);
+  return sigBuf.length === expectedBuf.length && crypto.timingSafeEqual(sigBuf, expectedBuf);
+}
+
+function isLegacyDealerHost(expectedSlug) {
+  const slug = String(expectedSlug || '').trim().toLowerCase();
+  const envSlug = String(DEALER_SLUG || 'rxm').trim().toLowerCase();
+  return slug === 'rxm' || slug === envSlug;
+}
+
+function isValidSessionToken(token, expectedSlug) {
   if (!token || typeof token !== 'string') return false;
 
-  // 1. Verificare împotriva ADMIN_API_KEY prin comparare în timp constant (pentru CI/CD & backend daemons)
+  // Cheia brută rămâne calea de daemon. Nu este o sesiune de parc.
   try {
     const tokenBuf = Buffer.from(token);
     const keyBuf = Buffer.from(ADMIN_API_KEY);
@@ -147,34 +165,27 @@ function isValidSessionToken(token) {
     }
   } catch {}
 
-  // 2. Verificare token semnat criptografic HMAC (rezistent la restart container pe VPS)
+  const slug = String(expectedSlug || '').trim().toLowerCase();
+  if (!DEALER_SESSION_SLUG.test(slug)) return false;
+
   try {
     const parts = token.split('.');
-    if (parts.length === 3) {
+    if (parts.length === 4) {
+      const [expiresAtStr, dealerSlug, randomPart, signature] = parts;
+      if (dealerSlug !== slug) return false;
+      const expiresAt = Number(expiresAtStr);
+      if (!Number.isFinite(expiresAt) || Date.now() > expiresAt) return false;
+      return hmacMatches(`${expiresAtStr}.${dealerSlug}.${randomPart}`, signature);
+    }
+    if (parts.length === 3 && isLegacyDealerHost(slug)) {
       const [expiresAtStr, randomPart, signature] = parts;
       const expiresAt = Number(expiresAtStr);
-      if (Date.now() <= expiresAt) {
-        const payload = `${expiresAtStr}.${randomPart}`;
-        const expectedSig = crypto.createHmac('sha256', ADMIN_API_KEY).update(payload).digest('hex');
-        const sigBuf = Buffer.from(signature);
-        const expectedBuf = Buffer.from(expectedSig);
-        if (sigBuf.length === expectedBuf.length && crypto.timingSafeEqual(sigBuf, expectedBuf)) {
-          return true;
-        }
-      }
+      if (!Number.isFinite(expiresAt) || Date.now() > expiresAt) return false;
+      return hmacMatches(`${expiresAtStr}.${randomPart}`, signature);
     }
   } catch {}
 
-  // 3. Verificare sesiune efemeră emisă în memorie (backward compatibility)
-  const session = activeSessions.get(token);
-  if (!session) return false;
-
-  if (Date.now() > session.expiresAt) {
-    activeSessions.delete(token);
-    return false;
-  }
-
-  return true;
+  return false;
 }
 
 function revokeSessionToken(token) {
@@ -648,22 +659,31 @@ function getStagedDealerProfile(slugOrHost) {
 /**
  * Verifică dacă cererea provine de la un administrator autentificat cu sesiune validă pe server.
  */
-function isAuthorizedAdmin(req) {
+function readDealerAdminToken(req) {
+  const authHeader = req?.headers?.['authorization'] || '';
+  const tokenHeader = req?.headers?.['x-admin-token'] || '';
+  if (authHeader.startsWith('Bearer ')) return authHeader.substring(7).trim();
+  if (authHeader) return authHeader.trim();
+  if (tokenHeader) return String(tokenHeader).trim();
+  return '';
+}
+
+async function expectedDealerSlug(req, urlObj) {
+  try {
+    const tenant = await resolveTenant(req, urlObj);
+    if (!tenant || tenant.unconfigured === true || !tenant.slug) return '';
+    return String(tenant.slug).trim().toLowerCase();
+  } catch {
+    return '';
+  }
+}
+
+async function isAuthorizedAdmin(req, urlObj) {
   if (!req || !req.headers) return false;
   if (isAuthorizedSuperAdmin(req)) return true;
-  const authHeader = req.headers['authorization'] || '';
-  const tokenHeader = req.headers['x-admin-token'] || '';
-
-  let token = '';
-  if (authHeader.startsWith('Bearer ')) {
-    token = authHeader.substring(7).trim();
-  } else if (authHeader) {
-    token = authHeader.trim();
-  } else if (tokenHeader) {
-    token = String(tokenHeader).trim();
-  }
-
-  return isValidSessionToken(token);
+  const slug = await expectedDealerSlug(req, urlObj);
+  if (!slug) return false;
+  return isValidSessionToken(readDealerAdminToken(req), slug);
 }
 
 /**
@@ -706,9 +726,9 @@ export const ALLOWED_CORS_ORIGINS = new Set([
 /**
  * Validează autorizarea cererii pentru un tenant specific (SuperAdmin, Admin, Tenant Session Token, sau apel direct din propriul domeniu autorizat)
  */
-export function isAuthorizedTenantReq(req, tenantId) {
+export async function isAuthorizedTenantReq(req, tenantId, urlObj) {
   if (isAuthorizedSuperAdmin(req)) return true;
-  if (isAuthorizedAdmin(req)) return true;
+  if (await isAuthorizedAdmin(req, urlObj)) return true;
 
   const authHeader = req?.headers?.['authorization'] || '';
   const tokenHeader = req?.headers?.['x-admin-token'] || req?.headers?.['x-tenant-token'] || '';
@@ -721,7 +741,8 @@ export function isAuthorizedTenantReq(req, tenantId) {
     token = String(tokenHeader).trim();
   }
 
-  if (isValidSessionToken(token)) return true;
+  const slug = await expectedDealerSlug(req, urlObj);
+  if (slug && isValidSessionToken(token, slug)) return true;
 
   // Verificare cerere directă din showroom / portal dealer pe origini autorizate
   const origin = (req?.headers?.['origin'] || '').toLowerCase();
@@ -1728,7 +1749,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0. GET /api/health - Diagnostic & Status Server [Sanitizat Anonim]
     if (req.method === 'GET' && pathname === '/api/health') {
-      if (isAuthorizedAdmin(req)) {
+      if (await isAuthorizedAdmin(req, urlObj)) {
         const tenant = await resolveTenant(req, urlObj);
         if (isUnconfiguredTenant(tenant)) {
           return sendJson(res, 200, {
@@ -1895,7 +1916,11 @@ export const server = http.createServer(async (req, res) => {
       let payload;
       try { payload = JSON.parse(rawBody.toString('utf8')); } catch { return sendJson(res, 400, { success: false, error: 'JSON invalid' }); }
       try {
-        const saved = await upsertDealer(payload);
+        const cleanSlug = normalizeSlug(payload.slug);
+        if (!cleanSlug) return sendJson(res, 400, { success: false, error: 'Dealer slug este obligatoriu' });
+        const existing = await getDealerBySlug(cleanSlug, true);
+        if (existing) return sendJson(res, 409, { success: false, error: 'Showroom-ul există deja.' });
+        const saved = await upsertDealer({ ...payload, slug: cleanSlug });
         tenantConfigCache.delete(`slug:${saved.slug}`);
         if (saved.domain) tenantConfigCache.delete(`host:${saved.domain}`);
         return sendJson(res, 201, { success: true, dealer: saved });
@@ -1925,7 +1950,8 @@ export const server = http.createServer(async (req, res) => {
       revokeSessionToken,
       isAuthorizedAdmin,
       isAuthorizedSuperAdmin,
-      normalizeSlug
+      normalizeSlug,
+      resolveTenant
     })) {
       return;
     }
@@ -1960,7 +1986,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.6 POST /api/mail/send - Trimitere e-mail SES Outbound (PMH-202)
     if (req.method === 'POST' && (pathname === '/api/mail/send' || pathname === '/api/mail/compose')) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat. Autentificarea este obligatorie.' });
       }
       const rawBody = await readRequestBody(req, 1024 * 1024 * 25);
@@ -1976,7 +2002,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.7 GET /api/mail/threads - Paginare conversații dealer (PMH-203 Preview & PMH-304 Multi-Agent Pool)
     if (req.method === 'GET' && pathname === '/api/mail/threads') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const status = urlObj.searchParams.get('status') || undefined;
@@ -1991,7 +2017,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.8 GET /api/mail/threads/:id - Detalii conversație și mesaje (PMH-203 Preview)
     if (req.method === 'GET' && pathname.startsWith('/api/mail/threads/')) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const threadId = pathname.replace('/api/mail/threads/', '');
@@ -2004,7 +2030,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.9 PATCH /api/mail/threads/:id/status - Actualizare status conversație (PMH-203)
     if (req.method === 'PATCH' && pathname.startsWith('/api/mail/threads/') && pathname.endsWith('/status')) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const threadId = pathname.replace('/api/mail/threads/', '').replace('/status', '');
@@ -2021,7 +2047,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.9.1 PATCH /api/mail/threads/:id/vehicle - Asociere / Dezasociere manuală vehicul (PMH-302)
     if (req.method === 'PATCH' && pathname.startsWith('/api/mail/threads/') && pathname.endsWith('/vehicle')) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const threadId = pathname.replace('/api/mail/threads/', '').replace('/vehicle', '');
@@ -2038,7 +2064,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.9.2 PATCH /api/mail/threads/:id/assign - Asignare / Preluare conversație de către agent (PMH-304)
     if (req.method === 'PATCH' && pathname.startsWith('/api/mail/threads/') && pathname.endsWith('/assign')) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const threadId = pathname.replace('/api/mail/threads/', '').replace('/assign', '');
@@ -2055,7 +2081,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.10 POST /api/mail/threads/:id/reply - Răspuns direct în conversație (PMH-203)
     if (req.method === 'POST' && pathname.startsWith('/api/mail/threads/') && pathname.endsWith('/reply')) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const threadId = pathname.replace('/api/mail/threads/', '').replace('/reply', '');
@@ -2069,7 +2095,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.11 GET /api/mail/stats - Contoare unread per folder (PMH-203)
     if (req.method === 'GET' && pathname === '/api/mail/stats') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const stats = await getMailStats(mailDealerSlug);
@@ -2078,7 +2104,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.12 GET /api/mail/search - Căutare conversații & mesaje (PMH-203)
     if (req.method === 'GET' && pathname === '/api/mail/search') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const q = urlObj.searchParams.get('q') || '';
@@ -2088,7 +2114,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.13 GET /api/mail/accounts - Listă căsuțe angajați (PMH-204)
     if (req.method === 'GET' && pathname === '/api/mail/accounts') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const accounts = await getMailAccounts(mailDealerSlug);
@@ -2097,7 +2123,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.14 POST /api/mail/accounts - Creare căsuță angajat (PMH-204)
     if (req.method === 'POST' && pathname === '/api/mail/accounts') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const rawBody = await readRequestBody(req, 1024 * 32);
@@ -2113,7 +2139,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.15 PATCH/PUT /api/mail/accounts/:id - Actualizare căsuță (PMH-204)
     if ((req.method === 'PATCH' || req.method === 'PUT') && pathname.startsWith('/api/mail/accounts/')) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const accountId = pathname.replace('/api/mail/accounts/', '');
@@ -2133,7 +2159,7 @@ export const server = http.createServer(async (req, res) => {
       (req.method === 'DELETE' && pathname.startsWith('/api/mail/accounts/')) ||
       (req.method === 'POST' && pathname.includes('/api/mail/accounts/') && pathname.endsWith('/reassign'))
     ) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const accountId = pathname.replace('/api/mail/accounts/', '').replace('/reassign', '');
@@ -2187,7 +2213,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.19 POST /api/mail/push/test - Test canal Web Push (PMH-402)
     if (req.method === 'POST' && pathname === '/api/mail/push/test') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       return sendJson(res, 200, { 
@@ -2198,7 +2224,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.20 POST /api/mail/domains/verify - Înregistrare & verificare domeniu nou (SES v2 + Cloudflare DNS) (PMH-202)
     if (req.method === 'POST' && pathname === '/api/mail/domains/verify') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const rawBody = await readRequestBody(req, 1024 * 32);
@@ -2251,7 +2277,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.21 GET /api/mail/domains/:domain/status - Interogare status verificare domeniu (SES v2)
     if (req.method === 'GET' && pathname.startsWith('/api/mail/domains/') && pathname.endsWith('/status')) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const domain = pathname.replace('/api/mail/domains/', '').replace('/status', '');
@@ -2261,7 +2287,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.22 GET /api/mail/domains - Listă domenii configurate pentru dealer
     if (req.method === 'GET' && pathname === '/api/mail/domains') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       const sql = getSql();
@@ -2277,7 +2303,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.23 GET /api/admin/storage/stats - Statistici stocare VPS & Google Drive Vault (PMH-404)
     if (req.method === 'GET' && pathname === '/api/admin/storage/stats') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       try {
@@ -2290,7 +2316,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.24 POST /api/admin/storage/enforce-quota - Rulare forțată verificare cotă & LRU eviction (PMH-404)
     if (req.method === 'POST' && pathname === '/api/admin/storage/enforce-quota') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat' });
       }
       try {
@@ -2303,7 +2329,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 0.25 GET /api/mail/attachments/:id/download - Descărcare transparentă atașament (Local sau Google Drive Vault) [Admin Required]
     if (req.method === 'GET' && pathname.startsWith('/api/mail/attachments/') && pathname.endsWith('/download')) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, { success: false, error: 'Acces neautorizat. Descărcarea atașamentelor necesită sesiune de administrator.' });
       }
       const attachmentId = pathname.replace('/api/mail/attachments/', '').replace('/download', '');
@@ -2354,7 +2380,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 1. GET /api/market-lookup - Căutare oferte comparabile Autovit [Admin Required]
     if (req.method === 'GET' && pathname === '/api/market-lookup') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Căutarea comparativă de piață necesită autentificare de Administrator.',
@@ -2405,7 +2431,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 2. GET /api/admin/vehicles - Listare completă inventar cu date financiare [STRICT ADMIN]
     if (req.method === 'GET' && pathname === '/api/admin/vehicles') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Vizualizarea inventarului complet necesită autentificare ca Administrator.',
@@ -2424,7 +2450,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 2.1 GET /api/admin/vehicles/:id - Detalii complete vehicul cu date financiare [STRICT ADMIN]
     if (req.method === 'GET' && pathname.startsWith('/api/admin/vehicles/')) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Detaliile complete necesită autentificare ca Administrator.',
@@ -2443,7 +2469,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 2.2 GET /api/admin/olx-status - Reconciliere status OLX [STRICT ADMIN]
     if (req.method === 'GET' && pathname === '/api/admin/olx-status') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Reconcilierea OLX necesită autentificare ca Administrator.',
@@ -2463,7 +2489,7 @@ export const server = http.createServer(async (req, res) => {
 
     // 2.3 GET /api/admin/market-competitors - Snapshot oferte concurente piață [STRICT ADMIN]
     if (req.method === 'GET' && pathname === '/api/admin/market-competitors') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Analiza concurenței necesită autentificare ca Administrator.',
@@ -2627,7 +2653,7 @@ export const server = http.createServer(async (req, res) => {
       }
 
       const tenantId = resolveTenantIdFromReq(req, parsedBody);
-      if (!isAuthorizedTenantReq(req, tenantId)) {
+      if (!(await isAuthorizedTenantReq(req, tenantId, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Procesarea documentelor CIV/Talon necesită sesiune tenant autorizată.',
@@ -2788,7 +2814,7 @@ export const server = http.createServer(async (req, res) => {
       }
 
       const tenantId = resolveTenantIdFromReq(req, parsedBody);
-      if (!isAuthorizedTenantReq(req, tenantId)) {
+      if (!(await isAuthorizedTenantReq(req, tenantId, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Generarea descrierilor asistate AI necesită sesiune tenant autorizată.',
@@ -2943,7 +2969,7 @@ REGULI STRICTE & INVARIANTE HOLDING:
       }
 
       const tenantId = resolveTenantIdFromReq(req, parsedBody);
-      if (!isAuthorizedTenantReq(req, tenantId)) {
+      if (!(await isAuthorizedTenantReq(req, tenantId, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Procesarea actelor de identitate necesită sesiune tenant autorizată.',
@@ -3071,7 +3097,7 @@ REGULI STRICTE & INVARIANTE HOLDING:
 
     // 6.1 POST /api/admin/ocr/gemini/* & /api/ocr/gemini/* - Gateway securizat Google Gemini OCR [STRICT ADMIN]
     if (req.method === 'POST' && (pathname.startsWith('/api/admin/ocr/gemini/') || pathname.startsWith('/api/ocr/gemini/'))) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Procesarea automată OCR a documentelor necesită autentificare ca Administrator.',
@@ -3406,7 +3432,7 @@ REGULI STRICTE & INVARIANTE HOLDING:
 
     // 4. POST /api/vehicles - Creare sau Actualizare (Upsert) vehicul [STRICT ADMIN]
     if (req.method === 'POST' && pathname === '/api/vehicles') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Modificarea parcului auto necesită autentificare ca Administrator.',
@@ -3516,7 +3542,7 @@ REGULI STRICTE & INVARIANTE HOLDING:
 
     // 5. DELETE /api/vehicles/:id - Ștergere vehicul și curățare poze din disc [STRICT ADMIN]
     if (req.method === 'DELETE' && pathname.startsWith('/api/vehicles/')) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Ștergerea vehiculelor necesită autentificare ca Administrator.',
@@ -3538,7 +3564,7 @@ REGULI STRICTE & INVARIANTE HOLDING:
 
     // 5.5 POST /api/media/presign-upload - Generare Presigned PUT URLs pentru Cloudflare R2 [STRICT ADMIN]
     if (req.method === 'POST' && (pathname === '/api/media/presign-upload' || pathname === '/rxm/api/media/presign-upload')) {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Generarea de URL-uri semnate necesită autentificare ca Administrator.',
@@ -3623,7 +3649,7 @@ REGULI STRICTE & INVARIANTE HOLDING:
 
     // 6. POST /api/upload - Upload fotografie direct pe disc [STRICT ADMIN]
     if (req.method === 'POST' && pathname === '/api/upload') {
-      if (!isAuthorizedAdmin(req)) {
+      if (!(await isAuthorizedAdmin(req, urlObj))) {
         return sendJson(res, 401, {
           success: false,
           error: 'Acces interzis. Încărcarea de fotografii necesită autentificare ca Administrator.',

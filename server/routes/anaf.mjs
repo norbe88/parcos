@@ -14,7 +14,7 @@ export async function handleAnafRoutes(req, res, urlObj, pathname, { sendJson, i
     return false;
   }
 
-  if (!isAuthorizedAdmin(req)) {
+  if (!(await isAuthorizedAdmin(req, urlObj))) {
     sendJson(res, 401, { success: false, error: 'Acces restricționat: Autentificare de administrator necesară pentru interogare ANAF.' });
     return true;
   }

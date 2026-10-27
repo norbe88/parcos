@@ -306,7 +306,7 @@ export async function handleFinancingRoutes(req, res, urlObj, pathname, {
   }
   const dealerSlug = String(tenant.slug).trim().toLowerCase();
 
-  if (!isAuthorizedAdmin(req)) {
+  if (!(await isAuthorizedAdmin(req, urlObj))) {
     sendJson(res, 401, { success: false, error: 'Acces interzis.' });
     return true;
   }

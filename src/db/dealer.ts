@@ -1,5 +1,9 @@
 import { DealerProfile, TenantFeatures, DealerLandingConfig } from './types';
 
+export function explicitVehicleQuota(value: unknown, fallback = 25): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
 export const DEFAULT_TENANT_FEATURES: TenantFeatures = {
   ocrCivTalon: true,
   olxStockSync: true,
