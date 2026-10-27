@@ -101,7 +101,7 @@ export const StorageQuotaWidget: React.FC<StorageQuotaWidgetProps> = ({ showToas
                 CAP 500 MB
               </span>
             </h4>
-            <p className="text-xs text-[#a1a1aa]">Netcup VPS (152.53.158.65) • Arhivare Google Drive Vault</p>
+            <p className="text-xs text-[#a1a1aa]">Stocare Cloud VPS Securizată • Arhivare Google Drive Vault</p>
           </div>
         </div>
 

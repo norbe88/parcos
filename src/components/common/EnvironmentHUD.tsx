@@ -67,7 +67,7 @@ export const EnvironmentHUD: React.FC<EnvironmentHUDProps> = ({
   });
 
   const isStagingActive = isStagingDomain || hasStagingParam || (isLocal && localSimulateStaging);
-  const isProduction = !isStagingActive && (hostname.includes('parcos.ro') || hostname.includes('rxmautomobile.ro'));
+  const isProduction = !isStagingActive && !isLocal;
 
   const toggleCollapse = () => {
     setIsCollapsed(prev => {
@@ -92,30 +92,10 @@ export const EnvironmentHUD: React.FC<EnvironmentHUDProps> = ({
     });
   };
 
-  // Nu randăm nimic dacă suntem pe producție pe pagina publică a showroom-ului (ca să nu deranjăm clienții finali)
-  if (isProduction && currentViewMode === 'showroom') {
-    return null;
-  }
-
-  // Pe producție, în modul Admin sau SuperAdmin, afișăm doar o pastilă discretă în colț
+  // STRICT SECURITY GUARD: Pe mediul de producție nu randăm niciodată EnvironmentHUD (nici în showroom, nici în admin).
+  // Previne expunerea IP-ului VPS-ului, link-urilor către staging sau ID-urilor de container către utilizatori sau vizitatori.
   if (isProduction) {
-    return (
-      <div className="fixed bottom-3 right-3 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0c0c0f]/90 border border-emerald-500/40 text-emerald-300 text-[11px] font-mono font-bold shadow-2xl backdrop-blur-md select-none">
-        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        <span>PROD LIVE [App 6 • 152.53.158.65]</span>
-        <span className="text-zinc-600">|</span>
-        <a 
-          href={`https://staging.parcos.ro${window.location.search}${window.location.hash}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-amber-400 hover:text-amber-300 hover:underline inline-flex items-center gap-1 font-sans text-xs font-semibold"
-          title="Deschide aceeași pagină în mediul de Staging (App 7)"
-        >
-          <span>Staging</span>
-          <ExternalLink className="w-3 h-3" />
-        </a>
-      </div>
-    );
+    return null;
   }
 
   // Când suntem pe localhost și nu am activat simularea de staging, lăsăm un comutator discret
@@ -182,10 +162,10 @@ export const EnvironmentHUD: React.FC<EnvironmentHUDProps> = ({
 
           <div className="hidden sm:flex items-center gap-1.5 text-[10.5px] font-mono text-zinc-400">
             <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-300">
-              Netcup App 7
+              Staging Sandbox
             </span>
             <span className="text-zinc-600">•</span>
-            <span className="text-zinc-400">152.53.158.65</span>
+            <span className="text-zinc-400">ParcOS Engine</span>
           </div>
 
           {isLocal && (
