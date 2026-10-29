@@ -1,9 +1,29 @@
-# QA AGENTIC TEAM RUN LOG — RXM AUTOMOBILE
+# QA AGENTIC TEAM RUN LOG — RXM AUTOMOBILE & PARCOS CLOUD
 
-> **Sesiune QA:** 2026-10-14 08:12:00
+> **Sesiune QA:** 2026-10-29 15:52:00
+> **Target:** Dealer Onboarding & Parcos Landing Bypass Routing
 > **Lead QA Architect (Orchi):** Claude Sonnet 4.6 (Thinking)
-> **Worker Pool (Worky):** WorkyOne (Static Inspection), WorkyTwo (Test Suite), WorkyThree (Patch Integrator), WorkyFour (Invariants Auditor)
+> **Worker Pool (Worky):** WorkyOne (Codebase Inspector), WorkyTwo (Test Suite Generator), WorkyThree (Patch Integrator), WorkyFour (Invariants Auditor)
 > **Platformă Țintă:** HP ZBook Workstation (Zety / `zbook-norby`)
+
+---
+
+## 0. Sesiune: Dealer Onboarding & Parcos Landing Bypass
+
+| Tier | Domeniu Testat | Scenarii Executate | Status |
+| :--- | :--- | :--- | :--- |
+| **Tier 1** | **Frontend Routing** | `App.tsx` `checkIsSaasPath`: suport dinamic pentru orice dealer (`?dealer=mpiauto`, `mpi_auto`, `top_auto`), eliminare hardcoding `dealer=rxm` | **PASS (100%)** |
+| **Tier 2** | **Tenant Context** | `TenantContext.tsx`: `detectInitialTenant` & `initialTenantBoot` permit query pe `isShowcaseEnvironment()` / `parcos.ro`, URL sync | **PASS (100%)** |
+| **Tier 3** | **Backend Multi-Tenant** | `server/api.mjs`: `resolveTenant` suportă `isPlatformHost` (`parcos.ro`), rezoluție dinamică slug dealer din query, Netcup 21% TVA | **PASS (100%)** |
+
+### Test Execution Trace (`qa_dealer_onboarding_and_parcos_landing_bypass.cjs`)
+- [ PASS ] [WorkyOne] Host: parcos.ro cu ?dealer=mpiauto rezolvă mpi_auto (NU parcos) — 15:52:01Z
+- [ PASS ] [WorkyOne] Host: parcos.ro cu ?dealer=mpi rezolvă alias-ul mpi_auto — 15:52:01Z
+- [ PASS ] [WorkyTwo] Host: parcos.ro cu ?dealer=top_auto rezolvă top_auto (midnight_blue) — 15:52:01Z
+- [ PASS ] [WorkyTwo] Host: parcos.ro FĂRĂ parametru ?dealer returnează corect platforma parcos — 15:52:01Z
+- [ PASS ] [WorkyTwo] Host: parcos.ro cu ?dealer=parcos returnează platforma parcos — 15:52:01Z
+- [ PASS ] [WorkyThree] POST /api/superadmin/tenants cu overwrite=true înrolează/actualizează fără 409 — 15:52:01Z
+- [ PASS ] [WorkyFour] Invariante Holding: 21% TVA, Cont de Garanție și Netcup VPS (152.53.158.65) — 15:52:01Z
 
 ---
 

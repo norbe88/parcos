@@ -444,13 +444,16 @@ export default function App() {
     const hash = window.location.hash.toLowerCase();
     const search = window.location.search.toLowerCase();
     const port = window.location.port;
+    const searchParams = new URLSearchParams(search);
+    const queryDealer = searchParams.get('dealer') || searchParams.get('dealer_slug') || searchParams.get('tenant');
+    const hasSpecificDealer = Boolean(queryDealer && queryDealer !== 'parcos');
 
-    // Pe domeniul de bază parcos.ro randăm direct pagina SaaS de prezentare, DAR NU dacă este o rută administrativă
+    // Pe domeniul de bază parcos.ro randăm direct pagina SaaS de prezentare, DAR NU dacă este o rută administrativă sau showroom specific de dealer (?dealer=...)
     if (
       (isParcosDomain(hostname, port) || port === '3001') &&
       !hostname.startsWith('app.') &&
       !hostname.startsWith('admin.') &&
-      !search.includes('dealer=rxm') &&
+      !hasSpecificDealer &&
       !search.includes('mode=showroom') &&
       !path.includes('admin') &&
       !hash.includes('admin') &&
@@ -463,6 +466,11 @@ export default function App() {
       !search.includes('ghid')
     ) {
       return true;
+    }
+
+    // Dacă este cerut un dealer specific, nu randăm landing page-ul SaaS decât dacă este explicit ?mode=saas sau ?dealer=parcos
+    if (hasSpecificDealer && !search.includes('mode=saas') && !search.includes('dealer=parcos')) {
+      return false;
     }
 
     return (

@@ -471,3 +471,51 @@ export interface FinancingDossierItem {
   createdAt: string;
   updatedAt: string;
 }
+
+// =========================================================================
+// ── Matrice Raport Vânzări & Performanță Stoc (Sales Analytics Matrix) ───
+// =========================================================================
+
+export type SalesDimensionMode =
+  | 'brand_model'
+  | 'brand'
+  | 'year_generation'
+  | 'mileage_tier'
+  | 'body_type'
+  | 'fuel_type';
+
+export type MileageTier = 'under_100k' | '100k_150k' | '150k_200k' | 'over_200k';
+
+export type YearGenerationTier = 'pre_2017' | '2017_2019' | '2020_2022' | '2023_plus';
+
+export type SalesSortMode = 'units_desc' | 'volume_desc' | 'profit_desc' | 'margin_desc' | 'days_asc';
+
+export interface SalesGroupMetric {
+  dimensionKey: string;
+  dimensionLabel: string;
+  unitsSold: number;
+  totalSalesVolumeEur: number;
+  avgSalePriceEur: number;
+  totalNetProfitEur: number;
+  avgProfitMarginPct: number;
+  avgRoiPct: number;
+  avgDaysToSell: number;
+  avgDiscountGivenEur: number;
+  cars: VehicleItem[];
+}
+
+export interface SalesAnalyticsSummary {
+  dimension: SalesDimensionMode;
+  totalUnitsSold: number;
+  totalSalesVolumeEur: number;
+  totalNetProfitEur: number;
+  overallAvgMarginPct: number;
+  overallAvgRoiPct: number;
+  overallAvgDaysToSell: number;
+  overallAvgDiscountEur: number;
+  groups: SalesGroupMetric[];
+  topSellerGroup: SalesGroupMetric | null;
+  fastestMovingGroup: SalesGroupMetric | null;
+  mostProfitableGroup: SalesGroupMetric | null;
+}
+

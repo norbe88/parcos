@@ -18,12 +18,14 @@ import {
 } from '../../utils/helpers';
 import { evaluateMarketPrice } from '../../utils/marketPriceEngine';
 import { DealPriceModal, DealPricingData } from './DealPriceModal';
+import { SalesMatrixReportView } from './analytics/SalesMatrixReportView';
 import { 
   getSavedInteractions, 
   hardResetAllLeadsAndAnalytics,
   fetchSharedLeads,
 } from '../../services/leadService';
 
+export type AnalyticsTabMode = 'overview' | 'sales_matrix';
 export type TimeframeMode = 'today' | '7d' | '30d' | 'month' | 'year' | 'all' | 'custom';
 export type AgingFilterMode = 'all' | 'under_30' | 'mid_31_60' | 'over_60';
 export type AgingSortMode = 'aging_desc' | 'aging_asc' | 'capital_desc' | 'price_desc' | 'margin_asc';
@@ -70,6 +72,9 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
 }) => {
   // Stare filtru perioadă
   const [timeframe, setTimeframe] = useState<TimeframeMode>('30d');
+
+  // Stare Tab Principal: Prezentare Generală vs Matrice Vânzări
+  const [analyticsTab, setAnalyticsTab] = useState<AnalyticsTabMode>('overview');
 
   // Stare filtru & sortare vechime stoc
   const [activeAgingFilter, setActiveAgingFilter] = useState<AgingFilterMode>('all');
@@ -468,6 +473,40 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
           </div>
         </div>
 
+        {/* Comutator Navigație Sub-Taburi: Bilanț General vs Matrice Vânzări */}
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/[0.08]">
+          <button
+            type="button"
+            onClick={() => setAnalyticsTab('overview')}
+            className={`min-h-[40px] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all touch-manipulation active:scale-[0.98] flex items-center gap-2 ${
+              analyticsTab === 'overview'
+                ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20'
+                : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-white/5'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span>Bilanț General & Vechime Stoc</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setAnalyticsTab('sales_matrix')}
+            className={`min-h-[40px] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all touch-manipulation active:scale-[0.98] flex items-center gap-2 ${
+              analyticsTab === 'sales_matrix'
+                ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20'
+                : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-white/5'
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span>Matrice Vânzări & Raport Vândute</span>
+            <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+              analyticsTab === 'sales_matrix' ? 'bg-black/30 text-black' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+            }`}>
+              {metrics.soldCount} vândute
+            </span>
+          </button>
+        </div>
+
         {/* Butoane Selector Rapid Perioadă */}
         <div className="flex flex-wrap items-center gap-1.5 bg-black/40 border border-white/10 p-1.5 rounded-xl text-xs font-semibold overflow-x-auto">
           <button
@@ -588,56 +627,69 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
 
       </div>
 
-      {/* ========================================================================= */}
-      {/* 💰 SECȚIUNEA 1: TABLOU FINANCIAR & PROFITABILITATE PARC                    */}
-      {/* ========================================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        
-        {/* Card 1: Valoare Totală Stoc Activ */}
-        <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
-            <span>Valoare Stoc Activ</span>
-            <Car className="w-4 h-4 text-blue-400" />
-          </div>
-          <div className="text-xl sm:text-2xl font-black text-white font-mono">
-            {metrics.totalActiveStockValueEur.toLocaleString('ro-RO')} €
-          </div>
-          <div className="text-[11px] text-zinc-500 mt-1 flex items-center justify-between">
-            <span>{metrics.inStockCount} mașini de vânzare</span>
-            <span className="text-blue-400 font-semibold">{metrics.reservedCount} rezervate</span>
-          </div>
-        </div>
+      {analyticsTab === 'sales_matrix' ? (
+        <SalesMatrixReportView
+          cars={cars}
+          dateRange={dateRange}
+          onSelectCar={onSelectCar}
+          showToast={showToast}
+        />
+      ) : (
+        <>
+          {/* ========================================================================= */}
+          {/* 💰 SECȚIUNEA 1: TABLOU FINANCIAR & PROFITABILITATE PARC                    */}
+          {/* ========================================================================= */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            
+            {/* Card 1: Valoare Totală Stoc Activ */}
+            <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+              <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
+                <span>Valoare Stoc Activ</span>
+                <Car className="w-4 h-4 text-blue-400" />
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-white font-mono">
+                {metrics.totalActiveStockValueEur.toLocaleString('ro-RO')} €
+              </div>
+              <div className="text-[11px] text-zinc-500 mt-1 flex items-center justify-between">
+                <span>{metrics.inStockCount} mașini de vânzare</span>
+                <span className="text-blue-400 font-semibold">{metrics.reservedCount} rezervate</span>
+              </div>
+            </div>
 
-        {/* Card 2: Capital Imobilizat în Stoc */}
-        <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
-            <span>Capital Imobilizat</span>
-            <DollarSign className="w-4 h-4 text-purple-400" />
-          </div>
-          <div className="text-xl sm:text-2xl font-black text-purple-300 font-mono">
-            {metrics.activeCapitalInvestedEur.toLocaleString('ro-RO')} €
-          </div>
-          <span className="text-[11px] text-zinc-500 mt-1">
-            Achiziții + Cheltuieli de pregătire stoc
-          </span>
-        </div>
+            {/* Card 2: Capital Imobilizat în Stoc */}
+            <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+              <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
+                <span>Capital Imobilizat</span>
+                <DollarSign className="w-4 h-4 text-purple-400" />
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-purple-300 font-mono">
+                {metrics.activeCapitalInvestedEur.toLocaleString('ro-RO')} €
+              </div>
+              <span className="text-[11px] text-zinc-500 mt-1">
+                Achiziții + Cheltuieli de pregătire stoc
+              </span>
+            </div>
 
-        {/* Card 3: Volum Vânzări Realizate în Perioadă */}
-        <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
-            <span>Vânzări în Perioadă</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="text-xl sm:text-2xl font-black text-emerald-400 font-mono">
-            {metrics.totalSalesVolumeEur.toLocaleString('ro-RO')} €
-          </div>
-          <div className="text-[11px] text-zinc-500 mt-1 flex items-center justify-between">
-            <span>{metrics.soldCount} vehicule vândute</span>
-            <span className="text-emerald-400 font-semibold">
-              {metrics.soldCount > 0 ? 'Încasat 100%' : 'Nicio vânzare'}
-            </span>
-          </div>
-        </div>
+            {/* Card 3: Volum Vânzări Realizate în Perioadă (Clicabil -> Deschide Matricea) */}
+            <div
+              onClick={() => setAnalyticsTab('sales_matrix')}
+              className="bg-[#121215] hover:bg-[#16161b] border border-white/[0.08] hover:border-emerald-500/40 rounded-2xl p-4 sm:p-5 flex flex-col justify-between cursor-pointer transition-all group touch-manipulation active:scale-[0.99]"
+              title="Fă clic pentru a deschide Matricea Detaliată a Vânzărilor pe Categorii"
+            >
+              <div className="flex items-center justify-between text-zinc-400 text-xs mb-1">
+                <span className="group-hover:text-emerald-300 transition-colors">Vânzări în Perioadă</span>
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-emerald-400 font-mono">
+                {metrics.totalSalesVolumeEur.toLocaleString('ro-RO')} €
+              </div>
+              <div className="text-[11px] text-zinc-500 mt-1 flex items-center justify-between">
+                <span>{metrics.soldCount} vehicule vândute</span>
+                <span className="text-emerald-400 font-semibold group-hover:underline flex items-center gap-0.5">
+                  {metrics.soldCount > 0 ? 'Deschide Matricea →' : 'Nicio vânzare'}
+                </span>
+              </div>
+            </div>
 
         {/* Card 4: Profit Net Încasat în Perioadă */}
         <div className="bg-gradient-to-br from-amber-500/15 via-[#16161a] to-[#121215] border border-amber-500/40 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-xl shadow-amber-500/5">
@@ -1407,6 +1459,8 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
         </div>
 
       </div>
+    </>
+  )}
 
       {/* Modal Confirmare Hard Reset din Analytics */}
       {isResetConfirmOpen && (

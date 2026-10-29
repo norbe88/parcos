@@ -1,10 +1,21 @@
-import React, { useState, useMemo } from 'react';
-import { Car, CheckCircle2, Truck, Award, SlidersHorizontal, Shield, FileCheck, Sparkles } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Car, CheckCircle2, ChevronDown, Truck, Award, SlidersHorizontal, Shield, FileCheck, Sparkles } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../db/seed';
 import { VehicleCard } from './VehicleCard';
 import { SpecialOffersCarousel } from './SpecialOffersCarousel';
 import { calculateRate as defaultCalcRate } from '../../utils/helpers';
 import { normalizeBrand } from '../../utils/brandNormalizer';
+
+// ─── Progressive Batching: Lot inițial adaptiv la viewport ─────────────────
+const BATCH_INITIAL_MOBILE = 6;  // < 768px — telefoane mobile
+const BATCH_INITIAL_DESKTOP = 9; // ≥ 768px — tablete & desktop (3 rânduri x 3 col)
+export const BATCH_STEP = 6;     // Lot adăugat la fiecare click „Încarcă mai multe"
+
+function getInitialBatch(): number {
+  if (typeof window === 'undefined') return BATCH_INITIAL_DESKTOP;
+  return window.innerWidth < 768 ? BATCH_INITIAL_MOBILE : BATCH_INITIAL_DESKTOP;
+}
+// ────────────────────────────────────────────────────────────────────────────
 
 interface VehicleCatalogProps {
   cars: VehicleItem[];
@@ -24,6 +35,8 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
   const [selectedFuel, setSelectedFuel] = useState<string>('all');
   const [selectedTransmission, setSelectedTransmission] = useState<string>('all');
   const [maxPrice, setMaxPrice] = useState<number>(35000);
+  // 📦 Lot vizibil curent — Progressive Batching (6 mobil / 9 desktop)
+  const [visibleCount, setVisibleCount] = useState<number>(getInitialBatch);
 
   // Mărci unice pentru filtru (Normalizate și Deduplicate — zero dubluri precum "BMW" vs "Bmw" sau "RENAULT" vs "Renault")
   const availableBrands = useMemo(() => {
@@ -76,6 +89,16 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
       return scoreB - scoreA;
     });
   }, [filteredCars]);
+
+  // 📦 Lot de autovehicule afișat efectiv în DOM (slice progresiv din lista sortată completă)
+  const displayedCars = useMemo(() => {
+    return sortedFilteredCars.slice(0, visibleCount);
+  }, [sortedFilteredCars, visibleCount]);
+
+  // 🔄 Resetare lot la schimbarea oricărui filtru activ — utilizatorul vede imediat primele rezultate relevante
+  useEffect(() => {
+    setVisibleCount(getInitialBatch());
+  }, [stockTab, selectedBrand, selectedFuel, selectedTransmission, maxPrice]);
 
   return (
     <section id="catalog" className="max-w-7xl mx-auto px-4 sm:px-8 py-12 scroll-mt-20 sm:scroll-mt-24">

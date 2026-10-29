@@ -38,7 +38,7 @@ export interface TenantContextType {
   updateTenantFeatures: (tenantId: string, features: Partial<TenantFeatures>) => void;
   updateTenantStatus: (tenantId: string, status: TenantStatus) => void;
   updateTenantProfile: (tenantId: string, partialProfile: Partial<DealerProfile>) => void;
-  registerTenant: (newTenant: DealerProfile) => void;
+  registerTenant: (newTenant: DealerProfile) => Promise<void> | void;
   isPitchModeAllowed: boolean;
   vatRate: number;
   warrantyTerm: string;
@@ -135,6 +135,24 @@ function hostBootKind(hostname: string): HostBootKind {
 function initialTenantBoot(): { tenantId: string; boot: TenantBootState } {
   if (typeof window === 'undefined') return { tenantId: 'rxm', boot: 'ready' };
   if (hostBootKind(window.location.hostname) === 'rxm') return { tenantId: 'rxm', boot: 'ready' };
+  try {
+    const hostname = window.location.hostname.toLowerCase();
+    if (isLocalDevHost(hostname) || isShowcaseEnvironment()) {
+      const params = new URLSearchParams(window.location.search);
+      const fromQuery = params.get('dealer') || params.get('dealer_slug') || params.get('tenant');
+      if (fromQuery && fromQuery !== 'parcos') {
+        const k = fromQuery.toLowerCase().trim();
+        const resolved = (k === 'mpi' || k === 'mpi_auto' || k === 'mpiauto') ? 'mpi_auto'
+          : (k === 'top' || k === 'top_auto' || k === 'topauto') ? 'top_auto'
+          : (k === 'rxm' || k === 'rxm_auto' || k === 'rxmautomobile') ? 'rxm'
+          : (k === 'autonord' || k === 'autonord_cluj') ? 'autonord_cluj'
+          : k;
+        if (resolved) {
+          return { tenantId: resolved, boot: 'ready' };
+        }
+      }
+    }
+  } catch {}
   return { tenantId: '', boot: 'pending' };
 }
 
@@ -232,8 +250,9 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         return 'rxm';
       }
 
-      // Host de producție: slug-ul vine din /api/tenant/resolve, nu din query sau cache local.
-      if (!isLocalDevHost(hostname)) return '';
+      // Host de producție dedicat: slug-ul vine din /api/tenant/resolve, nu din query sau cache local.
+      // Pe domeniile de prezentare / platformă (parcos.ro, showcase, local dev), query-ul ?dealer=... este permis!
+      if (!isLocalDevHost(hostname) && !isShowcaseEnvironment()) return '';
 
       // 0. Server-injected meta tag (ex: via Nginx X-Dealer-Slug or SSR)
       const metaDealer = document.querySelector('meta[name="x-dealer-slug"]')?.getAttribute('content');
@@ -309,7 +328,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       setTenantBoot('ready');
       try {
         localStorage.setItem('rxm_tenant_id', resolved);
-        if (kind === 'local') {
+        if (kind === 'local' || isShowcaseEnvironment()) {
           const url = new URL(window.location.href);
           url.searchParams.set('dealer', resolved);
           window.history.replaceState({}, '', url.toString());
@@ -364,7 +383,9 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       setTenantBoot('ready');
     };
 
-    const url = kind === 'local' ? localTenantResolveUrl() : '/api/tenant/resolve';
+    const url = (kind === 'local' || isShowcaseEnvironment() || (typeof window !== 'undefined' && window.location.search.includes('dealer=')))
+      ? localTenantResolveUrl()
+      : '/api/tenant/resolve';
     fetch(url, { headers: { Accept: 'application/json' } })
       .then(async (res) => {
         if (cancelled) return;
@@ -511,7 +532,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
   };
 
   // Înrolare tenant nou de către SuperAdmin
-  const registerTenant = (newTenant: DealerProfile) => {
+  const registerTenant = async (newTenant: DealerProfile) => {
     const slug = newTenant.slug || newTenant.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
     const enriched: DealerProfile = {
       ...newTenant,
@@ -531,10 +552,13 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       return nextMap;
     });
 
-    // Sincronizare asincronă cu PostgreSQL backend
-    registerTenantBackend(enriched).catch(err => {
+    // Sincronizare cu PostgreSQL backend
+    try {
+      await registerTenantBackend(enriched);
+    } catch (err: any) {
       console.warn(`[TenantContext] Înrolare tenant în backend pentru ${slug} eșuată:`, err.message);
-    });
+      // Nu blocăm dacă tenantul exista deja sau e offline
+    }
   };
 
   // Interogare backend pentru profilul dinamic al tenantului curent

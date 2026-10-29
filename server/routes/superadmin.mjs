@@ -84,7 +84,7 @@ export async function handleSuperAdminRoutes(req, res, urlObj, pathname, {
 
       const cleanSlug = normalizeSlug(payload.slug);
       const existing = await getDealerBySlug(cleanSlug, true);
-      if (existing) {
+      if (existing && !payload.overwrite && !payload.upsert) {
         sendJson(res, 409, { success: false, error: 'Showroom-ul există deja.' });
         return true;
       }

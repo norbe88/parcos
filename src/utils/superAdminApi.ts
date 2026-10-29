@@ -164,7 +164,8 @@ export async function registerTenantBackend(newTenant: DealerProfile): Promise<D
     maxVehiclesQuota: explicitVehicleQuota(newTenant.maxVehiclesQuota),
     themePreset: newTenant.themePreset || 'obsidian_gold',
     features: newTenant.features,
-    config: newTenant.config
+    config: newTenant.config,
+    overwrite: true
   };
 
   const res = await fetch('/api/superadmin/tenants', {

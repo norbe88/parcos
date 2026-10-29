@@ -883,21 +883,21 @@ export async function resolveTenant(req, urlObj) {
   const host = rawHost.replace(/^www\./, '');
   const isLocalDev = host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.local');
   const isSuperAdmin = isAuthorizedSuperAdmin(req);
+  const isPlatformHost = host === 'parcos.ro' || host === 'staging.parcos.ro' || PLATFORM_CONSOLE_HOSTS.has(host) || isLocalDev;
 
   // 2. Protecție Strictă Multi-Tenant în Producție:
-  // Pe domenii de producție, tenantul este determinat STRICT din domeniu.
-  // Parametrii din URL (?dealer=...) și antetele de simulare (x-dealer-slug, X-Forwarded-Host)
-  // sunt STRICT IGNORATE pentru a preveni cross-tenant data leakage / tenant spoofing,
-  // CU EXCEPȚIA mediului local de dezvoltare sau a unei sesiuni active de SuperAdmin autentificat.
+  // Pe domenii de producție dedicate (ex: rxmautomobile.ro, mpiauto.ro), tenantul este determinat STRICT din domeniu.
+  // Pe domeniul central al platformei (parcos.ro, staging.parcos.ro) sau mediul local, parametrul ?dealer=...
+  // este autorizat pentru a permite accesul și previzualizarea showroom-urilor din platformă.
   const queryDealer = urlObj?.searchParams?.get('dealer') || 
                       urlObj?.searchParams?.get('dealer_slug') || 
                       urlObj?.searchParams?.get('tenant');
   const headerSlug = req?.headers?.['x-dealer-slug'];
 
-  if ((isLocalDev || isSuperAdmin) && (queryDealer || headerSlug)) {
+  if ((isPlatformHost || isSuperAdmin) && (queryDealer || headerSlug)) {
     const rawTarget = (isSuperAdmin && headerSlug) ? headerSlug : (queryDealer || headerSlug);
     const cleanSlug = normalizeSlug(rawTarget);
-    if (cleanSlug) {
+    if (cleanSlug && cleanSlug !== 'parcos') {
       const cached = tenantConfigCache.get(`slug:${cleanSlug}`);
       if (cached && (Date.now() - cached.timestamp < TENANT_CACHE_TTL)) {
         return cached.data;
@@ -1778,7 +1778,13 @@ export const server = http.createServer(async (req, res) => {
           time: new Date().toISOString(),
         });
       }
-      return sendJson(res, 200, { status: 'healthy' });
+      return sendJson(res, 200, {
+        status: 'healthy',
+        vatRate: 0.21,
+        warrantyTerm: 'Cont de Garanție',
+        hosting: 'Netcup VPS (152.53.158.65)',
+        version: 'v20_multi_tenant_ready'
+      });
     }
 
     // 0.01 GET /api/tenant-config & /api/tenant/config - Configurație Dinamică Showroom (PMH-T02)
@@ -1924,7 +1930,7 @@ export const server = http.createServer(async (req, res) => {
         const cleanSlug = normalizeSlug(payload.slug);
         if (!cleanSlug) return sendJson(res, 400, { success: false, error: 'Dealer slug este obligatoriu' });
         const existing = await getDealerBySlug(cleanSlug, true);
-        if (existing) return sendJson(res, 409, { success: false, error: 'Showroom-ul există deja.' });
+        if (existing && !payload.overwrite && !payload.upsert) return sendJson(res, 409, { success: false, error: 'Showroom-ul există deja.' });
         const saved = await upsertDealer({ ...payload, slug: cleanSlug });
         tenantConfigCache.delete(`slug:${saved.slug}`);
         if (saved.domain) tenantConfigCache.delete(`host:${saved.domain}`);
