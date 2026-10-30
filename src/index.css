@@ -436,6 +436,61 @@ img[src*="/cars/"],
   box-shadow: 0 10px 30px -4px rgba(37, 99, 235, 0.1) !important;
 }
 
+/* 1.4.1 Hero Spotlight & Elemente Interactive în Clean White */
+[data-theme="clean_white"] .bg-\[\#121215\]\/80,
+[data-theme="clean_white"] div.rounded-xl.bg-\[\#121215\]\/80 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="clean_white"] a[href="#finantare"].rounded-xl,
+[data-theme="clean_white"] a[href="#comanda"].rounded-xl {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+[data-theme="clean_white"] a[href="#finantare"].rounded-xl:hover,
+[data-theme="clean_white"] a[href="#comanda"].rounded-xl:hover {
+  background-color: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="clean_white"] a[href*="tiktok.com"].rounded-xl {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+[data-theme="clean_white"] a[href*="tiktok.com"].rounded-xl:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="clean_white"] a[href="#catalog"].rounded-full {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+[data-theme="clean_white"] a[href="#catalog"].rounded-full:hover {
+  background-color: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+}
+[data-theme="clean_white"] a[href="#catalog"].rounded-full span {
+  color: #334155 !important;
+}
+
+[data-theme="clean_white"] button[aria-label="Deschide Prezentare Video TikTok"] {
+  background-color: #ffffff !important;
+  border-color: rgba(254, 44, 85, 0.4) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="clean_white"] .border-t.border-white\/\[0\.08\] {
+  border-top-color: #e2e8f0 !important;
+}
+
 /* 1.5 Secțiuni Showroom (Why Choose Us, Financing, Buy Back, Custom Order) */
 [data-theme="clean_white"] section.bg-\[\#09090b\],
 [data-theme="clean_white"] section.bg-\[\#0c0c0e\] {
