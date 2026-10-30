@@ -367,6 +367,23 @@ export async function initDatabase() {
       );
     `;
 
+    // 1.1 Tabela de evenimente telemetrie vizualizări (Wave 2) + contor atomic
+    await sql`
+      CREATE TABLE IF NOT EXISTS vehicle_views (
+        id           BIGSERIAL    PRIMARY KEY,
+        dealer_slug  VARCHAR(50)  NOT NULL DEFAULT 'rxm',
+        vehicle_id   TEXT         NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+        viewed_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+        source       VARCHAR(30)  NOT NULL DEFAULT 'showroom',
+        session_hash VARCHAR(64)  NOT NULL
+      );
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_vehicle_views_dealer_time ON vehicle_views(dealer_slug, viewed_at DESC);`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_vehicle_views_car_time ON vehicle_views(vehicle_id, viewed_at DESC);`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_vehicle_views_dedup ON vehicle_views(vehicle_id, session_hash, viewed_at DESC);`;
+    await sql`ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS views_count INTEGER NOT NULL DEFAULT 0;`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_vehicles_views_count ON vehicles(dealer_slug, views_count DESC);`;
+
     const countResult = await sql`SELECT count(*)::int AS count FROM vehicles WHERE dealer_slug = 'rxm'`;
     if (countResult[0]?.count === 0) {
       console.log('📦 [DB] Baza de date este goală. Rulăm auto-seeding din seeds.json...');
@@ -673,7 +690,7 @@ export async function getAllPublicVehicles(dealerSlug = 'rxm') {
         body_type, drivetrain, color, vin, is_vin_public, doc_origin_country, warranty_months,
         status, stock_entry_date, images, video_url, tiktok_url, tiktok_views,
         is_deal_of_week, is_pinned_to_top, old_price_eur, deal_badge_text,
-        features, equipment_sheet_text, description, created_at, updated_at
+        features, equipment_sheet_text, description, COALESCE(views_count, 0) AS views_count, created_at, updated_at
       FROM vehicles 
       WHERE lower(dealer_slug) = ${cleanSlug} 
       ORDER BY created_at DESC
@@ -723,7 +740,7 @@ export async function getPublicVehicleById(id, dealerSlug = 'rxm') {
         body_type, drivetrain, color, vin, is_vin_public, doc_origin_country, warranty_months,
         status, stock_entry_date, images, video_url, tiktok_url, tiktok_views,
         is_deal_of_week, is_pinned_to_top, old_price_eur, deal_badge_text,
-        features, equipment_sheet_text, description, created_at, updated_at
+        features, equipment_sheet_text, description, COALESCE(views_count, 0) AS views_count, created_at, updated_at
       FROM vehicles 
       WHERE id = ${id} AND lower(dealer_slug) = ${cleanSlug}
       LIMIT 1
@@ -1956,4 +1973,146 @@ export async function updateFinancingDossier(id, dealerSlug, row) {
     throw err;
   }
 }
+
+// ══════════════════════════════════════════════════════════════════
+// VEHICLE VIEWS TELEMETRY REPOSITORY (WAVE 2)
+// ══════════════════════════════════════════════════════════════════
+
+/**
+ * Înregistrează o vizualizare de vehicul cu protecție anti-spam debounce (30 min per session_hash)
+ * și incrementează atomic contorul views_count în tabela vehicles.
+ */
+export async function recordVehicleView(vehicleId, dealerSlug = 'rxm', source = 'showroom', sessionHash) {
+  const cleanId = String(vehicleId || '').trim();
+  const cleanSlug = String(dealerSlug || 'rxm').trim().toLowerCase();
+  const cleanSource = String(source || 'showroom').trim().slice(0, 30);
+  const cleanHash = String(sessionHash || '').trim();
+
+  if (!cleanId || !cleanHash) {
+    return { recorded: false, error: 'vehicleId și sessionHash sunt obligatorii' };
+  }
+
+  try {
+    const sql = getSql();
+
+    // 1. Verificare existență vehicul
+    const carExists = await sql`SELECT id, views_count FROM vehicles WHERE id = ${cleanId} LIMIT 1`;
+    if (!carExists || carExists.length === 0) {
+      return { recorded: false, reason: 'vehicle_not_found' };
+    }
+
+    // 2. Verificare fereastră debounce de 30 minute pentru același vizitator
+    const recentView = await sql`
+      SELECT 1 FROM vehicle_views 
+      WHERE vehicle_id = ${cleanId} 
+        AND session_hash = ${cleanHash} 
+        AND viewed_at > NOW() - INTERVAL '30 minutes' 
+      LIMIT 1
+    `;
+
+    if (recentView && recentView.length > 0) {
+      return { recorded: false, reason: 'debounced', currentCount: carExists[0].views_count || 0 };
+    }
+
+    // 3. Inserare eveniment în vehicle_views
+    await sql`
+      INSERT INTO vehicle_views (dealer_slug, vehicle_id, source, session_hash, viewed_at)
+      VALUES (${cleanSlug}, ${cleanId}, ${cleanSource}, ${cleanHash}, NOW())
+    `;
+
+    // 4. Incrementare atomică a contorului views_count pe vehicles
+    const updated = await sql`
+      UPDATE vehicles 
+      SET views_count = COALESCE(views_count, 0) + 1 
+      WHERE id = ${cleanId} 
+      RETURNING views_count
+    `;
+
+    const newCount = updated[0]?.views_count ?? ((carExists[0].views_count || 0) + 1);
+    return { recorded: true, newCount };
+  } catch (err) {
+    console.warn(`[Telemetry DB] Warning la înregistrarea vizualizării vehiculului ${cleanId}:`, err.message);
+    return { recorded: false, error: err.message };
+  }
+}
+
+/**
+ * Returnează clasamentul celor mai vizionate mașini pentru un dealer pe un orizont temporal configurabil.
+ */
+export async function getTopViewedVehicles(dealerSlug = 'rxm', timeframe = 'all', limit = 10) {
+  const cleanSlug = String(dealerSlug || 'rxm').trim().toLowerCase();
+  const numLimit = Math.max(1, Math.min(100, Number(limit) || 10));
+  const tf = String(timeframe || 'all').toLowerCase();
+
+  try {
+    const sql = getSql();
+
+    if (tf === 'all') {
+      const rows = await sql`
+        SELECT 
+          id, dealer_slug, brand, model, version_trim, year, mileage_km,
+          price_eur, images, status,
+          COALESCE(views_count, 0) AS period_views,
+          COALESCE(views_count, 0) AS all_time_views
+        FROM vehicles
+        WHERE lower(dealer_slug) = ${cleanSlug}
+        ORDER BY views_count DESC, created_at DESC
+        LIMIT ${numLimit}
+      `;
+      return rows.map(r => ({
+        id: r.id,
+        dealerSlug: r.dealer_slug,
+        brand: r.brand,
+        model: r.model,
+        versionTrim: r.version_trim,
+        year: r.year,
+        mileageKm: r.mileage_km,
+        priceEur: Number(r.price_eur) || 0,
+        images: Array.isArray(r.images) ? r.images : (typeof r.images === 'string' ? JSON.parse(r.images || '[]') : []),
+        status: r.status,
+        periodViews: Number(r.period_views) || 0,
+        allTimeViews: Number(r.all_time_views) || 0
+      }));
+    }
+
+    let intervalStr = '7 days';
+    if (tf === 'today') intervalStr = '1 day';
+    else if (tf === '30d' || tf === 'month') intervalStr = '30 days';
+    else if (tf === 'year') intervalStr = '365 days';
+
+    const rows = await sql`
+      SELECT 
+        v.id, v.dealer_slug, v.brand, v.model, v.version_trim, v.year, v.mileage_km,
+        v.price_eur, v.images, v.status,
+        COUNT(vv.id)::int AS period_views,
+        COALESCE(v.views_count, 0) AS all_time_views
+      FROM vehicles v
+      LEFT JOIN vehicle_views vv ON v.id = vv.vehicle_id 
+        AND vv.viewed_at >= NOW() - ${intervalStr}::interval
+      WHERE lower(v.dealer_slug) = ${cleanSlug}
+      GROUP BY v.id
+      ORDER BY period_views DESC, all_time_views DESC
+      LIMIT ${numLimit}
+    `;
+
+    return rows.map(r => ({
+      id: r.id,
+      dealerSlug: r.dealer_slug,
+      brand: r.brand,
+      model: r.model,
+      versionTrim: r.version_trim,
+      year: r.year,
+      mileageKm: r.mileage_km,
+      priceEur: Number(r.price_eur) || 0,
+      images: Array.isArray(r.images) ? r.images : (typeof r.images === 'string' ? JSON.parse(r.images || '[]') : []),
+      status: r.status,
+      periodViews: Number(r.period_views) || 0,
+      allTimeViews: Number(r.all_time_views) || 0
+    }));
+  } catch (err) {
+    console.warn(`[Telemetry DB] Warning la extragerea top vehicule vizionate pentru ${cleanSlug}:`, err.message);
+    return [];
+  }
+}
+
 

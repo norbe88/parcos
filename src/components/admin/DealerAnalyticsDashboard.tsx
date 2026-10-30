@@ -19,6 +19,7 @@ import {
 import { evaluateMarketPrice } from '../../utils/marketPriceEngine';
 import { DealPriceModal, DealPricingData } from './DealPriceModal';
 import { SalesMatrixReportView } from './analytics/SalesMatrixReportView';
+import { TopViewedVehiclesWidget } from './analytics/TopViewedVehiclesWidget';
 import { 
   getSavedInteractions, 
   hardResetAllLeadsAndAnalytics,
@@ -262,10 +263,10 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
     const totalAgingDays = inStockCars.reduce((acc, c) => acc + getVehicleAgingInfo(c).days, 0);
     const avgDaysOnMarket = inStockCount > 0 ? Math.round(totalAgingDays / inStockCount) : 21;
 
-    // Top mașini cele mai vizualizate (TikTok & catalog)
+    // Top mașini cele mai vizualizate (eliminat legacy mock tiktokViews, aliniat la telemetrie reală)
     const topViewedCars = [...cars].sort((a, b) => {
-      const viewsA = a.tiktokViews ? parseFloat(a.tiktokViews) * 1000 : a.year * 10;
-      const viewsB = b.tiktokViews ? parseFloat(b.tiktokViews) * 1000 : b.year * 10;
+      const viewsA = a.viewsCount || 0;
+      const viewsB = b.viewsCount || 0;
       return viewsB - viewsA;
     }).slice(0, 5);
 
@@ -294,18 +295,22 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
     const pdfSheetsPrinted = interactionsInPeriod.filter(i => i.type === 'pdf').length;
 
     const recordedVisitors = interactionsInPeriod.filter(i => i.type === 'view').length;
+    const totalLotViews = cars.reduce((acc, c) => acc + (c.viewsCount || 0), 0);
+    const effectiveViews = Math.max(totalLotViews, recordedVisitors);
 
     // Număr total de contacte / lead-uri
     const totalInteractionsCount = whatsappInquiries + phoneCallsInitiated + testDriveBookings + pdfSheetsPrinted + leadsInPeriod.length;
 
     const audienceData = {
-      uniqueVisitors: recordedVisitors > 0 ? recordedVisitors : (totalInteractionsCount > 0 ? totalInteractionsCount * 12 : 0),
-      totalCatalogSearches: recordedVisitors > 0 ? recordedVisitors * 4 : (totalInteractionsCount > 0 ? totalInteractionsCount * 45 : 0),
+      uniqueVisitors: effectiveViews > 0 ? effectiveViews : (totalInteractionsCount > 0 ? totalInteractionsCount * 12 : 0),
+      totalCatalogSearches: effectiveViews > 0 ? effectiveViews * 3 : (totalInteractionsCount > 0 ? totalInteractionsCount * 45 : 0),
+      totalLotViews,
       whatsappInquiries,
       phoneCallsInitiated,
       testDriveBookings,
       pdfSheetsPrinted,
       totalLeadsCount: leadsInPeriod.length,
+      totalInteractionsCount,
       isCleanReset: totalInteractionsCount === 0 && realLeads.length === 0
     };
 
@@ -1315,48 +1320,19 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         
-        {/* Top 5 Mașini după Interes Cumpărători */}
-        <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>Top 5 Cele Mai Căutate Mașini din Parc</span>
-            </h3>
-            <span className="text-[11px] text-zinc-500">Vizualizări & Interacțiuni</span>
-          </div>
-
-          <div className="space-y-3">
-            {metrics.topViewedCars.map((car, idx) => (
-              <div 
-                key={car.id}
-                onClick={() => onSelectCar?.(car)}
-                className="min-h-[44px] flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.05] cursor-pointer transition-colors group touch-manipulation active:scale-[0.98]"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="w-5 font-mono text-xs font-bold text-zinc-500 group-hover:text-amber-400">
-                    #{idx + 1}
-                  </span>
-                  <img src={car.images[0]} alt={car.model} className="w-10 h-7 rounded-lg object-cover bg-zinc-800" />
-                  <div>
-                    <div className="font-bold text-white text-xs group-hover:text-amber-300 transition-colors">
-                      {car.brand} {car.model}
-                    </div>
-                    <div className="text-[10px] text-zinc-400">#{getStockNumber(car)} • {car.year}</div>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <div className="font-mono font-bold text-xs text-white">
-                    {car.priceEur.toLocaleString('ro-RO')} €
-                  </div>
-                  <div className="text-[10px] text-amber-400/80 font-mono">
-                    {car.tiktokViews || `${1200 - idx * 180} vizualizări`}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Modul Top Mașini Vizionate cu Telemetrie Reală & Alerte Conversie */}
+        <TopViewedVehiclesWidget
+          cars={cars}
+          activeTimeframe={timeframe}
+          onSelectCar={onSelectCar}
+          onOpenDealModal={(car) => {
+            setDealModalCar(car);
+            setIsDealModalOpen(true);
+          }}
+          realLeads={realLeads}
+          realInteractions={realInteractions}
+          showToast={showToast}
+        />
 
         {/* Pâlnia de Conversie & Lead-uri Cumpărători Generate (DATE REALE + RESET LA 0) */}
         <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-5 flex flex-col justify-between">

@@ -336,6 +336,22 @@ export const SuperAdminOnboardingModal: React.FC<SuperAdminOnboardingModalProps>
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-white/[0.08]">
                   <div>
+                    <span className="text-xs text-amber-400 font-bold block">🚀 Subdomeniu Demo Instant:</span>
+                    <span className="text-[11px] text-zinc-400 font-mono">https://{successResult.slug.replace(/_/g, '')}.parcos.ro</span>
+                  </div>
+                  <a
+                    href={`https://${successResult.slug.replace(/_/g, '')}.parcos.ro`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-500/30 transition-all cursor-pointer"
+                  >
+                    <span>Deschide Subdomeniu</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-white/[0.08]">
+                  <div>
                     <span className="text-xs text-zinc-300 font-bold block">⚙️ Panou Administrare Stoc & Acte:</span>
                     <span className="text-[11px] text-zinc-500 font-mono">/?dealer={successResult.slug}#admin</span>
                   </div>

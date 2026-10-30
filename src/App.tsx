@@ -37,6 +37,7 @@ import { vehicleRepository, RXM_INVENTORY_VERSION, inventoryStorageKey } from '.
 import { getTabSessionId } from './utils/broadcastSession';
 import { getAdminAuthHeaders, isCurrentSessionAdmin } from './utils/adminAuth';
 import { updateSeoMetadata } from './utils/seoTenantInjector';
+import { getSubdomainDealer } from './context/TenantContext';
 
 // 🆔 Identificator unic de sesiune per filă pentru a preveni auto-ecoul BroadcastChannel
 const APP_TAB_SESSION_ID = getTabSessionId();
@@ -424,11 +425,14 @@ export default function App() {
   // Verificare dacă domeniul curent este platforma centrală ParcOS
   const isParcosDomain = (hostname: string, port?: string) => {
     const p = port !== undefined ? port : (typeof window !== 'undefined' ? window.location.port : '');
+    // Pe subdomeniu dedicat de dealer (ex: mpiauto.parcos.ro), NU suntem pe platforma centrală SaaS parcos.ro!
+    if (getSubdomainDealer(hostname)) return false;
     return (
       hostname === 'parcos.ro' ||
       hostname === 'www.parcos.ro' ||
       hostname === 'parcos.local' ||
-      hostname.includes('parcos') ||
+      hostname === 'app.parcos.ro' ||
+      hostname === 'admin.parcos.ro' ||
       p === '3001'
     );
   };
@@ -446,7 +450,8 @@ export default function App() {
     const port = window.location.port;
     const searchParams = new URLSearchParams(search);
     const queryDealer = searchParams.get('dealer') || searchParams.get('dealer_slug') || searchParams.get('tenant');
-    const hasSpecificDealer = Boolean(queryDealer && queryDealer !== 'parcos');
+    const subDealer = getSubdomainDealer(hostname);
+    const hasSpecificDealer = Boolean((queryDealer && queryDealer !== 'parcos') || subDealer);
 
     // Pe domeniul de bază parcos.ro randăm direct pagina SaaS de prezentare, DAR NU dacă este o rută administrativă sau showroom specific de dealer (?dealer=...)
     if (

@@ -23,6 +23,7 @@ import { DetailDeadlinesTab } from './vehicle-detail/DetailDeadlinesTab';
 import { SocialShareButtons } from '../common/SocialShareButtons';
 import { IntellectualPropertyDisclaimer } from '../common/IntellectualPropertyDisclaimer';
 import { recordIncomingLead } from '../../services/leadService';
+import { sendVehicleViewBeacon } from '../../services/telemetryService';
 import { useAntiScreenCapture } from '../../hooks/useAntiScreenCapture';
 
 interface VehicleDetailModalProps {
@@ -91,7 +92,7 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Resetare tab și index imagine la schimbarea autovehiculului sau a tabului inițial
+  // Resetare tab și index imagine la schimbarea autovehiculului sau a tabului inițial + telemetrie vizualizare
   const currentCarId = selectedCar?.id;
   useEffect(() => {
     if (currentCarId) {
@@ -99,8 +100,13 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
       setActiveTab(initialTab);
       setVideoFormat(initialVideoFormat);
       setTdGdprConsent(false);
+
+      // 📡 Telemetrie vizualizare showroom pasivă non-blocantă (Wave 2) — exclus modul admin
+      if (viewMode !== 'admin') {
+        sendVehicleViewBeacon(currentCarId, dealer?.slug || selectedCar?.dealerSlug);
+      }
     }
-  }, [currentCarId, initialTab, initialVideoFormat]);
+  }, [currentCarId, initialTab, initialVideoFormat, viewMode, dealer?.slug, selectedCar?.dealerSlug]);
 
   // Scroll fluid la începutul conținutului la schimbarea tabului
   useEffect(() => {

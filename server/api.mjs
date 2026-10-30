@@ -28,6 +28,8 @@ import {
   propagateFeatureGlobally,
   upsertDealer,
   insertLandingLead,
+  recordVehicleView,
+  getTopViewedVehicles,
   getSql
 } from './db.mjs';
 import { saveCarImageDataUrl, saveCarImageToDisk, deleteCarMediaFromDisk, createPresignedUploadUrl } from './mediaStorage.mjs';
@@ -931,6 +933,31 @@ export async function resolveTenant(req, urlObj) {
     // www. este deja eliminat din `host`, deci www.parcos.ro intră pe parcos.ro.
     if (host === 'parcos.ro' || PLATFORM_CONSOLE_HOSTS.has(host)) {
       return cacheTenantHost(host, DEFAULT_DEALER_PROFILES.parcos);
+    }
+
+    // 3.1. Rutare Dinamică Subdomenii ParcOS (*.parcos.ro -> [dealer_slug])
+    // Permite oricărui showroom nou înrolat să fie accesibil instantaneu pe slug.parcos.ro (ex: mpiauto.parcos.ro) fără redeploy!
+    if (host.endsWith('.parcos.ro')) {
+      const sub = host.slice(0, -'.parcos.ro'.length);
+      if (sub && !PLATFORM_CONSOLE_HOSTS.has(host) && sub !== 'www' && sub !== 'sandbox' && sub !== 'staging') {
+        const cleanSubSlug = normalizeSlug(sub);
+        const cachedSub = tenantConfigCache.get(`slug:${cleanSubSlug}`);
+        if (cachedSub && (Date.now() - cachedSub.timestamp < TENANT_CACHE_TTL)) {
+          return cacheTenantHost(host, cachedSub.data);
+        }
+        const dbDealer = await getDealerBySlug(cleanSubSlug);
+        if (dbDealer) {
+          tenantConfigCache.set(`slug:${cleanSubSlug}`, { data: dbDealer, timestamp: Date.now() });
+          return cacheTenantHost(host, dbDealer);
+        }
+        if (DEFAULT_DEALER_PROFILES[cleanSubSlug]) {
+          return cacheTenantHost(host, DEFAULT_DEALER_PROFILES[cleanSubSlug]);
+        }
+        const staged = getStagedDealerProfile(cleanSubSlug);
+        if (staged) {
+          return cacheTenantHost(host, staged);
+        }
+      }
     }
     const canonicalSlug = CANONICAL_DEALER_HOSTS[host];
     if (canonicalSlug && DEFAULT_DEALER_PROFILES[canonicalSlug]) {
@@ -3227,6 +3254,107 @@ REGULI STRICTE & INVARIANTE HOLDING:
         return sendJson(res, 502, {
           success: false,
           error: `Eroare contactare nod Desy (${targetUrl}): ${err.message}`,
+        });
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // VEHICLE VIEWS TELEMETRY & AUDIENCE INTELLIGENCE (WAVE 2)
+    // ══════════════════════════════════════════════════════════════════
+
+    // 1. POST /api/telemetry/vehicle-view — Ingestie debounced vizualizare showroom (suport JSON + sendBeacon)
+    if (req.method === 'POST' && pathname === '/api/telemetry/vehicle-view') {
+      let parsedBody = {};
+      try {
+        const bodyBuffer = await readRequestBody(req, 128 * 1024); // max 128 KB
+        const rawText = bodyBuffer.toString('utf-8').trim();
+        if (rawText) {
+          parsedBody = JSON.parse(rawText);
+        }
+      } catch (err) {
+        return sendJson(res, 400, {
+          success: false,
+          error: 'Format JSON invalid pentru semnalul de telemetrie.',
+          message: err.message,
+        });
+      }
+
+      const vehicleId = String(parsedBody.vehicleId || parsedBody.vehicle_id || parsedBody.id || '').trim();
+      if (!vehicleId) {
+        return sendJson(res, 400, {
+          success: false,
+          error: 'Parametrul "vehicleId" este obligatoriu.',
+        });
+      }
+
+      // Rezoluție tenant / dealer slug
+      let dealerSlug = String(parsedBody.dealerSlug || parsedBody.dealer_slug || '').trim().toLowerCase();
+      if (!dealerSlug) {
+        try {
+          const tenant = await resolveTenant(req, urlObj);
+          dealerSlug = tenant?.slug || 'rxm';
+        } catch {
+          dealerSlug = 'rxm';
+        }
+      }
+
+      const source = String(parsedBody.source || 'showroom').trim().slice(0, 30);
+
+      // Calcul session_hash GDPR compliant: SHA256(IP + UserAgent + DataZilnică)
+      const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+      const clientIp = String(rawIp).split(',')[0].trim();
+      const userAgent = String(req.headers['user-agent'] || 'unknown').slice(0, 200);
+      const todayDate = new Date().toISOString().split('T')[0];
+
+      const sessionHash = crypto.createHash('sha256')
+        .update(`${clientIp}-${userAgent}-${todayDate}`)
+        .digest('hex');
+
+      try {
+        const result = await recordVehicleView(vehicleId, dealerSlug, source, sessionHash);
+        return sendJson(res, 200, {
+          success: true,
+          ...result,
+        });
+      } catch (err) {
+        return sendJson(res, 500, {
+          success: false,
+          error: 'Eroare la salvarea telemetriei',
+          message: err.message,
+        });
+      }
+    }
+
+    // 2. GET /api/dealers/:dealerSlug/analytics/top-viewed & /api/analytics/top-viewed — Agregare top mașini
+    const topViewedMatch = pathname.match(/^\/api\/dealers\/([^/]+)\/analytics\/top-viewed$/) || (pathname === '/api/analytics/top-viewed' ? [pathname, ''] : null);
+    if (req.method === 'GET' && topViewedMatch) {
+      let dealerSlug = topViewedMatch[1] ? decodeURIComponent(topViewedMatch[1]).trim().toLowerCase() : (urlObj.searchParams.get('dealer') || urlObj.searchParams.get('dealer_slug') || '');
+      if (!dealerSlug) {
+        try {
+          const tenant = await resolveTenant(req, urlObj);
+          dealerSlug = tenant?.slug || 'rxm';
+        } catch {
+          dealerSlug = 'rxm';
+        }
+      }
+
+      const timeframe = urlObj.searchParams.get('timeframe') || 'all';
+      const limit = Math.max(1, Math.min(100, parseInt(urlObj.searchParams.get('limit') || '10', 10)));
+
+      try {
+        const topCars = await getTopViewedVehicles(dealerSlug, timeframe, limit);
+        return sendJson(res, 200, {
+          success: true,
+          dealer: dealerSlug,
+          timeframe,
+          count: topCars.length,
+          topCars,
+        });
+      } catch (err) {
+        return sendJson(res, 500, {
+          success: false,
+          error: 'Eroare la interogarea clasamentului de vizualizări',
+          message: err.message,
         });
       }
     }

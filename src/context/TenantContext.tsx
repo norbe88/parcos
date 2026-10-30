@@ -119,6 +119,17 @@ function isLocalDevHost(hostname: string): boolean {
   return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.local');
 }
 
+export function getSubdomainDealer(hostname: string): string | null {
+  if (typeof hostname !== 'string') return null;
+  const host = bareHostname(hostname);
+  if (!host.endsWith('.parcos.ro')) return null;
+  const sub = host.slice(0, -'.parcos.ro'.length);
+  if (!sub || sub === 'app' || sub === 'admin' || sub === 'sandbox' || sub === 'staging' || sub === 'www') {
+    return null;
+  }
+  return sub;
+}
+
 function isPlatformConsoleHost(hostname: string): boolean {
   const host = bareHostname(hostname);
   return host === 'app.parcos.ro' || host === 'admin.parcos.ro';
@@ -137,6 +148,18 @@ function initialTenantBoot(): { tenantId: string; boot: TenantBootState } {
   if (hostBootKind(window.location.hostname) === 'rxm') return { tenantId: 'rxm', boot: 'ready' };
   try {
     const hostname = window.location.hostname.toLowerCase();
+    const subDealer = getSubdomainDealer(hostname);
+    if (subDealer) {
+      const k = subDealer.toLowerCase().trim();
+      const resolved = (k === 'mpi' || k === 'mpi_auto' || k === 'mpiauto') ? 'mpi_auto'
+        : (k === 'top' || k === 'top_auto' || k === 'topauto') ? 'top_auto'
+        : (k === 'rxm' || k === 'rxm_auto' || k === 'rxmautomobile') ? 'rxm'
+        : (k === 'autonord' || k === 'autonord_cluj') ? 'autonord_cluj'
+        : k;
+      if (resolved) {
+        return { tenantId: resolved, boot: 'ready' };
+      }
+    }
     if (isLocalDevHost(hostname) || isShowcaseEnvironment()) {
       const params = new URLSearchParams(window.location.search);
       const fromQuery = params.get('dealer') || params.get('dealer_slug') || params.get('tenant');
@@ -248,6 +271,12 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
           }
         } catch {}
         return 'rxm';
+      }
+
+      // Verificare subdomeniu dedicat de dealer (ex: mpiauto.parcos.ro)
+      const subDealer = getSubdomainDealer(hostname);
+      if (subDealer) {
+        return resolveTenantKey(subDealer);
       }
 
       // Host de producție dedicat: slug-ul vine din /api/tenant/resolve, nu din query sau cache local.

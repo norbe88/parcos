@@ -155,6 +155,32 @@ async function run() {
       }
     });
 
+    await it('Host: mpiauto.parcos.ro (Subdomeniu Demo) rezolvă mpi_auto (clean_white)', async (done) => {
+      try {
+        const res = await requestJson('/api/tenant/resolve', { Host: 'mpiauto.parcos.ro' });
+        assert.strictEqual(res.statusCode, 200);
+        assert.strictEqual(res.data.success, true);
+        assert.strictEqual(res.data.slug, 'mpi_auto');
+        assert.strictEqual(res.data.themePreset, 'clean_white');
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+
+    await it('Host: topauto.parcos.ro (Subdomeniu Demo) rezolvă top_auto (midnight_blue)', async (done) => {
+      try {
+        const res = await requestJson('/api/tenant/resolve', { Host: 'topauto.parcos.ro' });
+        assert.strictEqual(res.statusCode, 200);
+        assert.strictEqual(res.data.success, true);
+        assert.strictEqual(res.data.slug, 'top_auto');
+        assert.strictEqual(res.data.themePreset, 'midnight_blue');
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+
     await it('Host: parcos.ro FĂRĂ parametru ?dealer returnează corect platforma parcos', async (done) => {
       try {
         const res = await requestJson('/api/tenant/resolve', { Host: 'parcos.ro' });

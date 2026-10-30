@@ -8,7 +8,32 @@
 
 ---
 
-## 0. Sesiune: Dealer Onboarding & Parcos Landing Bypass
+## 0. Sesiune: Wave 2 — Vehicle Views Telemetry Backend
+
+> **Sesiune QA:** 2026-10-30 00:43:00  
+> **Target:** PostgreSQL `vehicle_views`, Contor Atomic `views_count`, Rute Ingestie/Agregare și Client Showroom Beacon  
+> **Suita Automată:** `scripts/qa_vehicle_views_telemetry_suite.cjs`  
+> **Status General:** 🟢 **PASS (8/8 — 100%)**
+
+| Tier | Domeniu Testat | Scenarii Executate | Status |
+| :--- | :--- | :--- | :--- |
+| **Tier 1** | **Database Layer** | `server/db.mjs`: Tabela `vehicle_views`, indexuri `dealer_slug`, `vehicle_id`, `(vehicle_id, session_hash, viewed_at DESC)`, `recordVehicleView` cu fereastră de debounce de 30 minute, contor atomic `views_count` | **PASS (100%)** |
+| **Tier 2** | **Backend Telemetry API** | `server/api.mjs`: `POST /api/telemetry/vehicle-view` (suport dual JSON & `sendBeacon` text/plain), calcul `session_hash` SHA-256 (IP + UA + Salt zilnic, zero PII în clar), `GET /api/dealers/:slug/analytics/top-viewed` agregare orizonturi temporale | **PASS (100%)** |
+| **Tier 3** | **Showroom Frontend & Types** | `src/services/telemetryService.ts` (`navigator.sendBeacon` cu fallback `fetch keepalive: true`, `sessionStorage` guard), `src/components/modals/VehicleDetailModal.tsx` montare pe `selectedCar.id`, excludere `viewMode === 'admin'`, tip `viewsCount?: number` pe `VehicleItem` | **PASS (100%)** |
+
+### Test Execution Trace (`qa_vehicle_views_telemetry_suite.cjs`)
+- [ PASS ] Funcțiile repository `recordVehicleView` și `getTopViewedVehicles` sunt exportate din `server/db.mjs`.
+- [ PASS ] Validare parametri de intrare: respinge apelurile fără `vehicleId` sau `sessionHash`.
+- [ PASS ] Generarea `session_hash` SHA-256 este deterministă, izolată și conformă GDPR.
+- [ PASS ] Tipul `VehicleItem` din `src/db/types.ts` include câmpul `viewsCount?: number`.
+- [ PASS ] `telemetryService.ts` implementează `sendBeacon`, `sessionStorage` guard și fallback `fetch`.
+- [ PASS ] `VehicleDetailModal.tsx` integrează `sendVehicleViewBeacon` exclusiv pentru vizitatori (non-admin).
+- [ PASS ] `server/api.mjs` conține rutele `POST /api/telemetry/vehicle-view` și `GET top-viewed`.
+- [ PASS ] Invariante holding respectate (21% TVA, Cont de Garanție, Netcup VPS `152.53.158.65`).
+
+---
+
+## 1. Sesiune anterioară: Dealer Onboarding & Parcos Landing Bypass
 
 | Tier | Domeniu Testat | Scenarii Executate | Status |
 | :--- | :--- | :--- | :--- |
@@ -162,3 +187,49 @@
 1. **Sanitizare Linkuri Web Externe pe OLX:** Adăugat regex de curățare a URL-urilor `http://` și `www.` în `sanitizeForOlx` pentru conformitate strictă cu politicile anti-spam OLX.
 2. **Extragere OLX ID Numeric cu cratimă:** Îmbunătățit regex-ul din `extractOlxId` (`src/utils/helpers.ts`) pentru a captura ID-urile numerice precedate de cratimă (ex: `-9182371.html`).
 
+
+### Test Execution Trace (QA Agentic Team — Wave 2 Deep Audit)
+- [ PASS ] [WorkyOne] telemetryService.ts API Surface — Toate cele 3 funcții cheie sunt exportate — 2026-10-29 22:48:43Z
+- [ PASS ] [WorkyTwo] Traffic Source Detection Matrix — QR window sticker, UTMs și Referrers acoperite — 2026-10-29 22:48:43Z
+- [ PASS ] [WorkyTwo] Session Storage Guard — Deduplicare tab client activă pentru prevenire spam pe re-render — 2026-10-29 22:48:43Z
+- [ PASS ] [WorkyOne] VehicleDetailModal Telemetry Seam — Invocare automată pe montare modal + filtrare sesiune admin — 2026-10-29 22:48:43Z
+- [ PASS ] [WorkyThree] PostgreSQL Schema & Composite Indexes — Tabelă time-series + contor atomic configurate — 2026-10-29 22:48:43Z
+- [ PASS ] [WorkyTwo] recordVehicleView Parameter Guard — Validare de frontieră sigură împotriva datelor corupte — 2026-10-29 22:48:43Z
+- [ PASS ] [WorkyTwo] getTopViewedVehicles Multi-Horizon Routing — Suport all, 7d, month, today fără excepții — 2026-10-29 22:48:43Z
+- [ PASS ] [WorkyThree] server/api.mjs Micro-API Dispatch — Ingestie debounced și endpoint de agregare active — 2026-10-29 22:48:43Z
+- [ PASS ] [WorkyFour] GDPR Anonymization Architecture — Zero IP-uri stocate în clar — conformitate strictă cu standardul holding — 2026-10-29 22:48:43Z
+- [ PASS ] [WorkyFour] Holding Core Compliance — 21% TVA, Cont de Garanție și Netcup VPS 152.53.158.65 validate — 2026-10-29 22:48:43Z
+- [ PASS ] [WorkyOne] Vehicle Model & SWR Synchronization — Interfață TypeScript aliniată cu PostgreSQL ORM mapping — 2026-10-29 22:48:43Z
+
+### Test Execution Trace (QA Agentic Team — Wave 3 Deep Audit)
+- [ PASS ] [WorkyOne] TopViewedVehiclesWidget Surface & API Binding — Componentă activă și conectată la serviciul de telemetrie — 2026-10-30 02:01:53Z
+- [ PASS ] [WorkyTwo] Legacy Mock Cleanse — Eliminare definitivă mock TikTok views din DealerAnalyticsDashboard — 2026-10-30 02:01:53Z
+- [ PASS ] [WorkyTwo] Timeframe Synchronization Engine — Sincronizare reactivă pe orizonturile today, 7d, 30d, all — 2026-10-30 02:01:53Z
+- [ PASS ] [WorkyThree] View-to-Lead Metric Formula — Rată de conversie calculată per mașină și agregată pe showroom — 2026-10-30 02:01:53Z
+- [ PASS ] [WorkyThree] Overpriced Stock Risk Engine — Detecție automată stoc blocat cu vizualizări multe și conversie zero — 2026-10-30 02:01:53Z
+- [ PASS ] [WorkyOne] DealPriceModal 1-Click Bridge — Deschidere directă a negociatorului de preț la apăsarea alertei — 2026-10-30 02:01:53Z
+- [ PASS ] [WorkyFour] Dual-Theme WCAG AA Compliance — Contrast ridicat pe font Plus Jakarta Sans și tokeni adaptivi — 2026-10-30 02:01:53Z
+- [ PASS ] [WorkyFour] Holding Core Compliance — 21% TVA, Cont de Garanție și Netcup VPS 152.53.158.65 validate — 2026-10-30 02:01:53Z
+
+### Test Execution Trace (QA Agentic Team — Wave 2 Deep Audit)
+- [ PASS ] [WorkyOne] telemetryService.ts API Surface — Toate cele 3 funcții cheie sunt exportate — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyTwo] Traffic Source Detection Matrix — QR window sticker, UTMs și Referrers acoperite — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyTwo] Session Storage Guard — Deduplicare tab client activă pentru prevenire spam pe re-render — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyOne] VehicleDetailModal Telemetry Seam — Invocare automată pe montare modal + filtrare sesiune admin — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyThree] PostgreSQL Schema & Composite Indexes — Tabelă time-series + contor atomic configurate — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyTwo] recordVehicleView Parameter Guard — Validare de frontieră sigură împotriva datelor corupte — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyTwo] getTopViewedVehicles Multi-Horizon Routing — Suport all, 7d, month, today fără excepții — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyThree] server/api.mjs Micro-API Dispatch — Ingestie debounced și endpoint de agregare active — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyFour] GDPR Anonymization Architecture — Zero IP-uri stocate în clar — conformitate strictă cu standardul holding — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyFour] Holding Core Compliance — 21% TVA, Cont de Garanție și Netcup VPS 152.53.158.65 validate — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyOne] Vehicle Model & SWR Synchronization — Interfață TypeScript aliniată cu PostgreSQL ORM mapping — 2026-10-30 02:01:58Z
+
+### Test Execution Trace (QA Agentic Team — Wave 3 Deep Audit)
+- [ PASS ] [WorkyOne] TopViewedVehiclesWidget Surface & API Binding — Componentă activă și conectată la serviciul de telemetrie — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyTwo] Legacy Mock Cleanse — Eliminare definitivă mock TikTok views din DealerAnalyticsDashboard — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyTwo] Timeframe Synchronization Engine — Sincronizare reactivă pe orizonturile today, 7d, 30d, all — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyThree] View-to-Lead Metric Formula — Rată de conversie calculată per mașină și agregată pe showroom — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyThree] Overpriced Stock Risk Engine — Detecție automată stoc blocat cu vizualizări multe și conversie zero — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyOne] DealPriceModal 1-Click Bridge — Deschidere directă a negociatorului de preț la apăsarea alertei — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyFour] Dual-Theme WCAG AA Compliance — Contrast ridicat pe font Plus Jakarta Sans și tokeni adaptivi — 2026-10-30 02:01:58Z
+- [ PASS ] [WorkyFour] Holding Core Compliance — 21% TVA, Cont de Garanție și Netcup VPS 152.53.158.65 validate — 2026-10-30 02:01:58Z

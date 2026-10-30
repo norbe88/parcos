@@ -25,6 +25,7 @@ export interface VehicleItem {
   videoUrl?: string;
   tiktokUrl?: string;
   tiktokViews?: string;
+  viewsCount?: number; // Contor atomic vizualizări reale showroom (Wave 2 Telemetry)
   isHeroPinned?: boolean;
   heroOrder?: number;
   // ── Ofertă Specială / Deal of the Week ──────────────────────────────────────

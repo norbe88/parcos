@@ -123,6 +123,7 @@ export function rowToVehicleItem(row: Record<string, any>): VehicleItem {
     features,
     equipmentSheetText: row.equipment_sheet_text,
     description: row.description || '',
+    viewsCount: typeof row.views_count === 'number' ? row.views_count : (Number(row.views_count) || rawData.viewsCount || 0),
 
     // Câmpuri extrase din raw_data JSONB:
     auditLog: rawData.auditLog,
@@ -183,6 +184,7 @@ export function vehicleItemToRow(v: VehicleItem, dealerSlug: string = 'rxm'): Re
     video_url: (v.videoUrl && !v.videoUrl.includes('ysz5S6PUM-U')) ? v.videoUrl : null,
     tiktok_url: (v.tiktokUrl && isTikTokVideoUrl(v.tiktokUrl)) ? v.tiktokUrl : null,
     tiktok_views: (v.tiktokUrl && isTikTokVideoUrl(v.tiktokUrl)) ? (v.tiktokViews || null) : null,
+    views_count: v.viewsCount || 0,
     is_deal_of_week: v.isDealOfWeek ?? false,
     is_pinned_to_top: v.isPinnedToTop ?? false,
     old_price_eur: v.oldPriceEur || null,
