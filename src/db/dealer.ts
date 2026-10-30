@@ -159,7 +159,7 @@ export const DEALER_MPI_AUTO: DealerProfile = {
   generalContactName: "Consilier Vânzări MPI",
   email: "contact@mpiauto.ro",
   tiktokHandle: "@mpiautocluj",
-  tiktokUrl: "https://www.tiktok.com",
+  tiktokUrl: "https://www.tiktok.com/@mpiautocluj",
   facebookUrl: "https://www.facebook.com/MPIAUTOCLUJ",
   instagramUrl: "https://www.instagram.com/mpiautocluj",
   address: "Centura Apahida, jud. Cluj",
@@ -172,17 +172,21 @@ export const DEALER_MPI_AUTO: DealerProfile = {
   domain: "mpiauto.ro",
   tier: "pro",
   status: "active",
-  maxVehiclesQuota: 50,
+  maxVehiclesQuota: 100,
   features: {
     ...DEFAULT_TENANT_FEATURES,
-    tikTokStudio: false,
+    tikTokStudio: true,
     autolicitPush: false,
     reconTracker: true,       // Activ pentru gestiune mecanică & defecte MPI AUTO
     googleDriveVault: true,   // Activ pentru arhivare bonuri & documente optimizate
   },
   landingConfig: {
     layoutVariant: 'compact_inventory',
-    hero: { type: 'spotlight', headline: 'MPI Auto Cluj — Stoc Rotit Săptămânal' },
+    hero: { 
+      type: 'spotlight', 
+      headline: 'Rate Doar cu Buletinul',
+      subheadline: 'Livrare Gratuită la Domiciliu în Toată România'
+    },
     visibleSections: {
       heroCinematic: true,
       vehicleCatalog: true,
@@ -192,9 +196,9 @@ export const DEALER_MPI_AUTO: DealerProfile = {
       customOrderSection: false,
       googleReviewsSection: false,
     },
-    customBadges: ['Garanție 12 Luni', 'Rate BT / TBI'],
+    customBadges: ['Rate Doar cu Buletinul', 'Livrare Gratuită în Toată Țara', 'Garanție MPI Car Protect 12-36 Luni', 'Revizie Ulei + Filtre Cadou', 'Numere Roșii 30 Zile'],
   },
-  logoUrl: "/images/mpi-logo.svg"
+  logoUrl: "/images/mpi-logo.png"
 };
 
 export const DEALER_TOP_AUTO: DealerProfile = {

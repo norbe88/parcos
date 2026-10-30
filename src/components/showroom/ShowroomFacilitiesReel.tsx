@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Shield, Calculator, Car, Truck, Play, 
-  ChevronUp, ChevronDown 
+  ChevronUp, ChevronDown, CheckCircle2 
 } from 'lucide-react';
+import { DealerProfile } from '../../db/types';
 
 export const FACILITY_ITEMS = [
   {
@@ -10,7 +11,7 @@ export const FACILITY_ITEMS = [
     icon: Shield,
     iconColor: 'text-emerald-400',
     title: 'Garanție Scrisă până la 36 Luni',
-    actionHref: '#why-us'
+    actionHref: '#garantie'
   },
   {
     id: 'rate',
@@ -38,7 +39,7 @@ export const FACILITY_ITEMS = [
     icon: Truck,
     iconColor: 'text-amber-400',
     title: 'Livrare pe Platformă în Toată România',
-    actionHref: '#comanda'
+    actionHref: '#catalog'
   },
   {
     id: 'tiktok',
@@ -49,13 +50,68 @@ export const FACILITY_ITEMS = [
   }
 ];
 
+export const MPI_FACILITY_ITEMS = [
+  {
+    id: 'buletin',
+    icon: Calculator,
+    iconColor: 'text-amber-400',
+    title: 'Rate Doar cu Buletinul (Fără Avans, Diaspora & Birou)',
+    actionHref: '#finantare'
+  },
+  {
+    id: 'livrare',
+    icon: Truck,
+    iconColor: 'text-amber-400',
+    title: 'Livrare Gratuită la Domiciliu în Toată România',
+    actionHref: '#catalog'
+  },
+  {
+    id: 'garantie',
+    icon: Shield,
+    iconColor: 'text-emerald-400',
+    title: 'Garanție Extinsă MPI Car Protect (12 - 36 Luni)',
+    actionHref: '#garantie'
+  },
+  {
+    id: 'revizie',
+    icon: CheckCircle2,
+    iconColor: 'text-emerald-400',
+    title: 'Revizie Gratuită (Ulei + Filtre) Cadou la Achiziție',
+    actionHref: '#catalog'
+  },
+  {
+    id: 'numere',
+    icon: Car,
+    iconColor: 'text-amber-400',
+    title: 'Numere Roșii 30 Zile + Asigurare Incluse pe Loc',
+    actionHref: '#catalog'
+  },
+  {
+    id: 'buyback',
+    icon: Car,
+    iconColor: 'text-amber-400',
+    title: 'Buy-Back Rapid (Vino cu mașina veche, pleci cu noua mașină)',
+    actionHref: '#buyback'
+  },
+  {
+    id: 'tiktok',
+    icon: Play,
+    iconColor: 'text-[#fe2c55] fill-[#fe2c55]',
+    title: 'Prezentări Video HD Transparente pe TikTok @mpiautocluj',
+    isPopoutTrigger: true
+  }
+];
+
 interface ShowroomFacilitiesReelProps {
   onTriggerTikTokModal: () => void;
+  dealer?: DealerProfile;
 }
 
 export const ShowroomFacilitiesReel: React.FC<ShowroomFacilitiesReelProps> = ({
   onTriggerTikTokModal,
+  dealer,
 }) => {
+  const facilityItems = dealer?.slug === 'mpi_auto' ? MPI_FACILITY_ITEMS : FACILITY_ITEMS;
   const [activeFacilityIndex, setActiveFacilityIndex] = useState<number>(0);
   const [isInitialSpinning, setIsInitialSpinning] = useState<boolean>(true);
   const [hasShimmerGlow, setHasShimmerGlow] = useState<boolean>(true);
@@ -65,17 +121,17 @@ export const ShowroomFacilitiesReel: React.FC<ShowroomFacilitiesReelProps> = ({
   const resetAutoTimer = () => {
     if (autoTimerRef.current) clearInterval(autoTimerRef.current);
     autoTimerRef.current = setInterval(() => {
-      setActiveFacilityIndex(prev => (prev + 1) % FACILITY_ITEMS.length);
+      setActiveFacilityIndex(prev => (prev + 1) % facilityItems.length);
     }, 3500);
   };
 
   const handleNextFacility = () => {
-    setActiveFacilityIndex(prev => (prev + 1) % FACILITY_ITEMS.length);
+    setActiveFacilityIndex(prev => (prev + 1) % facilityItems.length);
     resetAutoTimer();
   };
 
   const handlePrevFacility = () => {
-    setActiveFacilityIndex(prev => (prev - 1 + FACILITY_ITEMS.length) % FACILITY_ITEMS.length);
+    setActiveFacilityIndex(prev => (prev - 1 + facilityItems.length) % facilityItems.length);
     resetAutoTimer();
   };
 
@@ -84,8 +140,8 @@ export const ShowroomFacilitiesReel: React.FC<ShowroomFacilitiesReelProps> = ({
     let step = 0;
     const initialSpin = setInterval(() => {
       step++;
-      setActiveFacilityIndex(step % FACILITY_ITEMS.length);
-      if (step >= FACILITY_ITEMS.length) {
+      setActiveFacilityIndex(step % facilityItems.length);
+      if (step >= facilityItems.length) {
         clearInterval(initialSpin);
         setActiveFacilityIndex(0);
         setIsInitialSpinning(false);
@@ -104,7 +160,7 @@ export const ShowroomFacilitiesReel: React.FC<ShowroomFacilitiesReelProps> = ({
       clearInterval(initialSpin);
       if (autoTimerRef.current) clearInterval(autoTimerRef.current);
     };
-  }, []);
+  }, [facilityItems.length]);
 
   return (
     <div className="lg:hidden mt-3 mb-2">
@@ -127,7 +183,7 @@ export const ShowroomFacilitiesReel: React.FC<ShowroomFacilitiesReelProps> = ({
           }`}
           style={{ transform: `translateY(-${activeFacilityIndex * 44}px)` }}
         >
-          {FACILITY_ITEMS.map((item) => {
+          {facilityItems.map((item) => {
             const Icon = item.icon;
             return (
               <div 
@@ -184,7 +240,7 @@ export const ShowroomFacilitiesReel: React.FC<ShowroomFacilitiesReelProps> = ({
             className="font-mono text-[10.5px] font-bold text-amber-400 min-w-[24px] text-center hover:text-amber-300 transition-colors cursor-pointer touch-manipulation"
             title="Apasă pentru următoarea facilitate"
           >
-            {activeFacilityIndex + 1}/{FACILITY_ITEMS.length}
+            {activeFacilityIndex + 1}/{facilityItems.length}
           </button>
 
           <button

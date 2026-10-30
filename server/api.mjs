@@ -523,8 +523,8 @@ export const DEFAULT_DEALER_PROFILES = {
     county: 'Cluj',
     vat_number: 'RO43460100',
     is_active: true,
-    logo_url: '/images/mpi-logo.svg',
-    logoUrl: '/images/mpi-logo.svg',
+    logo_url: '/images/mpi-logo.png',
+    logoUrl: '/images/mpi-logo.png',
     features: { mailHub: false },
     config: {
       themePreset: 'clean_white',

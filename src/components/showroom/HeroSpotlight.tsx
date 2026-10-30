@@ -56,6 +56,8 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
 
   const currentSpotlightCar = tiktokFeaturedCars[spotlightCarIndex % tiktokFeaturedCars.length] || cars[0];
   const currentSpotlightTt = parseTikTokUrl(currentSpotlightCar?.tiktokUrl);
+  const isMpi = dealer.slug === 'mpi_auto';
+  const effectiveTikTokUrl = dealer.tiktokUrl || (dealer.tiktokHandle ? `https://www.tiktok.com/${dealer.tiktokHandle}` : 'https://www.tiktok.com/@mpiautocluj');
 
   return (
     <section className="relative overflow-hidden pt-8 sm:pt-14 pb-16 px-4 sm:px-8 border-b border-white/[0.08]">
@@ -84,11 +86,11 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
           >
             <span className="flex items-center gap-1.5 text-zinc-200 font-medium tracking-tight">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] shrink-0" />
-              Autovehicule Rulate Verificate
+              {isMpi ? 'Rate doar cu buletinul (Fără avans)' : 'Autovehicule Rulate Verificate'}
             </span>
             <span className="w-px h-3 bg-white/15 shrink-0" />
             <span className="text-zinc-400 font-normal group-hover:text-zinc-300 transition-colors">
-              Garanție până la 36 Luni
+              {isMpi ? 'Livrare gratuită în toată România' : 'Garanție până la 36 Luni'}
             </span>
           </a>
           
@@ -97,9 +99,11 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
               isRevealed ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-[0.97]'
             }`}
           >
-            <span className="block">Mașina potrivită nu se vinde.</span>
+            <span className="block">
+              {isMpi ? 'Rate doar cu buletinul.' : (dealer.landingConfig?.hero?.headline || 'Mașina potrivită nu se vinde.')}
+            </span>
             <span className="block italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-amber-300 pr-2 pb-3 sm:pb-4 -mb-3 sm:-mb-4 mt-1 sm:mt-1.5">
-              Se alege cu încredere.
+              {isMpi ? 'Livrare gratuită la ușa ta.' : (dealer.landingConfig?.hero?.subheadline || 'Se alege cu încredere.')}
             </span>
           </h1>
           
@@ -108,7 +112,10 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
               isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
           >
-            La {dealer.name} eliminăm promisiunile grăbite. Îți prezentăm fiecare mașină transparent în format video pe TikTok, cu rulaj garantat pe factură fiscală, consultanță gratuită pentru înmatriculare și garanție scrisă până la 36 luni în {dealer.address || 'România'}.
+            {isMpi
+              ? `La MPI Auto Cluj găsești peste ${cars.length || '75'} de autovehicule rulate verificate, cu istoric garantat și rulaj certificat pe factură. Finanțare online rapidă cu 0% avans inclusiv pentru venituri din diaspora sau istoric în Biroul de Credit, garanție extinsă MPI Car Protect până la 36 luni și livrare gratuită pe platformă direct acasă.`
+              : `La ${dealer.name} eliminăm promisiunile grăbite. Îți prezentăm fiecare mașină transparent în format video pe TikTok, cu rulaj garantat pe factură fiscală, consultanță gratuită pentru înmatriculare și garanție scrisă până la 36 luni în ${dealer.address || 'România'}.`
+            }
           </p>
 
           {/* Subtitle mobil — compact, direct pe stoc */}
@@ -117,11 +124,14 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
               isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
           >
-            {dealer.showroomAddress || dealer.address || 'Parc auto verificat'} · Km garantat pe factură · Garanție scrisă
+            {isMpi 
+              ? `${dealer.showroomAddress || 'Centura Apahida, Cluj'} · Rate doar cu buletinul · Livrare gratuită în toată țara`
+              : `${dealer.showroomAddress || dealer.address || 'Parc auto verificat'} · Km garantat pe factură · Garanție scrisă`
+            }
           </p>
 
           {/* 🎰 Slot Machine Turner — Facilități Showroom */}
-          <ShowroomFacilitiesReel onTriggerTikTokModal={() => setIsMobileTikTokModalOpen(true)} />
+          <ShowroomFacilitiesReel dealer={dealer} onTriggerTikTokModal={() => setIsMobileTikTokModalOpen(true)} />
 
           {/* Butoane Acțiune Primară */}
           <div 
@@ -149,22 +159,33 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
               <span>TikTok Video</span>
             </button>
 
-            <a 
-              href="#comanda"
-              className="hidden lg:inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/15 text-white font-medium h-12 px-5 rounded-xl transition-all text-sm touch-manipulation active:scale-[0.98]"
-            >
-              <Truck className="w-4 h-4 text-amber-400" />
-              <span>Mașini la Comandă</span>
-            </a>
+            {/* Buton secundar desktop */}
+            {dealer.landingConfig?.visibleSections?.customOrderSection === false ? (
+              <a 
+                href="#finantare"
+                className="hidden lg:inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/15 text-white font-medium h-12 px-5 rounded-xl transition-all text-sm touch-manipulation active:scale-[0.98]"
+              >
+                <Calculator className="w-4 h-4 text-amber-400" />
+                <span>Rate cu Buletinul</span>
+              </a>
+            ) : (
+              <a 
+                href="#comanda"
+                className="hidden lg:inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/15 text-white font-medium h-12 px-5 rounded-xl transition-all text-sm touch-manipulation active:scale-[0.98]"
+              >
+                <Truck className="w-4 h-4 text-amber-400" />
+                <span>Mașini la Comandă</span>
+              </a>
+            )}
 
             <a 
-              href={dealer.tiktokUrl} 
+              href={effectiveTikTokUrl} 
               target="_blank" 
               rel="noopener noreferrer"
               className="hidden lg:inline-flex items-center justify-center gap-2 px-4 h-12 rounded-xl bg-black/40 hover:bg-[#fe2c55]/20 border border-white/10 hover:border-[#fe2c55]/40 text-zinc-300 hover:text-white transition-all text-sm group touch-manipulation active:scale-[0.98]"
             >
               <Play className="w-3.5 h-3.5 fill-[#fe2c55] text-[#fe2c55]" />
-              <span className="text-xs font-semibold">Canal Oficial TikTok</span>
+              <span className="text-xs font-semibold">{isMpi ? 'TikTok @mpiautocluj' : 'Canal Oficial TikTok'}</span>
             </a>
           </div>
 
@@ -176,26 +197,26 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
           >
             <div className="p-3 rounded-xl bg-[#121215]/80 border border-white/[0.06]">
               <Shield className="w-5 h-5 text-amber-400 mb-1.5" />
-              <div className="font-bold text-white text-xs">Garanție până la 36 Luni</div>
-              <p className="text-[10px] text-zinc-400 mt-0.5">12L inclus + extindere</p>
+              <div className="font-bold text-white text-xs">{isMpi ? 'MPI Car Protect' : 'Garanție până la 36 Luni'}</div>
+              <p className="text-[10px] text-zinc-400 mt-0.5">{isMpi ? '12-36L · Orice service RAR' : '12L inclus + extindere'}</p>
             </div>
 
             <div className="p-3 rounded-xl bg-[#121215]/80 border border-white/[0.06]">
               <Calculator className="w-5 h-5 text-amber-400 mb-1.5" />
-              <div className="font-bold text-white text-xs">Finanțare Rapidă</div>
-              <p className="text-[10px] text-zinc-400 mt-0.5">De la 7.9% prin TBI / BT</p>
+              <div className="font-bold text-white text-xs">{isMpi ? 'Rate cu Buletinul' : 'Finanțare Rapidă'}</div>
+              <p className="text-[10px] text-zinc-400 mt-0.5">{isMpi ? 'Fără avans · Diaspora & Birou' : 'De la 7.9% prin TBI / BT'}</p>
+            </div>
+
+            <div className="p-3 rounded-xl bg-[#121215]/80 border border-white/[0.06]">
+              <Truck className="w-5 h-5 text-amber-400 mb-1.5" />
+              <div className="font-bold text-white text-xs">{isMpi ? 'Livrare Gratuită' : 'Km Certificați'}</div>
+              <p className="text-[10px] text-zinc-400 mt-0.5">{isMpi ? 'Platformă proprie în toată țara' : 'Pe factură fiscală'}</p>
             </div>
 
             <div className="p-3 rounded-xl bg-[#121215]/80 border border-white/[0.06]">
               <CheckCircle2 className="w-5 h-5 text-emerald-400 mb-1.5" />
-              <div className="font-bold text-white text-xs">Km Certificați</div>
-              <p className="text-[10px] text-zinc-400 mt-0.5">Pe factură fiscală</p>
-            </div>
-
-            <div className="p-3 rounded-xl bg-[#121215]/80 border border-white/[0.06]">
-              <Car className="w-5 h-5 text-amber-400 mb-1.5" />
-              <div className="font-bold text-white text-xs">Test Drive {dealer.serviceLocation || 'Showroom'}</div>
-              <p className="text-[10px] text-zinc-400 mt-0.5 truncate">{dealer.showroomAddress || dealer.address || 'Showroom Auto'}</p>
+              <div className="font-bold text-white text-xs">{isMpi ? 'Revizie + Numere' : `Test Drive ${dealer.serviceLocation || 'Showroom'}`}</div>
+              <p className="text-[10px] text-zinc-400 mt-0.5 truncate">{isMpi ? 'Ulei, filtre și numere 30z' : (dealer.showroomAddress || dealer.address || 'Showroom Auto')}</p>
             </div>
           </div>
         </div>

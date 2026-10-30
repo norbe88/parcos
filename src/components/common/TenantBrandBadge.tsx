@@ -70,23 +70,44 @@ export const TenantBrandBadge: React.FC<TenantBrandBadgeProps> = ({
 
   // 2. Chiriaș B2B cu Logo URL încărcat explicit
   if (dealer.logoUrl) {
+    const isMpi = dealer.slug === 'mpi_auto';
+    const effectiveLogo = (isMpi && variant === 'footer') 
+      ? '/images/mpi-logo-white.png' 
+      : dealer.logoUrl;
+
+    if (variant === 'footer') {
+      return (
+        <div className={`flex items-center gap-3 select-none ${className}`} onClick={onClick}>
+          <img
+            src={effectiveLogo}
+            alt={dealer.name}
+            className="h-10 sm:h-12 w-auto max-w-[190px] object-contain shrink-0 drop-shadow-md"
+          />
+          {isMpi && (
+            <div className="flex flex-col">
+              <span className="text-sm sm:text-base font-black text-white tracking-tight leading-tight">MPI AUTO CLUJ</span>
+              <p className="text-[10px] text-amber-400 font-medium uppercase tracking-wider">Centura Apahida • Showroom Rulate</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+
     return (
-      <div className={`flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0 group ${className}`} onClick={onClick}>
+      <div className={`flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0 group touch-manipulation ${className}`} onClick={onClick}>
         <img
-          src={dealer.logoUrl}
+          src={effectiveLogo}
           alt={dealer.name}
-          className="h-8 sm:h-10 w-auto max-w-[170px] object-contain shrink-0 group-hover:scale-105 transition-transform"
+          className="h-9 sm:h-11 w-auto max-w-[170px] object-contain shrink-0 group-hover:scale-105 transition-transform"
         />
-        {variant !== 'footer' && (
-          <div className="flex flex-col min-w-0">
-            <span className="text-sm sm:text-base font-black tracking-tight text-white leading-tight truncate">
-              {dealer.slug === 'mpi_auto' ? 'MPI AUTO' : dealer.name}
-            </span>
-            <span className="text-[8px] sm:text-[9.5px] text-amber-400 font-semibold uppercase tracking-wider truncate">
-              {dealer.showroomAddress || dealer.address || 'Autovehicule Rulate Verificate'}
-            </span>
-          </div>
-        )}
+        <div className="flex flex-col min-w-0">
+          <span className="text-sm sm:text-base font-black tracking-tight text-zinc-900 dark:text-white leading-tight truncate">
+            {isMpi ? 'MPI AUTO CLUJ' : dealer.name}
+          </span>
+          <span className="text-[8px] sm:text-[9.5px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider truncate">
+            {isMpi ? 'Centura Apahida • Showroom Rulate' : (dealer.showroomAddress || dealer.address || 'Autovehicule Rulate Verificate')}
+          </span>
+        </div>
       </div>
     );
   }

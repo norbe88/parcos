@@ -100,6 +100,20 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
     setVisibleCount(getInitialBatch());
   }, [stockTab, selectedBrand, selectedFuel, selectedTransmission, maxPrice]);
 
+  // ⚡ Oferte speciale curatoriate (max 6 autovehicule: Oferta Săptămânii + Fixate + cele mai mari reduceri)
+  const specialOffers = useMemo(() => {
+    return cars
+      .filter(c => (c.isDealOfWeek || c.isPinnedToTop || !!(c.oldPriceEur && c.oldPriceEur > c.priceEur)) && c.status !== 'sold' && c.status !== 'preparing')
+      .sort((a, b) => {
+        const discountA = (a.oldPriceEur && a.oldPriceEur > a.priceEur) ? (a.oldPriceEur - a.priceEur) : 0;
+        const discountB = (b.oldPriceEur && b.oldPriceEur > b.priceEur) ? (b.oldPriceEur - b.priceEur) : 0;
+        const scoreA = (a.isDealOfWeek ? 10000 : 0) + (a.isPinnedToTop ? 5000 : 0) + discountA;
+        const scoreB = (b.isDealOfWeek ? 10000 : 0) + (b.isPinnedToTop ? 5000 : 0) + discountB;
+        return scoreB - scoreA;
+      })
+      .slice(0, 6);
+  }, [cars]);
+
   return (
     <section id="catalog" className="max-w-7xl mx-auto px-4 sm:px-8 py-12 scroll-mt-20 sm:scroll-mt-24">
       
@@ -116,9 +130,10 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
 
       {/* ⚡ CARUSEL OFERTE SPECIALE — auto-hide dacă nicio mașină promoțională */}
       <SpecialOffersCarousel
-        cars={cars.filter(c => (c.isDealOfWeek || c.isPinnedToTop || !!(c.oldPriceEur && c.oldPriceEur > c.priceEur)) && c.status !== 'sold' && c.status !== 'preparing')}
+        cars={specialOffers}
         onSelectCar={onSelectCar}
         dealer={dealer}
+        maxItems={6}
       />
       
       {/* 🏷️ TAB-URI STOC: DISPONIBILE vs REZERVATE vs VÂNDUTE (Zero Scroll Orizontal) */}

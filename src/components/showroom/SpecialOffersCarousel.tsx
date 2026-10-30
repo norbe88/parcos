@@ -7,23 +7,29 @@ export interface SpecialOffersCarouselProps {
   cars: VehicleItem[];
   onSelectCar: (car: VehicleItem, tab?: 'specs' | 'finance' | 'video' | 'testdrive') => void;
   dealer?: typeof SEED_DEALER;
+  maxItems?: number;
 }
 
 export const SpecialOffersCarousel: React.FC<SpecialOffersCarouselProps> = ({
   cars,
   onSelectCar,
-  dealer = SEED_DEALER
+  dealer = SEED_DEALER,
+  maxItems = 6
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Sortare prioritară: Oferta Săptămânii (#1) > Fixate > Reduceri
+  // Sortare prioritară: Oferta Săptămânii (#1) > Fixate > Reduceri, limitat la maxItems (default 6)
   const sortedOffers = useMemo(() => {
-    return [...cars].sort((a, b) => {
-      const scoreA = (a.isDealOfWeek ? 2 : 0) + (a.isPinnedToTop ? 1 : 0);
-      const scoreB = (b.isDealOfWeek ? 2 : 0) + (b.isPinnedToTop ? 1 : 0);
-      return scoreB - scoreA;
-    });
-  }, [cars]);
+    return [...cars]
+      .sort((a, b) => {
+        const discountA = (a.oldPriceEur && a.oldPriceEur > a.priceEur) ? (a.oldPriceEur - a.priceEur) : 0;
+        const discountB = (b.oldPriceEur && b.oldPriceEur > b.priceEur) ? (b.oldPriceEur - b.priceEur) : 0;
+        const scoreA = (a.isDealOfWeek ? 10000 : 0) + (a.isPinnedToTop ? 5000 : 0) + discountA;
+        const scoreB = (b.isDealOfWeek ? 10000 : 0) + (b.isPinnedToTop ? 5000 : 0) + discountB;
+        return scoreB - scoreA;
+      })
+      .slice(0, maxItems);
+  }, [cars, maxItems]);
 
   // Auto-hide: dacă nu există nicio mașină promoțională activă, returnează null
   if (cars.length === 0) {
@@ -53,7 +59,7 @@ export const SpecialOffersCarousel: React.FC<SpecialOffersCarouselProps> = ({
             <span>⚡ Oferte Speciale & Reduceri</span>
           </h3>
           <span className="text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold font-mono">
-            {cars.length} {cars.length === 1 ? 'mașină' : 'mașini'}
+            {sortedOffers.length} {sortedOffers.length === 1 ? 'mașină' : 'oferte selectate'}
           </span>
         </div>
 
