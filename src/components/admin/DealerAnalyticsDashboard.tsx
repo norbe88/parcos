@@ -5,7 +5,8 @@ import {
   Clock, ArrowUpRight, CheckCircle2, AlertTriangle, Layers, Car,
   Filter, RotateCcw, CalendarDays, RefreshCw, ChevronDown, Check,
   Flame, HelpCircle, Info, SlidersHorizontal, ArrowDownUp,
-  Percent, ChevronRight, ExternalLink, ShieldAlert, Tag, Star
+  Percent, ChevronRight, ExternalLink, ShieldAlert, Tag, Star,
+  Globe
 } from 'lucide-react';
 import { VehicleItem, MarketPriceEvaluation, DealerLeadItem } from '../../db/types';
 import { 
@@ -20,13 +21,15 @@ import { evaluateMarketPrice } from '../../utils/marketPriceEngine';
 import { DealPriceModal, DealPricingData } from './DealPriceModal';
 import { SalesMatrixReportView } from './analytics/SalesMatrixReportView';
 import { TopViewedVehiclesWidget } from './analytics/TopViewedVehiclesWidget';
+import { AudienceOverviewTab } from './analytics/AudienceOverviewTab';
+import { useTenant } from '../../hooks/useTenant';
 import { 
   getSavedInteractions, 
   hardResetAllLeadsAndAnalytics,
   fetchSharedLeads,
 } from '../../services/leadService';
 
-export type AnalyticsTabMode = 'overview' | 'sales_matrix';
+export type AnalyticsTabMode = 'overview' | 'traffic' | 'sales_matrix';
 export type TimeframeMode = 'today' | '7d' | '30d' | 'month' | 'year' | 'all' | 'custom';
 export type AgingFilterMode = 'all' | 'under_30' | 'mid_31_60' | 'over_60';
 export type AgingSortMode = 'aging_desc' | 'aging_asc' | 'capital_desc' | 'price_desc' | 'margin_asc';
@@ -71,6 +74,8 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
   onUpdateDealPricing,
   showToast
 }) => {
+  const { tenant } = useTenant();
+
   // Stare filtru perioadă
   const [timeframe, setTimeframe] = useState<TimeframeMode>('30d');
 
@@ -495,6 +500,19 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
 
           <button
             type="button"
+            onClick={() => setAnalyticsTab('traffic')}
+            className={`min-h-[40px] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all touch-manipulation active:scale-[0.98] flex items-center gap-2 ${
+              analyticsTab === 'traffic'
+                ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20'
+                : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-white/5'
+            }`}
+          >
+            <Globe className="w-4 h-4" />
+            <span>Trafic & Audiență</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setAnalyticsTab('sales_matrix')}
             className={`min-h-[40px] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all touch-manipulation active:scale-[0.98] flex items-center gap-2 ${
               analyticsTab === 'sales_matrix'
@@ -632,7 +650,13 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
 
       </div>
 
-      {analyticsTab === 'sales_matrix' ? (
+      {analyticsTab === 'traffic' ? (
+        <AudienceOverviewTab
+          dealerSlug={tenant?.slug || 'rxm'}
+          activeTimeframe={timeframe}
+          showToast={showToast}
+        />
+      ) : analyticsTab === 'sales_matrix' ? (
         <SalesMatrixReportView
           cars={cars}
           dateRange={dateRange}
