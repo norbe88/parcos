@@ -54,7 +54,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
         {!car.images || car.images.length === 0 ? (
           // 🖼️ Placeholder Dark Luxury — nicio imagine disponibilă
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 select-none pointer-events-none p-4 text-center">
-            {(!dealer || dealer.slug === 'rxm' || dealer.slug === 'rxm_sandbox') ? (
+            {(dealer && (dealer.slug === 'rxm' || dealer.slug === 'rxm_sandbox')) ? (
               <img
                 src="/images/rxm-logo.png"
                 alt="RXM Automobile"
