@@ -4,6 +4,7 @@ import {
   LayoutDashboard, MessageCircle, Menu, X, Car, Shield, Phone, MapPin
 } from 'lucide-react';
 import { SEED_DEALER } from '../../db/seed';
+import { TenantBrandBadge } from '../common/TenantBrandBadge';
 import { NavigationModal } from '../modals/NavigationModal';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 
@@ -97,39 +98,12 @@ export const Navbar: React.FC<NavbarProps> = ({
     }`}>
       <div className="max-w-7xl mx-auto px-3 sm:px-8 h-20 flex items-center justify-between gap-2 sm:gap-4">
         
-        {/* Brand Logo & Monogram — 1-Tap Return to Top */}
-        <div 
-          className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none shrink-0 group touch-manipulation" 
+        {/* Brand Logo & Monogram — Dynamic per Tenant */}
+        <TenantBrandBadge 
+          dealer={dealer} 
+          variant="navbar"
           onClick={handleLogoClick}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              handleLogoClick();
-            }
-          }}
-          title="RXM Automobile — Înapoi la începutul paginii"
-          aria-label="RXM Automobile — Dealer Auto Rulate Cluj — Revenire la începutul paginii showroom"
-        >
-          <img 
-            src="/images/rxm-emblem.png" 
-            alt="RXM Emblem" 
-            width={40}
-            height={40}
-            className="w-8 h-8 sm:w-10 sm:h-10 object-contain filter invert brightness-150 drop-shadow-[0_2px_8px_rgba(251,191,36,0.3)] shrink-0 group-hover:scale-105 transition-transform"
-          />
-          <div className="flex flex-col min-w-0">
-            <img 
-              src="/images/rxm-logo.png" 
-              alt="RXM Automobile" 
-              width={112}
-              height={28}
-              className="h-5 sm:h-7 w-auto object-contain filter invert brightness-200 group-hover:brightness-125 transition-all"
-            />
-            <p className="text-[7.5px] sm:text-[9px] text-amber-400 font-medium uppercase tracking-[0.12em] sm:tracking-[0.2em] -mt-0.5 truncate">Dealer Auto Rulate • Cluj</p>
-          </div>
-        </div>
+        />
 
         {/* Desktop Navigation (>= lg) — Editorial, curat, fără iconițe redundante înghesuite */}
         <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-[13.5px] xl:text-sm font-medium text-zinc-300">

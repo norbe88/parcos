@@ -210,7 +210,7 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
               <Award className="w-5 h-5 text-amber-400" />
             </div>
             <div>
-              <h3 className="font-extrabold text-white text-sm sm:text-base">Portofoliu Livrări Recente • RXM Automobile Cluj</h3>
+              <h3 className="font-extrabold text-white text-sm sm:text-base">Portofoliu Livrări Recente • {dealer?.name || 'Showroom Auto'}</h3>
               <p className="text-xs text-zinc-400 mt-0.5">Aceste autovehicule au fost deja livrate clienților noștri. Dorești un model identic sau similar? Îl aducem la comandă în 5-7 zile!</p>
             </div>
           </div>
@@ -224,6 +224,29 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
         </div>
       )}
 
+      {/* Cazul 1: Stocul total al dealerului este 0 (ex: tenant nou în sincronizare) */}
+      {cars.length === 0 ? (
+        <div className="text-center py-20 px-6 bg-gradient-to-b from-[#121215] to-[#0d0d10] rounded-3xl border border-white/[0.08] shadow-2xl max-w-2xl mx-auto my-12">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-5 shadow-[0_0_30px_rgba(245,158,11,0.15)]">
+            <Car className="w-8 h-8 text-amber-400" />
+          </div>
+          <h3 className="font-extrabold text-white text-xl sm:text-2xl tracking-tight mb-2">
+            Stocul {dealer?.name || 'parcului'} este în curs de sincronizare
+          </h3>
+          <p className="text-sm text-zinc-400 max-w-md mx-auto mb-6 leading-relaxed">
+            Vehiculele din showroom sunt în proces de import și verificare tehnică. Pentru a consulta disponibilitatea imediată sau pentru comenzi personalizate, echipa noastră vă stă la dispoziție.
+          </p>
+          {dealer?.phonePrimary && (
+            <a
+              href={`tel:${dealer.phonePrimary.replace(/\s+/g, '')}`}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Contactează Departamentul Vânzări ({dealer.phonePrimary})
+            </a>
+          )}
+        </div>
+      ) : (
+        <>
       {/* Panou Filtrare */}
       <div className="p-5 rounded-2xl bg-[#121215] border border-white/[0.08] mb-10 shadow-lg">
         <div className="flex items-center justify-between mb-4">
@@ -351,6 +374,8 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
             Resetează Filtrele
           </button>
         </div>
+      )}
+        </>
       )}
     </section>
   );

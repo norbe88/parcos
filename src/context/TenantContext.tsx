@@ -90,6 +90,19 @@ export const isShowcaseEnvironment = (): boolean => {
   return false;
 };
 
+/**
+ * Rezolvă alias-uri scurte de tenant (ex: mpi -> mpi_auto, top -> top_auto)
+ */
+export function resolveTenantKey(rawKey: string): string {
+  const k = (rawKey || '').toLowerCase().trim();
+  if (k === 'sandbox' || k === 'rxm_sandbox' || k === 'rxm-sandbox' || k === 'stage' || k === 'staging') return 'rxm_sandbox';
+  if (k === 'mpi' || k === 'mpi_auto' || k === 'mpiauto') return 'mpi_auto';
+  if (k === 'top' || k === 'top_auto' || k === 'topauto') return 'top_auto';
+  if (k === 'rxm' || k === 'rxm_auto' || k === 'rxmautomobile') return 'rxm';
+  if (k === 'autonord' || k === 'autonord_cluj') return 'autonord_cluj';
+  return k;
+}
+
 // Conversie hex (#f59e0b) -> r, g, b pentru utilizare în CSS rgba()
 function hexToRgb(hex: string): string {
   const clean = hex.replace('#', '');
@@ -245,16 +258,6 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     return sealFinancingProfiles({ ...TENANT_DEALERS });
   });
 
-  // Rezolvă alias-uri scurte (ex: mpi -> mpi_auto, top -> top_auto)
-  const resolveTenantKey = (rawKey: string): string => {
-    const k = rawKey.toLowerCase().trim();
-    if (k === 'sandbox' || k === 'rxm_sandbox' || k === 'rxm-sandbox' || k === 'stage' || k === 'staging') return 'rxm_sandbox';
-    if (k === 'mpi' || k === 'mpi_auto' || k === 'mpiauto') return 'mpi_auto';
-    if (k === 'top' || k === 'top_auto' || k === 'topauto') return 'top_auto';
-    if (k === 'rxm' || k === 'rxm_auto' || k === 'rxmautomobile') return 'rxm';
-    if (k === 'autonord' || k === 'autonord_cluj') return 'autonord_cluj';
-    return k;
-  };
 
   // Detectează tenantul inițial din URL (?dealer=...), subdomain sau localStorage
   const detectInitialTenant = (): string => {

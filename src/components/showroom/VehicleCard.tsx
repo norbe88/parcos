@@ -1,5 +1,5 @@
 import { 
-  Eye, Shield, Play, Clock, Gauge, Fuel, Cog, 
+  Car, Eye, Shield, Play, Clock, Gauge, Fuel, Cog, 
   FileCheck, Sparkles, Calculator, Truck, MessageCircle, Tag, Building2 
 } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../db/seed';
@@ -54,23 +54,36 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
         {!car.images || car.images.length === 0 ? (
           // 🖼️ Placeholder Dark Luxury — nicio imagine disponibilă
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 select-none pointer-events-none p-4 text-center">
-            <img
-              src="/images/rxm-logo.png"
-              alt="RXM Automobile"
-              className="w-16 h-16 opacity-30 mb-3 object-contain"
-              draggable={false}
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (!target.src.includes('rxm-emblem')) {
-                  target.src = '/images/rxm-emblem-gold.png';
-                }
-              }}
-            />
+            {(!dealer || dealer.slug === 'rxm' || dealer.slug === 'rxm_sandbox') ? (
+              <img
+                src="/images/rxm-logo.png"
+                alt="RXM Automobile"
+                className="w-16 h-16 opacity-30 mb-3 object-contain"
+                draggable={false}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.src.includes('rxm-emblem')) {
+                    target.src = '/images/rxm-emblem-gold.png';
+                  }
+                }}
+              />
+            ) : dealer.logoUrl ? (
+              <img
+                src={dealer.logoUrl}
+                alt={dealer.name}
+                className="h-10 w-auto opacity-40 mb-3 object-contain"
+                draggable={false}
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-3">
+                <Car className="w-6 h-6 text-amber-400 opacity-60" />
+              </div>
+            )}
             <span className="text-[10px] font-semibold tracking-widest text-amber-400/80 uppercase">
               Fotografii în curs de actualizare
             </span>
             <span className="text-[9px] text-zinc-500 mt-1">
-              Vehicul fizic în stoc Cluj-Napoca
+              {dealer?.showroomAddress || dealer?.address || 'Vehicul fizic în stoc showroom'}
             </span>
           </div>
         ) : (

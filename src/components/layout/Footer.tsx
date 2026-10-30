@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Play, MapPin, ArrowUp } from 'lucide-react';
 import { SEED_DEALER } from '../../db/seed';
+import { TenantBrandBadge } from '../common/TenantBrandBadge';
 import { IntellectualPropertyDisclaimer } from '../common/IntellectualPropertyDisclaimer';
 
 interface FooterProps {
@@ -49,21 +50,8 @@ export const Footer: React.FC<FooterProps> = ({
     <footer id="contact" className="mt-20 border-t border-white/[0.08] bg-[#0c0c0e] py-12 px-4 sm:px-8 text-xs text-zinc-400 no-print safe-pb">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
-          <div className="flex items-center gap-3 mb-3">
-            <img 
-              src="/rxm/images/rxm-emblem.png" 
-              alt="RXM Emblem" 
-              width={36}
-              height={36}
-              className="w-9 h-9 object-contain filter invert brightness-125" 
-            />
-            <img 
-              src="/rxm/images/rxm-logo.png" 
-              alt="RXM Automobile" 
-              width={112}
-              height={28}
-              className="h-7 w-auto object-contain filter invert brightness-150" 
-            />
+          <div className="mb-4">
+            <TenantBrandBadge dealer={dealer} variant="footer" />
           </div>
           <p className="text-zinc-400 leading-relaxed">
             Dealer auto autorizat în Cluj-Napoca. Autovehicule rulate atent selectate, garanție până la 36 luni, finanțare în rate cu buletinul și livrare în toată țara.

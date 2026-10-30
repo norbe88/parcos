@@ -37,7 +37,7 @@ import { vehicleRepository, RXM_INVENTORY_VERSION, inventoryStorageKey } from '.
 import { getTabSessionId } from './utils/broadcastSession';
 import { getAdminAuthHeaders, isCurrentSessionAdmin } from './utils/adminAuth';
 import { updateSeoMetadata } from './utils/seoTenantInjector';
-import { getSubdomainDealer } from './context/TenantContext';
+import { getSubdomainDealer, resolveTenantKey } from './context/TenantContext';
 
 // 🆔 Identificator unic de sesiune per filă pentru a preveni auto-ecoul BroadcastChannel
 const APP_TAB_SESSION_ID = getTabSessionId();
@@ -125,7 +125,13 @@ export default function App() {
   };
 
   // Persistență automată și citire sincronă instant (0ms) din Unified Vehicle Repository (SWR)
-  const currentDealerSlug = tenantId || tenant?.slug || 'rxm';
+  // Determinare robustă tenant: prioritizează tenantId / tenant?.slug, apoi subdomeniu (*.parcos.ro) sau ?dealer=, fără fallback orb pe 'rxm'
+  const initialSubDealer = typeof window !== 'undefined' ? (
+    getSubdomainDealer(window.location.hostname) ||
+    new URLSearchParams(window.location.search).get('dealer') ||
+    new URLSearchParams(window.location.search).get('tenant')
+  ) : null;
+  const currentDealerSlug = tenantId || tenant?.slug || (initialSubDealer ? resolveTenantKey(initialSubDealer) : 'rxm');
   const inventorySlugRef = useRef(currentDealerSlug);
   inventorySlugRef.current = currentDealerSlug;
   const [cars, setCars] = useState<VehicleItem[]>(() => {
