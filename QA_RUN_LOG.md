@@ -1,14 +1,69 @@
 # QA AGENTIC TEAM RUN LOG — RXM AUTOMOBILE & PARCOS CLOUD
 
-> **Sesiune QA:** 2026-10-29 15:52:00
-> **Target:** Dealer Onboarding & Parcos Landing Bypass Routing
-> **Lead QA Architect (Orchi):** Claude Sonnet 4.6 (Thinking)
-> **Worker Pool (Worky):** WorkyOne (Codebase Inspector), WorkyTwo (Test Suite Generator), WorkyThree (Patch Integrator), WorkyFour (Invariants Auditor)
+> **Sesiune QA:** 2026-10-30 06:05:00
+> **Target:** MPI AUTO Stock Ingestion & Multi-Tenant UI Isolation
 > **Platformă Țintă:** HP ZBook Workstation (Zety / `zbook-norby`)
 
 ---
 
-## 0. Sesiune: Wave 2 — Vehicle Views Telemetry Backend
+## 0. Sesiune: Import Stoc MPI AUTO & Decuplare Identitate Multi-Tenant
+
+> **Data & Ora:** 2026-10-30 06:05:00  
+> **Branch Git:** `feat/mpi-stock-import`  
+> **Target Tenant:** `mpi_auto` (ID 58, `MPI AUTO CLA S.R.L.`, CUI `RO43460100`)  
+> **Server Producție/Staging:** Netcup VPS `152.53.158.65`  
+> **URL Showroom:** `https://mpiauto.parcos.ro`  
+> **Status General:** 🟢 **PASS (100% Ingestie, Zero Dubluri, Zero Scurgeri RXM)**
+
+### 1. Metoda de Extragere Folosită
+- **Sursă:** WordPress REST API oficial (`https://mpiauto.ro/wp-json/wp/v2/anunturi`).
+- **Paginare:** 8 pagini x 10 anunțuri per pagină (`_embed=wp:term,wp:featuredmedia`).
+- **Rată de interogare:** Politicoasă, pauză de 550ms între cereri (~1.8 req/sec, sub plafonul de 2 req/sec), header `User-Agent: ParcOS-import/1.0`.
+- **Rezolvare Media:** Interogare batch `/wp-json/wp/v2/media?include=...` în pachete de câte 80 attachment-uri pentru cele 2.561 ID-uri din `poze_anunt`.
+- **Rezoluție Maximă:** Stripping sufix `-scaled.jpg`/`-scaled.jpeg` și rezoluții intermediare WordPress (`-1536x...`), obținând fișierele originale 2560px necomprimate.
+
+### 2. Statistici Vehicule & Ingestie
+- **Mașini găsite în WordPress:** 80 anunțuri.
+- **Mașini importate cu succes în PostgreSQL:** 80 vehicule (`dealer_slug = 'mpi_auto'`).
+- **Mașini sărite:** 0 (Toate cele 80 de anunțuri au avut date valide de preț și specificații).
+- **Cota de vehicule:** Majorată de la 50 la 100 în tabela `dealers` (`max_vehicles_quota = 100`).
+- **Distribuție pe mărci:**
+  - Skoda: 14, Hyundai: 9, BMW: 8, Audi: 8, Seat: 6, Kia: 5, Ford: 5, Volkswagen: 4, Opel: 3, Nissan: 3, Renault: 3, Dacia: 2, Mercedes-Benz: 2, Land Rover: 2, Peugeot: 2, Citroen: 1, Volvo: 1, Toyota: 1, Mazda: 1.
+
+### 3. Statistici Media & CDN (Cloudflare R2)
+- **Total poze unice identificate:** 2.561 fotografii.
+- **Optimizator Pipeline:** `sharp` (auto-orientare EXIF, redimensionare max 1600x1200px la calitate 82% WebP, reducere dimensiune de la 2.7 MB la ~160 KB per cadru, reducere 94%).
+- **CDN:** Cloudflare R2 bucket `parcos-media` (`https://pub-5ced75b7fce64ed6b6a934bdc3a279c0.r2.dev/cars/{carId}/image_XX.webp`).
+- **Poze eșuate:** 0.
+
+### 4. Analiză Câmpuri Lipsă / Particularități
+- **VIN (Serie Șasiu):** A lipsit în toate cele 80 de anunțuri (MPI Auto nu publică VIN-ul pe site-ul public WordPress). Conform regulii, câmpul a fost lăsat gol `vin: ""` fără a inventa valori și a fost notat în `importNotes`.
+- **Kilometraj (km):** 0 lipsă (100% populate, valori între 40.000 și 260.000 km).
+- **Preț (EUR):** 0 lipsă (100% populate, valori între 3.900 EUR și 26.500 EUR).
+- **TVA Deductibil:** Identificat automat din `pret_tva` (ex: „TVA Nedeductibil” -> `vatDeductible: false`).
+
+### 5. Exemple de Mașini pentru Verificare Staging / Live
+1. **Dacia Duster 1.6 Benzină (2019):**  
+   - ID: `mpi-38416-2019-dacia-duster-1-6-benzina-2wd`  
+   - Preț: 10.700 EUR (Redus de la 11.200 EUR) • 201.530 km • SUV • Cutie Manuală  
+   - Link: `https://mpiauto.parcos.ro/?car=mpi-38416-2019-dacia-duster-1-6-benzina-2wd`  
+2. **Hyundai ix35 1.7 CRDi (2014):**  
+   - ID: `mpi-38350-2014-hyundai-ix35-1-7crdi`  
+   - Preț: 9.500 EUR • 190.013 km • Diesel • Cutie Manuală  
+   - Link: `https://mpiauto.parcos.ro/?car=mpi-38350-2014-hyundai-ix35-1-7crdi`  
+3. **Renault Kadjar 1.2 TCe (2015):**  
+   - ID: `mpi-28802-2015-renault-kadjar-1-2-tce`  
+   - Preț: 9.500 EUR • 137.791 km • Benzină • Cutie Manuală  
+   - Link: `https://mpiauto.parcos.ro/?car=mpi-28802-2015-renault-kadjar-1-2-tce`  
+
+### 6. Probleme Identificate & Rezolvate în Fluxul de Onboarding/Tenant
+1. **Fallback pe RXM la montare inițială:** Când un dealer nu avea mașini salvate, `App.tsx` cădea pe `'rxm'` în primele milisecunde, încărcând cele 33 mașini seed RXM. Rezolvat prin deducerea subdomeniului înainte de montare și adăugarea stării de sincronizare.
+2. **Hardcoding componente Layout & Print:** `Navbar`, `Footer`, `PrintableWindowSticker` și `PrintableVehicleSheet` aveau referințe hardcodate la `/images/rxm-logo.png` și `rxmautomobile.ro`. Toate au fost transformate în componente dinamice multi-tenant (`TenantBrandBadge`).
+3. **Cota de vehicule:** Tenantul demo `mpi_auto` avea cota de 50 de mașini; a fost majorată la 100 de mașini în baza de date.
+
+---
+
+## 1. Sesiune: Wave 2 — Vehicle Views Telemetry Backend
 
 > **Sesiune QA:** 2026-10-30 00:43:00  
 > **Target:** PostgreSQL `vehicle_views`, Contor Atomic `views_count`, Rute Ingestie/Agregare și Client Showroom Beacon  

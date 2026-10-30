@@ -31,7 +31,7 @@ export const PrintableWindowSticker: React.FC<PrintableWindowStickerProps> = ({
   const estimatedMonthlyRate = calculateRate(car.priceEur, 15, 48);
   const targetCarUrl = typeof window !== 'undefined' && window.location?.origin 
     ? `${window.location.origin}/?car=${car.id}` 
-    : `https://${dealer.domain || 'rxmautomobile.ro'}/?car=${car.id}`;
+    : `https://${dealer.domain || (dealer.slug === 'rxm' ? 'rxmautomobile.ro' : `${(dealer.slug || 'dealer').replace('_', '')}.parcos.ro`)}/?car=${car.id}`;
   
   // ⚡ Motor QR Code Local 100% Offline (fără apeluri către servicii terțe)
   const qrCodeUrl = useQrCodeDataUrl(targetCarUrl, { width: 300, margin: 1 });
@@ -50,7 +50,8 @@ export const PrintableWindowSticker: React.FC<PrintableWindowStickerProps> = ({
   const engineDisplay = formatEngineDisplay(car, config);
 
   // Logo dealer efectiv
-  const effectiveLogo = config.logoUrl || dealer.logoUrl || '/images/rxm-logo-gold.png';
+  const isRxm = !dealer || dealer.slug === 'rxm' || dealer.slug === 'rxm_sandbox';
+  const effectiveLogo = config.logoUrl || dealer.logoUrl || (isRxm ? '/images/rxm-logo-gold.png' : '');
 
   // Caracteristici principale
   const topFeatures = [
@@ -71,15 +72,20 @@ export const PrintableWindowSticker: React.FC<PrintableWindowStickerProps> = ({
           <div className="flex items-center gap-3.5 min-w-0">
             {config.showLogo && config.logoPosition === 'header_left' && (
               <div className="w-12 h-12 rounded-xl bg-black/60 border border-amber-500/30 p-1 flex items-center justify-center shrink-0 shadow-inner">
+                {effectiveLogo ? (
                 <img 
                   src={effectiveLogo} 
                   alt={dealer.name}
                   className="max-h-10 max-w-[44px] object-contain"
                   onError={(e) => {
-                    // Fallback elegant la ascundere imagine dacă lipsește fișierul
                     (e.target as HTMLElement).style.display = 'none';
                   }}
                 />
+              ) : (
+                <span className="font-black text-amber-400 text-sm">
+                  {dealer.slug === 'mpi_auto' ? 'MPI' : (dealer.name || 'PA').slice(0, 3).toUpperCase()}
+                </span>
+              )}
               </div>
             )}
             
@@ -110,7 +116,7 @@ export const PrintableWindowSticker: React.FC<PrintableWindowStickerProps> = ({
               {dealer.address}
             </div>
             <div className="text-zinc-400 text-[11px] font-mono">
-              {dealer.domain || 'rxmautomobile.ro'}
+              {dealer.domain || (isRxm ? 'rxmautomobile.ro' : `${(dealer.slug || 'dealer').replace('_', '')}.parcos.ro`)}
             </div>
           </div>
         </div>

@@ -17,19 +17,28 @@ export const PrintableVehicleSheet: React.FC<PrintableVehicleSheetProps> = ({
   if (!selectedCar) return null;
 
   const stockRef = getStockNumber(selectedCar);
-  const dealerName = dealer.name || 'RXM AUTOMOBILE SRL';
-  const dealerRegCom = dealer.regCom || 'J12/3012/13.07.2023';
-  const dealerAddress = dealer.showroomAddress || dealer.address || 'Strada Colonia Hodai F.N., Cluj-Napoca, jud. Cluj';
+  const isRxm = !dealer || dealer.slug === 'rxm' || dealer.slug === 'rxm_sandbox';
+  const dealerName = dealer.name || 'Parc Auto Autorizat';
+  const dealerRegCom = dealer.regCom || (isRxm ? 'J12/3012/13.07.2023' : '');
+  const dealerAddress = dealer.showroomAddress || dealer.address || 'Showroom Auto Cluj';
 
   return (
     <div className="print-only printable-dossier w-full text-black bg-white font-sans text-left leading-normal print:p-0 print:m-0">
       {/* Header Oficial Dealer */}
       <div className="flex justify-between items-start border-b-2 border-zinc-900 pb-2 mb-2 gap-3">
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <img src="/rxm/images/rxm-emblem.png" alt={dealerName} className="w-10 h-10 object-contain shrink-0" />
+          {isRxm ? (
+            <img src="/rxm/images/rxm-emblem.png" alt={dealerName} className="w-10 h-10 object-contain shrink-0" />
+          ) : dealer.logoUrl ? (
+            <img src={dealer.logoUrl} alt={dealerName} className="h-10 w-auto object-contain shrink-0" />
+          ) : (
+            <div className="w-10 h-10 rounded-lg bg-zinc-900 text-amber-400 flex items-center justify-center font-black text-xs shrink-0 border border-amber-500/40">
+              {dealer.slug === 'mpi_auto' ? 'MPI' : dealerName.slice(0, 3).toUpperCase()}
+            </div>
+          )}
           <div className="min-w-0">
             <h1 className="text-base font-black tracking-tight text-zinc-900 leading-tight uppercase truncate">{dealerName}</h1>
-            <p className="text-[10.5px] text-zinc-700 font-semibold truncate">Dealer Autovehicule Rulate Premium • Cluj-Napoca</p>
+            <p className="text-[10.5px] text-zinc-700 font-semibold truncate">Autovehicule Rulate Verificate • Cluj</p>
             <p className="text-[9px] text-zinc-500">CUI: {dealer.cui} • Reg. Com: {dealerRegCom}</p>
           </div>
         </div>
