@@ -207,7 +207,7 @@ export const DetailGallery: React.FC<DetailGalleryProps> = ({
               <ShieldCheck className="w-8 h-8 text-amber-400 animate-pulse" />
             </div>
             <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wider text-amber-300">
-              RXM SECURITY SHIELD • GALERIE PROTEJATĂ
+              SECURITY SHIELD • GALERIE PROTEJATĂ
             </span>
             <p className="text-[11px] text-zinc-400 mt-1 max-w-xs leading-relaxed">
               Fotografiile sunt protejate conform Legii nr. 8/1996. Reveniți în pagină pentru vizualizare completă.

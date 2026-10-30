@@ -1,3 +1,5 @@
+import { DealerProfile } from '../db/types';
+import { SEED_DEALER } from '../db/dealer';
 /**
  * RXM AUTOMOBILE — Smart Vehicle Description Generator
  * Generator profesional de descrieri auto pentru showroom și canale media.
@@ -40,6 +42,7 @@ export interface GenerateDescriptionOptions {
   includeShowroomLocation?: boolean;
   includeWarranty?: boolean;
   includeDelivery?: boolean;
+  dealer?: DealerProfile;
 }
 
 import { isInvalidCorruptedFeature } from './featuresCatalogService';
@@ -130,8 +133,12 @@ export function generateVehicleDescription(
     tone = 'editorial',
     includeShowroomLocation = true,
     includeWarranty = true,
-    includeDelivery = true
+    includeDelivery = true,
+    dealer = SEED_DEALER
   } = options;
+  const dealerBrand = (dealer?.name || 'Showroom').split(' ')[0];
+  const showroomLocation = dealer?.showroomAddress || dealer?.address || 'Cluj-Napoca';
+  const contactPhone = dealer?.phonePrimary || '0758 042 979';
 
   const brand = (params.brand || 'Autoturism').trim();
   const model = (params.model || '').trim();
@@ -156,7 +163,7 @@ export function generateVehicleDescription(
     const titleHeader = `${brand} ${model}${versionTrim ? ` ${versionTrim}` : ''} (${year})`;
     const technicalSummary = [engineCc, fuelType, powerHp, transmission, drivetrain].filter(Boolean).join(' • ');
 
-    let text = `${titleHeader} — exemplar certificat disponibil în showroom-ul RXM Automobile.\n`;
+    let text = `${titleHeader} — exemplar certificat disponibil în showroom-ul ${dealer?.name || 'nostru'}.\n`;
     text += `${technicalSummary} | ${formattedMileage} garantați pe factură fiscală.\n\n`;
 
     text += `Autoturismul se prezintă într-o stare tehnică și estetică remarcabilă, beneficiind de istoric verificat și revizie la zi. Fără vicii ascunse sau elemente structurale afectate, gata de drum.\n\n`;
@@ -179,7 +186,7 @@ export function generateVehicleDescription(
     }
 
     if (includeWarranty || includeDelivery) {
-      text += `🛡️ Servicii & Siguranță Incluse RXM:\n`;
+      text += `🛡️ Servicii & Siguranță Incluse ${dealerBrand}:\n`;
       if (includeWarranty) {
         text += `• Garanție scrisă de conformitate ${warranty} luni inclusă în preț (fără costuri ascunse)\n`;
       }
@@ -192,7 +199,7 @@ export function generateVehicleDescription(
     }
 
     if (includeShowroomLocation) {
-      text += `Disponibil pentru vizionare și test drive în parcul auto RXM Automobile din Cluj-Napoca (Str. Colonia Hodai F.N., Centura de Nord).`;
+      text += `Disponibil pentru vizionare și test drive în parcul auto ${dealer?.name || 'nostru'} (${showroomLocation}).`;
     }
 
     return text.trim();
@@ -227,7 +234,7 @@ export function generateVehicleDescription(
     text += `• Garanție scrisă ${warranty} luni inclusă (posibilitate extindere 24/36 luni)\n`;
     text += `• Istoric transparent și kilometraj menționat pe factură\n`;
     text += `• Numere roșii provizorii pe loc / Transport asigurat pe platformă\n`;
-    text += `• Verificare tehnică pe elevator și test drive în Cluj-Napoca.`;
+    text += `• Verificare tehnică pe elevator și test drive (${showroomLocation}).`;
 
     return text.trim();
   }
@@ -248,8 +255,8 @@ export function generateVehicleDescription(
     text += `✅ Garanție comercială ${warranty} luni inclusă\n`;
     text += isVat ? `✅ TVA deductibil 21% pe factură fiscală\n` : `✅ Kilometraj 100% garantat contractual\n`;
     text += `✅ Livrare gratuită la domiciliu oriunde în România sau numere roșii pe loc!\n\n`;
-    text += `📍 Vizionare & Test Drive: Cluj-Napoca (Centura de Nord)\n`;
-    text += `📞 Contact Showroom: 0758 042 979 / 0741 216 134`;
+    text += `📍 Vizionare & Test Drive: ${showroomLocation}\n`;
+    text += `📞 Contact Showroom: ${contactPhone}${dealer?.phoneFinance ? ' / ' + dealer.phoneFinance : ''}`;
 
     return text.trim();
   }

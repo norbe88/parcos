@@ -1,0 +1,458 @@
+{
+  "scoatere-fiscal-masina-auto": {
+    "title": "Scoatere fiscal mașină / auto – acte necesare și procedură",
+    "metaDescription": "Scoatere fiscal mașină în 2026: cum radiezi autoturismul din evidența primăriei după vânzare, ce acte îți trebuie (ITL-016) și în cât timp o faci.",
+    "categoryName": "Impozite & Taxe auto",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "introducere-fiscal-masina-auto": {
+    "title": "Introducere fiscal mașină / auto – acte necesare și procedură",
+    "metaDescription": "Introducere fiscal mașină în 2026: cum iei autoturismul în evidența primăriei pe numele tău, ce acte îți trebuie și în cât timp trebuie să declari.",
+    "categoryName": "Impozite & Taxe auto",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "scutire-impozit-pentru-masina-electrica": {
+    "title": "Scutire impozit pentru mașină electrică – condiții și acte",
+    "metaDescription": "Scutire impozit mașină electrică în 2026: ce s-a schimbat, cât plătesc acum electricele (cca 40 lei/an) și ce reduceri pot acorda consiliile locale.",
+    "categoryName": "Impozite & Taxe auto",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "declarare-impozit-auto-la-primarie": {
+    "title": "Declarare impozit auto la primărie – acte necesare și termen legal",
+    "metaDescription": "Declararea impozitului auto la primărie în 2026: acte necesare, formularul ITL-005, termenul de 30 de zile și termenele de plată. Ghid pas cu pas.",
+    "categoryName": "Impozite & Taxe auto",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "inscriere-in-platforma-bolt": {
+    "title": "Înscriere în platforma Bolt – acte necesare",
+    "metaDescription": "Înscriere în platforma Bolt 2026: acte necesare pentru șofer și mașină, autorizația ARR, pașii de înregistrare și cum te afiliezi la o flotă.",
+    "categoryName": "Transport & Autorizații",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "licenta-comunitara-transport": {
+    "title": "Licență comunitară transport – acte necesare",
+    "metaDescription": "Licență comunitară transport 2026: cele 4 condiții de acces, acte necesare, tarife ARR (1.000 lei licența, 360 lei copia conformă) și valabilitate.",
+    "categoryName": "Transport & Autorizații",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "atestat-operator-transport-rutier": {
+    "title": "Atestat operator transport rutier – acte necesare",
+    "metaDescription": "Atestat operator transport rutier: certificatul de competență al managerului de transport, acte necesare, curs și examen ARR, valabilitate în 2026.",
+    "categoryName": "Transport & Autorizații",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "autorizatie-transport-taxi": {
+    "title": "Autorizație transport taxi – acte necesare",
+    "metaDescription": "Autorizație transport taxi 2026: autorizația de la primărie, autorizația taxi pe mașină, acte necesare, atestatul șoferului și condiții vehicul.",
+    "categoryName": "Transport & Autorizații",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "autorizatie-transport-persoane-bolt": {
+    "title": "Autorizație transport persoane Bolt – acte necesare",
+    "metaDescription": "Autorizație transport persoane Bolt 2026: autorizația de transport alternativ și copia conformă ARR, acte necesare, tarife (300 lei / 100 lei) și pași.",
+    "categoryName": "Transport & Autorizații",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "amenda-rovinieta": {
+    "title": "Amendă rovinietă 2026 – cât este și ce faci dacă ai primit proces-verbal",
+    "metaDescription": "Amendă rovinietă 2026: cât este pentru autoturism după regulile noi din 1 octombrie, cum plătești jumătate în 15 zile și cum contești procesul-verbal CNAIR/CESTRIN.",
+    "categoryName": "Rovinietă",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "verificare-rovinieta-dupa-numar-auto": {
+    "title": "Verificare rovinietă după număr auto 2026 – online și gratuit",
+    "metaDescription": "Verificare rovinietă după număr auto 2026: cum vezi gratuit și online, în câteva secunde, dacă mașina are rovinietă valabilă și până când expiră.",
+    "categoryName": "Rovinietă",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "rovinieta-pentru-autoutilitara": {
+    "title": "Rovinietă pentru autoutilitară 2026 – preț, categorii și valabilitate",
+    "metaDescription": "Rovinietă autoutilitară 2026: ce categorie ți se aplică, prețuri pe perioade (zi, lună, an), diferența față de autoturisme și cum o cumperi corect.",
+    "categoryName": "Rovinietă",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "rovinieta-7-zile-autoturism": {
+    "title": "Rovinietă 7 zile autoturism 2026 – nu există: ce alegi în loc",
+    "metaDescription": "Rovinietă 7 zile autoturism 2026: de fapt nu există opțiunea de 7 zile. Vezi perioadele reale (1 zi, 10 zile) și prețurile ca să alegi corect.",
+    "categoryName": "Rovinietă",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "rovinieta-30-zile-autoturism": {
+    "title": "Rovinietă 30 zile autoturism 2026 – preț, valabilitate și cum o cumperi",
+    "metaDescription": "Rovinietă 30 zile autoturism 2026: preț (43–62 lei de la 1 octombrie 2026, după norma EURO), valabilitate și cum o cumperi online în câteva minute.",
+    "categoryName": "Rovinietă",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "rovinieta-expirata": {
+    "title": "Rovinietă expirată 2026 – amendă, verificare și ce trebuie să faci",
+    "metaDescription": "Rovinietă expirată în 2026: cât e amenda după regulile noi din 1 octombrie 2026, cum te prind camerele CNAIR, cum eviți sancțiunea plătind până a doua zi și cum contești.",
+    "categoryName": "Rovinietă",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "carte-de-identitate-vehicul-pierduta": {
+    "title": "Carte de identitate vehicul pierdută 2026 – cum obții un duplicat CIV",
+    "metaDescription": "Ai pierdut cartea de identitate a vehiculului? Vezi cum obții un duplicat CIV la RAR în 2026: acte necesare, cost și pași reali.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "schimbare-culoare-masina-in-acte": {
+    "title": "Schimbare culoare mașină în acte 2026 – acte necesare și RAR",
+    "metaDescription": "Schimbare culoare mașină în acte 2026: când e obligatorie, acte necesare la RAR, taxe și cum obții talonul nou la DGPCI cu noua culoare înscrisă.",
+    "categoryName": "ITP & RAR",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "verificare-serie-sasiu-rar": {
+    "title": "Verificare serie șasiu RAR 2026 – acte necesare, costuri și procedură",
+    "metaDescription": "Verificare serie șasiu RAR 2026: unde găsești VIN-ul, cum compari seria ștanțată cu actele și cum ceri identificarea fizică la RAR.",
+    "categoryName": "ITP & RAR",
+    "updateDate": "🗓 Actualizat 23 Iulie 2026"
+  },
+  "certificat-de-autenticitate-rar": {
+    "title": "Certificat de autenticitate RAR 2026 – acte necesare, costuri și procedură",
+    "metaDescription": "Certificat de autenticitate RAR 2026: ce este, când e necesar, acte necesare, costuri estimative, valabilitate și cum programezi verificarea vehiculului.",
+    "categoryName": "ITP & RAR",
+    "updateDate": "🗓 Actualizat 23 Iulie 2026"
+  },
+  "montare-carlig-remorcare-si-omologare": {
+    "title": "Montare cârlig remorcare și omologare 2026 – acte necesare și RAR",
+    "metaDescription": "Montare cârlig remorcare și omologare 2026: trebuie omologat la RAR sau trecut în talon? Ce marcaj de omologare cauți, costuri de montaj și reguli legale.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "montare-gpl-si-omologare": {
+    "title": "Montare GPL și omologare 2026 – acte necesare, costuri și procedură RAR",
+    "metaDescription": "Montare GPL și omologare RAR în 2026: acte necesare, costuri, pași și cum înscrii instalația în CIV pentru a circula legal cu talonul actualizat.",
+    "categoryName": "ITP & RAR",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "omologare-individuala-rar": {
+    "title": "Omologare individuală RAR 2026 – acte necesare, costuri și procedură",
+    "metaDescription": "Omologare individuală RAR 2026: când e necesară, ce acte îți trebuie, costuri (de la ~1.200 RON) și pașii până la eliberarea CIV.",
+    "categoryName": "ITP & RAR",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "programare-itp": {
+    "title": "Programare ITP – cum faci și ce acte sunt necesare",
+    "metaDescription": "Programare ITP 2026: cum te programezi online sau telefonic, ce acte îți trebuie (talon, CIV, RCA, act identitate) și fiecare cât timp faci inspecția.",
+    "categoryName": "ITP & RAR",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "schimbare-categorie-permis-auto": {
+    "title": "Schimbare categorie permis auto 2026 – acte necesare și condiții",
+    "metaDescription": "Schimbare categorie permis auto 2026: cum adaugi o nouă categorie (C, D, BE etc.), acte necesare, condiții de vârstă, examen și costuri.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "scoala-de-soferi-categoria-a": {
+    "title": "Școala de șoferi categoria A – acte necesare și înscriere",
+    "metaDescription": "Școala de șoferi categoria A 2026: acte necesare pentru înscriere, subcategoriile A/A1/A2/AM, vârsta minimă, costuri și pașii pentru permisul de moto.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "scoala-de-soferi-categoria-b": {
+    "title": "Școala de șoferi categoria B – acte necesare și înscriere",
+    "metaDescription": "Școala de șoferi categoria B 2026: acte necesare pentru înscriere, vârsta minimă, orele de pregătire, costuri și pașii până la permisul auto.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "verificare-puncte-penalizare-permis": {
+    "title": "Verificare puncte penalizare permis – acte necesare",
+    "metaDescription": "Verificare puncte de penalizare permis: cum afli online câte puncte ai, prin ghiseul.ro și hub.mai.gov.ro, reguli, valabilitate și suspendare.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "programare-drpciv-pentru-permis-de-conducere": {
+    "title": "Programare DGPCI pentru permis de conducere – pașii și actele",
+    "metaDescription": "Programare DGPCI pentru examenul de permis de conducere în 2026: pași online, acte necesare, taxe și sfaturi ca să prinzi loc rapid.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "schimbare-adresa-in-permis": {
+    "title": "Schimbare adresă în permis 2026 – acte necesare și procedură",
+    "metaDescription": "Schimbare adresă în permis 2026: nu e obligatorie la mutarea domiciliului, dar iată acte necesare, pași și cost pentru preschimbarea permisului auto.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "fisa-medicala-permis-auto": {
+    "title": "Fișă medicală permis auto 2026 – acte necesare, costuri și procedură",
+    "metaDescription": "Fișă medicală permis auto 2026: ce specialiști trebuie să vezi, cost 200-350 lei, valabilitate 12 luni și procedura la unitatea medicală autorizată.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "recuperare-permis-suspendat": {
+    "title": "Recuperare permis suspendat 2026 – acte necesare, condiții și procedură",
+    "metaDescription": "Recuperare permis suspendat 2026: acte necesare, condiții pentru reducerea perioadei, testul 13 din 15 și unde depui cererea la Poliția Rutieră.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "permis-international-de-conducere": {
+    "title": "Permis internațional de conducere 2026 – acte necesare și costuri",
+    "metaDescription": "Permis internațional de conducere 2026: acte necesare, taxa de 46 lei, valabilitate 3 ani și unde îl obții. DGPCI îl emite direct prin HUB MAI.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "preschimbare-permis-strain-cu-permis-romanesc": {
+    "title": "Preschimbare permis străin cu permis românesc 2026 – acte și condiții",
+    "metaDescription": "Preschimbare permis străin cu permis românesc 2026: acte necesare, condiții pentru state UE, non-UE și UK, cu sau fără examen. Unde depui dosarul.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "permis-deteriorat": {
+    "title": "Permis deteriorat 2026 – acte necesare pentru înlocuire și procedură",
+    "metaDescription": "Permis de conducere deteriorat 2026: cum obții un duplicat, acte necesare, taxa de 139 lei și procedura pas cu pas. Fișa medicală nu e obligatorie.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "eliberare-duplicat-permis-de-conducere": {
+    "title": "Eliberare duplicat permis de conducere 2026 – acte necesare și taxă",
+    "metaDescription": "Duplicat permis de conducere 2026: acte necesare, taxă 139 lei și procedura pas cu pas în caz de pierdere, furt sau deteriorare. Depui online sau la ghișeu.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "casco-cu-plata-in-rate": {
+    "title": "CASCO cu plata în rate 2026 – condiții, acte necesare și procedură",
+    "metaDescription": "CASCO cu plata în rate 2026: condiții, câte rate fără dobândă, procedura și ce se întâmplă dacă nu plătești o rată la timp.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 23 Iulie 2026"
+  },
+  "fransiza-casco-explicata": {
+    "title": "Franșiză CASCO explicată 2026 – ce înseamnă și cum influențează prețul",
+    "metaDescription": "Franșiză CASCO explicată 2026: ce înseamnă, tipurile de franșiză, cum se aplică la despăgubire și de ce o franșiză mai mare reduce prețul poliței.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "despagubire-casco-dupa-accident": {
+    "title": "Despăgubire CASCO după accident 2026 – acte necesare și termen",
+    "metaDescription": "Despăgubire CASCO după accident 2026: acte necesare, cum deschizi dosarul de daună, termenul de notificare și cât durează până primești banii.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "asigurare-casco-pentru-masina-second-hand": {
+    "title": "Asigurare CASCO pentru mașina second hand 2026 – acte și condiții",
+    "metaDescription": "Asigurare CASCO pentru mașina second hand 2026: condiții, limită de vârstă, inspecția cu poze, cum se stabilește valoarea și acte necesare.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 23 Iulie 2026"
+  },
+  "asigurare-casco-pentru-masina-noua": {
+    "title": "Asigurare CASCO pentru mașina nouă 2026 – acte necesare și acoperire",
+    "metaDescription": "Asigurare CASCO pentru mașina nouă 2026: ce acoperă, acte necesare, cum se stabilește valoarea, franșiza și de ce e obligatorie în leasing sau credit.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "comparatie-rca-vs-casco": {
+    "title": "Comparație RCA vs CASCO 2026 – diferențe, avantaje și ce alegi",
+    "metaDescription": "Comparație RCA vs CASCO 2026: diferențe, ce acoperă fiecare, obligatoriu vs facultativ, costuri și cum alegi asigurarea potrivită pentru mașina ta.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "constatare-amiabila-rca": {
+    "title": "Constatare amiabilă RCA 2026 – cum se completează și acte necesare",
+    "metaDescription": "Constatare amiabilă RCA 2026: când o poți folosi, cum completezi corect formularul, acte necesare și termenul de 5 zile pentru notificarea asigurătorului.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "despagubire-rca-dupa-accident": {
+    "title": "Despăgubire RCA după accident 2026 – acte necesare și termen",
+    "metaDescription": "Despăgubire RCA după accident 2026: acte necesare, cum deschizi dosarul de daună, termenul de 30 de zile pentru ofertă și 10 zile pentru plată, penalizări.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "transfer-bonus-malus-intre-polite-rca": {
+    "title": "Transfer bonus-malus între polițe RCA – acte necesare",
+    "metaDescription": "Transfer bonus-malus între polițe RCA 2026: se face automat prin baza AIDA, fără acte speciale. Vezi clasele B0-B8, M1-M8 și cum îți păstrezi reducerea.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "verificare-asigurare-rca-dupa-numar-auto": {
+    "title": "Verificare asigurare RCA după număr auto 2026 – online și gratuit",
+    "metaDescription": "Verificare asigurare RCA după numărul auto în 2026: gratuit și online în baza oficială AIDA (fostă CEDAM). Vezi cum afli dacă o mașină are RCA valabil.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "cumparare-rca-online": {
+    "title": "Cumpărare RCA online 2026 – preț, acte necesare și procedură",
+    "metaDescription": "Cumpărare RCA online 2026: ce acte îți trebuie, cum compari prețurile pe calculatorul RCA, cum plătești și în cât timp primești polița pe email.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "asigurare-rca-la-schimbare-proprietar": {
+    "title": "Asigurare RCA la schimbare proprietar – ce trebuie făcut",
+    "metaDescription": "RCA la schimbare proprietar: polița nu se transferă. Vânzătorul reziliază și primește diferența, iar noul proprietar face RCA nou pe numele lui.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "rca-pentru-sofer-tanar": {
+    "title": "RCA pentru șofer tânăr 2026 – preț, acte necesare și cea mai bună ofertă",
+    "metaDescription": "RCA șofer tânăr 2026: de ce plătești mai mult sub 30 de ani, prețuri orientative, acte necesare și trucuri prin care obții cea mai bună ofertă.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "rca-pentru-masina-second-hand": {
+    "title": "RCA pentru mașina second hand 2026 – acte necesare și când se face",
+    "metaDescription": "RCA pentru mașina second hand 2026: când se face după cumpărare, ce acte îți trebuie și de ce nu te poți baza pe RCA-ul vechiului proprietar.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "costuri-schimbare-proprietar-auto": {
+    "title": "Costuri schimbare proprietar auto în 2026 – taxe, acte și procedură",
+    "metaDescription": "Costuri schimbare proprietar auto 2026: taxe DGPCI, certificat de înmatriculare 76 RON, plăcuțe și acte necesare pentru transcrierea mașinii.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "contract-de-vanzare-cumparare-auto": {
+    "title": "Contract de vânzare-cumpărare auto – acte necesare",
+    "metaDescription": "Contract de vânzare-cumpărare auto 2026: model oficial ITL 054, acte necesare, câte exemplare și cum obții viza fiscală de la primărie.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "schimbare-talon-auto-la-schimbare-domiciliu": {
+    "title": "Schimbare talon auto la schimbare domiciliu 2026 – acte necesare și costuri",
+    "metaDescription": "Schimbare talon auto la schimbare domiciliu 2026: acte necesare, certificatul de atestare fiscală (obligatoriu și în același județ), taxa de 76 lei și termenul de 30 de zile.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "programare-inmatriculare-auto-cluj-napoca": {
+    "title": "Programare înmatriculare auto 2026 Cluj-Napoca – acte necesare și procedură",
+    "metaDescription": "Programare înmatriculare auto Cluj-Napoca 2026: cum faci programarea online la SPCRPCIV, adresa de pe str. Traian Vuia, acte necesare și taxe.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "programare-inmatriculare-auto": {
+    "title": "Programare înmatriculare auto 2026 București – acte necesare și procedură",
+    "metaDescription": "Programare înmatriculare auto București 2026: cum faci programarea online la DGPCI (fost DRPCIV), acte necesare, taxe și reguli la ghișeu.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "numere-rosii-auto": {
+    "title": "Numere roșii auto 2026 – autorizație provizorie, acte necesare și taxe",
+    "metaDescription": "Numere roșii auto 2026: acte necesare pentru autorizația provizorie de circulație, taxe (77 lei + RCA), valabilitate și unde le obții la DGPCI.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "schimbare-numar-inmatriculare-auto": {
+    "title": "Schimbare număr înmatriculare auto 2026 – acte necesare și costuri",
+    "metaDescription": "Schimbare număr înmatriculare auto 2026: când e obligatorie, acte necesare, costuri (plăcuțe 52-97 lei, certificat 76 lei) și procedura la DGPCI.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "duplicat-certificat-de-inmatriculare": {
+    "title": "Duplicat certificat de înmatriculare – acte necesare și procedura oficială",
+    "metaDescription": "Duplicat certificat de înmatriculare 2026: acte necesare, taxa de 76 RON și procedura oficială la DGPCI pentru talon pierdut, furat sau deteriorat.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "radiere-auto-pentru-export": {
+    "title": "Radiere auto pentru export 2026 – acte necesare și pașii de urmat",
+    "metaDescription": "Radiere auto pentru export 2026: acte necesare, contract de vânzare extern, termen de 30 de zile de la scoaterea din țară și pașii la Primărie și DGPCI. Ghid complet.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "radiere-auto-pentru-dezmembrare": {
+    "title": "Radiere auto pentru dezmembrare 2026 – certificat de distrugere și procedură",
+    "metaDescription": "Radiere auto pentru dezmembrare 2026: cum obții certificatul de distrugere, ce depui la Primărie și DGPCI, costuri și termene. Ghid pas cu pas.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "radiere-auto-din-circulatie": {
+    "title": "Radiere auto din circulație 2026 – acte necesare, costuri și procedură",
+    "metaDescription": "Radiere auto din circulație 2026: acte necesare, procedura în două etape (Primărie și DGPCI), costuri și termene. Ghid complet pas cu pas.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "schimbare-proprietar-auto-in-familie": {
+    "title": "Schimbare proprietar auto în familie 2026 – acte necesare și costuri",
+    "metaDescription": "Schimbare proprietar auto în familie 2026: acte necesare, pași, taxe și termenul de 90 de zile pentru transcriere între rude (donație, vânzare, moștenire).",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "transcriere-drept-de-proprietate-auto": {
+    "title": "Transcriere drept de proprietate auto 2026 – acte necesare și costuri",
+    "metaDescription": "Transcriere drept de proprietate auto 2026: acte necesare, pași la DGPCI, taxe, certificat fiscal și termenul obligatoriu de 90 de zile de la cumpărare.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "inmatriculare-remorca": {
+    "title": "Înmatriculare remorcă 2026 – acte necesare, taxe și procedură DGPCI",
+    "metaDescription": "Înmatriculare remorcă 2026: acte necesare, taxe (CIV RAR, plăcuțe, certificat), pași la DGPCI, RCA, ITP și ce permis îți trebuie pentru a o tracta.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "inmatriculare-scuter": {
+    "title": "Înmatriculare scuter 2026 – acte necesare, costuri și procedură",
+    "metaDescription": "Înmatriculare scuter 2026: unde se înregistrează mopedul, ce acte îți trebuie, taxe și procedura la Primărie sau DGPCI (fost DRPCIV).",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "inmatriculare-motocicleta": {
+    "title": "Înmatriculare motocicletă 2026 – acte necesare, costuri și procedură",
+    "metaDescription": "Înmatriculare motocicletă 2026: acte necesare, taxe DGPCI, certificat de înmatriculare 76 RON, plăcuță moto, ITP și RCA. Ghid pas cu pas.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "inmatriculare-auto-second-hand-romania": {
+    "title": "Înmatriculare auto second hand România 2026 – acte necesare și costuri",
+    "metaDescription": "Înmatriculare auto second hand România 2026: acte necesare pentru transcriere, taxe DGPCI și termenul legal de 90 de zile.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "inmatriculare-auto-din-afara-ue": {
+    "title": "Înmatriculare auto din afara UE 2026 – acte necesare, costuri și procedură",
+    "metaDescription": "Înmatriculare auto din afara UE 2026: taxe vamale, TVA 21%, declarație vamală, omologare RAR și acte necesare pentru mașini din SUA, UK sau Japonia.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "inmatriculare-auto-din-ue": {
+    "title": "Înmatriculare auto din UE 2026 – acte necesare, costuri și procedură",
+    "metaDescription": "Înmatriculare auto din UE 2026: acte necesare, certificat de conformitate (CoC), CIV la RAR, declarația ANAF pentru TVA și costuri la DGPCI.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "program-rabla-inscriere-acte-2026": {
+    "title": "Program Rabla 2026 – înscriere, acte necesare și procedură completă",
+    "metaDescription": "Program Rabla 2026: cum te înscrii, ce voucher primești, actele necesare și pașii pentru casare și mașină nouă. Ghid complet.",
+    "categoryName": "Impozite & Taxe auto",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "autorizatie-transport-persoane-uber-2026": {
+    "title": "Autorizație transport persoane Uber 2026 – acte necesare, atestat și procedură",
+    "metaDescription": "Autorizație Uber 2026: certificat de atestare ARR, autorizație și copie conformă, acte necesare, condiții pentru șofer și mașină și pașii pentru transportul alternativ. Ghid complet.",
+    "categoryName": "Transport & Autorizații",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "rovinieta-12-luni-autoturism": {
+    "title": "Rovinietă 12 luni autoturism 2026 – preț, valabilitate și cum o cumperi online",
+    "metaDescription": "Rovinietă 12 luni autoturism 2026: între 228 și 330 lei de la 1 octombrie, după norma EURO, valabilitate și cum o cumperi online rapid. Verificare gratuită după număr.",
+    "categoryName": "Rovinietă",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "itp-expirat": {
+    "title": "ITP expirat 2026 – ce faci și care sunt pașii legali",
+    "metaDescription": "ITP expirat 2026: ce amendă riști, cum programezi o nouă inspecție tehnică și ce acte îți trebuie. Ghid rapid.",
+    "categoryName": "ITP & RAR",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "permis-pierdut": {
+    "title": "Permis pierdut 2026 – ce trebuie să faci și cum obții un duplicat",
+    "metaDescription": "Permis pierdut 2026: cum obții un duplicat, ce acte îți trebuie, taxa de 139 RON și pașii la DGPCI. Ghid actualizat.",
+    "categoryName": "Permis de conducere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "rca-pentru-masina-nou-cumparata": {
+    "title": "RCA pentru mașina nou cumpărată 2026 – acte necesare și când se face",
+    "metaDescription": "RCA pentru mașina nou cumpărată în 2026: când se face, ce acte îți trebuie și cum obții cel mai bun preț. Ghid complet.",
+    "categoryName": "Asigurări RCA & CASCO",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "schimbare-proprietar-auto": {
+    "title": "Schimbare proprietar auto 2026 – acte necesare și procedura oficială",
+    "metaDescription": "Schimbare proprietar auto 2026: contract vânzare-cumpărare, viză fiscală, transcriere la DGPCI, acte necesare și costuri. Ghid pas cu pas.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  },
+  "inmatriculare-auto": {
+    "title": "Înmatriculare auto 2026 – acte necesare, costuri și pașii exacți",
+    "metaDescription": "Înmatriculare auto 2026: acte necesare, costuri (certificat 76 RON, plăcuțe 52 RON) și cei 6 pași la DGPCI. Ghid actualizat pas cu pas.",
+    "categoryName": "Înmatriculare & Transcriere",
+    "updateDate": "🗓 Actualizat 18 Octombrie 2026"
+  }
+}

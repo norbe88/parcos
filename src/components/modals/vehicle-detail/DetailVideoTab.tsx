@@ -94,7 +94,7 @@ export const DetailVideoTab: React.FC<DetailVideoTabProps> = ({
                   <Play className="w-8 h-8 text-[#fe2c55] fill-[#fe2c55]" />
                 </div>
                 <h4 className="font-bold text-white text-sm mb-1">Prezentare Video TikTok</h4>
-                <p className="text-zinc-400 text-xs mb-4">Vizualizează clipul complet realizat de RXM Automobile direct pe platforma oficială.</p>
+                <p className="text-zinc-400 text-xs mb-4">Vizualizează clipul complet realizat de {dealer.name} direct pe platforma oficială.</p>
                 <a 
                   href={car.tiktokUrl} 
                   target="_blank" 
@@ -139,7 +139,7 @@ export const DetailVideoTab: React.FC<DetailVideoTabProps> = ({
           </div>
           <div className="font-bold text-white text-sm">Nu este încă atașat un clip video pentru această mașină</div>
           <p className="text-zinc-400 text-xs max-w-md mx-auto">
-            Echipa RXM Automobile filmează periodic walkaround-uri. Solicită un video detaliat pe WhatsApp și consultantul nostru ți-l va trimite în câteva minute.
+            Echipa {dealer.name} filmează periodic walkaround-uri. Solicită un video detaliat pe WhatsApp și consultantul nostru ți-l va trimite în câteva minute.
           </p>
           <a 
             href={getWhatsAppVideoUrl(car, dealer.whatsappNumber)}

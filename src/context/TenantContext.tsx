@@ -194,6 +194,15 @@ function initialTenantBoot(): { tenantId: string; boot: TenantBootState } {
 
 function localTenantResolveUrl(): string {
   try {
+    // 1. Subdomeniu dedicat de dealer (ex: mpiauto.parcos.ro) are prioritate absolută față de orice cache
+    if (typeof window !== 'undefined') {
+      const subDealer = getSubdomainDealer(window.location.hostname);
+      if (subDealer) {
+        const resolved = resolveTenantKey(subDealer);
+        if (resolved) return `/api/tenant/resolve?dealer=${encodeURIComponent(resolved)}`;
+      }
+    }
+    // 2. Query param explicit (?dealer=...)
     const params = new URLSearchParams(window.location.search);
     const fromQuery = params.get('dealer') || params.get('dealer_slug') || params.get('tenant');
     if (fromQuery) return `/api/tenant/resolve?dealer=${encodeURIComponent(fromQuery)}`;
@@ -202,6 +211,7 @@ function localTenantResolveUrl(): string {
       const fromHash = hashParams.get('dealer');
       if (fromHash) return `/api/tenant/resolve?dealer=${encodeURIComponent(fromHash)}`;
     }
+    // 3. Fallback localStorage doar pe parcos.ro general / local dev (nu pe subdomenii)
     const saved = localStorage.getItem('rxm_tenant_id');
     if (saved) return `/api/tenant/resolve?dealer=${encodeURIComponent(saved)}`;
   } catch {}
@@ -611,6 +621,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
               phoneSecondary: json.dealer.phone_secondary || json.dealer.phoneSecondary,
               whatsappNumber: json.dealer.whatsapp_number || json.dealer.whatsappNumber,
               email: json.dealer.email,
+              logoUrl: json.dealer.logo_url || json.dealer.logoUrl || json.logoUrl,
               themePreset: json.themePreset || json.dealer.config?.themePreset,
               landingConfig: json.dealer.config?.landingConfig || json.dealer.landingConfig,
             });
@@ -656,6 +667,16 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       const activeTheme = tenant.themePreset || 'obsidian_gold';
       document.documentElement.setAttribute('data-theme', activeTheme);
       document.body.setAttribute('data-theme', activeTheme);
+      const isLight = theme.isLightMode === true;
+      document.documentElement.setAttribute('data-theme-mode', isLight ? 'light' : 'dark');
+      document.body.setAttribute('data-theme-mode', isLight ? 'light' : 'dark');
+      if (isLight) {
+        document.documentElement.classList.add('light-theme');
+        document.body.classList.add('light-theme');
+      } else {
+        document.documentElement.classList.remove('light-theme');
+        document.body.classList.remove('light-theme');
+      }
 
       // Injectare CSS Variables adaptive în :root
       const root = document.documentElement;

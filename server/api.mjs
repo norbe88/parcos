@@ -523,6 +523,8 @@ export const DEFAULT_DEALER_PROFILES = {
     county: 'Cluj',
     vat_number: 'RO43460100',
     is_active: true,
+    logo_url: '/images/mpi-logo.svg',
+    logoUrl: '/images/mpi-logo.svg',
     features: { mailHub: false },
     config: {
       themePreset: 'clean_white',
@@ -676,7 +678,7 @@ function readDealerAdminToken(req) {
 
 async function expectedDealerSlug(req, urlObj) {
   try {
-    const tenant = await resolveTenant(req, urlObj);
+    if (!tenant) { try { tenant = await resolveTenant(req, urlObj); } catch {} }
     if (!tenant || tenant.unconfigured === true || !tenant.slug) return '';
     return String(tenant.slug).trim().toLowerCase();
   } catch {
@@ -1005,6 +1007,16 @@ export async function resolveTenant(req, urlObj) {
  * ══════════════════════════════════════════════════════════════════
  */
 
+let ghidLookup = {};
+try {
+  const ghidPath = path.resolve('server/ghid_seo_lookup.json');
+  if (fs.existsSync(ghidPath)) {
+    ghidLookup = JSON.parse(fs.readFileSync(ghidPath, 'utf8'));
+  }
+} catch (e) {
+  console.warn('[SEO] Warning la citirea ghid_seo_lookup.json:', e.message);
+}
+
 let cachedHtmlTemplate = null;
 let cachedHtmlMtime = 0;
 
@@ -1064,34 +1076,89 @@ async function renderDynamicHtml(html, req, urlObj) {
   let ogType = 'website';
   let twitterCard = 'summary_large_image';
   let jsonLdSchema = null;
+  let tenant = null;
+  if (!isParcos) {
+    try {
+      tenant = await resolveTenant(req, urlObj);
+    } catch (e) {}
+  }
 
   if (isParcos) {
     // 🏷️ PARCOS — Multi-Tenant Dealership Operating System (SaaS)
-    title = 'ParcOS — Program Complet pentru Parcuri Auto: Site Propriu & Gestiune Vânzări';
-    description = 'Platformă completă de gestiune și showroom digital pentru parcuri auto rulate. Scanare automată CIV & Talon cu AI, generare contracte DITL pe loc, sincronizare stoc și facturare fiscală.';
-    keywords = 'program parc auto, soft gestiune parc auto, site parc auto, software vanzari auto, scanare civ talon, contracte auto, fgo facturare, dms auto romania, parcos, carvana';
-    canonicalUrl = `https://parcos.ro${pathname === '/index.html' || pathname === '/' ? '/' : pathname}`;
+    const cleanPath = pathname.replace(/\/$/, '');
     ogSiteName = 'ParcOS';
     ogType = 'website';
-    ogTitle = title;
-    ogDescription = description;
     ogImage = 'https://parcos.ro/brand/parcos-og-icon.png';
     ogImageWidth = '600';
     ogImageHeight = '600';
-    ogImageAlt = 'ParcOS — Dealership Operating System';
+    keywords = 'cel mai bun dms auto romania, cel mai bun crm dealer auto, dms auto inteligenta artificiala, crm auto ai, soft parc auto romania, program gestiune parcuri auto, software vanzari auto rulate, dealer management system romania, parcos, carvana';
+
+    if (cleanPath === '/pret') {
+      title = 'Prețuri Abonament ParcOS · De la 49 €/lună · Fără Comision la Vânzare';
+      description = 'Vezi prețurile și pachetele ParcOS pentru parcul tău auto: Start 59 €, Pro 89 € (Preț Fondator 49 €), Plus 149 €. Test gratuit 14 zile fără card, instalare 0 €. Găzduire și SSL incluse.';
+      canonicalUrl = 'https://parcos.ro/pret';
+    } else if (cleanPath === '/functii') {
+      title = 'Funcții ParcOS · Scanare CIV cu AI, Acte în 2 Min, Sincronizare OLX & CRM Auto';
+      description = 'Descoperă funcțiile ParcOS: showroom pe domeniul tău, scaner CIV/Talon cu AI Vision, contracte DITL pe loc, feed automat OLX și CRM de vânzări auto.';
+      canonicalUrl = 'https://parcos.ro/functii';
+    } else if (cleanPath === '/cum-incepi') {
+      title = 'Cum Începi cu ParcOS · Test Gratuit 14 Zile Fără Card';
+      description = 'Pornește parcul tău auto pe ParcOS în 3 pași simpli: demo online 15 minute, test gratuit 14 zile pe subdomeniu și lansare pe domeniul tău cu SSL gratuit.';
+      canonicalUrl = 'https://parcos.ro/cum-incepi';
+    } else if (cleanPath === '/faq') {
+      title = 'Întrebări Frecvente ParcOS · Totul despre DMS, CRM și Scanare CIV cu AI';
+      description = 'Află răspunsurile la cele mai frecvente întrebări despre ParcOS: costuri, cum funcționează AI-ul, sincronizarea cu OLX și Autovit și generarea actelor DITL.';
+      canonicalUrl = 'https://parcos.ro/faq';
+    } else if (cleanPath === '/dms-crm') {
+      title = 'DMS & CRM Auto cu Inteligență Artificială în România · ParcOS';
+      description = 'De ce ParcOS este cel mai bun sistem DMS și CRM auto din România: scanare acte CIV/talon cu AI Vision, contracte DITL în 2 minute, sincronizare stoc OLX & Autovit.';
+      canonicalUrl = 'https://parcos.ro/dms-crm';
+    } else if (cleanPath === '/termeni-si-conditii') {
+      title = 'Termeni și Condiții de Utilizare · ParcOS (CARVANA S.R.L.)';
+      description = 'Termenii și condițiile de utilizare a platformei software SaaS ParcOS pentru managementul și gestiunea parcurilor auto rulate din România. Operator CARVANA S.R.L.';
+      canonicalUrl = 'https://parcos.ro/termeni-si-conditii';
+    } else if (cleanPath === '/politica-de-confidentialitate') {
+      title = 'Politica de Confidențialitate & GDPR · ParcOS (CARVANA S.R.L.)';
+      description = 'Politica de confidențialitate și protecția datelor cu caracter personal pentru utilizatorii platformei ParcOS, operată de CARVANA S.R.L.';
+      canonicalUrl = 'https://parcos.ro/politica-de-confidentialitate';
+    } else if (cleanPath === '/politica-de-cookies') {
+      title = 'Politica de Cookies · ParcOS (CARVANA S.R.L.)';
+      description = 'Informații detaliate privind utilizarea modulelor cookie și a tehnologiilor similare pe platforma ParcOS.ro, operată de CARVANA S.R.L.';
+      canonicalUrl = 'https://parcos.ro/politica-de-cookies';
+    } else if (cleanPath === '' || cleanPath === '/index.html') {
+      title = 'ParcOS — Cel mai bun DMS & CRM Auto cu AI din România | Program Parcuri Auto';
+      ogTitle = 'ParcOS — Cel mai bun DMS & CRM Auto cu AI din România';
+      description = 'ParcOS este cel mai bun DMS (Dealer Management System) și CRM pentru dealeri auto din România, alimentat de Inteligență Artificială (AI). Scanare acte CIV & talon cu AI în 2 minute, site pe domeniul parcului, sincronizare stoc OLX & Autovit și gestiune vânzări fără comision. Test gratuit 14 zile.';
+      canonicalUrl = 'https://parcos.ro/';
+    } else {
+      title = 'Pagină Inexistentă (404) · ParcOS Dealership Operating System';
+      description = 'Pagina solicitată nu a fost găsită. Vă rugăm să reveniți pe https://parcos.ro/ pentru prezentarea completă a platformei.';
+      canonicalUrl = `https://parcos.ro${pathname}`;
+    }
+
+    if (!ogTitle) ogTitle = title;
+    ogDescription = description;
+    ogImageAlt = title;
     ogUrl = canonicalUrl;
 
     jsonLdSchema = {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "ParcOS",
-      "alternateName": "ParcOS — Dealership Operating System",
+      "alternateName": [
+        "ParcOS DMS",
+        "ParcOS CRM Auto",
+        "Cel mai bun DMS auto România",
+        "Cel mai bun CRM dealer auto România",
+        "Dealership Operating System"
+      ],
       "applicationCategory": "BusinessApplication",
-      "operatingSystem": "Web, Cloud SaaS",
+      "applicationSubCategory": "Dealer Management System (DMS) & Automotive CRM with Artificial Intelligence",
+      "operatingSystem": "Web, Cloud SaaS, iOS, Android (Responsive)",
       "description": description,
-      "url": "https://parcos.ro/",
-      "logo": "https://parcos.ro/brand/parcos-og-icon.png",
-      "image": "https://parcos.ro/brand/parcos-og-icon.png",
+      "url": canonicalUrl,
+      "logo": "https://parcos.ro/brand/parcos-app-icon.png",
+      "image": "https://parcos.ro/brand/parcos-og-card.png",
       "publisher": {
         "@type": "Organization",
         "name": "CARVANA SRL",
@@ -1099,9 +1166,9 @@ async function renderDynamicHtml(html, req, urlObj) {
       },
       "offers": {
         "@type": "Offer",
-        "price": "0",
+        "price": "49",
         "priceCurrency": "EUR",
-        "description": "Pachete Starter, Pro și Enterprise pentru parcuri auto rulate"
+        "description": "Pachete Start, Pro (Preț Fondator) și Plus pentru parcuri auto rulate"
       }
     };
   } else {
@@ -1160,17 +1227,78 @@ async function renderDynamicHtml(html, req, urlObj) {
     } else {
       // 🏢 Pagină Principală Dealer
       if (isRxm) {
-        title = 'RXM AUTO MOBILE — Autovehicule Rulate Premium | Cluj-Napoca';
-        description = 'Dealer auto Cluj-Napoca. Mașini rulate atent selectate, cu garanție 12-24 luni, kilometraj certificat și finanțare rapidă cu 0% avans.';
-        keywords = 'parc auto cluj, masini rulate cluj-napoca, dealer auto cluj, garantie auto 12 luni, finantare auto 0 avans, autovehicule rulate cluj, rxm automobile';
-        canonicalUrl = 'https://rxmautomobile.ro/';
+        const cleanPath = pathname.replace(/\/$/, '');
         ogSiteName = 'RXM AUTO MOBILE';
         ogType = 'website';
-        ogTitle = title;
-        ogDescription = description;
         ogImage = 'https://rxmautomobile.ro/rxm/images/rxm-emblem.png';
         ogImageAlt = 'RXM AUTO MOBILE Cluj-Napoca';
-        ogUrl = 'https://rxmautomobile.ro/';
+        keywords = 'parc auto cluj, masini rulate cluj-napoca, dealer auto cluj, garantie auto 12 luni, finantare auto 0 avans, autovehicule rulate cluj, rxm automobile';
+
+        if (cleanPath === '/livrare') {
+          title = 'Livrare Auto Gratuită pe Platformă la Domiciliu · RXM Automobile Cluj';
+          description = 'Serviciul de transport și livrare auto la domiciliu oriunde în România oferit de RXM Automobile. Mașina ta ajunge în siguranță la ușa ta pe platformă specializată.';
+          canonicalUrl = 'https://rxmautomobile.ro/livrare';
+        } else if (cleanPath === '/finantare') {
+          title = 'Finanțare Auto în Rate Fixe cu 0% Avans · Aprobare Rapidă | RXM Automobile';
+          description = 'Cumpără o mașină rulată în rate fixe prin partenerii noștri TBI Bank, BT Direct, UniCredit. Aprobare rapidă în 2 ore, inclusiv pentru persoane cu istoric negativ.';
+          canonicalUrl = 'https://rxmautomobile.ro/finantare';
+        } else if (cleanPath === '/buyback') {
+          title = 'Sistem Buy-Back Auto Cluj · Evaluare Corectă pe Loc | RXM Automobile';
+          description = 'Lasă mașina veche drept avans pentru noua ta mașină din parcul RXM Automobile Cluj-Napoca. Evaluare transparentă și acte perfectate pe loc.';
+          canonicalUrl = 'https://rxmautomobile.ro/buyback';
+        } else if (cleanPath === '/comanda') {
+          title = 'Mașini pe Comandă din Germania & Olanda · Verificate | RXM Automobile';
+          description = 'Aducem pe comandă orice model auto dorit din licitații și parcuri partenere din Europa. Verificare tehnică completă în 150+ puncte și raport istoric daune.';
+          canonicalUrl = 'https://rxmautomobile.ro/comanda';
+        } else if (cleanPath === '/contact') {
+          title = 'Contact & Locație Showroom RXM Automobile Cluj-Napoca · Telefon & Hartă';
+          description = 'Vino în showroom-ul nostru din Cluj-Napoca, str. Colonia Hoia FN. Contactează echipa de vânzări: 0748 892 937 sau scrie-ne direct pe WhatsApp.';
+          canonicalUrl = 'https://rxmautomobile.ro/contact';
+        } else if (cleanPath === '/stoc' || cleanPath === '/catalog') {
+          title = 'Catalog Mașini Rulate în Stoc Cluj · Garanție 12-24 Luni | RXM Automobile';
+          description = 'Vezi parcul nostru complet de mașini rulate verificate tehnic în 150+ puncte: SUV, berline, break și compacte. Numere roșii eliberate pe loc.';
+          canonicalUrl = 'https://rxmautomobile.ro/stoc';
+        } else if (cleanPath === '/termeni-si-conditii') {
+          title = 'Termeni și Condiții de Garanție Auto · RXM Automobile Cluj';
+          description = 'Condițiile de acordare a garanției extinse de 12-24 luni pentru motor și cutie de viteze la autovehiculele rulate achiziționate de la RXM Automobile.';
+          canonicalUrl = 'https://rxmautomobile.ro/termeni-si-conditii';
+        } else if (cleanPath === '/politica-de-cookies') {
+          title = 'Politica de Cookies · RXM Automobile Cluj-Napoca';
+          description = 'Informații privind cookie-urile utilizate pe site-ul rxmautomobile.ro pentru o experiență optimă de navigare și filtrare a stocului auto.';
+          canonicalUrl = 'https://rxmautomobile.ro/politica-de-cookies';
+        } else if (cleanPath === '/politica-de-confidentialitate') {
+          title = 'Politica de Confidențialitate & Protecția Datelor · RXM Automobile';
+          description = 'Angajamentul RXM Automobile privind confidențialitatea și securitatea datelor personale ale clienților și vizitatorilor site-ului.';
+          canonicalUrl = 'https://rxmautomobile.ro/politica-de-confidentialitate';
+        } else if (cleanPath.startsWith('/ghid-auto')) {
+          const articleSlug = cleanPath.replace(/^\/ghid-auto\/?/, '').replace(/^categorie\//, '');
+          if (articleSlug && ghidLookup[articleSlug]) {
+            const art = ghidLookup[articleSlug];
+            title = `${art.title} · Ghid Auto 2026 | RXM Automobile`;
+            description = art.metaDescription;
+            canonicalUrl = `https://rxmautomobile.ro/ghid-auto/${articleSlug}`;
+          } else if (articleSlug === 'calculator-impozit-auto') {
+            title = 'Calculator Impozit Auto 2026 Online · Art. 470 Cod Fiscal | RXM Automobile';
+            description = 'Calculează instant impozitul auto anual pentru orice mașină conform Legii 239/2025 și OUG 78/2025. Rezultat pe loc în funcție de cilindree și motorizare.';
+            canonicalUrl = 'https://rxmautomobile.ro/ghid-auto/calculator-impozit-auto';
+          } else {
+            title = 'Ghid Auto 2026 · Înmatriculări, RAR, Impozite & Acte Auto | RXM Automobile';
+            description = 'Peste 76 de ghiduri actualizate pentru șoferi: proceduri de înmatriculare pas cu pas, calculator impozit auto conform Art. 470 Cod fiscal, taxe și sfaturi utile.';
+            canonicalUrl = 'https://rxmautomobile.ro/ghid-auto';
+          }
+        } else if (cleanPath === '' || cleanPath === '/index.html') {
+          title = 'RXM AUTO MOBILE — Autovehicule Rulate Premium | Cluj-Napoca';
+          description = 'Dealer auto Cluj-Napoca. Mașini rulate atent selectate, cu garanție 12-24 luni, kilometraj certificat pe factură și finanțare rapidă cu 0% avans.';
+          canonicalUrl = 'https://rxmautomobile.ro/';
+        } else {
+          title = 'Pagină Inexistentă (404) · RXM Automobile Cluj-Napoca';
+          description = 'Pagina solicitată nu a fost găsită. Vă rugăm să reveniți la showroom pentru a vizualiza stocul complet de autovehicule rulate.';
+          canonicalUrl = host ? `https://${host}/` : 'https://rxmautomobile.ro/';
+        }
+
+        ogTitle = title;
+        ogDescription = description;
+        ogUrl = canonicalUrl;
 
         jsonLdSchema = {
           "@context": "https://schema.org",
@@ -1210,18 +1338,21 @@ async function renderDynamicHtml(html, req, urlObj) {
         } else {
           title = `${tenant.name} — Autovehicule Rulate Verificate`;
           description = `Parc auto autorizat ${tenant.city || 'România'}. Garanție extinsă, kilometri certificați și rate fixe fără avans.`;
+          keywords = `${tenant.name}, parc auto ${tenant.city || 'cluj'}, masini rulate ${tenant.city || 'cluj'}, dealer auto, garantie auto, finantare auto, autovehicule rulate, parcos`;
           canonicalUrl = `https://${host}/`;
           ogSiteName = tenant.name;
           ogType = 'website';
           ogTitle = title;
           ogDescription = description;
           const isTenantRxm = tenant.slug === 'rxm' || tenant.slug === 'rxm_sandbox';
-          ogImage = tenant.logo_url || tenant.logoUrl || (isTenantRxm ? `https://${host}/rxm/images/rxm-emblem.png` : 'https://parcos.ro/brand/parcos-og-icon.png');
-          ogUrl = canonicalUrl;
-        }
+          ogImage = tenant.logo_url || tenant.logoUrl || (isTenantRxm ? `https://${host}/rxm/images/rxm-emblem.png` : (tenant.slug === 'mpi_auto' ? `https://${host}/images/mpi-logo.svg` : 'https://parcos.ro/brand/parcos-og-icon.png'));
+          ogUrl = canonicalUrl;        }
       }
     }
   }
+
+  if (!title) title = isParcos ? 'ParcOS — Dealership Operating System' : 'RXM AUTO MOBILE';
+  if (!description) description = isParcos ? 'Platformă completă de gestiune și showroom digital pentru parcuri auto.' : 'Dealer autovehicule rulate verificate.';
 
   let output = html;
 
@@ -1321,14 +1452,22 @@ async function renderDynamicHtml(html, req, urlObj) {
     output = output.replace(/<meta\s+name=["']apple-mobile-web-app-title["'][^>]*>/gi, `<meta name="apple-mobile-web-app-title" content="${escapeHtml(ogSiteName || (isRxm ? 'RXM Automobile' : 'Dealer Showroom'))}" />`);
 
     // 🛡️ Înlocuire dinamică Favicon & Web App Manifest pentru showroom dealer (RXM Automobile etc.)
-    const dealerAssetPrefix = isRxm ? '/rxm' : '/rxm';
-    output = output.replace(/href=["']\/favicon\.svg(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/favicon.svg?v=rxm2026"`);
-    output = output.replace(/href=["']\/favicon-32x32\.png(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/favicon-32x32.png?v=rxm2026"`);
-    output = output.replace(/href=["']\/favicon-16x16\.png(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/favicon-16x16.png?v=rxm2026"`);
-    output = output.replace(/href=["']\/favicon\.ico(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/favicon.ico?v=rxm2026"`);
-    output = output.replace(/href=["']\/apple-touch-icon\.png(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/apple-touch-icon.png?v=rxm2026"`);
-    output = output.replace(/href=["']\/site\.webmanifest(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/site.webmanifest?v=rxm2026"`);
-  } else {
+    if (isRxm) {
+      const dealerAssetPrefix = '/rxm';
+      output = output.replace(/href=["']\/favicon\.svg(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/favicon.svg?v=rxm2026"`);
+      output = output.replace(/href=["']\/favicon-32x32\.png(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/favicon-32x32.png?v=rxm2026"`);
+      output = output.replace(/href=["']\/favicon-16x16\.png(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/favicon-16x16.png?v=rxm2026"`);
+      output = output.replace(/href=["']\/favicon\.ico(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/favicon.ico?v=rxm2026"`);
+      output = output.replace(/href=["']\/apple-touch-icon\.png(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/apple-touch-icon.png?v=rxm2026"`);
+      output = output.replace(/href=["']\/site\.webmanifest(?:\?[^"']*)?["']/gi, `href="${dealerAssetPrefix}/site.webmanifest?v=rxm2026"`);
+    } else if (tenant?.slug === 'mpi_auto' || host.includes('mpi')) {
+      output = output.replace(/href=["']\/favicon\.svg(?:\?[^"']*)?["']/gi, 'href="/images/mpi-logo.svg"');
+    }
+
+    // Adaptare meta theme-color conform temei tenantului (ex: alb pentru clean_white)
+    const activePreset = tenant?.config?.themePreset || tenant?.themePreset;
+    const themeColor = activePreset === 'clean_white' ? '#f8fafc' : '#09090b';
+    output = output.replace(/<meta\s+name=["']theme-color["'][^>]*>/gi, `<meta name="theme-color" content="${themeColor}" />`);  } else {
     output = output.replace(/<meta\s+name=["']apple-mobile-web-app-title["'][^>]*>/gi, `<meta name="apple-mobile-web-app-title" content="ParcOS" />`);
   }
 
@@ -1369,6 +1508,7 @@ function sendJson(res, statusCode, data) {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': allowedOrigin,
+    'X-Robots-Tag': 'noindex, nofollow, noarchive',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, X-Admin-Token, x-admin-token, X-SuperAdmin-Key, x-superadmin-key, X-SuperAdmin-Token, x-superadmin-token, x-car-id, x-image-index, x-file-ext',
     'Vary': 'Origin',
@@ -1414,7 +1554,7 @@ const EXTRA_LANDING_HOSTS = (process.env.LANDING_HOSTS || '')
   .map(s => s.trim().toLowerCase())
   .filter(Boolean);
 const LANDING_HOSTS = new Set(['parcos.ro', 'www.parcos.ro', ...EXTRA_LANDING_HOSTS]);
-const LANDING_FILES = new Set(['/favicon.ico', '/favicon-32x32.png', '/apple-touch-icon.png']);
+const LANDING_FILES = new Set(['/favicon.ico', '/favicon-32x32.png', '/apple-touch-icon.png', '/llms.txt', '/llms-full.txt', '/robots.txt', '/sitemap.xml']);
 
 const MIME_MAP = {
   '.html': 'text/html; charset=utf-8',
@@ -1430,7 +1570,9 @@ const MIME_MAP = {
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
   '.mp4': 'video/mp4',
-  '.webm': 'video/webm'
+  '.webm': 'video/webm',
+  '.txt': 'text/plain; charset=utf-8',
+  '.xml': 'application/xml; charset=utf-8'
 };
 
 function hostOfRequest(req) {
@@ -1464,12 +1606,30 @@ async function tryServeLanding(req, res, urlObj, pathname) {
   let rel = null;
   let cacheHeader = 'public, max-age=2592000'; // 30 zile
 
-  if (pathname === '/' || pathname === '/index.html') {
+  if (pathname === '/' || pathname === '/index.html' || pathname === '/pret' || pathname === '/functii' || pathname === '/cum-incepi' || pathname === '/faq' || pathname === '/dms-crm') {
     rel = 'index.html';
     cacheHeader = 'no-cache';
   } else if (pathname === '/politica-de-confidentialitate' || pathname === '/politica-de-confidentialitate.html') {
     rel = 'politica-de-confidentialitate.html';
     cacheHeader = 'no-cache';
+  } else if (pathname === '/termeni-si-conditii' || pathname === '/termeni-si-conditii.html') {
+    rel = 'termeni-si-conditii.html';
+    cacheHeader = 'no-cache';
+  } else if (pathname === '/politica-de-cookies' || pathname === '/politica-de-cookies.html') {
+    rel = 'politica-de-cookies.html';
+    cacheHeader = 'no-cache';
+  } else if (pathname === '/llms.txt') {
+    rel = 'llms.txt';
+    cacheHeader = 'public, max-age=3600';
+  } else if (pathname === '/llms-full.txt') {
+    rel = 'llms-full.txt';
+    cacheHeader = 'public, max-age=3600';
+  } else if (pathname === '/robots.txt') {
+    rel = 'robots.txt';
+    cacheHeader = 'public, max-age=3600';
+  } else if (pathname === '/sitemap.xml') {
+    rel = 'sitemap.xml';
+    cacheHeader = 'public, max-age=3600';
   } else if (pathname.startsWith('/lp-assets/') || LANDING_FILES.has(pathname)) {
     rel = decodeURIComponent(pathname.replace(/^\/+/, ''));
     if (/\.(css|js)$/.test(rel)) {
@@ -1487,7 +1647,13 @@ async function tryServeLanding(req, res, urlObj, pathname) {
   // Anti-path traversal guard
   if (!targetFile.startsWith(landingBase + path.sep) && 
       targetFile !== path.resolve(landingBase, 'index.html') && 
-      targetFile !== path.resolve(landingBase, 'politica-de-confidentialitate.html')) {
+      targetFile !== path.resolve(landingBase, 'politica-de-confidentialitate.html') &&
+      targetFile !== path.resolve(landingBase, 'termeni-si-conditii.html') &&
+      targetFile !== path.resolve(landingBase, 'politica-de-cookies.html') &&
+      targetFile !== path.resolve(landingBase, 'llms.txt') &&
+      targetFile !== path.resolve(landingBase, 'llms-full.txt') &&
+      targetFile !== path.resolve(landingBase, 'robots.txt') &&
+      targetFile !== path.resolve(landingBase, 'sitemap.xml')) {
     return false;
   }
 
@@ -1511,6 +1677,21 @@ async function tryServeLanding(req, res, urlObj, pathname) {
 
   if (isStagingReq) {
     responseHeaders['X-Robots-Tag'] = 'noindex, nofollow, noarchive';
+  }
+
+  if (rel === 'index.html') {
+    try {
+      const rawHtml = fs.readFileSync(targetFile, 'utf8');
+      const dynamicHtml = await renderDynamicHtml(rawHtml, req, urlObj);
+      const buf = Buffer.from(dynamicHtml, 'utf8');
+      responseHeaders['Content-Length'] = buf.length;
+      res.writeHead(200, responseHeaders);
+      if (req.method === 'HEAD') { res.end(); return true; }
+      res.end(buf);
+      return true;
+    } catch (err) {
+      console.error('[Landing] Eroare la renderDynamicHtml:', err.message);
+    }
   }
 
   res.writeHead(200, responseHeaders);
@@ -4146,7 +4327,8 @@ REGULI STRICTE & INVARIANTE HOLDING:
     }
 
     // 7. GET & HEAD /cars/... sau /rxm/cars/... - Servire imagine din disc (Read-Only cu căutare ierarhică multi-locație)
-    if ((req.method === 'GET' || req.method === 'HEAD') && (pathname.startsWith('/cars/') || pathname.startsWith('/rxm/cars/'))) {
+    const isImageFile = /\.(?:webp|jpg|jpeg|png|svg|avif|gif)$/i.test(pathname);
+    if ((req.method === 'GET' || req.method === 'HEAD') && isImageFile && (pathname.startsWith('/cars/') || pathname.startsWith('/rxm/cars/'))) {
       const cleanPath = pathname.replace(/^\/(?:rxm\/)?cars\//, '');
       const safeRelativePath = path.normalize(cleanPath).replace(/^(\.\.[\/\\])+/, '');
 
@@ -4243,10 +4425,17 @@ REGULI STRICTE & INVARIANTE HOLDING:
         if (isParcosHost) {
           const parcosSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://parcos.ro/</loc><lastmod>2026-10-25</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://parcos.ro/termeni-si-conditii</loc><lastmod>2026-10-25</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://parcos.ro/politica-de-confidentialitate</loc><lastmod>2026-10-25</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://parcos.ro/politica-de-cookies</loc><lastmod>2026-10-25</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://parcos.ro/</loc><lastmod>2026-10-30</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
+    <url><loc>https://parcos.ro/pret</loc><lastmod>2026-10-30</lastmod><changefreq>weekly</changefreq><priority>0.90</priority></url>
+  <url><loc>https://parcos.ro/functii</loc><lastmod>2026-10-30</lastmod><changefreq>weekly</changefreq><priority>0.90</priority></url>
+  <url><loc>https://parcos.ro/cum-incepi</loc><lastmod>2026-10-30</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://parcos.ro/faq</loc><lastmod>2026-10-30</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://parcos.ro/dms-crm</loc><lastmod>2026-10-30</lastmod><changefreq>weekly</changefreq><priority>0.95</priority></url>
+  <url><loc>https://parcos.ro/llms.txt</loc><lastmod>2026-10-30</lastmod><changefreq>weekly</changefreq><priority>0.80</priority></url>
+  <url><loc>https://parcos.ro/llms-full.txt</loc><lastmod>2026-10-30</lastmod><changefreq>weekly</changefreq><priority>0.80</priority></url>
+  <url><loc>https://parcos.ro/termeni-si-conditii</loc><lastmod>2026-10-30</lastmod><changefreq>yearly</changefreq><priority>0.30</priority></url>
+  <url><loc>https://parcos.ro/politica-de-confidentialitate</loc><lastmod>2026-10-30</lastmod><changefreq>yearly</changefreq><priority>0.30</priority></url>
+  <url><loc>https://parcos.ro/politica-de-cookies</loc><lastmod>2026-10-30</lastmod><changefreq>yearly</changefreq><priority>0.30</priority></url>
 </urlset>`;
           res.writeHead(200, {
             'Content-Type': 'application/xml; charset=utf-8',

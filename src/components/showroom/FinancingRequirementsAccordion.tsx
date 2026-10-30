@@ -239,7 +239,7 @@ export const FinancingRequirementsAccordion: React.FC<FinancingRequirementsAccor
                   <h4 className="text-sm font-bold text-white">Venituri Acceptate din Străinătate & Diurne Externe:</h4>
                 </div>
                 <p className="text-xs text-zinc-300 leading-relaxed">
-                  La RXM Automobile acceptăm contracte de muncă din Uniunea Europeană și diurne pentru șoferii de transport internațional:
+                  La {dealer.name} acceptăm contracte de muncă din Uniunea Europeană și diurne pentru șoferii de transport internațional:
                 </p>
                 <div className="space-y-3 text-xs">
                   <div className="p-3 rounded-lg bg-white/5 border border-white/10">
@@ -362,7 +362,7 @@ export const FinancingRequirementsAccordion: React.FC<FinancingRequirementsAccor
               </a>
 
               <a
-                href={`https://wa.me/${whatsappFinance}?text=Bună%20ziua!%20Doresc%20mai%20multe%20detalii%20despre%20actele%20necesare%20și%20condițiile%20de%20finanțare%20la%20RXM%20Automobile.`}
+                href={`https://wa.me/${whatsappFinance}?text=Bună%20ziua!%20Doresc%20mai%20multe%20detalii%20despre%20actele%20necesare%20și%20condițiile%20de%20finanțare%20la%20${encodeURIComponent(dealer.name)}.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs inline-flex items-center justify-center gap-1.5 transition-all shadow-md touch-manipulation active:scale-95"

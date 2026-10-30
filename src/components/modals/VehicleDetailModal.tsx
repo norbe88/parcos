@@ -692,7 +692,7 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
 
           {/* ⚖️ Clauză Legală de Eroare Materială & Caracter Informativ (ANPC) */}
           <div className="mt-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-[10.5px] text-zinc-400 leading-relaxed">
-            <strong className="text-zinc-300">Mențiune legală (caracter informativ):</strong> Descrierea autovehiculului, fotografiile și dotările afișate au caracter strict informativ și pot conține erori umane de redactare sau preluare automată a specificațiilor. Oferta fermă, echiparea completă și istoricul tehnic se confirmă contractual la sediul showroom-ului RXM Automobile în momentul tranzacției.
+            <strong className="text-zinc-300">Mențiune legală (caracter informativ):</strong> Descrierea autovehiculului, fotografiile și dotările afișate au caracter strict informativ și pot conține erori umane de redactare sau preluare automată a specificațiilor. Oferta fermă, echiparea completă și istoricul tehnic se confirmă contractual la sediul showroom-ului {dealer.name} în momentul tranzacției.
           </div>
 
           {/* Butoane Acțiune Finală în Modal */}
@@ -787,7 +787,7 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
             </a>
             <a
               href={selectedCar.status === 'sold'
-                ? `https://wa.me/${dealer.whatsappNumber}?text=${encodeURIComponent(`Bună ziua! Am văzut pe rxmautomobile.ro că ${selectedCar.brand} ${selectedCar.model} (${selectedCar.year}) a fost vândut. Aș dori un model similar. Mulțumesc!`)}`
+                ? `https://wa.me/${dealer.whatsappNumber}?text=${encodeURIComponent(`Bună ziua! Am văzut pe ${dealer.domain || 'site-ul dvs.'} că ${selectedCar.brand} ${selectedCar.model} (${selectedCar.year}) a fost vândut. Aș dori un model similar. Mulțumesc!`)}`
                 : getWhatsAppCarInquiryUrl(selectedCar, dealer.whatsappNumber)
               }
               target="_blank"

@@ -58,12 +58,12 @@ export const NavigationModal: React.FC<NavigationModalProps> = ({
     }
   };
 
-  // Locație oficială Google Maps & GPS pentru Showroom RXM Automobile Cluj-Napoca
+  // Locație oficială Google Maps & GPS pentru Showroom
   const OFFICIAL_RXM_MAPS_URL = "https://www.google.com/maps/place/RXM+Automobile/@46.7987323,23.6716857,17z/data=!3m1!4b1!4m6!3m5!1s0x691a396c3c3458f3:0x9cec8cb127b27fff!8m2!3d46.7987287!4d23.6742606!16s%2Fg%2F11zfqg_ndk?hl=en-GB&entry=ttu&g_ep=EgoyMDI2MTAxMy4wIKXMDSoASAFQAw%3D%3D";
   const SHOWROOM_LAT = 46.7987287;
   const SHOWROOM_LNG = 23.6742606;
 
-  const isRxm = !dealer.name || dealer.name.includes('RXM') || dealer.cui === 'RO48482214';
+  const isRxm = dealer.slug === 'rxm' || dealer.slug === 'rxm_sandbox';
   const mapQuery = isRxm 
     ? 'RXM+Automobile+Cluj' 
     : encodeURIComponent(`${dealer.name} ${dealer.showroomAddress || dealer.address}`);
@@ -119,7 +119,7 @@ export const NavigationModal: React.FC<NavigationModalProps> = ({
         {/* 🗺️ Hartă Interactivă Showroom — Cluj-Napoca (Colonia Hodai F.N.) */}
         <div className="w-full h-40 sm:h-48 rounded-2xl overflow-hidden border border-white/10 mb-4 bg-zinc-900 relative shadow-inner">
           <iframe
-            title="Harta Locație Showroom RXM Automobile Cluj-Napoca"
+            title={`Harta Locație Showroom ${dealer.name}`}
             src={mapEmbedUrl}
             className="w-full h-full border-0 filter contrast-[1.08] brightness-[0.95]"
             loading="lazy"

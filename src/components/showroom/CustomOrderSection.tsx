@@ -47,7 +47,7 @@ export const CustomOrderSection: React.FC<CustomOrderSectionProps> = ({
       notes: `Mașină la Comandă: ${cmdBrand} ${cmdModel || ''} (Min. ${cmdYear}, ${cmdFuel}, ${cmdTransmission}). Buget: ${cmdBudget} €. Mențiuni: ${cmdNotes || 'Fără'}`,
     });
 
-    const text = `Bună ziua! Doresc o mașină la comandă prin RXM Automobile Cluj:%0A` +
+    const text = `Bună ziua! Doresc o mașină la comandă prin ${encodeURIComponent(dealer.name)}:%0A` +
       `🚗 Marcă & Model: ${encodeURIComponent(cmdBrand + (cmdModel ? ' ' + cmdModel : ''))}%0A` +
       `📅 An fabricație minim: ${encodeURIComponent(cmdYear)} | 💰 Buget estimat: ${encodeURIComponent(cmdBudget)} €%0A` +
       `⛽ Combustibil: ${encodeURIComponent(cmdFuel)} | ⚙️ Transmisie: ${encodeURIComponent(cmdTransmission)}%0A` +
@@ -70,7 +70,7 @@ export const CustomOrderSection: React.FC<CustomOrderSectionProps> = ({
               Aducem Orice Mașină la Comandă din Europa
             </h2>
             <p className="text-sm text-zinc-400 mt-2 max-w-2xl leading-relaxed">
-              Nu ai găsit exact mașina dorită în stocul nostru actual? Echipa <strong>RXM Automobile</strong> găsește, verifică tehnic și transportă autovehiculul dorit din Germania și rețeaua europeană în <strong>5-7 zile lucrătoare</strong>.
+              Nu ai găsit exact mașina dorită în stocul nostru actual? Echipa <strong>{dealer.name}</strong> găsește, verifică tehnic și transportă autovehiculul dorit din Germania și rețeaua europeană în <strong>5-7 zile lucrătoare</strong>.
             </p>
           </div>
 

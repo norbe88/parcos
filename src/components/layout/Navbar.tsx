@@ -205,18 +205,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             target="_blank" 
             rel="noopener noreferrer" 
             className="hidden sm:flex items-center justify-center w-9 h-9 rounded-xl bg-white/5 hover:bg-[#fe2c55]/20 border border-white/10 hover:border-[#fe2c55]/40 text-zinc-300 hover:text-white transition-all shadow-sm group touch-manipulation"
-            title="Urmărește clipurile TikTok @rxm.automobile"
-            aria-label="Canal Oficial TikTok RXM Automobile"
+            title={`Urmărește clipurile TikTok ${dealer.tiktokHandle || ""}`}
+            aria-label={`Canal Oficial TikTok ${dealer.name}`}
           >
             <Play className="w-3.5 h-3.5 fill-[#fe2c55] text-[#fe2c55] group-hover:scale-110 transition-transform" />
           </a>
 
           {/* Buton WhatsApp Showroom — Design Dark Luxury Compact & Ergonomic */}
           <a 
-            href={`https://wa.me/${dealer.whatsappNumber}?text=Bună%20ziua!%20Sunt%20interesat%20de%20mașinile%20din%20stocul%20RXM%20Automobile.`} 
+            href={`https://wa.me/${dealer.whatsappNumber}?text=${encodeURIComponent(`Bună ziua! Sunt interesat de mașinile din stocul ${dealer.name}.`)}`} 
             target="_blank" 
             rel="noopener noreferrer" 
-            aria-label="WhatsApp Showroom - Contactează RXM Automobile"
+            aria-label={`WhatsApp Showroom - Contactează ${dealer.name}`}
             className="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-[0.98] text-white font-semibold text-xs sm:text-[13px] h-9 sm:h-10 px-2.5 sm:px-4 rounded-xl shadow-md shadow-emerald-950/40 border border-emerald-500/30 transition-all touch-manipulation shrink-0"
           >
             <MessageCircle className="w-3.5 h-3.5 fill-white shrink-0" />

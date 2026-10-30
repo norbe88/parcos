@@ -103,7 +103,7 @@ export const DetailDeadlinesTab: React.FC<DetailDeadlinesTabProps> = ({
         <Lock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
         <div>
           <div className="font-bold text-amber-300">
-            Panou Intern Gestiune Flotă — Exclusiv Dealer RXM
+            Panou Intern Gestiune Flotă — Exclusiv Dealer Autorizat
           </div>
           <p className="text-zinc-300 text-[11.5px] mt-0.5 leading-relaxed">
             Aceste termene administrative (numere roșii provizorii, valabilitate ITP și programare RAR) sunt strict interne pentru operarea parcului auto și <strong>nu sunt vizibile clienților în showroom</strong>.

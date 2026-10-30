@@ -193,7 +193,8 @@ export const DEALER_MPI_AUTO: DealerProfile = {
       googleReviewsSection: false,
     },
     customBadges: ['Garanție 12 Luni', 'Rate BT / TBI'],
-  }
+  },
+  logoUrl: "/images/mpi-logo.svg"
 };
 
 export const DEALER_TOP_AUTO: DealerProfile = {

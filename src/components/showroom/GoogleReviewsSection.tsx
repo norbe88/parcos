@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Star, ChevronLeft, ChevronRight, CheckCircle2, ExternalLink, MessageSquare, ThumbsUp } from 'lucide-react';
 import { SEED_DEALER } from '../../db/seed';
+import { DealerProfile } from '../../db/types';
 
 interface GoogleReviewItem {
   id: string;
@@ -23,7 +24,7 @@ const REVIEWS_DATA: GoogleReviewItem[] = [
     rating: 5,
     purchasedCar: 'BMW Seria 5 520d LCI',
     dateText: 'Acum 2 săptămâni',
-    reviewText: 'Am cumpărat un BMW Seria 5 după ce am văzut prezentarea video detaliată pe TikTok. Mașina a fost 100% conform descrierii, fără defecte ascunse sau surprize. Numerele roșii au fost eliberate pe loc, iar asistența pentru dosarul RAR a fost impecabilă. Recomand cu încredere RXM Automobile!',
+    reviewText: 'Am cumpărat un BMW Seria 5 după ce am văzut prezentarea video detaliată pe TikTok. Mașina a fost 100% conform descrierii, fără defecte ascunse sau surprize. Numerele roșii au fost eliberate pe loc, iar asistența pentru dosarul RAR a fost impecabilă. Recomand cu încredere {dealer.name}!',
     verifiedBuyer: true,
   },
   {
@@ -78,12 +79,12 @@ const REVIEWS_DATA: GoogleReviewItem[] = [
     rating: 5,
     purchasedCar: 'Volvo XC60 Inscription',
     dateText: 'Acum o lună',
-    reviewText: 'Am venit de la Oradea special pentru un XC60 văzut pe contul lor de TikTok. Test drive-ul a fost generos, mașina s-a comportat exemplar. Actele au fost gata în 30 de minute. Jos pălăria pentru RXM Automobile!',
+    reviewText: 'Am venit de la Oradea special pentru un XC60 văzut pe contul lor de TikTok. Test drive-ul a fost generos, mașina s-a comportat exemplar. Actele au fost gata în 30 de minute. Jos pălăria pentru {dealer.name}!',
     verifiedBuyer: true,
   }
 ];
 
-export const GoogleReviewsSection: React.FC = () => {
+export const GoogleReviewsSection: React.FC<{ dealer?: DealerProfile }> = ({ dealer = SEED_DEALER }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -130,7 +131,7 @@ export const GoogleReviewsSection: React.FC = () => {
               Ce Spun Clienții Despre Noi
             </h2>
             <p className="text-sm text-zinc-400 mt-2 max-w-xl">
-              Tranzacții documentate și recenzii de 5 stele de la șoferi reali din toată România care au ales transparența RXM Automobile.
+              Tranzacții documentate și recenzii de 5 stele de la șoferi reali din toată România care au ales transparența {dealer.name}.
             </p>
           </div>
 
@@ -234,12 +235,12 @@ export const GoogleReviewsSection: React.FC = () => {
         {/* Bară Inferioară CTA Google Maps */}
         <div className="mt-8 pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-xs text-zinc-400 text-center sm:text-left">
-            Ai fost în showroom-ul nostru sau ai cumpărat o mașină? Părerea ta contează enorm pentru comunitatea RXM!
+            Ai fost în showroom-ul nostru sau ai cumpărat o mașină? Părerea ta contează enorm pentru comunitatea {dealer.name}!
           </div>
 
           <div className="flex items-center gap-3">
             <a
-              href={SEED_DEALER.googleMapsUrl}
+              href={dealer.googleMapsUrl || SEED_DEALER.googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-all touch-manipulation active:scale-95"
@@ -249,7 +250,7 @@ export const GoogleReviewsSection: React.FC = () => {
             </a>
 
             <a
-              href={SEED_DEALER.googleMapsUrl}
+              href={dealer.googleMapsUrl || SEED_DEALER.googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs inline-flex items-center gap-1.5 transition-all shadow-md shadow-amber-500/20 touch-manipulation active:scale-95"

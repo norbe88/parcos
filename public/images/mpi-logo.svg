@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" fill="none">
+  <!-- MPI Symbol: Modern Geometric Monogram with Dynamic Automotive Accent -->
+  <g transform="translate(4, 6)">
+    <rect width="48" height="48" rx="12" fill="#2563eb" fill-opacity="0.1" stroke="#2563eb" stroke-width="2" />
+    <path d="M12 36V18L19 28L26 18V36" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M30 18H36C38.2 18 40 19.8 40 22C40 24.2 38.2 26 36 26H30V36" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mpi-stroke-dark" />
+  </g>
+  
+  <!-- Typography -->
+  <text x="64" y="32" font-family="'Plus Jakarta Sans', -apple-system, sans-serif" font-weight="900" font-size="22" letter-spacing="0.5" fill="#0f172a" class="mpi-text-dark">
+    MPI AUTO
+  </text>
+  <text x="64" y="47" font-family="'Plus Jakarta Sans', -apple-system, sans-serif" font-weight="700" font-size="9" letter-spacing="2" fill="#2563eb">
+    SHOWROOM CLUJ • APAHIDA
+  </text>
+  
+  <style>
+    @media (prefers-color-scheme: dark) {
+      :root[data-theme="obsidian_gold"] .mpi-text-dark { fill: #ffffff; }
+      :root[data-theme="obsidian_gold"] .mpi-stroke-dark { stroke: #ffffff; }
+    }
+  </style>
+</svg>

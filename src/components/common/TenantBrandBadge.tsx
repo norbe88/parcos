@@ -52,7 +52,7 @@ export const TenantBrandBadge: React.FC<TenantBrandBadgeProps> = ({
           alt="RXM Emblem" 
           width={40}
           height={40}
-          className="w-8 h-8 sm:w-10 sm:h-10 object-contain filter invert brightness-150 drop-shadow-[0_2px_8px_rgba(251,191,36,0.3)] shrink-0 group-hover:scale-105 transition-transform"
+          className="w-8 h-8 sm:w-10 sm:h-10 object-contain filter invert brightness-150 drop-shadow-[0_2px_8px_rgba(251,191,36,0.3)] shrink-0 group-hover:scale-105 transition-transform" 
         />
         <div className="flex flex-col min-w-0">
           <img 
@@ -60,7 +60,7 @@ export const TenantBrandBadge: React.FC<TenantBrandBadgeProps> = ({
             alt="RXM Automobile" 
             width={112}
             height={28}
-            className="h-5 sm:h-7 w-auto object-contain filter invert brightness-200 group-hover:brightness-125 transition-all"
+            className="h-5 sm:h-7 w-auto object-contain filter invert brightness-200 group-hover:brightness-125 transition-all" 
           />
           <p className="text-[7.5px] sm:text-[9px] text-amber-400 font-medium uppercase tracking-[0.12em] sm:tracking-[0.2em] -mt-0.5 truncate">Dealer Auto Rulate • Cluj</p>
         </div>
@@ -75,16 +75,18 @@ export const TenantBrandBadge: React.FC<TenantBrandBadgeProps> = ({
         <img
           src={dealer.logoUrl}
           alt={dealer.name}
-          className="h-8 sm:h-10 w-auto max-w-[160px] object-contain shrink-0 group-hover:scale-105 transition-transform"
+          className="h-8 sm:h-10 w-auto max-w-[170px] object-contain shrink-0 group-hover:scale-105 transition-transform"
         />
-        <div className="flex flex-col min-w-0">
-          <span className="text-sm sm:text-base font-black tracking-tight text-white leading-tight truncate">
-            {dealer.name}
-          </span>
-          <span className="text-[8px] sm:text-[9.5px] text-amber-400 font-semibold uppercase tracking-wider truncate">
-            {dealer.showroomAddress || dealer.address || 'Autovehicule Rulate Verificate'}
-          </span>
-        </div>
+        {variant !== 'footer' && (
+          <div className="flex flex-col min-w-0">
+            <span className="text-sm sm:text-base font-black tracking-tight text-white leading-tight truncate">
+              {dealer.slug === 'mpi_auto' ? 'MPI AUTO' : dealer.name}
+            </span>
+            <span className="text-[8px] sm:text-[9.5px] text-amber-400 font-semibold uppercase tracking-wider truncate">
+              {dealer.showroomAddress || dealer.address || 'Autovehicule Rulate Verificate'}
+            </span>
+          </div>
+        )}
       </div>
     );
   }

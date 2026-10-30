@@ -81,10 +81,10 @@ export const LandingSectionOrchestrator: React.FC<LandingSectionOrchestratorProp
       />
     ) : null,
     GOOGLE_REVIEWS: s.googleReviewsSection ? (
-      <GoogleReviewsSection key="GOOGLE_REVIEWS" />
+      <GoogleReviewsSection key="GOOGLE_REVIEWS" dealer={dealer} />
     ) : null,
     WHY_CHOOSE_US: s.whyChooseUs ? (
-      <WhyChooseUs key="WHY_CHOOSE_US" />
+      <WhyChooseUs key="WHY_CHOOSE_US" dealer={dealer} />
     ) : null,
     CUSTOM_ORDER: s.customOrderSection ? (
       <CustomOrderSection 

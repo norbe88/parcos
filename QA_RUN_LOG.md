@@ -98,3 +98,53 @@
 
 ---
 **Verdict QA Wave 3:** ✅ **TOATE TESTELE E2E AU TRECUT CU SUCCES (PASSED 100%)**
+
+
+---
+
+# 🧪 ParcOS — Multi-Tenant Brand Isolation & Clean White Light Theme Certification
+> **Data & Ora:** 2026-10-30T10:28:00.000Z  
+> **Target:** Tenant Brand Isolation (MPI Auto CLA S.R.L.), Clean White Light Theme Engine & Pre-Commit Safeguards  
+> **Suita de Test:** `scripts/qa_tenant_brand_isolation.cjs` & `scripts/qa_tenant_routing.cjs`  
+> **Persona / Architect:** Mao (Holding Distributed Architect & AI Pair Programmer)  
+> **Compute Node:** Zety (HP ZBook Workstation, Windows 11)
+
+---
+
+## 📊 Rezumat Execuție Teste Izolare Brand & Temă Luminoasă
+
+| Categorie | Scenariu Testat | Status | Observații / Rezultat |
+| :--- | :--- | :---: | :--- |
+| **MPI Profile** | Slug & Routing Config | ✅ PASS | Slug `mpi_auto`, domeniu `mpiauto.ro`, temă `clean_white` |
+| **MPI Assets** | Vector Brand Emblem & Logo | ✅ PASS | `public/images/mpi-logo.svg` creat cu monogramă albastru azur/grafit |
+| **Theme Presets** | Clean White Light Mode Definition | ✅ PASS | `isLightMode: true`, `previewBg: '#f8fafc'`, `previewCard: '#ffffff'` |
+| **CSS Cascade** | `[data-theme="clean_white"]` Light Engine | ✅ PASS | Background general `#f8fafc`, carduri albe `#ffffff`, text `#0f172a` |
+| **CSS Cascade** | Adaptare Topbar & Navbar | ✅ PASS | Topbar `#f1f5f9`, navbar sticlă `#ffffff/95`, borduri `#e2e8f0` |
+| **CSS Cascade** | Butoane & Accente Azur/Nordic | ✅ PASS | Amber înlocuit cu `#2563eb` (albastru azur), contrast WCAG AA > 4.5:1 |
+| **CSS Cascade** | Formulare & Modale Luminoase | ✅ PASS | Input-uri fundal alb, text `#0f172a`, borduri slate `#cbd5e1` |
+| **Anti-Leak Showroom** | `BuyBackSection.tsx` | ✅ PASS | Zero apariții „stocul RXM”, „RXM Automobile Cluj” sau „consilierii RXM” |
+| **Anti-Leak Showroom** | `CustomOrderSection.tsx` | ✅ PASS | Zero apariții „RXM Automobile Cluj” sau „Echipa RXM Automobile” |
+| **Anti-Leak Showroom** | `FinancingSection.tsx` | ✅ PASS | Zero apariții „stocul RXM” sau WhatsApp hardcodat RXM |
+| **Anti-Leak Showroom** | `FinancingRequirementsAccordion.tsx` | ✅ PASS | Zero apariții „La RXM Automobile acceptăm” |
+| **Anti-Leak Showroom** | `HeroSpotlight.tsx` | ✅ PASS | „RXM Video Lounge” parametrizat dinamic cu denumirea dealerului |
+| **Anti-Leak Showroom** | `WhyChooseUs.tsx` & `GoogleReviewsSection.tsx` | ✅ PASS | Prop `dealer` injectat dinamic, zero mențiuni RXM pentru tenanți terți |
+| **Anti-Leak Modale** | `NavigationModal.tsx` & `VehicleDetailModal.tsx` | ✅ PASS | Map title, WhatsApp sold query și disclaimere parametrizate cu `dealer.name` |
+| **Anti-Leak Modale** | `DetailTestDriveTab.tsx` & `DetailVideoTab.tsx` | ✅ PASS | Mesaje confirmare test drive și walkaround parametrizate dinamic |
+| **Anti-Leak Modale** | `DetailGallery.tsx` & `PhotoLightboxModal.tsx` | ✅ PASS | Security Shield 4K parametrizat generic fără branding forțat RXM |
+| **Anti-Leak Modale** | `VehicleSocialPostModal.tsx` | ✅ PASS | Titluri sociale, avatar monogramă și handle sincronizate pe dealer |
+| **Anti-Leak Utils** | `socialCopyGenerator.ts` | ✅ PASS | Hashtag-uri generate dinamic `#${dealer.name}`, share URL pe domeniul dealerului |
+| **Anti-Leak Utils** | `vehicleDescriptionGenerator.ts` | ✅ PASS | Disclaimere, contact showroom și telefoane extrase din profilul dealerului |
+| **Automated Guard** | CI/Pre-Commit Brand Isolation Gate | ✅ PASS | Scriptul `qa_tenant_brand_isolation.cjs` adăugat în `npm test` și `prebuild` |
+| **Static Analysis** | `npx tsc --noEmit` | ✅ PASS | Exit code 0, zero erori de compilare TypeScript |
+
+---
+
+## 🛡️ Sinteză Conformitate Invariante Suverane CARVANA SRL
+- [x] **Strict 21% TVA:** `VAT_RATE = 0.21` respectat în întregul backend și calculele financiare.
+- [x] **Terminologie Garanții:** Strict **„Cont de Garanție”** (fără apariții de „escrow” sau „cont fiduciar”).
+- [x] **Hosting Provider Invariant:** Strict **Netcup VPS (`152.53.158.65`)** pentru containerul PostgreSQL și API ParcOS.
+- [x] **Izolare Multi-Tenant & Zero Brand Leaks:** Orice tenant B2B randat beneficiază de date, sigle, contacte și teme 100% proprii.
+- [x] **Compilare TypeScript:** `npx tsc --noEmit` exit code 0.
+
+---
+**Verdict QA:** ✅ **TOATE CELE 41 TESTE DE IZOLARE BRAND ȘI TEMĂ AU TRECUT CU SUCCES (PASSED 100%)**

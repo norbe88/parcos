@@ -117,7 +117,7 @@ export const FinancingSection: React.FC<FinancingSectionProps> = ({
             <div className="space-y-6 text-xs">
               {/* Selectare Vehicul din Stoc sau Sumă Personalizată */}
               <div>
-                <label htmlFor="fin-car-select" className="block text-zinc-300 font-semibold mb-2">Alege mașina din stocul RXM sau introdu valoarea:</label>
+                <label htmlFor="fin-car-select" className="block text-zinc-300 font-semibold mb-2">Alege mașina din stocul {dealer.name} sau introdu valoarea:</label>
                 <select 
                   id="fin-car-select"
                   aria-label="Selectează mașina pentru finanțare"
@@ -340,7 +340,7 @@ export const FinancingSection: React.FC<FinancingSectionProps> = ({
               </div>
 
               <a 
-                href={`https://wa.me/${dealer.whatsappFinance || '40758042979'}?text=Bună%20ziua!%20Doresc%20să%20aplic%20pentru%20finanțare%20auto%20la%20RXM%20Automobile:%0A- Valoare:%20${activeFinPrice}€%0A- Avans:%20${finAdvPct}%20(${finAdvanceEur}€)%0A- Perioadă:%20${finMonths}%20luni%0A- Rată%20estimată:%20${finMonthlyRate}€/lună%20(${convertEurToRon(finMonthlyRate)}%20RON)%0A- Finanțator:%20${encodeURIComponent(activeCreditor.name)}%20(Dobândă%20${activeCreditor.interestRate}%)`}
+                href={`https://wa.me/${dealer.whatsappFinance || '40758042979'}?text=Bună%20ziua!%20Doresc%20să%20aplic%20pentru%20finanțare%20auto%20la%20${encodeURIComponent(dealer.name)}:%0A- Valoare:%20${activeFinPrice}€%0A- Avans:%20${finAdvPct}%20(${finAdvanceEur}€)%0A- Perioadă:%20${finMonths}%20luni%0A- Rată%20estimată:%20${finMonthlyRate}€/lună%20(${convertEurToRon(finMonthlyRate)}%20RON)%0A- Finanțator:%20${encodeURIComponent(activeCreditor.name)}%20(Dobândă%20${activeCreditor.interestRate}%)`}
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="mt-4 w-full min-h-[48px] inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-bold h-12 rounded-xl text-sm shadow-lg shadow-amber-500/20 transition-all touch-manipulation active:scale-[0.98]"

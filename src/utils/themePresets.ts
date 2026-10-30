@@ -32,16 +32,16 @@ export const THEME_PRESETS: Record<DealerThemePreset, ThemeConfig> = {
   clean_white: {
     id: 'clean_white',
     label: 'Clean White Luxury / Nordic',
-    description: 'Stil scandinav minimalist, contrast ridicat, accente de oțel șlefuit și perlă pură (Stil Polestar / Porsche Studio)',
-    accentColor: '#ffffff',
-    accentHoverColor: '#e4e4e7',
+    description: 'Stil luminos minimalist, suprafețe albe aerisite, contrast ridicat și accente moderne de azur (Stil Polestar / Porsche Studio)',
+    accentColor: '#2563eb',
+    accentHoverColor: '#1d4ed8',
     accentTextColor: '#ffffff',
-    accentBadgeBg: 'bg-white/20 text-white border-white/40 shadow-sm',
-    accentBorder: 'border-white/50',
-    ringClass: 'ring-white/60',
-    previewBg: '#0f172a',
-    previewCard: '#1e293b',
-    isLightMode: false
+    accentBadgeBg: 'bg-blue-50 text-blue-700 border-blue-200 shadow-xs',
+    accentBorder: 'border-blue-500/30',
+    ringClass: 'ring-blue-500/40',
+    previewBg: '#f8fafc',
+    previewCard: '#ffffff',
+    isLightMode: true
   },
   midnight_blue: {
     id: 'midnight_blue',

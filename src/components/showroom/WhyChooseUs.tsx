@@ -1,14 +1,16 @@
 import React from 'react';
+import { DealerProfile } from '../../db/types';
+import { SEED_DEALER } from '../../db/seed';
 import { Shield, CheckCircle2, Calculator } from 'lucide-react';
 
-export const WhyChooseUs: React.FC = () => {
+export const WhyChooseUs: React.FC<{ dealer?: DealerProfile }> = ({ dealer = SEED_DEALER }) => {
   return (
     <section id="garantie" className="border-t border-white/[0.08] bg-[#0c0c0e] py-16 px-4 sm:px-8 scroll-mt-20 sm:scroll-mt-24">
       <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="text-2xl sm:text-4xl font-serif font-bold text-white">Transparență Totală & Garanție Inclusă</h2>
           <p className="text-xs sm:text-sm text-zinc-400 mt-2">
-            Fiecare autovehicul din stocul nostru din Cluj-Napoca este supus unei verificări riguroase înainte de vânzare.
+            Fiecare autovehicul din stocul {dealer.name} este supus unei verificări riguroase înainte de vânzare.
           </p>
         </div>
 

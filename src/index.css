@@ -374,26 +374,115 @@ img[src*="/cars/"],
   color-scheme: light;
 }
 
-/* ⚪ 1. THEME PRESET: CLEAN WHITE LUXURY / NORDIC MINIMALIST */
+/* ⚪ 1. THEME PRESET: CLEAN WHITE LUXURY / NORDIC LIGHT (MPI AUTO & NORDIC PARTNERS) */
 [data-theme="clean_white"] {
-  --theme-accent: #ffffff;
-  --theme-accent-hover: #e4e4e7;
+  --theme-accent: #2563eb;
+  --theme-accent-hover: #1d4ed8;
   --theme-accent-text: #ffffff;
-  --theme-border: rgba(255, 255, 255, 0.2);
+  --theme-border: #e2e8f0;
+  color-scheme: light;
 }
 
+/* 1.1 Fond global și suprafețe luminoase */
+[data-theme="clean_white"],
+[data-theme="clean_white"] body,
+[data-theme="clean_white"] #root,
+[data-theme="clean_white"] .min-h-screen.bg-\[\#09090b\] {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* 1.2 Topbar luminos */
+[data-theme="clean_white"] .bg-\[\#121215\].border-b {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+[data-theme="clean_white"] .bg-\[\#121215\].border-b a,
+[data-theme="clean_white"] .bg-\[\#121215\].border-b button {
+  color: #334155 !important;
+}
+[data-theme="clean_white"] .bg-\[\#121215\].border-b a:hover,
+[data-theme="clean_white"] .bg-\[\#121215\].border-b button:hover {
+  color: #0f172a !important;
+}
+
+/* 1.3 Navbar luminos cu blur de sticlă fină */
+[data-theme="clean_white"] header.sticky {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-bottom-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04) !important;
+}
+[data-theme="clean_white"] header.sticky nav button {
+  color: #475569 !important;
+}
+[data-theme="clean_white"] header.sticky nav button:hover {
+  color: #0f172a !important;
+}
+
+/* 1.4 Carduri & module showroom (Vehicle Cards, Catalog Filter Dock) */
+[data-theme="clean_white"] .bg-\[\#121215\] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+[data-theme="clean_white"] .group.rounded-2xl {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 25px -4px rgba(0, 0, 0, 0.06) !important;
+}
+[data-theme="clean_white"] .group.rounded-2xl:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 10px 30px -4px rgba(37, 99, 235, 0.1) !important;
+}
+
+/* 1.5 Secțiuni Showroom (Why Choose Us, Financing, Buy Back, Custom Order) */
+[data-theme="clean_white"] section.bg-\[\#09090b\],
+[data-theme="clean_white"] section.bg-\[\#0c0c0e\] {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+[data-theme="clean_white"] section .bg-gradient-to-b.from-\[\#141418\].to-\[\#101013\] {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 1.6 Tipografie și Titluri */
+[data-theme="clean_white"] h1,
+[data-theme="clean_white"] h2,
+[data-theme="clean_white"] h3,
+[data-theme="clean_white"] h4,
+[data-theme="clean_white"] .font-serif.text-white {
+  color: #0f172a !important;
+}
+[data-theme="clean_white"] .text-white:not(button):not([class*="bg-"]):not(footer *):not(.badge-dark *) {
+  color: #0f172a !important;
+}
+[data-theme="clean_white"] .text-zinc-100,
+[data-theme="clean_white"] .text-zinc-200,
+[data-theme="clean_white"] .text-zinc-300 {
+  color: #334155 !important;
+}
+[data-theme="clean_white"] .text-zinc-400,
+[data-theme="clean_white"] .text-zinc-500 {
+  color: #64748b !important;
+}
+
+/* 1.7 Butoane și Accente (Clean Azure / Blue în loc de Amber) */
 [data-theme="clean_white"] .text-amber-400,
 [data-theme="clean_white"] .text-amber-300 {
-  color: #ffffff !important;
+  color: #2563eb !important;
 }
 
 [data-theme="clean_white"] .bg-amber-500 {
-  background-color: #ffffff !important;
-  color: #09090b !important;
+  background-color: #2563eb !important;
+  color: #ffffff !important;
 }
 
 [data-theme="clean_white"] .bg-amber-500:hover {
-  background-color: #e4e4e7 !important;
+  background-color: #1d4ed8 !important;
+  color: #ffffff !important;
 }
 
 [data-theme="clean_white"] .border-amber-500,
@@ -402,19 +491,62 @@ img[src*="/cars/"],
 [data-theme="clean_white"] .border-amber-500\/30,
 [data-theme="clean_white"] .border-amber-500\/25,
 [data-theme="clean_white"] .border-amber-500\/20 {
-  border-color: rgba(255, 255, 255, 0.4) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
 }
 
 [data-theme="clean_white"] .bg-amber-500\/10,
 [data-theme="clean_white"] .bg-amber-500\/15,
 [data-theme="clean_white"] .bg-amber-500\/20 {
-  background-color: rgba(255, 255, 255, 0.12) !important;
-  color: #ffffff !important;
+  background-color: rgba(37, 99, 235, 0.08) !important;
+  color: #1d4ed8 !important;
 }
 
 [data-theme="clean_white"] .shadow-amber-500\/20,
 [data-theme="clean_white"] .shadow-amber-500\/10 {
-  box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.15) !important;
+}
+
+/* 1.8 Controale Formular, Input-uri & Dropdown-uri */
+[data-theme="clean_white"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="clean_white"] select,
+[data-theme="clean_white"] textarea {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+[data-theme="clean_white"] input:focus,
+[data-theme="clean_white"] select:focus,
+[data-theme="clean_white"] textarea:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
+}
+
+/* 1.9 Modale & Dialog-uri */
+[data-theme="clean_white"] .sales-docs-modal-container > div,
+[data-theme="clean_white"] div[role="dialog"] .bg-\[\#121215\] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* 1.10 Footer Contrast Luxury pentru Clean White (Deep Slate #0f172a) */
+[data-theme="clean_white"] footer#contact {
+  background-color: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #94a3b8 !important;
+}
+[data-theme="clean_white"] footer#contact strong,
+[data-theme="clean_white"] footer#contact .text-white {
+  color: #f8fafc !important;
+}
+[data-theme="clean_white"] footer#contact .text-zinc-300 {
+  color: #cbd5e1 !important;
+}
+[data-theme="clean_white"] footer#contact .text-zinc-400 {
+  color: #94a3b8 !important;
+}
+[data-theme="clean_white"] footer#contact a:hover {
+  color: #60a5fa !important;
 }
 
 /* 💎 2. THEME PRESET: MIDNIGHT SAPPHIRE / BLUE */

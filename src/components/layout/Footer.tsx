@@ -153,7 +153,7 @@ export const Footer: React.FC<FooterProps> = ({
                 href={dealer.facebookUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                aria-label="Pagina oficială Facebook RXM Automobile"
+                aria-label={`Pagina oficială Facebook ${dealer.name}`}
                 className="min-h-[44px] px-3 py-2 rounded-xl bg-white/5 hover:bg-blue-600/20 text-zinc-300 hover:text-blue-400 border border-white/10 transition-colors flex items-center gap-1.5 font-medium touch-manipulation active:scale-95"
               >
                 Facebook
@@ -162,7 +162,7 @@ export const Footer: React.FC<FooterProps> = ({
                 href={dealer.instagramUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                aria-label="Contul oficial Instagram RXM Automobile"
+                aria-label={`Contul oficial Instagram ${dealer.name}`}
                 className="min-h-[44px] px-3 py-2 rounded-xl bg-white/5 hover:bg-pink-600/20 text-zinc-300 hover:text-pink-400 border border-white/10 transition-colors flex items-center gap-1.5 font-medium touch-manipulation active:scale-95"
               >
                 Instagram

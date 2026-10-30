@@ -278,7 +278,7 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
                     <iframe 
                       ref={spotlightIframeRef}
                       src={`https://www.tiktok.com/player/v1/${currentSpotlightTt.videoId}?embed_from=oembed&autoplay=1&music_info=1&description=1&volume_control=1`}
-                      title={`TikTok RXM Automobile - ${currentSpotlightCar?.brand} ${currentSpotlightCar?.model}`}
+                      title={`TikTok ${dealer.name} - ${currentSpotlightCar?.brand} ${currentSpotlightCar?.model}`}
                       className="w-full h-full border-0 rounded-[24px]"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
@@ -415,7 +415,7 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-[#fe2c55]"></span>
                   </span>
                   <span className="font-serif font-bold text-white tracking-wide text-xs">
-                    RXM Video Lounge
+                    {(dealer?.name || 'Showroom').split(' ')[0]} Video Lounge
                   </span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold">
                     Walkarounds 4K

@@ -169,7 +169,7 @@ export const DetailTestDriveTab: React.FC<DetailTestDriveTabProps> = ({
             <span>Confirmă Programarea Test Drive pe WhatsApp</span>
           </button>
           <p className="text-[11px] text-zinc-400 text-center mt-2 leading-relaxed">
-            Consilierul RXM Automobile va confirma disponibilitatea mașinii și pregătește autoturismul pentru ora solicitată.
+            Consilierul {dealer.name} va confirma disponibilitatea mașinii și pregătește autoturismul pentru ora solicitată.
           </p>
         </div>
       </form>

@@ -45,7 +45,7 @@ export function formatVatPriceSummary(priceEur: number, vatDeductible: boolean):
 /**
  * Generează URL-ul canonic al mașinii pentru distribuire garantată fără 404
  */
-export function getCanonicalCarShareUrl(carId: string, baseUrl?: string): string {
+export function getCanonicalCarShareUrl(carId: string, baseUrl?: string, dealerDomain?: string): string {
   if (baseUrl) {
     const clean = baseUrl.replace(/\/+$/, '');
     return `${clean}/#catalog?car=${carId}`;
@@ -56,7 +56,7 @@ export function getCanonicalCarShareUrl(carId: string, baseUrl?: string): string
       return `${origin}/#catalog?car=${carId}`;
     }
   }
-  return `https://rxmautomobile.ro/#catalog?car=${carId}`;
+  return `https://${dealerDomain || 'parcos.ro'}/#catalog?car=${carId}`;
 }
 
 /**
@@ -92,7 +92,7 @@ export function generateFacebookPostCopy(
   options: SocialCopyOptions = {}
 ): GeneratedSocialPost['facebook'] {
   const stockRef = getStockNumber(car);
-  const shareUrl = getCanonicalCarShareUrl(car.id, options.publicBaseUrl);
+  const shareUrl = getCanonicalCarShareUrl(car.id, options.publicBaseUrl, dealer.domain);
   const priceInfo = formatVatPriceSummary(car.priceEur, car.vatDeductible);
   const topFeatures = extractKeyFeaturesList(car, 8);
 
@@ -151,7 +151,7 @@ export function generateFacebookPostCopy(
     ``,
     ctaAndContactText,
     ``,
-    `#RXMAutomobile #MasiniCluj #DealerAuto #MasiniRulate #ClujNapoca #${car.brand} #${car.brand}${car.model.replace(/\s+/g, '')} #ParcAuto`
+    `#${dealer.name.replace(/[^a-zA-Z0-9]/g, '')} #MasiniCluj #DealerAuto #MasiniRulate #${car.brand} #${car.brand}${car.model.replace(/\s+/g, '')} #ParcAuto`
   ].filter(Boolean).join('\n');
 
   return {

@@ -42,7 +42,7 @@ export const BuyBackSection: React.FC<BuyBackSectionProps> = ({
     const targetCar = cars.find(c => c.id === bbTargetCarId);
     const targetCarText = targetCar 
       ? `${targetCar.brand} ${targetCar.model} (${targetCar.priceEur.toLocaleString('ro-RO')} €)` 
-      : 'Autoturism din stocul RXM';
+      : `Autoturism din stocul ${dealer.name}`;
 
     // Salvare automată a oportunității în Registrul Persistent Lead-uri CRM
     recordIncomingLead({
@@ -56,10 +56,10 @@ export const BuyBackSection: React.FC<BuyBackSectionProps> = ({
       notes: `Trade-In: Mașina veche: ${bbBrand} ${bbModel} (An ${bbYear}, ${bbMileage || 'N/A'} km, ${bbFuel}, ${bbTransmission}). Preț dorit: ${bbDesiredPrice ? bbDesiredPrice + ' €' : 'Nespecificat'}. Notițe: ${bbNotes || 'Fără'}`,
     });
 
-    const text = `Bună ziua! Solicit evaluare Trade-In (Schimb Auto) la RXM Automobile Cluj:%0A` +
+    const text = `Bună ziua! Solicit evaluare Trade-In (Schimb Auto) la ${encodeURIComponent(dealer.name)} (${encodeURIComponent(dealer.showroomAddress || dealer.address)}):%0A` +
       `🚗 Mașina mea la schimb: ${encodeURIComponent(bbBrand + ' ' + bbModel)} (An ${bbYear}, ${bbMileage ? bbMileage + ' km' : 'km nespecificați'}, ${bbFuel}, ${bbTransmission})%0A` +
       `💰 Preț dorit pentru mașina mea: ${encodeURIComponent(bbDesiredPrice ? bbDesiredPrice + ' €' : 'Aștept evaluarea consilierului')}%0A` +
-      `🎯 Schimb cu mașina din stocul RXM: ${encodeURIComponent(targetCarText)}%0A` +
+      `🎯 Schimb cu mașina din stocul ${encodeURIComponent(dealer.name)}: ${encodeURIComponent(targetCarText)}%0A` +
       `👤 Nume: ${encodeURIComponent(bbName || 'Client')}, Tel: ${encodeURIComponent(bbPhone)}%0A` +
       `📝 Detalii: ${encodeURIComponent(bbNotes || 'Fără mențiuni speciale')}`;
 
@@ -78,7 +78,7 @@ export const BuyBackSection: React.FC<BuyBackSectionProps> = ({
             Buy-Back Auto — Dă Mașina Veche la Schimb
           </h2>
           <p className="text-sm text-zinc-400 mt-2 max-w-2xl mx-auto">
-            Evaluează autovehiculul tău la prețul real al pieței. Valoarea mașinii vechi devine avans pentru orice autoturism din stocul RXM Automobile sau îți virăm contravaloarea prin transfer bancar!
+            Evaluează autovehiculul tău la prețul real al pieței. Valoarea mașinii vechi devine avans pentru orice autoturism din stocul ${dealer.name} sau îți virăm contravaloarea prin transfer bancar!
           </p>
         </div>
 
@@ -100,7 +100,7 @@ export const BuyBackSection: React.FC<BuyBackSectionProps> = ({
               Evaluare în <span className="text-amber-400 italic">Max. 24 Ore</span>
             </h3>
             <p className="text-zinc-300 text-xs sm:text-[13px] leading-relaxed">
-              Specialiștii RXM analizează istoricul și cotația de piață și revin cu o ofertă fermă și transparentă.
+              Specialiștii ${dealer.name} analizează istoricul și cotația de piață și revin cu o ofertă fermă și transparentă.
             </p>
           </div>
 
@@ -236,7 +236,7 @@ export const BuyBackSection: React.FC<BuyBackSectionProps> = ({
                   onChange={e => setBbTargetCarId(e.target.value)}
                   className="w-full min-h-[44px] bg-[#18181b] border border-white/10 rounded-xl px-3 py-2.5 text-base sm:text-xs text-white outline-none focus:border-amber-400 font-semibold touch-manipulation"
                 >
-                  <option value="">-- Alege autoturismul din stocul RXM --</option>
+                  <option value="">-- Alege autoturismul din stocul {dealer.name} --</option>
                   {cars.filter(c => c.status !== 'sold').map(c => (
                     <option key={c.id} value={c.id}>
                       Schimb cu: {c.brand} {c.model} ({c.priceEur.toLocaleString('ro-RO')} €)
@@ -318,7 +318,7 @@ export const BuyBackSection: React.FC<BuyBackSectionProps> = ({
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-white/[0.08]">
               <div className="text-[11px] text-zinc-400 flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Datele sunt trimise confidențial către consilierii RXM.
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Datele sunt trimise confidențial către consilierii {dealer.name}.
               </div>
 
               <button 

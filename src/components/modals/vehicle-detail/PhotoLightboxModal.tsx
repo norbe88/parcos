@@ -356,10 +356,10 @@ export const PhotoLightboxModal: React.FC<PhotoLightboxModalProps> = ({
               <ShieldCheck className="w-10 h-10 text-amber-400 animate-pulse" />
             </div>
             <span className="font-mono text-sm sm:text-base font-bold uppercase tracking-wider text-amber-300">
-              RXM SECURITY SHIELD • GALERIE 4K PROTEJATĂ
+              SECURITY SHIELD • GALERIE 4K PROTEJATĂ
             </span>
             <p className="text-xs text-zinc-400 mt-1.5 max-w-sm leading-relaxed">
-              Fotografiile oficiale RXM AUTO MOBILE sunt protejate conform Legii nr. 8/1996. Reveniți în fereastra browserului pentru a continua vizualizarea.
+              Fotografiile oficiale ale parcului auto sunt protejate conform Legii nr. 8/1996. Reveniți în fereastra browserului pentru a continua vizualizarea.
             </p>
           </div>
         )}

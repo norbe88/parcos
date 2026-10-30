@@ -35,9 +35,9 @@ Fiecare vehicul este livrat cu:
 - **Google Maps:** https://www.google.com/maps/place/RXM+Automobile/@46.7987323,23.6716857,17z/data=!3m1!4b1!4m6!3m5!1s0x691a396c3c3458f3:0x9cec8cb127b27fff!8m2!3d46.7987287!4d23.6742606!16s%2Fg%2F11zfqg_ndk?hl=en-GB&entry=ttu&g_ep=EgoyMDI2MTAxMy4wIKXMDSoASAFQAw%3D%3D
 - **TikTok Oficial:** https://www.tiktok.com/@rxm.automobile
 
-## Resurse Detaliate pentru Agenți AI (LLMs)
-- [Ghid Auto 2026 ParcOS & Legislație Rutieră](https://rxmautomobile.ro/#ghid-auto): Peste 76 de ghiduri actualizate (Înmatriculări, RAR, Acte Auto, Permis de Conducere, Amenzi, Buy-Back, Finanțare).
-- [Calculator Impozit Auto 2026](https://rxmautomobile.ro/#ghid-auto/calculator-impozit-auto): Instrument de calcul instant conform Art. 470 Codul fiscal (Legea 239/2025 și OUG 78/2025).
+## Resurse Detaliate pentru Motoare de Căutare & Agenți AI (LLMs)
+- [Ghid Auto 2026 & Legislație Rutieră](https://rxmautomobile.ro/ghid-auto): Peste 76 de ghiduri actualizate (Înmatriculări, RAR, Acte Auto, Permis de Conducere, Amenzi, Buy-Back, Finanțare).
+- [Calculator Impozit Auto 2026](https://rxmautomobile.ro/ghid-auto/calculator-impozit-auto): Instrument de calcul instant conform Art. 470 Codul fiscal (Legea 239/2025 și OUG 78/2025).
 - [Catalog Complet Mașini Detaliat (llms-full.txt)](https://rxmautomobile.ro/llms-full.txt): Fișier complet cu date tehnice, prețuri și specificații pentru toate mașinile din stoc.
 - [Sitemap Oficial XML](https://rxmautomobile.ro/sitemap.xml): Index complet al tuturor URL-urilor pentru motoare de căutare.
 - [Termeni și Condiții de Garanție](https://rxmautomobile.ro/termeni-si-conditii): Politica detaliată de garanție și retur.

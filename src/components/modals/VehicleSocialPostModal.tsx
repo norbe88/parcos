@@ -258,7 +258,7 @@ export const VehicleSocialPostModal: React.FC<VehicleSocialPostModalProps> = ({
 
       const activeText = activeTab === 'instagram' ? igCaption : fbText;
       const shareData: ShareData = {
-        title: `${car.brand} ${car.model} (${car.year}) • RXM Automobile`,
+        title: `${car.brand} ${car.model} (${car.year}) • ${dealer.name}`,
         text: activeText,
         url: shareUrl
       };
@@ -738,7 +738,7 @@ export const VehicleSocialPostModal: React.FC<VehicleSocialPostModalProps> = ({
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-white leading-tight">rxmautomobile</div>
+                      <div className="text-xs font-bold text-white leading-tight">{dealer.tiktokHandle?.replace('@', '') || dealer.slug || 'showroom'}</div>
                       <div className="text-[10px] text-zinc-500">Cluj-Napoca, România</div>
                     </div>
                   </div>

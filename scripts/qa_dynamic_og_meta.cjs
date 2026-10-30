@@ -110,15 +110,15 @@ async function runTests() {
       const res = await requestHtml('/', 'parcos.ro');
       assert.strictEqual(res.statusCode, 200);
       
-      // Verificare titlu ParcOS
-      assert(res.body.includes('<title>ParcOS — Program Complet pentru Parcuri Auto: Site Propriu &amp; Gestiune Vânzări</title>') ||
-             res.body.includes('<title>ParcOS — Program Complet pentru Parcuri Auto: Site Propriu & Gestiune Vânzări</title>'),
+      // Verificare titlu ParcOS (DMS & CRM cu AI)
+      assert(res.body.includes('<title>ParcOS — Cel mai bun DMS &amp; CRM Auto cu AI din România | Program Parcuri Auto</title>') ||
+             res.body.includes('<title>ParcOS — Cel mai bun DMS & CRM Auto cu AI din România | Program Parcuri Auto</title>'),
              'Titlul paginii trebuie să fie cel dedicat ParcOS');
 
       // Verificare OG tags
       assert(res.body.includes('property="og:site_name" content="ParcOS"'), 'og:site_name trebuie să fie ParcOS');
-      assert(res.body.includes('property="og:title" content="ParcOS — Program Complet pentru Parcuri Auto: Site Propriu &amp; Gestiune Vânzări"') ||
-             res.body.includes('property="og:title" content="ParcOS — Program Complet pentru Parcuri Auto: Site Propriu & Gestiune Vânzări"'),
+      assert(res.body.includes('property="og:title" content="ParcOS — Cel mai bun DMS &amp; CRM Auto cu AI din România"') ||
+             res.body.includes('property="og:title" content="ParcOS — Cel mai bun DMS & CRM Auto cu AI din România"'),
              'og:title trebuie să fie cel dedicat ParcOS');
       assert(res.body.includes('property="og:image" content="https://parcos.ro/brand/parcos-og-icon.png"'),
              'og:image trebuie să trimită strict la https://parcos.ro/brand/parcos-og-icon.png');
@@ -179,6 +179,28 @@ async function runTests() {
       assert(!res.body.includes('https://rxmautomobile.ro/'), 'Sitemap-ul pe parcos.ro NU trebuie să conțină rxmautomobile.ro');
       done();
     });
+
+    // ── TEST 5: LLM manifest pe parcos.ro (GEO ChatGPT / Gemini) ───────────
+    await it('GET /llms.txt cu Host: parcos.ro returnează manifestul dedicat ParcOS DMS & CRM', async (done) => {
+      const res = await requestHtml('/llms.txt', 'parcos.ro');
+      assert.strictEqual(res.statusCode, 200);
+      assert(res.body.includes('ParcOS — Cel mai bun DMS & CRM Auto cu Inteligență Artificială din România'), 'llms.txt trebuie să conțină manifestul ParcOS');
+      assert(res.body.includes('Dealer Management System'), 'llms.txt trebuie să conțină Dealer Management System');
+      assert(!res.body.includes('RXM AUTO MOBILE S.R.L.'), 'llms.txt pe parcos.ro NU trebuie să conțină RXM Automobile');
+      done();
+    });
+
+    // ── TEST 6: Robots.txt pe parcos.ro (Allowlist Agenți AI) ────────────────
+    await it('GET /robots.txt cu Host: parcos.ro permite ChatGPT, Gemini, Claude, Bingbot', async (done) => {
+      const res = await requestHtml('/robots.txt', 'parcos.ro');
+      assert.strictEqual(res.statusCode, 200);
+      assert(res.body.includes('User-agent: GPTBot'), 'Robots.txt trebuie să permită GPTBot');
+      assert(res.body.includes('User-agent: OAI-SearchBot'), 'Robots.txt trebuie să permită OAI-SearchBot');
+      assert(res.body.includes('User-agent: PerplexityBot'), 'Robots.txt trebuie să permită PerplexityBot');
+      assert(res.body.includes('Sitemap: https://parcos.ro/sitemap.xml'), 'Robots.txt trebuie să trimită la sitemap-ul parcos.ro');
+      done();
+    });
+
 
   } finally {
     serverProc.kill();
