@@ -1,4 +1,4 @@
-/* ParcOS landing: JS minimal, fără dependențe. Nu apelează niciun endpoint în afară de POST /api/lead. */
+/* ParcOS landing: JS minimal, fără dependențe. Telemetrie zero-dependency & POST /api/lead. */
 (function () {
   'use strict';
   var WA_NUMBER = '40758511040';
@@ -72,67 +72,174 @@
     }
   }
 
-  /* 2) Formular lead → POST /api/lead; dacă endpoint-ul eșuează, deschidem WhatsApp cu datele completate. */
-  var form = document.getElementById('lead-form');
-  if (!form) return;
-  var statusEl = document.getElementById('form-status');
-  var btn = form.querySelector('button[type=submit]');
-
-  function setStatus(msg, cls) {
-    statusEl.textContent = msg;
-    statusEl.className = 'form-status' + (cls ? ' ' + cls : '');
-  }
-  function normPhone(t) { return (t || '').replace(/[\s.\-()]/g, ''); }
-  function validPhone(t) { return /^(\+?40|0040|0)7\d{8}$|^(\+?40|0040|0)[23]\d{8}$/.test(normPhone(t)); }
-
-  function waFallback(d) {
-    var txt = 'Bună ziua! Aș vrea detalii despre ParcOS.\nNume: ' + d.nume + '\nTelefon: ' + d.telefon + (d.parc ? '\nParc: ' + d.parc : '');
-    var url = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(txt);
-    setStatus('Nu am putut trimite formularul. Îți deschidem WhatsApp cu datele completate.', 'err');
-    // Notă: cu 'noopener' window.open întoarce mereu null, așa că setăm opener=null manual.
-    var w = window.open(url, '_blank');
-    if (w) { try { w.opener = null; } catch (e) {} }
-    else { window.location.href = url; } // popup blocat: navigăm direct
-  }
-
-  form.addEventListener('submit', function (ev) {
-    ev.preventDefault();
-    var nume = form.nume.value.trim();
-    var telefon = form.telefon.value.trim();
-    var parc = form.parc.value.trim();
-    var ok = true;
-    [form.nume, form.telefon, form.consent].forEach(function (el) { el.removeAttribute('aria-invalid'); });
-    if (nume.length < 2) { form.nume.setAttribute('aria-invalid', 'true'); ok = false; }
-    if (!validPhone(telefon)) { form.telefon.setAttribute('aria-invalid', 'true'); ok = false; }
-    if (!form.consent.checked) { form.consent.setAttribute('aria-invalid', 'true'); ok = false; }
-    if (!ok) {
-      setStatus('Completează numele, un număr de telefon valid și bifează acordul.', 'err');
-      var first = form.querySelector('[aria-invalid=true]');
-      if (first) first.focus();
-      return;
+  /* 2) Telemetrie pasivă vizitatori & tracking CTA (Wave 2, zero dependențe) */
+  function detectTrafficSource() {
+    try {
+      var search = window.location.search;
+      var src = null;
+      if (typeof URLSearchParams !== 'undefined') {
+        var params = new URLSearchParams(search);
+        src = params.get('src') || params.get('utm_source');
+      } else {
+        var m = search.match(/[?&](?:src|utm_source)=([^&#]+)/);
+        if (m) src = decodeURIComponent(m[1]);
+      }
+      if (src) return src.toLowerCase();
+      var ref = (document.referrer || '').toLowerCase();
+      if (!ref) return 'direct';
+      if (ref.indexOf('olx') !== -1) return 'olx';
+      if (ref.indexOf('autovit') !== -1) return 'autovit';
+      if (ref.indexOf('google') !== -1) return 'google';
+      if (ref.indexOf('facebook') !== -1 || ref.indexOf('fb.com') !== -1 || ref.indexOf('fb.me') !== -1) return 'facebook';
+      if (ref.indexOf('instagram') !== -1) return 'instagram';
+      if (ref.indexOf('tiktok') !== -1) return 'tiktok';
+      return 'direct';
+    } catch (e) {
+      return 'direct';
     }
-    if (form.website.value) { setStatus('Mulțumim! Te sunăm în curând.', 'ok'); return; } // honeypot
+  }
 
-    var data = { nume: nume, telefon: normPhone(telefon), parc: parc, consent: true, sursa: 'parcos.ro', website: '' };
-    btn.disabled = true;
-    setStatus('Se trimite…');
-    var ctrl = 'AbortController' in window ? new AbortController() : null;
-    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 8000);
+  function sendTrafficBeacon(eventType, extra) {
+    try {
+      var src = detectTrafficSource();
+      var payload = JSON.stringify({
+        eventType: eventType || 'pageview',
+        dealerSlug: 'parcos',
+        pagePath: window.location.pathname || '/',
+        referrer: document.referrer || '',
+        source: src,
+        metadata: extra || {}
+      });
+      var url = '/api/telemetry/traffic-event';
+      if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+        navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch(url, {
+          method: 'POST',
+          body: payload,
+          headers: { 'Content-Type': 'application/json' },
+          keepalive: true
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  }
 
-    fetch('/api/lead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(data),
-      signal: ctrl ? ctrl.signal : undefined,
-      credentials: 'omit'
-    }).then(function (r) {
-      clearTimeout(timer);
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      setStatus('Mulțumim, ' + nume.split(' ')[0] + '! Te sunăm în curând.', 'ok');
-      form.reset();
-    }).catch(function () {
-      clearTimeout(timer);
-      waFallback(data);
-    }).then(function () { btn.disabled = false; });
+  // Expunere opțională pentru inspecție / teste QA
+  try {
+    window.sendTrafficBeacon = sendTrafficBeacon;
+    window.detectTrafficSource = detectTrafficSource;
+  } catch (e) {}
+
+  // Înregistrare automată pageview la nivel de sesiune tab
+  try {
+    if (!sessionStorage.getItem('parcos_lp_viewed')) {
+      sendTrafficBeacon('pageview');
+      sessionStorage.setItem('parcos_lp_viewed', '1');
+    }
+  } catch (e) {
+    sendTrafficBeacon('pageview');
+  }
+
+  // Click listeners pe toate butoanele de acțiune (WhatsApp & Telefon)
+  document.addEventListener('click', function (ev) {
+    try {
+      var target = ev.target;
+      var el = null;
+      if (target && target.closest) {
+        el = target.closest('[data-wa], a[href*="wa.me"], a[href^="tel:"]');
+      } else {
+        while (target && target !== document) {
+          if (target.matches && (target.matches('[data-wa]') || target.matches('a[href*="wa.me"]') || target.matches('a[href^="tel:"]'))) {
+            el = target;
+            break;
+          }
+          target = target.parentElement;
+        }
+      }
+      if (!el) return;
+      var href = el.getAttribute('href') || '';
+      var isWa = el.hasAttribute('data-wa') || href.indexOf('wa.me') !== -1;
+      var isTel = href.indexOf('tel:') === 0;
+
+      if (isWa) {
+        sendTrafficBeacon('click_whatsapp', {
+          ctaText: (el.textContent || '').trim().slice(0, 60),
+          href: href
+        });
+      } else if (isTel) {
+        sendTrafficBeacon('click_phone', {
+          ctaText: (el.textContent || '').trim().slice(0, 60),
+          href: href
+        });
+      }
+    } catch (e) {}
   });
+
+  /* 3) Formular lead → POST /api/lead; dacă endpoint-ul eșuează, deschidem WhatsApp cu datele completate. */
+  var form = document.getElementById('lead-form');
+  if (form) {
+    var statusEl = document.getElementById('form-status');
+    var btn = form.querySelector('button[type=submit]');
+
+    var setStatus = function (msg, cls) {
+      if (statusEl) {
+        statusEl.textContent = msg;
+        statusEl.className = 'form-status' + (cls ? ' ' + cls : '');
+      }
+    };
+    var normPhone = function (t) { return (t || '').replace(/[\s.\-()]/g, ''); };
+    var validPhone = function (t) { return /^(\+?40|0040|0)7\d{8}$|^(\+?40|0040|0)[23]\d{8}$/.test(normPhone(t)); };
+
+    var waFallback = function (d) {
+      var txt = 'Bună ziua! Aș vrea detalii despre ParcOS.\nNume: ' + d.nume + '\nTelefon: ' + d.telefon + (d.parc ? '\nParc: ' + d.parc : '');
+      var url = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(txt);
+      setStatus('Nu am putut trimite formularul. Îți deschidem WhatsApp cu datele completate.', 'err');
+      // Notă: cu 'noopener' window.open întoarce mereu null, așa că setăm opener=null manual.
+      var w = window.open(url, '_blank');
+      if (w) { try { w.opener = null; } catch (e) {} }
+      else { window.location.href = url; } // popup blocat: navigăm direct
+    };
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var nume = form.nume.value.trim();
+      var telefon = form.telefon.value.trim();
+      var parc = form.parc.value.trim();
+      var ok = true;
+      [form.nume, form.telefon, form.consent].forEach(function (el) { el.removeAttribute('aria-invalid'); });
+      if (nume.length < 2) { form.nume.setAttribute('aria-invalid', 'true'); ok = false; }
+      if (!validPhone(telefon)) { form.telefon.setAttribute('aria-invalid', 'true'); ok = false; }
+      if (!form.consent.checked) { form.consent.setAttribute('aria-invalid', 'true'); ok = false; }
+      if (!ok) {
+        setStatus('Completează numele, un număr de telefon valid și bifează acordul.', 'err');
+        var first = form.querySelector('[aria-invalid=true]');
+        if (first) first.focus();
+        return;
+      }
+      if (form.website.value) { setStatus('Mulțumim! Te sunăm în curând.', 'ok'); return; } // honeypot
+
+      var data = { nume: nume, telefon: normPhone(telefon), parc: parc, consent: true, sursa: 'parcos.ro', website: '' };
+      btn.disabled = true;
+      setStatus('Se trimite…');
+      var ctrl = 'AbortController' in window ? new AbortController() : null;
+      var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 8000);
+
+      fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data),
+        signal: ctrl ? ctrl.signal : undefined,
+        credentials: 'omit'
+      }).then(function (r) {
+        clearTimeout(timer);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        setStatus('Mulțumim, ' + nume.split(' ')[0] + '! Te sunăm în curând.', 'ok');
+        form.reset();
+        sendTrafficBeacon('submit_lead', { name: data.nume, phone: data.telefon });
+      }).catch(function () {
+        clearTimeout(timer);
+        waFallback(data);
+      }).then(function () { btn.disabled = false; });
+    });
+  }
 })();

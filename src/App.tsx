@@ -39,6 +39,7 @@ import { getTabSessionId } from './utils/broadcastSession';
 import { getAdminAuthHeaders, isCurrentSessionAdmin } from './utils/adminAuth';
 import { updateSeoMetadata } from './utils/seoTenantInjector';
 import { getSubdomainDealer, resolveTenantKey } from './context/TenantContext';
+import { usePageTracking } from './hooks/usePageTracking';
 
 // 🆔 Identificator unic de sesiune per filă pentru a preveni auto-ecoul BroadcastChannel
 const APP_TAB_SESSION_ID = getTabSessionId();
@@ -574,6 +575,12 @@ export default function App() {
   // 🔐 Verificare Sesiune Administrator pe Server
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
     return isCurrentSessionAdmin();
+  });
+
+  // 📊 Telemetrie Trafic Showroom (Ticket 02 Wave 2)
+  usePageTracking(viewMode, {
+    dealerSlug: currentDealerSlug,
+    isAdmin: isAdminAuthenticated
   });
 
   // Validare activă pe server a token-ului de sesiune (dacă expiră pe server, delogăm imediat clientul)

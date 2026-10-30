@@ -5,6 +5,7 @@ import { getWhatsAppFinanceUrl } from '../../../utils/helpers';
 import { convertEurToRon, getExchangeRateDisclaimer } from '../../../utils/currencyEngine';
 import { recordIncomingLead, recordShowroomInteraction } from '../../../services/leadService';
 import { createDossierFromCalculator } from '../../../services/financingService';
+import { trackConversionEvent } from '../../../services/telemetryService';
 
 interface DetailFinanceTabProps {
   car: VehicleItem;
@@ -27,6 +28,18 @@ export const DetailFinanceTab: React.FC<DetailFinanceTabProps> = ({
 }) => {
   const handleApplyFinance = () => {
     recordShowroomInteraction('whatsapp', { carId: car.id, carTitle: `${car.brand} ${car.model}` });
+    trackConversionEvent('click_whatsapp', {
+      carId: car.id,
+      priceEur: car.priceEur,
+      advancePercent,
+      periodMonths,
+      currentRate
+    }, dealer.slug);
+    trackConversionEvent('submit_lead', {
+      carId: car.id,
+      priceEur: car.priceEur,
+      type: 'financing'
+    }, dealer.slug);
 
     const lead = recordIncomingLead({
       clientName: 'Solicitare Finanțare Showroom Web',
@@ -126,6 +139,7 @@ export const DetailFinanceTab: React.FC<DetailFinanceTabProps> = ({
         </div>
         <a 
           href={`tel:${(dealer.phoneFinance || '0758042979').replace(/\s+/g, '')}`}
+          onClick={() => trackConversionEvent('click_phone', { carId: car.id, phone: dealer.phoneFinance || '0758042979', type: 'finance_counselor' }, dealer.slug)}
           className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-xs inline-flex items-center gap-1 transition-colors border border-white/10 shrink-0 touch-manipulation active:scale-95"
           title="Apelează consilierul de credite"
         >
