@@ -613,6 +613,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.dealer && !isCancelled) {
+            const backendLogo = json.dealer.logo_url || json.dealer.logoUrl || json.dealer.config?.logoUrl || json.logoUrl;
             setDynamicConfig({
               name: json.dealer.name,
               cui: json.dealer.vat_number || json.dealer.vatNumber,
@@ -621,7 +622,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
               phoneSecondary: json.dealer.phone_secondary || json.dealer.phoneSecondary,
               whatsappNumber: json.dealer.whatsapp_number || json.dealer.whatsappNumber,
               email: json.dealer.email,
-              logoUrl: json.dealer.logo_url || json.dealer.logoUrl || json.logoUrl,
+              ...(backendLogo ? { logoUrl: backendLogo } : {}),
               themePreset: json.themePreset || json.dealer.config?.themePreset,
               landingConfig: json.dealer.config?.landingConfig || json.dealer.landingConfig,
             });

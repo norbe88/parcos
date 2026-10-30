@@ -2033,6 +2033,8 @@ export const server = http.createServer(async (req, res) => {
           status: tenant.status || 'active',
           is_active: tenant.is_active !== undefined ? tenant.is_active : true,
           phone_verified: Boolean(tenant.phone_verified),
+          logo_url: tenant.logo_url || tenant.logoUrl || tenant.config?.logoUrl || (tenant.slug === 'mpi_auto' ? '/images/mpi-logo.png' : ''),
+          logoUrl: tenant.logo_url || tenant.logoUrl || tenant.config?.logoUrl || (tenant.slug === 'mpi_auto' ? '/images/mpi-logo.png' : ''),
           config: tenant.config || {},
         },
         config: tenant.config || {},
