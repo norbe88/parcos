@@ -9,6 +9,8 @@ import {
   getStockNumber, 
   getWhatsAppCarInquiryUrl, 
   getWhatsAppTestDriveUrl,
+  getWhatsAppSoldOrderUrl,
+  resolveDealerContact,
   isTikTokVideoUrl 
 } from '../../utils/helpers';
 
@@ -89,6 +91,8 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
   const [tdName, setTdName] = useState('');
   const [tdPhone, setTdPhone] = useState('');
   const [tdGdprConsent, setTdGdprConsent] = useState(false);
+
+  const contact = resolveDealerContact(dealer);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -193,7 +197,7 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
 
     const waUrl = getWhatsAppTestDriveUrl(
       selectedCar,
-      dealer.whatsappNumber,
+      dealer,
       tdDate,
       tdTimeSlot,
       tdName || 'Client Showroom',
@@ -623,6 +627,7 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
                 <DetailSpecsTab 
                   car={selectedCar} 
                   viewMode={viewMode}
+                  dealer={dealer}
                   onUpdateDescription={onUpdateDescription}
                 />
               )}
@@ -714,16 +719,16 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
             </button>
 
             <a 
-              href={`tel:${dealer.phonePrimary.replace(/\s+/g, '')}`}
-              onClick={() => trackConversionEvent('click_phone', { carId: selectedCar.id, phone: dealer.phonePrimary }, dealer?.slug || selectedCar.dealerSlug)}
+              href={`tel:${contact.salesPhoneClean}`}
+              onClick={() => trackConversionEvent('click_phone', { carId: selectedCar.id, phone: contact.salesPhone }, dealer?.slug || selectedCar.dealerSlug)}
               className="w-full inline-flex items-center justify-center gap-2 border border-white/20 hover:bg-white/5 text-white h-11 rounded-xl text-sm font-medium transition-all"
             >
               <Phone className="w-4 h-4" />
-              <span>Sună Dealer: {dealer.phonePrimary}</span>
+              <span>Sună Dealer: {contact.salesPhone}</span>
             </a>
 
             <a 
-              href={getWhatsAppCarInquiryUrl(selectedCar, dealer.whatsappNumber)}
+              href={getWhatsAppCarInquiryUrl(selectedCar, dealer)}
               target="_blank" 
               rel="noopener noreferrer"
               onClick={() => trackConversionEvent('click_whatsapp', { carId: selectedCar.id, priceEur: selectedCar.priceEur }, dealer?.slug || selectedCar.dealerSlug)}
@@ -777,9 +782,9 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
           {/* Butoane contact în dreapta — thumb zone optimizat */}
           <div className="flex items-center gap-2 shrink-0">
             <a
-              href={`tel:${dealer.phonePrimary.replace(/\s+/g, '')}`}
-              aria-label={`Sună direct la ${dealer.phonePrimary}`}
-              onClick={() => trackConversionEvent('click_phone', { carId: selectedCar.id, phone: dealer.phonePrimary }, dealer?.slug || selectedCar.dealerSlug)}
+              href={`tel:${contact.salesPhoneClean}`}
+              aria-label={`Sună direct la ${contact.salesPhone}`}
+              onClick={() => trackConversionEvent('click_phone', { carId: selectedCar.id, phone: contact.salesPhone }, dealer?.slug || selectedCar.dealerSlug)}
               className="min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-white/10 active:bg-white/20 text-white font-bold text-xs flex items-center gap-1.5 border border-white/15 touch-manipulation transition-all"
             >
               <Phone className="w-4 h-4 text-amber-400" />
@@ -787,8 +792,8 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
             </a>
             <a
               href={selectedCar.status === 'sold'
-                ? `https://wa.me/${dealer.whatsappNumber}?text=${encodeURIComponent(`Bună ziua! Am văzut pe ${dealer.domain || 'site-ul dvs.'} că ${selectedCar.brand} ${selectedCar.model} (${selectedCar.year}) a fost vândut. Aș dori un model similar. Mulțumesc!`)}`
-                : getWhatsAppCarInquiryUrl(selectedCar, dealer.whatsappNumber)
+                ? getWhatsAppSoldOrderUrl(selectedCar, dealer)
+                : getWhatsAppCarInquiryUrl(selectedCar, dealer)
               }
               target="_blank"
               rel="noopener noreferrer"

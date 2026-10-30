@@ -2029,7 +2029,7 @@ export default function App() {
 
       {/* 💬 BUTON PLUTITOR WHATSAPP (EXCLUSIV ÎN VEDERILE PUBLICE PENTRU CLIENȚI) */}
       {viewMode !== 'saas' && viewMode !== 'admin' && viewMode !== 'superadmin' && viewMode !== 'ghid-auto' && (
-        <FloatingWhatsApp whatsappNumber={tenant.whatsappNumber} />
+        <FloatingWhatsApp dealer={tenant} />
       )}
 
       {/* 🍪 BANNER INTERACTIV CONSIMȚĂMÂNT COOKIE-URI (POP-UP ACCEPTARE & PREFERINȚE) */}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Clock, Phone, SlidersHorizontal } from 'lucide-react';
 import { SEED_DEALER } from '../../db/seed';
+import { resolveDealerContact } from '../../utils/helpers';
 import { NavigationModal } from '../modals/NavigationModal';
 
 interface TopbarProps {
@@ -17,6 +18,7 @@ export const Topbar: React.FC<TopbarProps> = ({
   isRevealed = true
 }) => {
   const [isNavModalOpen, setIsNavModalOpen] = useState(false);
+  const contact = resolveDealerContact(dealer);
 
   return (
     <>
@@ -46,21 +48,21 @@ export const Topbar: React.FC<TopbarProps> = ({
 
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           <a 
-            href={`tel:${dealer.phonePrimary.replace(/\s+/g, '')}`} 
+            href={`tel:${contact.salesPhoneClean}`} 
             className="flex items-center gap-1.5 text-zinc-200 hover:text-amber-400 font-medium font-mono text-[11px] sm:text-xs whitespace-nowrap transition-colors min-h-[36px] px-2 py-1 rounded-lg hover:bg-white/5 touch-manipulation"
             title="Consultanță Vânzări & Showroom"
           >
             <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span><span className="text-zinc-400 hidden sm:inline">Vânzări: </span>{dealer.phonePrimary}</span>
+            <span><span className="text-zinc-400 hidden sm:inline">Vânzări: </span>{contact.salesPhone}</span>
           </a>
 
           <a 
-            href={`tel:${(dealer.phoneFinance || '0758042979').replace(/\s+/g, '')}`} 
+            href={`tel:${contact.financePhoneClean}`} 
             className="hidden lg:flex items-center gap-1.5 text-amber-300 hover:text-white font-medium font-mono text-[11px] sm:text-xs whitespace-nowrap transition-colors min-h-[36px] px-2 py-1 rounded-lg hover:bg-white/5 touch-manipulation"
             title="Consultanță Finanțare & Rate"
           >
             <span className="text-zinc-400">Rate: </span>
-            <span>{dealer.phoneFinance || '0758 042 979'}</span>
+            <span>{contact.financePhone}</span>
           </a>
           
           <span className="text-zinc-600 hidden xl:inline">|</span>

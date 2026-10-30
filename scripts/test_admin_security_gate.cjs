@@ -28,7 +28,7 @@ function assert(condition, testName) {
 }
 
 const rootDir = path.resolve(__dirname, '..');
-const SUPERADMIN_PASSWORD_HASH = 'e180c917ef121846cee6c6b488b9d7a159c12c96880c1901b5a309ca66efb7c2'; // SHA-256('Olaf.0311')
+const SUPERADMIN_PASSWORD_HASH = '932037ac6191db952b173de12931175d71cbaccb8b40f3017c19dfc71084a742'; // SHA-256('Olaf.1988')
 const ADMIN_PASSWORD_HASH = 'dbc1d0952684f4b89cc86bc7ffdd52cacc2a79e667b7e0765953069e05bb6589'; // SHA-256('Luna.RXM')
 
 // -----------------------------------------------------------------------------
@@ -59,13 +59,13 @@ assert(allCommonRejected, `Niciuna din cele ${commonPasswords.length} parole uzu
 // -----------------------------------------------------------------------------
 console.log('\n🔍 [SUITE 2] Validare Criptografică & Decuplare Canonică Dual-Role');
 
-const superadminPassword = 'Olaf.0311';
+const superadminPassword = 'Olaf.1988';
 const dealerPassword = 'Luna.RXM';
 
 const computedSuperadminHash = crypto.createHash('sha256').update(superadminPassword).digest('hex');
 const computedDealerHash = crypto.createHash('sha256').update(dealerPassword).digest('hex');
 
-assert(computedSuperadminHash === SUPERADMIN_PASSWORD_HASH, 'Parola ParcOS SuperAdmin (Olaf.0311) produce hash-ul autorizat');
+assert(computedSuperadminHash === SUPERADMIN_PASSWORD_HASH, 'Parola ParcOS SuperAdmin (Olaf.1988) produce hash-ul autorizat');
 assert(computedDealerHash === ADMIN_PASSWORD_HASH, 'Parola RXM Showroom Admin (Luna.RXM) produce hash-ul autorizat');
 
 // Decuplare canonică strictă: cele două parole nu coincid
@@ -73,12 +73,12 @@ assert(computedSuperadminHash !== ADMIN_PASSWORD_HASH, 'Decuplare: Parola SuperA
 assert(computedDealerHash !== SUPERADMIN_PASSWORD_HASH, 'Decuplare: Parola de showroom nu este identică cu parola SuperAdmin');
 
 // Verificare variații (Case-sensitivity)
-assert(crypto.createHash('sha256').update('olaf.0311').digest('hex') !== SUPERADMIN_PASSWORD_HASH, 'SuperAdmin: varianta minusculă ("olaf.0311") este categoric respinsă');
+assert(crypto.createHash('sha256').update('olaf.1988').digest('hex') !== SUPERADMIN_PASSWORD_HASH, 'SuperAdmin: varianta minusculă ("olaf.1988") este categoric respinsă');
 assert(crypto.createHash('sha256').update('luna.rxm').digest('hex') !== ADMIN_PASSWORD_HASH, 'Dealer Admin: varianta minusculă ("luna.rxm") este categoric respinsă');
 assert(crypto.createHash('sha256').update('LUNA.RXM').digest('hex') !== ADMIN_PASSWORD_HASH, 'Dealer Admin: varianta majusculă ("LUNA.RXM") este categoric respinsă');
 
 // Verificare whitespace trimming
-assert(crypto.createHash('sha256').update('  Olaf.0311  '.trim()).digest('hex') === SUPERADMIN_PASSWORD_HASH, 'SuperAdmin: spațiile accidentale sunt curățate (trim) corect');
+assert(crypto.createHash('sha256').update('  Olaf.1988  '.trim()).digest('hex') === SUPERADMIN_PASSWORD_HASH, 'SuperAdmin: spațiile accidentale sunt curățate (trim) corect');
 assert(crypto.createHash('sha256').update('  Luna.RXM  '.trim()).digest('hex') === ADMIN_PASSWORD_HASH, 'Dealer Admin: spațiile accidentale sunt curățate (trim) corect');
 
 // -----------------------------------------------------------------------------
@@ -110,6 +110,9 @@ function scanSourceFiles(dir, forbiddenStrings, exceptions = []) {
 
 const isSrcClean = scanSourceFiles(path.join(rootDir, 'src'), [superadminPassword, dealerPassword]);
 assert(isSrcClean, 'Niciun fișier sursă din src/ nu conține parolele în text clar (doar hash-urile SHA-256 sunt stocate)');
+
+const authMjsContent = fs.readFileSync(path.join(rootDir, 'server/routes/auth.mjs'), 'utf8');
+assert(!authMjsContent.includes(superadminPassword) && !authMjsContent.includes('Olaf.0311'), 'server/routes/auth.mjs nu conține parole în clar și nu scurge parola în mesajele de eroare');
 
 // -----------------------------------------------------------------------------
 // TEST SUITE 4: Mecanismul Anti-Spoofing SessionStorage & Validare Token Dual-Key

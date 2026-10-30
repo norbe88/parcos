@@ -2,6 +2,7 @@ import React from 'react';
 import { DealerLandingConfig, DealerProfile } from '../../db/types';
 import { VehicleItem } from '../../db/seed';
 import { HeroSpotlight } from './HeroSpotlight';
+import { resolveDealerContact } from '../../utils/helpers';
 
 // ShowroomVideoIntro este importat lazy pentru a nu mări bundle-ul inițial dacă dealerul folosește spotlight:
 const ShowroomVideoIntro = React.lazy(() =>
@@ -14,8 +15,8 @@ export const DealerBannerHero: React.FC<{
   headline: string;
 }> = ({ tenant, landingConfig, headline }) => {
   const { hero, customBadges } = landingConfig;
-  const rawWa = tenant.whatsappNumber ? tenant.whatsappNumber.replace(/[^0-9]/g, '') : '';
-  const cleanWa = rawWa ? (rawWa.startsWith('40') ? rawWa : rawWa.startsWith('0') ? `40${rawWa.slice(1)}` : `40${rawWa}`) : '';
+  const contact = resolveDealerContact(tenant);
+  const cleanWa = contact.salesWhatsApp;
 
   return (
     <section aria-label={`${tenant.name} — Hero Banner`} className="relative min-h-[60vh] flex flex-col items-center justify-center text-center px-6 py-24 bg-[#09090b]">

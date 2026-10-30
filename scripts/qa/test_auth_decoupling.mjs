@@ -7,7 +7,7 @@ const TEST_ADMIN_API_KEY = 'parcos_test_admin_session_key_2026_ok';
 process.env.PORT = String(PORT);
 process.env.ADMIN_API_KEY = TEST_ADMIN_API_KEY;
 process.env.ADMIN_PASSWORD_HASH = 'dbc1d0952684f4b89cc86bc7ffdd52cacc2a79e667b7e0765953069e05bb6589'; // Luna.RXM
-process.env.SUPERADMIN_PASSWORD_HASH = 'e180c917ef121846cee6c6b488b9d7a159c12c96880c1901b5a309ca66efb7c2'; // Olaf.0311
+process.env.SUPERADMIN_PASSWORD_HASH = '932037ac6191db952b173de12931175d71cbaccb8b40f3017c19dfc71084a742'; // Olaf.1988
 process.env.SUPERADMIN_MASTER_KEY = 'parcos_superadmin_dev_secret_2026';
 
 // Importăm serverul din api.mjs
@@ -37,7 +37,7 @@ async function request(options, body = null) {
 
 try {
   console.log('\n--- 1. Test Autentificare ParcOS SuperAdmin (parcos.ro) ---');
-  // 1.1 Olaf.0311 pe parcos.ro -> 200 OK + role: superadmin
+  // 1.1 Olaf.1988 pe parcos.ro -> 200 OK + role: superadmin
   const r1 = await request({
     hostname: '127.0.0.1',
     port: PORT,
@@ -47,13 +47,13 @@ try {
       'Host': 'parcos.ro',
       'Content-Type': 'application/json'
     }
-  }, { password: 'Olaf.0311', tenantId: 'parcos' });
+  }, { password: 'Olaf.1988', tenantId: 'parcos' });
 
-  assert.strictEqual(r1.status, 200, `Olaf.0311 pe parcos.ro ar trebui să fie 200 OK (primit ${r1.status})`);
+  assert.strictEqual(r1.status, 200, `Olaf.1988 pe parcos.ro ar trebui să fie 200 OK (primit ${r1.status})`);
   assert.strictEqual(r1.json?.role, 'superadmin', `Rolul pe parcos.ro ar trebui să fie 'superadmin'`);
   assert(r1.json?.token, 'Token-ul superadmin lipsește');
   const superToken = r1.json.token;
-  console.log('✅ [PASS] Olaf.0311 pe parcos.ro deblochează cu succes Consola SuperAdmin');
+  console.log('✅ [PASS] Olaf.1988 pe parcos.ro deblochează cu succes Consola SuperAdmin');
 
   // 1.2 Luna.RXM pe parcos.ro -> 401 Unauthorized
   const r2 = await request({
@@ -68,6 +68,7 @@ try {
   }, { password: 'Luna.RXM', tenantId: 'parcos' });
 
   assert.strictEqual(r2.status, 401, `Luna.RXM pe parcos.ro ar trebui să fie 401 Unauthorized (primit ${r2.status})`);
+  assert(!r2.json?.error?.includes('Olaf'), 'Eroarea pentru Luna.RXM pe parcos.ro nu conține parola SuperAdmin');
   console.log('✅ [PASS] Luna.RXM este categoric respinsă pe parcos.ro (Decuplare completă)');
 
   console.log('\n--- 2. Test Autentificare RXM Showroom (rxmautomobile.ro) ---');
@@ -88,7 +89,7 @@ try {
   const dealerToken = r3.json.token;
   console.log('✅ [PASS] Luna.RXM deblochează cu succes panoul de gestiune RXM');
 
-  // 2.2 Olaf.0311 pe rxmautomobile.ro -> 200 OK + role: superadmin (Master Override)
+  // 2.2 Olaf.1988 pe rxmautomobile.ro -> 200 OK + role: superadmin (Master Override)
   const r4 = await request({
     hostname: '127.0.0.1',
     port: PORT,
@@ -98,11 +99,11 @@ try {
       'Host': 'rxmautomobile.ro',
       'Content-Type': 'application/json'
     }
-  }, { password: 'Olaf.0311', tenantId: 'rxm' });
+  }, { password: 'Olaf.1988', tenantId: 'rxm' });
 
-  assert.strictEqual(r4.status, 200, `Olaf.0311 pe rxmautomobile.ro ar trebui să fie 200 OK (Master Override)`);
-  assert.strictEqual(r4.json?.role, 'superadmin', `Olaf.0311 pe showroom are rolul de superadmin`);
-  console.log('✅ [PASS] Olaf.0311 funcționează ca SuperAdmin Master Override pe showroom');
+  assert.strictEqual(r4.status, 200, `Olaf.1988 pe rxmautomobile.ro ar trebui să fie 200 OK (Master Override)`);
+  assert.strictEqual(r4.json?.role, 'superadmin', `Olaf.1988 pe showroom are rolul de superadmin`);
+  console.log('✅ [PASS] Olaf.1988 funcționează ca SuperAdmin Master Override pe showroom');
 
   console.log('\n--- 3. Test Protecție Verticală & Izolare Roluri ---');
   // 3.1 /api/admin/backups fără token -> 401

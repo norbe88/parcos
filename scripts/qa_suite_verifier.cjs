@@ -396,7 +396,7 @@ assert(financingAccordionCode.includes('persoane-fizice') && financingAccordionC
 
 // T07 & T10: Securitate Admin Hash & Mascare Date Sensibile
 const serverApiCode = readFile('server/api.mjs');
-assert(serverApiCode.includes('e180c917ef121846cee6c6b488b9d7a159c12c96880c1901b5a309ca66efb7c2'), 'server/api.mjs verifică hash-ul SHA-256 criptografic pentru Olaf.0311');
+assert(serverApiCode.includes('932037ac6191db952b173de12931175d71cbaccb8b40f3017c19dfc71084a742'), 'server/api.mjs verifică hash-ul SHA-256 criptografic pentru Olaf.1988');
 assert(appTsxCode.includes('publicCars') && appTsxCode.includes('purchasePriceEur: undefined'), 'App.tsx maschează prețurile de achiziție și datele sensibile pentru vizitatori publici');
 
 // ==========================================

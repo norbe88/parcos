@@ -316,7 +316,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
             </div>
             {currentStatus !== 'sold' && (
               <a
-                href={getWhatsAppFinanceUrl(car, dealer.whatsappFinance || '40758042979', 15, 48, 'TBI Bank', calculateRate(car.priceEur, 15, 48))}
+                href={getWhatsAppFinanceUrl(car, dealer, 15, 48, 'TBI Bank', calculateRate(car.priceEur, 15, 48))}
                 target="_blank" 
                 rel="noopener noreferrer"
                 aria-label={`Rate TBI — Solicită finanțare în rate prin TBI Bank pentru ${car.brand} ${car.model}`}
@@ -343,7 +343,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
             </div>
             {currentStatus !== 'sold' ? (
               <a
-                href={getWhatsAppFinanceUrl(car, dealer.whatsappFinance || '40758042979', 15, 48, 'TBI Bank', calculateRate(car.priceEur, 15, 48))}
+                href={getWhatsAppFinanceUrl(car, dealer, 15, 48, 'TBI Bank', calculateRate(car.priceEur, 15, 48))}
                 target="_blank" 
                 rel="noopener noreferrer"
                 aria-label={`Rate TBI — Solicită finanțare în rate prin TBI Bank pentru ${car.brand} ${car.model}`}
@@ -376,7 +376,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
 
           {currentStatus === 'sold' ? (
             <a
-              href={getWhatsAppSoldOrderUrl(car, dealer.whatsappNumber)}
+              href={getWhatsAppSoldOrderUrl(car, dealer)}
               target="_blank" 
               rel="noopener noreferrer"
               aria-label={`Comandă pe WhatsApp un model similar cu ${car.brand} ${car.model}`}
@@ -388,7 +388,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
             </a>
           ) : (
             <a 
-              href={getWhatsAppCarInquiryUrl(car, dealer.whatsappNumber)}
+              href={getWhatsAppCarInquiryUrl(car, dealer)}
               target="_blank" 
               rel="noopener noreferrer"
               aria-label={`Contactează pe WhatsApp despre ${car.brand} ${car.model} Ref ${stockRef}`}

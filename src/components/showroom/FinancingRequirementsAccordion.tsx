@@ -12,6 +12,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { SEED_DEALER } from '../../db/seed';
+import { resolveDealerContact } from '../../utils/helpers';
 
 interface FinancingRequirementsAccordionProps {
   dealer?: typeof SEED_DEALER;
@@ -29,9 +30,10 @@ export const FinancingRequirementsAccordion: React.FC<FinancingRequirementsAccor
   const [isOpen, setIsOpen] = useState(defaultExpanded);
   const [activeTab, setActiveTab] = useState<TabType>('persoane-fizice');
 
-  const phoneFinance = dealer.phoneFinance || '0758 042 979';
-  const cleanPhoneFinance = phoneFinance.replace(/\s+/g, '');
-  const whatsappFinance = dealer.whatsappFinance || '40758042979';
+  const contact = resolveDealerContact(dealer);
+  const phoneFinance = contact.financePhone;
+  const cleanPhoneFinance = contact.financePhoneClean;
+  const whatsappFinance = contact.financeWhatsApp;
 
   return (
     <div className={`rounded-2xl border transition-all duration-300 overflow-hidden ${

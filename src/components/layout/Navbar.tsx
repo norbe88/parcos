@@ -4,6 +4,7 @@ import {
   LayoutDashboard, MessageCircle, Menu, X, Car, Shield, Phone, MapPin
 } from 'lucide-react';
 import { SEED_DEALER } from '../../db/seed';
+import { resolveDealerContact } from '../../utils/helpers';
 import { TenantBrandBadge } from '../common/TenantBrandBadge';
 import { NavigationModal } from '../modals/NavigationModal';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
@@ -23,6 +24,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   dealer = SEED_DEALER,
   isRevealed = true
 }) => {
+  const contact = resolveDealerContact(dealer);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isNavModalOpen, setIsNavModalOpen] = useState(false);
 
@@ -213,7 +215,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Buton WhatsApp Showroom — Design Dark Luxury Compact & Ergonomic */}
           <a 
-            href={`https://wa.me/${dealer.whatsappNumber}?text=${encodeURIComponent(`Bună ziua! Sunt interesat de mașinile din stocul ${dealer.name}.`)}`} 
+            href={`https://wa.me/${contact.salesWhatsApp}?text=${encodeURIComponent(`Bună ziua! Sunt interesat de mașinile din stocul ${dealer.name}.`)}`} 
             target="_blank" 
             rel="noopener noreferrer" 
             aria-label={`WhatsApp Showroom - Contactează ${dealer.name}`}
@@ -369,11 +371,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Locație (GPS)</span>
             </button>
             <a
-              href={`tel:${dealer.phonePrimary.replace(/\s+/g, '')}`}
+              href={`tel:${contact.salesPhoneClean}`}
               className="flex-1 py-2.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 border border-amber-500/30 text-amber-300 font-mono text-xs flex items-center justify-center gap-2 min-h-[44px] touch-manipulation font-semibold"
             >
               <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>Sună: {dealer.phonePrimary}</span>
+              <span>Sună: {contact.salesPhone}</span>
             </a>
           </div>
         </div>

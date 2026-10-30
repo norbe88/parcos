@@ -142,7 +142,7 @@ export const DetailVideoTab: React.FC<DetailVideoTabProps> = ({
             Echipa {dealer.name} filmează periodic walkaround-uri. Solicită un video detaliat pe WhatsApp și consultantul nostru ți-l va trimite în câteva minute.
           </p>
           <a 
-            href={getWhatsAppVideoUrl(car, dealer.whatsappNumber)}
+            href={getWhatsAppVideoUrl(car, dealer)}
             target="_blank" 
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 transition-colors"

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Phone, MessageCircle } from 'lucide-react';
 import { VehicleItem, SEED_DEALER, isTenantFeatureEnabled } from '../../../db/seed';
-import { getWhatsAppFinanceUrl } from '../../../utils/helpers';
+import { getWhatsAppFinanceUrl, resolveDealerContact } from '../../../utils/helpers';
 import { convertEurToRon, getExchangeRateDisclaimer } from '../../../utils/currencyEngine';
 import { recordIncomingLead, recordShowroomInteraction } from '../../../services/leadService';
 import { createDossierFromCalculator } from '../../../services/financingService';
@@ -26,6 +26,8 @@ export const DetailFinanceTab: React.FC<DetailFinanceTabProps> = ({
   currentRate,
   dealer = SEED_DEALER
 }) => {
+  const contact = resolveDealerContact(dealer);
+
   const handleApplyFinance = () => {
     recordShowroomInteraction('whatsapp', { carId: car.id, carTitle: `${car.brand} ${car.model}` });
     trackConversionEvent('click_whatsapp', {
@@ -43,7 +45,7 @@ export const DetailFinanceTab: React.FC<DetailFinanceTabProps> = ({
 
     const lead = recordIncomingLead({
       clientName: 'Solicitare Finanțare Showroom Web',
-      clientPhone: dealer.whatsappFinance || '0758042979',
+      clientPhone: contact.financePhoneClean || contact.salesPhoneClean,
       dealType: 'financing',
       source: 'showroom_web',
       carId: car.id,
@@ -61,7 +63,7 @@ export const DetailFinanceTab: React.FC<DetailFinanceTabProps> = ({
       createDossierFromCalculator({
         car,
         clientName: 'Solicitare Finanțare Showroom Web',
-        clientPhone: dealer.whatsappFinance || '0758042979',
+        clientPhone: contact.financePhoneClean || contact.salesPhoneClean,
         creditor: 'tbi',
         downPaymentEur,
         downPaymentRon,
@@ -131,15 +133,15 @@ export const DetailFinanceTab: React.FC<DetailFinanceTabProps> = ({
         />
       </div>
 
-      {/* Contact Direct Consilier Finanțare Mădălina */}
+      {/* Contact Direct Consilier Finanțare */}
       <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between gap-3 text-xs">
         <div>
           <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Consilier Credite & Leasing</div>
-          <div className="text-white font-bold text-xs">Consultanță Rate: <span className="font-mono text-amber-300">0758 042 979</span></div>
+          <div className="text-white font-bold text-xs">Consultanță Rate: <span className="font-mono text-amber-300">{contact.financePhone}</span></div>
         </div>
         <a 
-          href={`tel:${(dealer.phoneFinance || '0758042979').replace(/\s+/g, '')}`}
-          onClick={() => trackConversionEvent('click_phone', { carId: car.id, phone: dealer.phoneFinance || '0758042979', type: 'finance_counselor' }, dealer.slug)}
+          href={`tel:${contact.financePhoneClean}`}
+          onClick={() => trackConversionEvent('click_phone', { carId: car.id, phone: contact.financePhone, type: 'finance_counselor' }, dealer.slug)}
           className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-xs inline-flex items-center gap-1 transition-colors border border-white/10 shrink-0 touch-manipulation active:scale-95"
           title="Apelează consilierul de credite"
         >
@@ -149,7 +151,7 @@ export const DetailFinanceTab: React.FC<DetailFinanceTabProps> = ({
       </div>
 
       <a 
-        href={getWhatsAppFinanceUrl(car, dealer.whatsappFinance || '40758042979', advancePercent, periodMonths, 'TBI Bank', currentRate)}
+        href={getWhatsAppFinanceUrl(car, dealer, advancePercent, periodMonths, 'TBI Bank', currentRate)}
         target="_blank" 
         rel="noopener noreferrer"
         onClick={handleApplyFinance}

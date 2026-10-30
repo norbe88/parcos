@@ -3,7 +3,7 @@
 > **Versiune Document:** 1.0.0 · Octombrie 2026  
 > **Status Build:** `npx tsc --noEmit` **PASSED (0 erori)**  
 > **Target Devices:** Desktop Full HD, Laptopuri Parc Auto (1366×768 / 1280×720), Tablete & Smartphone-uri Touch  
-> **Parolă Acces Panou Admin:** `Olaf.0311`
+> **Parolă Acces Panou Admin:** `Olaf.1988`
 
 ---
 
@@ -56,7 +56,7 @@ Pentru colegii din parcul auto care operează pe laptopuri cu rezoluții joase (
   1. Accesează `http://localhost:3001/#admin` (sau derulează în footerul showroom-ului și apasă pe copyright).
   2. Apare ecranul întunecat cu lacăt: *„Zonă Securizată • RXM AUTO MOBILE — Portal Gestiune Flotă”*.
   3. Încearcă o parolă greșită (ex: `1234`) -> apare eroarea: *„Parolă incorectă. Accesul este restricționat...”*.
-  4. Tastează parola autorizată: **`Olaf.0311`** (respectă majusculele și punctul).
+  4. Tastează parola autorizată: **`Olaf.1988`** (respectă majusculele și punctul).
   5. Apasă `Autentificare în Panou` (sau tasta `Enter`).
 * **Rezultat Așteptat:**
   - Apare notificarea toast aurie: *„🔓 Autentificare reușită! Bine ați venit în panoul de gestiune.”*

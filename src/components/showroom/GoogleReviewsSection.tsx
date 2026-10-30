@@ -88,6 +88,7 @@ export const GoogleReviewsSection: React.FC<{ dealer?: DealerProfile }> = ({ dea
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const mapsTargetUrl = dealer.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dealer.name + ' ' + (dealer.showroomAddress || dealer.address || ''))}`;
 
   const checkScroll = () => {
     if (!scrollContainerRef.current) return;

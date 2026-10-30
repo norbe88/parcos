@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle2, ShieldCheck, MessageCircle, FileText, ChevronDown, Edit3, Save } from 'lucide-react';
-import { VehicleItem, SEED_DEALER } from '../../../db/seed';
+import { VehicleItem } from '../../../db/seed';
+import { DealerProfile } from '../../../db/types';
 import { getWhatsAppVinRequestUrl, formatMileage } from '../../../utils/helpers';
 import { isInvalidCorruptedFeature } from '../../../utils/featuresCatalogService';
 
 interface DetailSpecsTabProps {
   car: VehicleItem;
   viewMode?: 'showroom' | 'admin';
+  dealer?: DealerProfile;
   onUpdateDescription?: (carId: string, description: string) => void;
 }
 
 export const DetailSpecsTab: React.FC<DetailSpecsTabProps> = ({ 
   car, 
   viewMode = 'showroom', 
+  dealer,
   onUpdateDescription 
 }) => {
   const [showFullSheet, setShowFullSheet] = useState(false);
@@ -67,7 +70,7 @@ export const DetailSpecsTab: React.FC<DetailSpecsTabProps> = ({
           </p>
         </div>
         <a
-          href={getWhatsAppVinRequestUrl(car, SEED_DEALER.whatsappNumber)}
+          href={getWhatsAppVinRequestUrl(car, dealer || car.dealerSlug || '')}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 hover:text-white font-bold text-xs transition-all touch-manipulation active:scale-95 shadow-sm flex-shrink-0"

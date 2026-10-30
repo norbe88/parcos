@@ -5,7 +5,7 @@ const PORT = process.env.TEST_PORT ? parseInt(process.env.TEST_PORT, 10) : 3293;
 process.env.PORT = String(PORT);
 process.env.ADMIN_API_KEY = 'parcos_test_admin_session_key_2026_ok';
 process.env.ADMIN_PASSWORD_HASH = 'dbc1d0952684f4b89cc86bc7ffdd52cacc2a79e667b7e0765953069e05bb6589';
-process.env.SUPERADMIN_PASSWORD_HASH = 'e180c917ef121846cee6c6b488b9d7a159c12c96880c1901b5a309ca66efb7c2';
+process.env.SUPERADMIN_PASSWORD_HASH = '932037ac6191db952b173de12931175d71cbaccb8b40f3017c19dfc71084a742';
 process.env.SUPERADMIN_MASTER_KEY = 'parcos_superadmin_dev_secret_2026';
 
 function databaseWritesAllowed() {
@@ -83,7 +83,7 @@ try {
     path: '/api/auth/login',
     method: 'POST',
     headers: { Host: 'parcos.ro', 'Content-Type': 'application/json' },
-  }, { password: 'Olaf.0311', tenantId: 'parcos' });
+  }, { password: 'Olaf.1988', tenantId: 'parcos' });
   assert.strictEqual(superLogin.status, 200);
   const superToken = superLogin.json.token;
 

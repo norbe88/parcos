@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Calculator, SlidersHorizontal, Sparkles, Shield, MessageCircle, CheckCircle2, Phone } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../db/seed';
-import { calculateRate, VAT_RATE } from '../../utils/helpers';
+import { calculateRate, VAT_RATE, resolveDealerContact } from '../../utils/helpers';
 import { convertEurToRon, getExchangeRateDisclaimer } from '../../utils/currencyEngine';
 import { FinancingRequirementsAccordion } from './FinancingRequirementsAccordion';
 
@@ -45,6 +45,7 @@ export const FinancingSection: React.FC<FinancingSectionProps> = ({
   cars,
   dealer = SEED_DEALER
 }) => {
+  const contact = resolveDealerContact(dealer);
   // Stare Finanțare Secțiune Dedicată (TBI Bank selectat implicit)
   const [finCarId, setFinCarId] = useState<string>('custom');
   const [finCustomPrice, setFinCustomPrice] = useState<number>(16900);
@@ -322,15 +323,15 @@ export const FinancingSection: React.FC<FinancingSectionProps> = ({
                 )}
               </div>
 
-              {/* Card Contact Consilier Finanțare Mădălina */}
+              {/* Card Contact Consilier Finanțare */}
               <div className="mt-5 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between gap-3 text-xs">
                 <div>
                   <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Consilier Credite & Leasing</div>
-                  <div className="text-white font-bold text-sm">Consultanță Rate: <span className="font-mono text-amber-300">0758 042 979</span></div>
+                  <div className="text-white font-bold text-sm">Consultanță Rate: <span className="font-mono text-amber-300">{contact.financePhone}</span></div>
                   <div className="text-[10.5px] text-zinc-400 mt-0.5">Consultanță gratuită dosar • Aprobare rapidă 15–30 min</div>
                 </div>
                 <a 
-                  href={`tel:${(dealer.phoneFinance || '0758042979').replace(/\s+/g, '')}`}
+                  href={`tel:${contact.financePhoneClean}`}
                   className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-colors border border-white/10 shrink-0 touch-manipulation active:scale-95"
                   title="Apelează consilierul de credite"
                 >
@@ -340,7 +341,7 @@ export const FinancingSection: React.FC<FinancingSectionProps> = ({
               </div>
 
               <a 
-                href={`https://wa.me/${dealer.whatsappFinance || '40758042979'}?text=Bună%20ziua!%20Doresc%20să%20aplic%20pentru%20finanțare%20auto%20la%20${encodeURIComponent(dealer.name)}:%0A- Valoare:%20${activeFinPrice}€%0A- Avans:%20${finAdvPct}%20(${finAdvanceEur}€)%0A- Perioadă:%20${finMonths}%20luni%0A- Rată%20estimată:%20${finMonthlyRate}€/lună%20(${convertEurToRon(finMonthlyRate)}%20RON)%0A- Finanțator:%20${encodeURIComponent(activeCreditor.name)}%20(Dobândă%20${activeCreditor.interestRate}%)`}
+                href={`https://wa.me/${contact.financeWhatsApp}?text=Bună%20ziua!%20Doresc%20să%20aplic%20pentru%20finanțare%20auto%20la%20${encodeURIComponent(dealer.name)}:%0A- Valoare:%20${activeFinPrice}€%0A- Avans:%20${finAdvPct}%20(${finAdvanceEur}€)%0A- Perioadă:%20${finMonths}%20luni%0A- Rată%20estimată:%20${finMonthlyRate}€/lună%20(${convertEurToRon(finMonthlyRate)}%20RON)%0A- Finanțator:%20${encodeURIComponent(activeCreditor.name)}%20(Dobândă%20${activeCreditor.interestRate}%)`}
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="mt-4 w-full min-h-[48px] inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-bold h-12 rounded-xl text-sm shadow-lg shadow-amber-500/20 transition-all touch-manipulation active:scale-[0.98]"

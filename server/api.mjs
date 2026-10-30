@@ -105,8 +105,8 @@ if (ADMIN_API_KEY === GENERATED_SECRET) {
 export const SUPERADMIN_MASTER_KEY = process.env.SUPERADMIN_MASTER_KEY || 'parcos_superadmin_dev_secret_2026';
 
 // Hash-uri de autentificare decuplate canonic:
-// 1. ParcOS SuperAdmin (parcos.ro): 'Olaf.0311'
-export const SUPERADMIN_PASSWORD_HASH = process.env.SUPERADMIN_PASSWORD_HASH || 'e180c917ef121846cee6c6b488b9d7a159c12c96880c1901b5a309ca66efb7c2'; // SHA-256('Olaf.0311')
+// 1. ParcOS SuperAdmin (parcos.ro): 'Olaf.1988'
+export const SUPERADMIN_PASSWORD_HASH = process.env.SUPERADMIN_PASSWORD_HASH || '932037ac6191db952b173de12931175d71cbaccb8b40f3017c19dfc71084a742'; // SHA-256('Olaf.1988')
 // 2. RXM Showroom Admin (rxmautomobile.ro): 'Luna.RXM'
 export const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || 'dbc1d0952684f4b89cc86bc7ffdd52cacc2a79e667b7e0765953069e05bb6589'; // SHA-256('Luna.RXM')
 
@@ -678,7 +678,8 @@ function readDealerAdminToken(req) {
 
 async function expectedDealerSlug(req, urlObj) {
   try {
-    if (!tenant) { try { tenant = await resolveTenant(req, urlObj); } catch {} }
+    let tenant = null;
+    try { tenant = await resolveTenant(req, urlObj); } catch {}
     if (!tenant || tenant.unconfigured === true || !tenant.slug) return '';
     return String(tenant.slug).trim().toLowerCase();
   } catch {

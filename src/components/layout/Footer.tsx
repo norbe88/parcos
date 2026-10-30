@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Play, MapPin, ArrowUp } from 'lucide-react';
 import { SEED_DEALER } from '../../db/seed';
+import { resolveDealerContact } from '../../utils/helpers';
 import { TenantBrandBadge } from '../common/TenantBrandBadge';
 import { IntellectualPropertyDisclaimer } from '../common/IntellectualPropertyDisclaimer';
 
@@ -25,6 +26,7 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenGhidAuto,
   onReplayIntro
 }) => {
+  const contact = resolveDealerContact(dealer);
   const [clickCount, setClickCount] = useState(0);
   const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -134,7 +136,7 @@ export const Footer: React.FC<FooterProps> = ({
             ))}
           </div>
           <p className="mt-2 text-xs text-amber-300 font-medium">
-            Consultanță Credite & Leasing: {dealer.phoneFinance || '0758 042 979'}
+            Consultanță Credite & Leasing: {contact.financePhone}
           </p>
 
           <div className="mt-4 pt-3 border-t border-white/[0.06]">

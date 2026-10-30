@@ -3,7 +3,7 @@
 // Invariantă TVA: 21% (VAT_RATE = 0.21; Net = Gross / 1.21)
 // =========================================================================
 
-import { VehicleItem, VehicleExpenseCategory } from '../db/types';
+import { VehicleItem, VehicleExpenseCategory, DealerProfile } from '../db/types';
 import { resolveMediaUrl } from './mediaVaultDb';
 
 export const VAT_RATE = 0.21;
@@ -190,15 +190,92 @@ export function maskVin(vin?: string, isPublic: boolean = false): string {
 }
 
 /**
+ * Curăță și normalizează numărul de WhatsApp în format internațional E.164 fără plus (+), 
+ * conform specificației API WhatsApp (https://wa.me/<number>).
+ * Suportă numere românești (07xx -> 407xx, +407xx -> 407xx, 407xx -> 407xx).
+ * Previne apelarea sau deschiderea de link-uri WhatsApp invalide.
+ */
+export function normalizeWhatsAppNumber(rawNumber?: string, fallbackNumber?: string): string {
+  const sanitize = (num?: string): string => {
+    if (!num) return '';
+    const digitsOnly = String(num).replace(/\D/g, '');
+    if (!digitsOnly) return '';
+    // Număr standard din România început cu 0 (ex: 0759757858 -> 40759757858)
+    if (digitsOnly.startsWith('0') && digitsOnly.length === 10) {
+      return `4${digitsOnly}`;
+    }
+    // Număr cu prefix internațional 40 (ex: 40759757858)
+    if (digitsOnly.startsWith('40') && digitsOnly.length >= 11) {
+      return digitsOnly;
+    }
+    // Număr local scurt de 9 cifre (ex: 759757858) -> adăugăm prefix 40
+    if (digitsOnly.length === 9 && digitsOnly.startsWith('7')) {
+      return `40${digitsOnly}`;
+    }
+    return digitsOnly;
+  };
+
+  const primary = sanitize(rawNumber);
+  if (primary && primary.length >= 9) return primary;
+
+  const fallback = sanitize(fallbackNumber);
+  if (fallback && fallback.length >= 9) return fallback;
+
+  return '';
+}
+
+export interface ResolvedDealerContact {
+  salesPhone: string;
+  salesPhoneClean: string;
+  salesWhatsApp: string;
+  financePhone: string;
+  financePhoneClean: string;
+  financeWhatsApp: string;
+}
+
+/**
+ * Rezolvă ierarhia sigură de date de contact per dealer (Multi-Tenant Isolation).
+ * Garantează că niciun tenant nou nu moștenește datele RXM sau ale altui dealer.
+ */
+export function resolveDealerContact(dealer?: Partial<DealerProfile> | null): ResolvedDealerContact {
+  const d = dealer || {};
+  
+  // 1. Telefoane Vânzări Showroom
+  const salesPhone = d.phonePrimary || d.whatsappNumber || d.phoneSecondary || '';
+  const salesPhoneClean = salesPhone.replace(/\s+/g, '');
+  const salesWhatsApp = normalizeWhatsAppNumber(d.whatsappNumber, salesPhone);
+
+  // 2. Telefoane Consultanță Finanțare & Rate
+  const financePhone = d.phoneFinance || d.phoneSecondary || d.whatsappFinance || salesPhone;
+  const financePhoneClean = financePhone.replace(/\s+/g, '');
+  const financeWhatsApp = normalizeWhatsAppNumber(
+    d.whatsappFinance,
+    normalizeWhatsAppNumber(d.phoneFinance, normalizeWhatsAppNumber(d.phoneSecondary, salesWhatsApp))
+  );
+
+  return {
+    salesPhone,
+    salesPhoneClean,
+    salesWhatsApp,
+    financePhone,
+    financePhoneClean,
+    financeWhatsApp,
+  };
+}
+
+/**
  * URL WhatsApp pentru solicitare Serie Șasiu (VIN) & Raport Istoric
  */
 export function getWhatsAppVinRequestUrl(
   car: { brand: string; model: string; year?: number; priceEur: number; stockNumber?: string; vin?: string },
-  whatsappNumber: string
+  whatsappNumberOrDealer: string | Partial<DealerProfile>
 ): string {
   const ref = getStockNumber(car);
+  const targetPhone = typeof whatsappNumberOrDealer === 'object' && whatsappNumberOrDealer !== null
+    ? resolveDealerContact(whatsappNumberOrDealer).salesWhatsApp
+    : normalizeWhatsAppNumber(whatsappNumberOrDealer);
   const text = `Bună ziua! Sunt interesat de autoturismul ${car.brand} ${car.model} [Ref: ${ref}, An: ${car.year || 'N/A'}, Preț: ${car.priceEur.toLocaleString('ro-RO')} €].\nVă rog să-mi transmiteți seria de șasiu (VIN) și raportul tehnic pentru verificare. Mulțumesc!`;
-  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+  return `https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`;
 }
 
 /**
@@ -206,11 +283,19 @@ export function getWhatsAppVinRequestUrl(
  */
 export function getWhatsAppCarInquiryUrl(
   car: { brand: string; model: string; year?: number; priceEur: number; stockNumber?: string; vin?: string },
-  whatsappNumber: string
+  whatsappNumberOrDealer: string | Partial<DealerProfile>,
+  dealerAddress?: string
 ): string {
   const ref = getStockNumber(car);
-  const text = `Bună ziua! Sunt interesat de autoturismul: ${car.brand} ${car.model} [Ref: ${ref}, An: ${car.year || 'N/A'}, Preț: ${car.priceEur.toLocaleString('ro-RO')} €]. Mai este disponibil pentru vizionare și test drive (Str. Colonia Hodai F.N., Cluj-Napoca)?`;
-  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+  const targetPhone = typeof whatsappNumberOrDealer === 'object' && whatsappNumberOrDealer !== null
+    ? resolveDealerContact(whatsappNumberOrDealer).salesWhatsApp
+    : normalizeWhatsAppNumber(whatsappNumberOrDealer);
+  const loc = typeof whatsappNumberOrDealer === 'object' && whatsappNumberOrDealer !== null
+    ? (whatsappNumberOrDealer.showroomAddress || whatsappNumberOrDealer.address || '')
+    : (dealerAddress || '');
+  const locSuffix = loc ? ` (${loc})` : '';
+  const text = `Bună ziua! Sunt interesat de autoturismul: ${car.brand} ${car.model} [Ref: ${ref}, An: ${car.year || 'N/A'}, Preț: ${car.priceEur.toLocaleString('ro-RO')} €]. Mai este disponibil pentru vizionare și test drive${locSuffix}?`;
+  return `https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`;
 }
 
 /**
@@ -218,7 +303,7 @@ export function getWhatsAppCarInquiryUrl(
  */
 export function getWhatsAppFinanceUrl(
   car: { brand: string; model: string; priceEur: number; stockNumber?: string; vin?: string },
-  whatsappNumber: string = '40758042979',
+  whatsappNumberOrDealer: string | Partial<DealerProfile>,
   advancePercent: number,
   periodMonths: number,
   partner: string = 'TBI Bank',
@@ -227,8 +312,9 @@ export function getWhatsAppFinanceUrl(
   const ref = getStockNumber(car);
   const advEur = Math.round((car.priceEur * advancePercent) / 100);
   const rateEur = estimatedRate ?? calculateRate(car.priceEur, advancePercent, periodMonths);
-  // Mesaj indirect și profesional pentru consultanță finanțare & rate
-  const targetPhone = whatsappNumber && whatsappNumber !== '40748892937' ? whatsappNumber : '40758042979';
+  const targetPhone = typeof whatsappNumberOrDealer === 'object' && whatsappNumberOrDealer !== null
+    ? resolveDealerContact(whatsappNumberOrDealer).financeWhatsApp
+    : normalizeWhatsAppNumber(whatsappNumberOrDealer);
   const text = `Bună ziua! Doresc o simulare de finanțare prin ${partner} pentru autoturismul: ${car.brand} ${car.model} [Ref: ${ref}, Preț: ${car.priceEur.toLocaleString('ro-RO')} €]:\n- Avans: ${advancePercent}% (${advEur.toLocaleString('ro-RO')} €)\n- Perioadă: ${periodMonths} luni\n- Rată estimativă: ${rateEur} €/lună\nCare sunt actele necesare și pașii de aprobare? Mulțumesc!`;
   return `https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`;
 }
@@ -238,15 +324,18 @@ export function getWhatsAppFinanceUrl(
  */
 export function getWhatsAppTestDriveUrl(
   car: { brand: string; model: string; stockNumber?: string; vin?: string },
-  whatsappNumber: string,
+  whatsappNumberOrDealer: string | Partial<DealerProfile>,
   date: string,
   timeSlot: string,
   name: string,
   phone: string
 ): string {
   const ref = getStockNumber(car);
+  const targetPhone = typeof whatsappNumberOrDealer === 'object' && whatsappNumberOrDealer !== null
+    ? resolveDealerContact(whatsappNumberOrDealer).salesWhatsApp
+    : normalizeWhatsAppNumber(whatsappNumberOrDealer);
   const text = `Bună ziua! Doresc o programare pentru test drive cu autoturismul: ${car.brand} ${car.model} [Ref: ${ref}]:\n- Data: ${date}\n- Interval orar: ${timeSlot}\n- Solicitant: ${name}\n- Telefon contact: ${phone}\nVă rog să-mi confirmați disponibilitatea mașinii. Mulțumesc!`;
-  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+  return `https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`;
 }
 
 /**
@@ -254,11 +343,14 @@ export function getWhatsAppTestDriveUrl(
  */
 export function getWhatsAppVideoUrl(
   car: { brand: string; model: string; year?: number; priceEur: number; stockNumber?: string; vin?: string },
-  whatsappNumber: string
+  whatsappNumberOrDealer: string | Partial<DealerProfile>
 ): string {
   const ref = getStockNumber(car);
+  const targetPhone = typeof whatsappNumberOrDealer === 'object' && whatsappNumberOrDealer !== null
+    ? resolveDealerContact(whatsappNumberOrDealer).salesWhatsApp
+    : normalizeWhatsAppNumber(whatsappNumberOrDealer);
   const text = `Bună ziua! Aș dori o filmare video detaliată (walkaround) pe WhatsApp cu autoturismul: ${car.brand} ${car.model} [Ref: ${ref}, Preț: ${car.priceEur.toLocaleString('ro-RO')} €]. Mulțumesc!`;
-  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+  return `https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`;
 }
 
 /**
@@ -266,11 +358,18 @@ export function getWhatsAppVideoUrl(
  */
 export function getWhatsAppSoldOrderUrl(
   car: { brand: string; model: string; stockNumber?: string; vin?: string },
-  whatsappNumber: string
+  whatsappNumberOrDealer: string | Partial<DealerProfile>,
+  dealerName?: string
 ): string {
   const ref = getStockNumber(car);
-  const text = `Bună ziua! Am văzut că s-a vândut autoturismul ${car.brand} ${car.model} [Ref: ${ref}]. Aș dori o ofertă pentru un model similar adus la comandă prin RXM Automobile!`;
-  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+  const targetPhone = typeof whatsappNumberOrDealer === 'object' && whatsappNumberOrDealer !== null
+    ? resolveDealerContact(whatsappNumberOrDealer).salesWhatsApp
+    : normalizeWhatsAppNumber(whatsappNumberOrDealer);
+  const brandName = typeof whatsappNumberOrDealer === 'object' && whatsappNumberOrDealer !== null
+    ? (whatsappNumberOrDealer.name || 'showroom')
+    : (dealerName || 'showroom');
+  const text = `Bună ziua! Am văzut că s-a vândut autoturismul ${car.brand} ${car.model} [Ref: ${ref}]. Aș dori o ofertă pentru un model similar adus la comandă prin ${brandName}!`;
+  return `https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`;
 }
 
 /**

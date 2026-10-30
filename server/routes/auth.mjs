@@ -65,7 +65,7 @@ export async function handleAuthRoutes(req, res, urlObj, pathname, {
         if (isDealerPwd) {
           sendJson(res, 401, {
             success: false,
-            error: 'Parola introdusă este parola de showroom. Pe consola SuperAdmin ParcOS este necesară parola de platformă (Olaf.0311).'
+            error: 'Parola introdusă este pentru showroom individual. Pe consola SuperAdmin ParcOS este necesară parola de administrator de platformă.'
           });
           return true;
         }
@@ -89,7 +89,7 @@ export async function handleAuthRoutes(req, res, urlObj, pathname, {
     }
 
     // 🚗 CAZUL 2: AUTENTIFICARE SHOWROOM / DEALER (rxmautomobile.ro sau alt tenant)
-    // 2.1 Verificare Master SuperAdmin Override pe showroom (Olaf.0311 funcționează ca master key)
+    // 2.1 Verificare Master SuperAdmin Override pe showroom (SuperAdmin funcționează ca master key)
     let isSuperOverride = false;
     try {
       isSuperOverride = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(SUPERADMIN_PASSWORD_HASH));

@@ -186,7 +186,7 @@ const SpecialOfferCard: React.FC<SpecialOfferCardProps> = ({ car, onSelectCar, d
             {car.year} • {formatMileage(car.mileageKm)}
           </span>
           <a
-            href={getWhatsAppCarInquiryUrl(car, dealer.whatsappNumber)}
+            href={getWhatsAppCarInquiryUrl(car, dealer)}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
