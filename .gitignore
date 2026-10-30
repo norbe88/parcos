@@ -23,6 +23,12 @@ Thumbs.db
 .scratch/
 scratch/
 
+# Import scratch media
+data/import/**/images/
+data/import/**/*.webp
+data/import/**/*.jpg
+data/import/**/*.jpeg
+
 .vscode/
 __pycache__/
 *.pyc

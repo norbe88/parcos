@@ -1212,7 +1212,8 @@ async function renderDynamicHtml(html, req, urlObj) {
           ogType = 'website';
           ogTitle = title;
           ogDescription = description;
-          ogImage = `https://${host}/rxm/images/rxm-emblem.png`;
+          const isTenantRxm = tenant.slug === 'rxm' || tenant.slug === 'rxm_sandbox';
+          ogImage = tenant.logo_url || tenant.logoUrl || (isTenantRxm ? `https://${host}/rxm/images/rxm-emblem.png` : 'https://parcos.ro/brand/parcos-og-icon.png');
           ogUrl = canonicalUrl;
         }
       }
