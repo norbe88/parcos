@@ -241,7 +241,7 @@ export const GoogleReviewsSection: React.FC<{ dealer?: DealerProfile }> = ({ dea
 
           <div className="flex items-center gap-3">
             <a
-              href={dealer.googleMapsUrl || SEED_DEALER.googleMapsUrl}
+              href={mapsTargetUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-all touch-manipulation active:scale-95"
@@ -251,7 +251,7 @@ export const GoogleReviewsSection: React.FC<{ dealer?: DealerProfile }> = ({ dea
             </a>
 
             <a
-              href={dealer.googleMapsUrl || SEED_DEALER.googleMapsUrl}
+              href={mapsTargetUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs inline-flex items-center gap-1.5 transition-all shadow-md shadow-amber-500/20 touch-manipulation active:scale-95"

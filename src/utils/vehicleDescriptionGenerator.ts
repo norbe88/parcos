@@ -138,7 +138,7 @@ export function generateVehicleDescription(
   } = options;
   const dealerBrand = (dealer?.name || 'Showroom').split(' ')[0];
   const showroomLocation = dealer?.showroomAddress || dealer?.address || 'Cluj-Napoca';
-  const contactPhone = dealer?.phonePrimary || '0758 042 979';
+  const contactPhone = dealer?.phonePrimary || dealer?.whatsappNumber || dealer?.phoneSecondary || '0758 042 979';
 
   const brand = (params.brand || 'Autoturism').trim();
   const model = (params.model || '').trim();

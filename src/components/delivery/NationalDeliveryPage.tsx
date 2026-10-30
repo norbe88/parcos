@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { DealerProfile, VehicleItem } from '../../db/types';
 import { SEED_DEALER } from '../../db/seed';
-import { formatMileage } from '../../utils/helpers';
+import { formatMileage, resolveDealerContact } from '../../utils/helpers';
 
 interface NationalDeliveryPageProps {
   dealer?: DealerProfile;
@@ -72,6 +72,7 @@ export const NationalDeliveryPage: React.FC<NationalDeliveryPageProps> = ({
   onBackToShowroom,
   onSelectCar
 }) => {
+  const contact = resolveDealerContact(dealer);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   useEffect(() => {

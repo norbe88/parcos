@@ -1,6 +1,6 @@
 import { VehicleItem, DealerProfile } from '../db/types';
 import { SEED_DEALER } from '../db/dealer';
-import { getStockNumber } from './helpers';
+import { getStockNumber, resolveDealerContact } from './helpers';
 import { getPrioritizedShowroomFeatures } from './vehicleDescriptionGenerator';
 
 export interface SocialCopyOptions {
@@ -127,14 +127,15 @@ export function generateFacebookPostCopy(
     `  • Aprobare rapidă în 2 ore prin partenerii noștri (${dealer.financingPartners?.slice(0, 3).join(', ') || 'TBI Bank, BT Direct'})`
   ].join('\n');
 
+  const contact = resolveDealerContact(dealer);
   const ctaAndContactText = [
     `📍 Vezi galeria completă cu toate fotografiile HD și raportul detaliat:`,
     `👉 ${shareUrl}`,
     ``,
     `📞 Contact & Programare Vizionare:`,
-    `  • Vânzări (${dealer.generalContactName}): ${dealer.phonePrimary}`,
-    `  • Finanțare & Rate (${dealer.financeContactName}): ${dealer.phoneFinance}`,
-    `  • WhatsApp: https://wa.me/${dealer.whatsappNumber}?text=${encodeURIComponent(`Bună ziua, sunt interesat de ${car.brand} ${car.model} (${stockRef})`)}`,
+    `  • Vânzări (${dealer.generalContactName}): ${contact.salesPhone}`,
+    `  • Finanțare & Rate (${dealer.financeContactName}): ${contact.financePhone}`,
+    `  • WhatsApp: https://wa.me/${contact.salesWhatsApp}?text=${encodeURIComponent(`Bună ziua, sunt interesat de ${car.brand} ${car.model} (${stockRef})`)}`,
     `  • Adresă: ${dealer.showroomAddress || dealer.address}`
   ].join('\n');
 
