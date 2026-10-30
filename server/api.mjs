@@ -30,6 +30,8 @@ import {
   insertLandingLead,
   recordVehicleView,
   getTopViewedVehicles,
+  recordTrafficEvent,
+  getSiteTrafficAnalytics,
   getSql
 } from './db.mjs';
 import { requestPhoneOtp, verifyPhoneOtp, isPhoneRecentlyVerified, dispatchSmsWithFallback } from './services/smsGatewayService.mjs';
@@ -1726,6 +1728,18 @@ async function handleLandingLead(req, res) {
     console.error('❌ [/api/lead] Eroare neașteptată:', err);
     sendJson(res, 500, { ok: false, error: 'internal_error' });
   }
+}
+
+/**
+ * Clasifică tipul de dispozitiv pe baza User-Agent-ului (Mobile / Tablet / Desktop)
+ * @param {string} userAgent
+ * @returns {'mobile'|'desktop'|'tablet'}
+ */
+export function detectDeviceType(userAgent) {
+  const ua = String(userAgent || '').toLowerCase();
+  if (/ipad|tablet|(android(?!.*mobile))/.test(ua)) return 'tablet';
+  if (/mobi|iphone|android|touch/.test(ua)) return 'mobile';
+  return 'desktop';
 }
 
 export const server = http.createServer(async (req, res) => {
@@ -3458,6 +3472,120 @@ REGULI STRICTE & INVARIANTE HOLDING:
           success: false,
           error: 'Eroare la interogarea clasamentului de vizualizări',
           message: err.message,
+        });
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // SITE VISITORS & CONVERSION TELEMETRY (WAVE 1)
+    // ══════════════════════════════════════════════════════════════════
+
+    // 1. POST /api/telemetry/traffic-event — Ingestie debounced trafic site & interacțiuni (suport JSON + sendBeacon)
+    if (req.method === 'POST' && pathname === '/api/telemetry/traffic-event') {
+      let parsedBody = {};
+      try {
+        const bodyBuffer = await readRequestBody(req, 64 * 1024); // max 64 KB
+        const rawText = bodyBuffer.toString('utf-8').trim();
+        if (rawText) {
+          try {
+            parsedBody = JSON.parse(rawText);
+          } catch {
+            parsedBody = {};
+          }
+        }
+      } catch (err) {
+        parsedBody = {};
+      }
+
+      // Rezoluție tenant / dealer slug
+      let dealerSlug = String(parsedBody.dealerSlug || parsedBody.dealer_slug || '').trim().toLowerCase();
+      if (!dealerSlug) {
+        try {
+          const tenant = await resolveTenant(req, urlObj);
+          dealerSlug = tenant?.slug || 'parcos';
+        } catch {
+          dealerSlug = 'parcos';
+        }
+      }
+
+      const eventType = String(parsedBody.eventType || parsedBody.event_type || 'pageview').trim().toLowerCase();
+      const pagePath = String(parsedBody.pagePath || parsedBody.page_path || '/').trim();
+      const source = String(parsedBody.source || 'direct').trim().toLowerCase().slice(0, 50);
+      const referrer = parsedBody.referrer ? String(parsedBody.referrer).trim().slice(0, 500) : null;
+      const metadata = parsedBody.metadata || {};
+
+      // Calcul session_hash GDPR compliant: SHA256(IP + UserAgent + DataZilnică + Salt)
+      const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+      const clientIp = String(rawIp).split(',')[0].trim();
+      const userAgent = String(req.headers['user-agent'] || 'unknown').slice(0, 300);
+      const todayYmd = new Date().toISOString().split('T')[0];
+
+      const sessionHash = crypto.createHash('sha256')
+        .update(`${clientIp}-${userAgent}-${todayYmd}-parcos-telemetry-v1`)
+        .digest('hex');
+
+      const deviceType = detectDeviceType(userAgent);
+
+      try {
+        const result = await recordTrafficEvent({
+          dealerSlug,
+          sessionHash,
+          eventType,
+          pagePath,
+          source,
+          deviceType,
+          referrer,
+          metadata
+        });
+
+        return sendJson(res, 200, {
+          success: true,
+          recorded: Boolean(result?.success),
+          eventId: result?.eventId || null,
+          dealer: dealerSlug,
+          sessionHash,
+          deviceType,
+          ...(result?.error ? { warning: result.error } : {})
+        });
+      } catch (err) {
+        return sendJson(res, 200, {
+          success: true,
+          recorded: false,
+          error: 'Eroare la înregistrarea telemetriei de trafic',
+          message: err.message
+        });
+      }
+    }
+
+    // 2. GET /api/dealers/:dealerSlug/analytics/traffic-summary & /api/analytics/traffic-summary — Sumar metrici trafic
+    const trafficSummaryMatch = pathname.match(/^\/api\/dealers\/([^/]+)\/analytics\/traffic-summary$/) || (pathname === '/api/analytics/traffic-summary' ? [pathname, ''] : null);
+    if (req.method === 'GET' && trafficSummaryMatch) {
+      let dealerSlug = trafficSummaryMatch[1] ? decodeURIComponent(trafficSummaryMatch[1]).trim().toLowerCase() : (urlObj.searchParams.get('dealer') || urlObj.searchParams.get('dealer_slug') || '');
+      if (!dealerSlug) {
+        try {
+          const tenant = await resolveTenant(req, urlObj);
+          dealerSlug = tenant?.slug || 'parcos';
+        } catch {
+          dealerSlug = 'parcos';
+        }
+      }
+
+      const timeframe = urlObj.searchParams.get('timeframe') || '30d';
+
+      try {
+        const summary = await getSiteTrafficAnalytics(dealerSlug, timeframe);
+        return sendJson(res, 200, {
+          success: true,
+          dealer: dealerSlug,
+          timeframe,
+          summary,
+          ...summary
+        });
+      } catch (err) {
+        return sendJson(res, 500, {
+          success: false,
+          error: 'Eroare la agregarea sumarului de trafic',
+          message: err.message
         });
       }
     }
