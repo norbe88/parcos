@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { ShieldCheck, ChevronDown, Mail } from 'lucide-react';
+import { DealerProfile } from '../../db/types';
 import { SEED_DEALER } from '../../db/seed';
 
-interface IntellectualPropertyDisclaimerProps {
-  dealer?: typeof SEED_DEALER;
+export interface IntellectualPropertyDisclaimerProps {
+  dealer?: DealerProfile | Partial<DealerProfile> | null;
   className?: string;
   defaultExpanded?: boolean;
+}
+
+export function getIntellectualPropertyNotice(dealerName: string): string {
+  return `Toate fotografiile, descrierile tehnice și materialele video aparțin exclusiv ${dealerName}. Preluarea, multiplicarea sau republicarea neautorizată pe alte platforme (OLX, Autovit, Facebook etc.) este strict interzisă conform Legii nr. 8/1996 privind dreptul de autor. Pentru parteneriate media sau licențiere, vă rugăm să ne contactați oficial.`;
 }
 
 export const IntellectualPropertyDisclaimer: React.FC<IntellectualPropertyDisclaimerProps> = ({
@@ -14,6 +19,10 @@ export const IntellectualPropertyDisclaimer: React.FC<IntellectualPropertyDiscla
   defaultExpanded = false
 }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  const activeDealer = dealer || SEED_DEALER;
+  const dealerName = activeDealer.name || SEED_DEALER.name;
+  const dealerEmail = activeDealer.email || SEED_DEALER.email;
 
   return (
     <div className={`w-full text-left select-none ${className}`}>
@@ -52,14 +61,14 @@ export const IntellectualPropertyDisclaimer: React.FC<IntellectualPropertyDiscla
             <div className="space-y-1.5">
               <div className="font-semibold text-zinc-100 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
-                <span>Proprietate Intelectuală RXM AUTO MOBILE SRL:</span>
+                <span>Proprietate Intelectuală {dealerName}:</span>
               </div>
               <p className="text-zinc-400 leading-relaxed">
-                Toate fotografiile, descrierile tehnice și materialele video aparțin exclusiv RXM AUTO MOBILE SRL. Preluarea, multiplicarea sau republicarea neautorizată pe alte platforme (OLX, Autovit, Facebook etc.) este strict interzisă conform Legii nr. 8/1996 privind dreptul de autor. Pentru parteneriate media sau licențiere, vă rugăm să ne contactați oficial.
+                {getIntellectualPropertyNotice(dealerName)}
               </p>
             </div>
             <a
-              href={`mailto:${dealer.email}?subject=${encodeURIComponent('Solicitare Acord Licențiere / Parteneriat Media RXM Automobile')}`}
+              href={`mailto:${dealerEmail}?subject=${encodeURIComponent(`Solicitare Acord Licențiere / Parteneriat Media ${dealerName}`)}`}
               className="min-h-[44px] shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-amber-300 hover:text-white border border-white/10 text-[11px] font-semibold transition-all touch-manipulation active:scale-95"
             >
               <Mail className="w-3.5 h-3.5" />

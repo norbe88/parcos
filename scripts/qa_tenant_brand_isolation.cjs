@@ -138,6 +138,24 @@ assert(!navbarTs.includes('stocul RXM Automobile'), 'Navbar nu conține WhatsApp
 const tenantCtxTs = readFile('src/context/TenantContext.tsx');
 assert(tenantCtxTs.includes('subDealer = getSubdomainDealer'), 'TenantContext acordă prioritate subdomeniului în URL resolve');
 
+// ─── 5. Verificare Clauză Proprietate Intelectuală & Drepturi de Autor ────────
+console.log('\n🔍 [SUITE 5] Izolare Clauză Proprietate Intelectuală (Legea nr. 8/1996)');
+
+const ipDisclaimerTs = readFile('src/components/common/IntellectualPropertyDisclaimer.tsx');
+assert(!ipDisclaimerTs.includes('Proprietate Intelectuală RXM AUTO MOBILE SRL:'), 'IntellectualPropertyDisclaimer nu are titlu hardcodat RXM AUTO MOBILE SRL');
+assert(!ipDisclaimerTs.includes('aparțin exclusiv RXM AUTO MOBILE SRL'), 'IntellectualPropertyDisclaimer nu are descriere hardcodată RXM AUTO MOBILE SRL');
+assert(!ipDisclaimerTs.includes('Parteneriat Media RXM Automobile'), 'IntellectualPropertyDisclaimer nu are subiect email hardcodat RXM Automobile');
+assert(ipDisclaimerTs.includes('getIntellectualPropertyNotice'), 'IntellectualPropertyDisclaimer exportă getIntellectualPropertyNotice');
+assert(ipDisclaimerTs.includes('Proprietate Intelectuală {dealerName}:'), 'IntellectualPropertyDisclaimer afișează dinamic dealerName în titlu');
+
+const antiCaptureTs = readFile('src/hooks/useAntiScreenCapture.ts');
+assert(antiCaptureTs.includes('dealerName?: string'), 'useAntiScreenCapture acceptă dealerName opțional');
+assert(antiCaptureTs.includes('getCopyrightLegalNotice'), 'useAntiScreenCapture exportă getCopyrightLegalNotice');
+
+assert(vehicleDetailModalTs.includes('dealerName: dealer?.name'), 'VehicleDetailModal transmite dealer?.name către useAntiScreenCapture');
+assert(vehicleDetailModalTs.includes('<IntellectualPropertyDisclaimer dealer={dealer} />'), 'VehicleDetailModal transmite dealer către IntellectualPropertyDisclaimer');
+assert(footerTs.includes('<IntellectualPropertyDisclaimer dealer={dealer} />'), 'Footer transmite dealer către IntellectualPropertyDisclaimer');
+
 console.log('\n===============================================================');
 console.log(`REZULTAT QA IZOLARE BRAND & TEMĂ: ${testsPassed}/${testsRun} TESTE TRECUTE!`);
 if (testsFailed > 0) {

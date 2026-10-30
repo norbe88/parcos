@@ -7,6 +7,8 @@ export interface AntiScreenCaptureOptions {
   onCaptureAttempt?: (message: string) => void;
   /** Activează blur-ul la pierderea focusului ferestrei (Snipping Tool defense) */
   blurOnFocusLoss?: boolean;
+  /** Denumirea oficială a dealerului pentru personalizarea notificării de copyright */
+  dealerName?: string;
 }
 
 export interface AntiScreenCaptureResult {
@@ -18,15 +20,21 @@ export interface AntiScreenCaptureResult {
   copyrightNotice: string;
 }
 
-export const RXM_COPYRIGHT_LEGAL_NOTICE = 
-  'Fotografiile și conținutul tehnic sunt protejate de drepturi de autor RXM AUTO MOBILE SRL conform Legii nr. 8/1996. Preluarea sau multiplicarea este interzisă.';
+export function getCopyrightLegalNotice(dealerName = 'RXM AUTO MOBILE SRL'): string {
+  return `Fotografiile și conținutul tehnic sunt protejate de drepturi de autor ${dealerName} conform Legii nr. 8/1996. Preluarea sau multiplicarea este interzisă.`;
+}
+
+export const RXM_COPYRIGHT_LEGAL_NOTICE = getCopyrightLegalNotice('RXM AUTO MOBILE SRL');
 
 export function useAntiScreenCapture(options: AntiScreenCaptureOptions = {}): AntiScreenCaptureResult {
   const {
     enabled = true,
     onCaptureAttempt,
-    blurOnFocusLoss = true
+    blurOnFocusLoss = true,
+    dealerName = 'RXM AUTO MOBILE SRL'
   } = options;
+
+  const copyrightNotice = getCopyrightLegalNotice(dealerName);
 
   const [isShieldActive, setIsShieldActive] = useState<boolean>(false);
 
@@ -56,7 +64,7 @@ export function useAntiScreenCapture(options: AntiScreenCaptureOptions = {}): An
         clearClipboard();
         setIsShieldActive(true);
         if (onCaptureAttempt) {
-          onCaptureAttempt(RXM_COPYRIGHT_LEGAL_NOTICE);
+          onCaptureAttempt(copyrightNotice);
         }
         return;
       }
@@ -150,6 +158,6 @@ export function useAntiScreenCapture(options: AntiScreenCaptureOptions = {}): An
   return {
     isShieldActive,
     clearClipboard,
-    copyrightNotice: RXM_COPYRIGHT_LEGAL_NOTICE
+    copyrightNotice
   };
 }

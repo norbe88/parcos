@@ -153,7 +153,8 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
   useAntiScreenCapture({
     enabled: !!selectedCar,
     onCaptureAttempt: (msg) => showToast(msg),
-    blurOnFocusLoss: false // Gestionat granular pe componentele foto DetailGallery și PhotoLightboxModal
+    blurOnFocusLoss: false, // Gestionat granular pe componentele foto DetailGallery și PhotoLightboxModal
+    dealerName: dealer?.name
   });
 
   if (!selectedCar) return null;
