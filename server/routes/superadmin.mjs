@@ -5,6 +5,7 @@
 
 import os from 'os';
 import fs from 'fs';
+import { sendApprovalConfirmationSms } from '../services/smsGatewayService.mjs';
 
 export async function handleSuperAdminRoutes(req, res, urlObj, pathname, {
   sendJson,
@@ -195,6 +196,42 @@ export async function handleSuperAdminRoutes(req, res, urlObj, pathname, {
         status,
         is_active: isActive,
         tenant: updated
+      });
+      return true;
+    } catch (err) {
+      sendJson(res, 400, { success: false, error: err.message });
+      return true;
+    }
+  }
+
+  // 5.1. PATCH /api/superadmin/tenants/:slug/approve - 1-Click Aprobare Dealer & Activare Showroom + Confirmare SMS (Samy / S9+)
+  const approveMatch = pathname.match(/^\/api\/superadmin\/tenants\/([^/]+)\/approve$/);
+  if (req.method === 'PATCH' && approveMatch) {
+    try {
+      const slug = decodeURIComponent(approveMatch[1]).trim().toLowerCase();
+      const current = await getDealerBySlug(slug, true);
+      if (!current) {
+        sendJson(res, 404, { success: false, error: `Showroom-ul "${slug}" nu a fost găsit` });
+        return true;
+      }
+
+      const updated = await updateDealer(slug, { status: 'active', is_active: true });
+      if (tenantConfigCache) tenantConfigCache.clear();
+
+      // Transmitere SMS automat de confirmare prin Node-SAMY cu failover pe Node-S9+
+      let smsResult = null;
+      if (current.phone_primary) {
+        smsResult = await sendApprovalConfirmationSms(current.phone_primary, current.name, current.slug);
+      }
+
+      sendJson(res, 200, {
+        success: true,
+        slug,
+        status: 'active',
+        is_active: true,
+        tenant: updated,
+        sms: smsResult,
+        message: `Showroom-ul "${current.name}" a fost aprobat și activat cu succes.`
       });
       return true;
     } catch (err) {

@@ -32,6 +32,7 @@ import {
   getTopViewedVehicles,
   getSql
 } from './db.mjs';
+import { requestPhoneOtp, verifyPhoneOtp, isPhoneRecentlyVerified, dispatchSmsWithFallback } from './services/smsGatewayService.mjs';
 import { saveCarImageDataUrl, saveCarImageToDisk, deleteCarMediaFromDisk, createPresignedUploadUrl } from './mediaStorage.mjs';
 import { fetchAutovitLive } from '../scripts/marketScraperHelper.js';
 import {
@@ -904,7 +905,7 @@ export async function resolveTenant(req, urlObj) {
       if (cached && (Date.now() - cached.timestamp < TENANT_CACHE_TTL)) {
         return cached.data;
       }
-      const dbDealer = await getDealerBySlug(cleanSlug);
+      const dbDealer = await getDealerBySlug(cleanSlug, true);
       if (dbDealer) {
         tenantConfigCache.set(`slug:${cleanSlug}`, { data: dbDealer, timestamp: Date.now() });
         return dbDealer;
@@ -945,7 +946,7 @@ export async function resolveTenant(req, urlObj) {
         if (cachedSub && (Date.now() - cachedSub.timestamp < TENANT_CACHE_TTL)) {
           return cacheTenantHost(host, cachedSub.data);
         }
-        const dbDealer = await getDealerBySlug(cleanSubSlug);
+        const dbDealer = await getDealerBySlug(cleanSubSlug, true);
         if (dbDealer) {
           tenantConfigCache.set(`slug:${cleanSubSlug}`, { data: dbDealer, timestamp: Date.now() });
           return cacheTenantHost(host, dbDealer);
@@ -1834,7 +1835,9 @@ export const server = http.createServer(async (req, res) => {
           address_street: tenant.address_street || tenant.address || '',
           city: tenant.city || '',
           county: tenant.county || '',
-          is_active: tenant.is_active,
+          status: tenant.status || 'active',
+          is_active: tenant.is_active !== undefined ? tenant.is_active : true,
+          phone_verified: Boolean(tenant.phone_verified),
           config: tenant.config || {},
         },
         config: tenant.config || {},
@@ -1966,6 +1969,105 @@ export const server = http.createServer(async (req, res) => {
       } catch (err) {
         return sendJson(res, 400, { success: false, error: err.message });
       }
+    }
+
+    // 0.041 POST /api/onboarding/sms/send-otp - Trimitere SMS OTP prin Node-SAMY (Failover Node-S9+)
+    if (req.method === 'POST' && pathname === '/api/onboarding/sms/send-otp') {
+      const rawBody = await readRequestBody(req, 1024 * 32);
+      let payload = {};
+      try { payload = JSON.parse(rawBody.toString('utf8')); } catch {
+        return sendJson(res, 400, { success: false, error: 'JSON invalid' });
+      }
+      try {
+        const result = await requestPhoneOtp(payload.phone, payload.dealerName || 'ParcOS');
+        return sendJson(res, 200, { success: true, ...result });
+      } catch (err) {
+        const status = err.statusCode || (err.code === 'RATE_LIMIT_EXCEEDED' ? 429 : 400);
+        return sendJson(res, status, { success: false, error: err.message, code: err.code });
+      }
+    }
+
+    // 0.042 POST /api/onboarding/sms/verify-otp - Validare Cod OTP SMS (SHA-256 Salted, 3 încercări, 10m TTL)
+    if (req.method === 'POST' && pathname === '/api/onboarding/sms/verify-otp') {
+      const rawBody = await readRequestBody(req, 1024 * 32);
+      let payload = {};
+      try { payload = JSON.parse(rawBody.toString('utf8')); } catch {
+        return sendJson(res, 400, { success: false, error: 'JSON invalid' });
+      }
+      try {
+        const result = await verifyPhoneOtp(payload.phone, payload.code);
+        return sendJson(res, 200, { success: true, ...result });
+      } catch (err) {
+        const status = err.statusCode || 400;
+        return sendJson(res, status, {
+          success: false,
+          error: err.message,
+          code: err.code,
+          attempts_left: err.attempts_left
+        });
+      }
+    }
+
+    // 0.043 POST /api/onboarding/register - Safeguard Înregistrare Parc: Status Obligatoriu 'pending_approval'
+    if (req.method === 'POST' && pathname === '/api/onboarding/register') {
+      const rawBody = await readRequestBody(req, 1024 * 64);
+      let payload = {};
+      try { payload = JSON.parse(rawBody.toString('utf8')); } catch {
+        return sendJson(res, 400, { success: false, error: 'JSON invalid' });
+      }
+
+      const cleanPhone = String(payload.phonePrimary || payload.phone || '').trim();
+      if (!cleanPhone) {
+        return sendJson(res, 400, { success: false, error: 'Numărul de telefon este obligatoriu' });
+      }
+
+      // 🛡️ BARIERĂ STRICTĂ: Verificare dacă telefonul a primit și validat codul SMS recent (30 min)
+      const isVerified = await isPhoneRecentlyVerified(cleanPhone, 30);
+      if (!isVerified) {
+        return sendJson(res, 403, {
+          success: false,
+          error: 'Numărul de telefon nu a fost verificat prin cod SMS. Vă rugăm să validați numărul de telefon mai întâi.',
+          code: 'PHONE_NOT_VERIFIED'
+        });
+      }
+
+      const cleanSlug = normalizeSlug(payload.slug || payload.name);
+      if (!cleanSlug) {
+        return sendJson(res, 400, { success: false, error: 'Slug-ul sau numele este obligatoriu' });
+      }
+
+      const existing = await getDealerBySlug(cleanSlug, true);
+      if (existing) {
+        return sendJson(res, 409, { success: false, error: 'Un cont cu acest nume sau subdomeniu există deja.' });
+      }
+
+      // 🛡️ Creare cont cu status 'pending_approval' și is_active = false
+      const saved = await upsertDealer({
+        ...payload,
+        slug: cleanSlug,
+        phonePrimary: cleanPhone,
+        status: 'pending_approval',
+        is_active: false,
+        phone_verified: true,
+        tier: payload.tier || 'starter',
+        maxVehiclesQuota: 25
+      });
+
+      tenantConfigCache.clear();
+      console.log(`🛡️ [ONBOARDING SAFEGUARD] Dealer nou înregistrat în așteptare aprobare: ${saved.name} (${saved.slug}), Tel: ${cleanPhone}`);
+
+      return sendJson(res, 201, {
+        success: true,
+        status: 'pending_approval',
+        is_active: false,
+        dealer: {
+          name: saved.name,
+          slug: saved.slug,
+          domain: saved.domain,
+          status: 'pending_approval'
+        },
+        message: 'Contul dvs. a fost înregistrat cu succes și este în curs de aprobare de către echipa ParcOS. Vă vom notifica prin SMS odată ce contul a fost activat.'
+      });
     }
 
     // 0.05 GET /api/anaf/:cui - Interogare oficială serviciu ANAF v9 pentru autocompletare CUI [Admin Required]
@@ -3548,6 +3650,16 @@ REGULI STRICTE & INVARIANTE HOLDING:
     if (req.method === 'GET' && pathname === '/api/vehicles') {
       const tenant = await resolveTenant(req, urlObj);
       if (isUnconfiguredTenant(tenant)) return sendUnconfiguredShowroom(res);
+      if ((tenant.status === 'pending_approval' || (tenant.status === 'pending' && !tenant.is_active)) && !isAuthorizedSuperAdmin(req)) {
+        return sendJson(res, 200, {
+          success: true,
+          count: 0,
+          dealer: tenant.slug,
+          vehicles: [],
+          pending_approval: true,
+          message: 'Showroom-ul este în curs de aprobare și activare de către echipa ParcOS.'
+        });
+      }
       const rows = await getAllPublicVehicles(tenant.slug);
       return sendJson(res, 200, {
         success: true,

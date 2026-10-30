@@ -26,6 +26,7 @@ const ParcOSSuperAdminHub = lazy(() => import('./components/superadmin/ParcOSSup
 const GhidAutoHub = lazy(() => import('./components/ghid/GhidAutoHub').then(m => ({ default: m.GhidAutoHub })));
 import { CookieConsentBanner } from './components/common/CookieConsentBanner';
 import { EnvironmentHUD } from './components/common/EnvironmentHUD';
+import { PendingApprovalScreen } from './components/common/PendingApprovalScreen';
 import { extractOlxId, normalizeCarImageUrl } from './utils/helpers';
 import { preloadMediaKeys } from './utils/mediaVaultDb';
 import { getStandardDocumentFileName, printWithDocumentTitle } from './utils/pdfGenerator';
@@ -1885,7 +1886,13 @@ export default function App() {
       {/* ========================================================================= */}
       {viewMode === 'showroom' && (
         <Suspense fallback={<div className="min-h-screen bg-[#09090b]" />}>
-          <LandingSectionOrchestrator
+          {(tenant?.status === 'pending_approval' || (tenant?.status === 'pending' && tenant?.isActive === false)) && !isMasquerading ? (
+            <PendingApprovalScreen
+              dealer={tenant}
+              onApproved={() => window.location.reload()}
+            />
+          ) : (
+            <LandingSectionOrchestrator
             dealer={tenant}
             landingConfig={tenant.landingConfig}
             vehicles={cars}
@@ -1894,6 +1901,7 @@ export default function App() {
             showToast={showToast}
             isRevealed={isRevealed}
           />
+          )}
         </Suspense>
       )}
 

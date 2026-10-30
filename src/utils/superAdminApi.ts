@@ -142,6 +142,24 @@ export async function saveTenantStatusToBackend(
 }
 
 /**
+ * Aprobare 1-Click dealer și activare showroom public cu notificare SMS (PATCH /api/superadmin/tenants/:slug/approve)
+ */
+export async function approveTenantBackend(slug: string): Promise<DealerProfile> {
+  const res = await fetch(`/api/superadmin/tenants/${encodeURIComponent(slug)}/approve`, {
+    method: 'PATCH',
+    headers: getSuperAdminHeaders()
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Eroare HTTP ${res.status} la aprobarea dealerului`);
+  }
+
+  const json = await res.json();
+  return mapBackendTenantToProfile(json.tenant);
+}
+
+/**
  * Înrolare showroom nou (POST /api/superadmin/tenants)
  */
 export async function registerTenantBackend(newTenant: DealerProfile): Promise<DealerProfile> {
@@ -323,6 +341,8 @@ export function mapBackendTenantToProfile(raw: any): DealerProfile {
     themePreset: raw.theme_preset || raw.themePreset || 'obsidian_gold',
     tier: (raw.tier || 'starter') as TenantTier,
     status: (raw.status || 'active') as TenantStatus,
+    isActive: raw.is_active !== undefined ? Boolean(raw.is_active) : (raw.isActive !== undefined ? Boolean(raw.isActive) : true),
+    phoneVerified: Boolean(raw.phone_verified || raw.phoneVerified),
     maxVehiclesQuota: Number(raw.max_vehicles_quota || raw.maxVehiclesQuota || 25),
     activeVehiclesCount: Number(raw.active_vehicles_count !== undefined ? raw.active_vehicles_count : (raw.activeVehiclesCount !== undefined ? raw.activeVehiclesCount : 0)),
     bankName: raw.bank_name || raw.bankName || 'Banca Transilvania',

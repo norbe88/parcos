@@ -89,6 +89,44 @@ export async function initDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_dealers_domain ON dealers(domain);`;
     await sql`CREATE INDEX IF NOT EXISTS idx_dealers_is_active ON dealers(is_active);`;
     await sql`CREATE INDEX IF NOT EXISTS idx_dealers_status ON dealers(status);`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN DEFAULT FALSE;`;
+
+    // 0.1 Tabele SMS Gateway & Securitate Verificare Numere Mobile (Hardware Nodes Samy + S9+)
+    await sql`
+      CREATE TABLE IF NOT EXISTS phone_verifications (
+        phone           VARCHAR(30)   PRIMARY KEY,
+        otp_hash        VARCHAR(128)  NOT NULL,
+        salt            VARCHAR(64)   NOT NULL,
+        attempts_left   INTEGER       DEFAULT 3 NOT NULL,
+        expires_at      BIGINT        NOT NULL,
+        created_at      BIGINT        NOT NULL,
+        verified_at     BIGINT
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS phone_otp_requests (
+        id              SERIAL        PRIMARY KEY,
+        phone           VARCHAR(30)   NOT NULL,
+        requested_at    BIGINT        NOT NULL
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS sms_outbox (
+        id              VARCHAR(64)   PRIMARY KEY,
+        phone           VARCHAR(30)   NOT NULL,
+        message         TEXT          NOT NULL,
+        provider        VARCHAR(30),
+        status          VARCHAR(30)   DEFAULT 'PENDING' NOT NULL,
+        attempts        INTEGER       DEFAULT 1 NOT NULL,
+        sent_at         TIMESTAMPTZ,
+        created_at      TIMESTAMPTZ   DEFAULT NOW() NOT NULL
+      );
+    `;
+
+    await sql`CREATE INDEX IF NOT EXISTS idx_phone_otp_req_phone_time ON phone_otp_requests(phone, requested_at);`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_phone_verif_verified ON phone_verifications(phone, verified_at);`;
 
     // Auto-seeding dealeri impliciți (RXM, MPI Auto, Top Auto) cu suport complet SuperAdmin
     await sql`
@@ -1388,6 +1426,7 @@ export async function updateDealer(slug, updates) {
   const tier = updates.tier !== undefined ? String(updates.tier).trim().toLowerCase() : current.tier;
   const status = updates.status !== undefined ? String(updates.status).trim().toLowerCase() : current.status;
   const maxVehiclesQuota = updates.maxVehiclesQuota !== undefined ? Number(updates.maxVehiclesQuota) : (updates.max_vehicles_quota !== undefined ? Number(updates.max_vehicles_quota) : current.max_vehicles_quota);
+  const phoneVerified = updates.phoneVerified !== undefined ? Boolean(updates.phoneVerified) : (updates.phone_verified !== undefined ? Boolean(updates.phone_verified) : current.phone_verified);
   const themePreset = updates.themePreset !== undefined ? String(updates.themePreset).trim() : (updates.theme_preset !== undefined ? String(updates.theme_preset).trim() : current.theme_preset);
   const isActive = updates.isActive !== undefined ? Boolean(updates.isActive) : (updates.is_active !== undefined ? Boolean(updates.is_active) : (status !== 'suspended'));
   
@@ -1589,6 +1628,7 @@ export async function upsertDealer(data) {
   const maxVehiclesQuota = explicitVehicleQuota(data.maxVehiclesQuota) ?? explicitVehicleQuota(data.max_vehicles_quota) ?? 25;
   const themePreset = String(data.themePreset || data.theme_preset || 'obsidian_gold');
   const openingHours = data.openingHours || data.opening_hours || null;
+  const phoneVerified = data.phoneVerified !== undefined ? Boolean(data.phoneVerified) : (data.phone_verified !== undefined ? Boolean(data.phone_verified) : false);
   const isActive = data.isActive !== undefined ? Boolean(data.isActive) : (data.is_active !== undefined ? Boolean(data.is_active) : (status !== 'suspended'));
   const features = (data.features && typeof data.features === 'object' && !Array.isArray(data.features))
     ? { ...ROLLOUT_FLAGS_OFF, ...data.features }

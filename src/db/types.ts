@@ -290,7 +290,7 @@ export interface TenantFeatures {
 }
 
 export type TenantTier = 'starter' | 'pro' | 'enterprise';
-export type TenantStatus = 'active' | 'pending' | 'suspended' | 'demo';
+export type TenantStatus = 'active' | 'pending' | 'suspended' | 'demo' | 'pending_approval';
 
 export interface DealerProfile {
   id?: string;
@@ -332,6 +332,8 @@ export interface DealerProfile {
   features?: TenantFeatures;
   tier?: TenantTier;
   status?: TenantStatus;
+  isActive?: boolean;
+  phoneVerified?: boolean;
   maxVehiclesQuota?: number;
   activeVehiclesCount?: number;
   // Integrare Social Media & Meta Graph API (Ticket 04)

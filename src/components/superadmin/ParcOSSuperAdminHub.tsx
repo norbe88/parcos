@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useTenant } from '../../hooks/useTenant';
 import { DealerProfile, SEED_DEALER } from '../../db/seed';
+import { approveTenantBackend } from '../../utils/superAdminApi';
 import { TenantFeatures, TenantTier, TenantStatus, DealerThemePreset, DealerLandingConfig, VehicleItem, VehicleExpenseItem } from '../../db/types';
 import { VehicleReconBoard } from '../admin/service-tracker/VehicleReconBoard';
 import { SuperAdminOnboardingModal } from '../admin/SuperAdminOnboardingModal';
@@ -437,6 +438,16 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
   };
 
   // Reîmprospătare manuală din PostgreSQL
+  const handleApproveTenant = async (slug: string) => {
+    try {
+      await approveTenantBackend(slug);
+      showToast(`✓ Showroom-ul "${slug}" a fost aprobat și activat cu succes! SMS transmis.`);
+      await refreshTenantsFromBackend();
+    } catch (err: any) {
+      showToast(`⚠️ Eroare la aprobare: ${err.message}`);
+    }
+  };
+
   const handleManualRefresh = async () => {
     setIsRefreshing(true);
     try {
@@ -627,6 +638,7 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
               onQuickTierChange={handleQuickTierChange}
               onExportBackup={handleExportBackup}
               onOpenOnboarding={() => setIsOnboardingOpen(true)}
+              onApproveTenant={handleApproveTenant}
               onManualRefresh={handleManualRefresh}
               isRefreshing={isRefreshing}
             />

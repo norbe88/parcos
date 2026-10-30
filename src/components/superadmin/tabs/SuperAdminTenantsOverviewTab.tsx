@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  Building2, Shield, Plus, Search, RefreshCw, Eye, Sliders, Download, 
+  Building2, Shield, Plus, Search, RefreshCw, Eye, Sliders, Download, CheckCircle, 
   Database, Zap, FileText, X
 } from 'lucide-react';
 import { DealerProfile } from '../../../db/seed';
@@ -27,6 +27,7 @@ interface SuperAdminTenantsOverviewTabProps {
   onQuickTierChange: (slug: string, tier: TenantTier) => void;
   onExportBackup: (tenant: DealerProfile) => void;
   onOpenOnboarding: () => void;
+  onApproveTenant?: (slug: string) => void;
   onManualRefresh: () => void;
   isRefreshing: boolean;
 }
@@ -53,6 +54,7 @@ export const SuperAdminTenantsOverviewTab: React.FC<SuperAdminTenantsOverviewTab
   onQuickTierChange,
   onExportBackup,
   onOpenOnboarding,
+  onApproveTenant,
   onManualRefresh,
   isRefreshing
 }) => {
@@ -156,19 +158,26 @@ export const SuperAdminTenantsOverviewTab: React.FC<SuperAdminTenantsOverviewTab
         </div>
 
         <div className="flex items-center gap-1.5 bg-[#121215] border border-white/[0.08] p-1 rounded-xl text-xs overflow-x-auto">
-          {(['all', 'active', 'demo', 'suspended'] as const).map((status) => (
-            <button
-              key={status}
-              onClick={() => setSelectedStatusFilter(status)}
-              className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer whitespace-nowrap capitalize ${
-                selectedStatusFilter === status
-                  ? 'bg-amber-500 text-black shadow-sm'
-                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              {status === 'all' ? 'Toate' : status}
-            </button>
-          ))}
+          {(['all', 'pending_approval', 'active', 'demo', 'suspended'] as const).map((status) => {
+            const label = status === 'all' 
+              ? 'Toate' 
+              : status === 'pending_approval' 
+                ? 'În Așteptare' 
+                : status;
+            return (
+              <button
+                key={status}
+                onClick={() => setSelectedStatusFilter(status)}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer whitespace-nowrap capitalize ${
+                  selectedStatusFilter === status
+                    ? 'bg-amber-500 text-black shadow-sm'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -268,7 +277,7 @@ export const SuperAdminTenantsOverviewTab: React.FC<SuperAdminTenantsOverviewTab
                                       ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
                                       : 'bg-red-500/10 text-red-300 border border-red-500/30'
                                 }`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${t.status === 'active' ? 'bg-emerald-400' : t.status === 'demo' ? 'bg-amber-400' : 'bg-red-400'}`} />
+                                  <span className={`w-1.5 h-1.5 rounded-full ${t.status === 'pending_approval' ? 'bg-amber-400' : t.status === 'active' ? 'bg-emerald-400' : t.status === 'demo' ? 'bg-blue-400' : 'bg-red-400'}`} />
                                   {t.status}
                                 </span>
                                 {!isEnterprise && (
@@ -313,6 +322,17 @@ export const SuperAdminTenantsOverviewTab: React.FC<SuperAdminTenantsOverviewTab
 
                       <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          {(t.status === 'pending_approval' || (t.status === 'pending' && !t.isActive)) && onApproveTenant && (
+                            <button
+                              onClick={() => onApproveTenant(t.slug || '')}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs shadow-lg shadow-emerald-500/20 transition-all cursor-pointer animate-pulse"
+                              title="Aprobă dealerul și activează showroom-ul public cu notificare SMS"
+                            >
+                              <CheckCircle className="w-3.5 h-3.5" />
+                              <span>Aprobă</span>
+                            </button>
+                          )}
+
                           <button
                             onClick={() => onImpersonateTenant(t.slug || 'rxm')}
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black font-bold text-xs border border-amber-500/30 transition-all cursor-pointer"
