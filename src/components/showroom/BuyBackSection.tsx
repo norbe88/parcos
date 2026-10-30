@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeftRight, Car, CheckCircle2, MessageCircle } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../db/seed';
 import { recordIncomingLead } from '../../services/leadService';
+import { resolveDealerContact } from '../../utils/helpers';
 
 interface BuyBackSectionProps {
   cars: VehicleItem[];
@@ -14,6 +15,7 @@ export const BuyBackSection: React.FC<BuyBackSectionProps> = ({
   dealer = SEED_DEALER,
   showToast
 }) => {
+  const contact = resolveDealerContact(dealer);
   // Stare Formular Buy-Back (#buyback) - Exclusiv Trade-In
   const [bbBrand, setBbBrand] = useState('');
   const [bbModel, setBbModel] = useState('');
@@ -63,7 +65,7 @@ export const BuyBackSection: React.FC<BuyBackSectionProps> = ({
       `👤 Nume: ${encodeURIComponent(bbName || 'Client')}, Tel: ${encodeURIComponent(bbPhone)}%0A` +
       `📝 Detalii: ${encodeURIComponent(bbNotes || 'Fără mențiuni speciale')}`;
 
-    window.open(`https://wa.me/${dealer.whatsappNumber}?text=${text}`, '_blank');
+    window.open(`https://wa.me/${contact.salesWhatsApp}?text=${text}`, '_blank');
     showToast(`✅ Cererea de Trade-In pentru ${bbBrand} ${bbModel} a fost salvată și deschisă pe WhatsApp!`);
   };
 

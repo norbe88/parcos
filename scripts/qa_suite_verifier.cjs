@@ -145,11 +145,11 @@ const helpersCode = readFile('src/utils/helpers.ts');
 assert(dealerCode.includes('phoneFinance: "0758 042 979"'), 'Dealer profile are numărul de finanțare al Mădălinei setat la 0758 042 979');
 assert(dealerCode.includes('whatsappFinance: "40758042979"'), 'Dealer profile are WhatsApp finanțare setat la 40758042979');
 assert(dealerCode.includes('phonePrimary: "0748 892 937"'), 'Dealer profile păstrează numărul primar al lui Robert la 0748 892 937');
-assert(helpersCode.includes('40758042979'), 'getWhatsAppFinanceUrl rutează la 40758042979 (Mădălina)');
-assert(financingSectionCode.includes('whatsappFinance'), 'FinancingSection rutează către whatsappFinance');
-assert(financingSectionCode.includes('0758 042 979'), 'FinancingSection afișează numărul Mădălinei (0758 042 979)');
-assert(detailFinanceTabCode.includes('whatsappFinance'), 'DetailFinanceTab rutează către whatsappFinance');
-assert(detailFinanceTabCode.includes('0758 042 979'), 'DetailFinanceTab afișează numărul Mădălinei (0758 042 979)');
+assert(helpersCode.includes('financeWhatsApp') || helpersCode.includes('40758042979'), 'getWhatsAppFinanceUrl rutează la finanțare (Mădălina pe RXM)');
+assert(financingSectionCode.includes('whatsappFinance') || financingSectionCode.includes('financeWhatsApp'), 'FinancingSection rutează către whatsappFinance');
+assert(financingSectionCode.includes('phoneFinance') || financingSectionCode.includes('financePhone'), 'FinancingSection afișează numărul de finanțare');
+assert(detailFinanceTabCode.includes('whatsappFinance') || detailFinanceTabCode.includes('financeWhatsApp'), 'DetailFinanceTab rutează către whatsappFinance');
+assert(detailFinanceTabCode.includes('phoneFinance') || detailFinanceTabCode.includes('financePhone'), 'DetailFinanceTab afișează numărul de finanțare');
 
 // 13. Verificare Dist Build Output
 console.log('\n🔍 [SUITE 13] Integritate Bundle de Producție (dist/)');

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Truck, CheckCircle2, Shield, SlidersHorizontal, FileCheck, MessageCircle } from 'lucide-react';
 import { SEED_DEALER } from '../../db/seed';
 import { recordIncomingLead } from '../../services/leadService';
+import { resolveDealerContact } from '../../utils/helpers';
 
 interface CustomOrderSectionProps {
   dealer?: typeof SEED_DEALER;
@@ -12,6 +13,7 @@ export const CustomOrderSection: React.FC<CustomOrderSectionProps> = ({
   dealer = SEED_DEALER,
   showToast
 }) => {
+  const contact = resolveDealerContact(dealer);
   // Stare Formular Mașini la Comandă (#comanda)
   const [cmdBrand, setCmdBrand] = useState('Volkswagen');
   const [cmdModel, setCmdModel] = useState('');
@@ -54,7 +56,7 @@ export const CustomOrderSection: React.FC<CustomOrderSectionProps> = ({
       `👤 Solicitant: ${encodeURIComponent(cmdName || 'Client')}, Tel: ${encodeURIComponent(cmdPhone)}%0A` +
       `📝 Cerințe specifice: ${encodeURIComponent(cmdNotes || 'Fără preferințe speciale')}`;
 
-    window.open(`https://wa.me/${dealer.whatsappNumber}?text=${text}`, '_blank');
+    window.open(`https://wa.me/${contact.salesWhatsApp}?text=${text}`, '_blank');
     showToast(`🚀 Solicitarea pentru mașină la comandă a fost salvată și transmisă pe WhatsApp!`);
   };
 

@@ -141,7 +141,7 @@ export const NationalDeliveryPage: React.FC<NationalDeliveryPageProps> = ({
 
           <div className="flex flex-wrap items-center gap-3.5">
             <a
-              href={`https://wa.me/${dealer.whatsappNumber}?text=Bună%20ziua!%20Sunt%20interesat%20de%20serviciul%20de%20livrare%20pe%20platformă%20în%20toată%20țara.%20Aș%20dori%20mai%20multe%20detalii.`}
+              href={`https://wa.me/${contact.salesWhatsApp}?text=Bună%20ziua!%20Sunt%20interesat%20de%20serviciul%20de%20livrare%20pe%20platformă%20în%20toată%20țara.%20Aș%20dori%20mai%20multe%20detalii.`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2.5 px-6 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-95 text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/40 border border-emerald-500/30 touch-manipulation cursor-pointer"
@@ -151,11 +151,11 @@ export const NationalDeliveryPage: React.FC<NationalDeliveryPageProps> = ({
             </a>
 
             <a
-              href={`tel:${dealer.phonePrimary.replace(/\s+/g, '')}`}
+              href={`tel:${contact.salesPhoneClean}`}
               className="inline-flex items-center gap-2.5 px-6 py-4 rounded-xl bg-white/10 hover:bg-white/15 active:scale-95 text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-all border border-white/15 touch-manipulation cursor-pointer"
             >
               <Phone className="w-4 h-4 text-amber-400" />
-              <span>Sună: {dealer.phonePrimary}</span>
+              <span>Sună: {contact.salesPhone}</span>
             </a>
 
             <button
@@ -382,7 +382,7 @@ export const NationalDeliveryPage: React.FC<NationalDeliveryPageProps> = ({
             </p>
           </div>
           <a
-            href={`https://wa.me/${dealer.whatsappNumber}?text=Bună%20ziua!%20Aș%20dori%20să%20știu%20cât%20costă%20livrarea%20în%20localitatea...`}
+            href={`https://wa.me/${contact.salesWhatsApp}?text=Bună%20ziua!%20Aș%20dori%20să%20știu%20cât%20costă%20livrarea%20în%20localitatea...`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-amber-500/15 border border-white/10 hover:border-amber-500/30 text-amber-300 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
@@ -554,7 +554,7 @@ export const NationalDeliveryPage: React.FC<NationalDeliveryPageProps> = ({
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full md:w-auto">
             <a
-              href={`https://wa.me/${dealer.whatsappNumber}?text=Bună%20ziua!%20Doresc%20să%20comand%20o%20mașină%20cu%20livrare%20pe%20platformă.`}
+              href={`https://wa.me/${contact.salesWhatsApp}?text=Bună%20ziua!%20Doresc%20să%20comand%20o%20mașină%20cu%20livrare%20pe%20platformă.`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-[#25D366] hover:bg-[#1EBE5A] active:scale-95 text-white font-bold text-sm transition-all shadow-lg shadow-[#25D366]/20 cursor-pointer"
@@ -564,11 +564,11 @@ export const NationalDeliveryPage: React.FC<NationalDeliveryPageProps> = ({
             </a>
 
             <a
-              href={`tel:${dealer.phonePrimary.replace(/\s+/g, '')}`}
+              href={`tel:${contact.salesPhoneClean}`}
               className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-white/10 hover:bg-white/15 active:scale-95 text-white font-semibold text-sm border border-white/15 transition-all cursor-pointer"
             >
               <Phone className="w-4 h-4 text-amber-400" />
-              <span>{dealer.phonePrimary}</span>
+              <span>{contact.salesPhone}</span>
             </a>
           </div>
         </div>

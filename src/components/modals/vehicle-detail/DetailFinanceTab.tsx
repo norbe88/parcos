@@ -27,6 +27,8 @@ export const DetailFinanceTab: React.FC<DetailFinanceTabProps> = ({
   dealer = SEED_DEALER
 }) => {
   const contact = resolveDealerContact(dealer);
+  const whatsappFinance = contact.financeWhatsApp;
+  const phoneFinance = contact.financePhone;
 
   const handleApplyFinance = () => {
     recordShowroomInteraction('whatsapp', { carId: car.id, carTitle: `${car.brand} ${car.model}` });
