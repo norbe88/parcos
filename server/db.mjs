@@ -22,7 +22,12 @@ let sqlClient = null;
 
 export function getSql() {
   if (!sqlClient) {
-    sqlClient = postgres(DATABASE_URL, {
+    const connString = process.env.DATABASE_URL || (
+      process.env.NODE_ENV === 'production'
+        ? NETCUP_DEFAULT_PG
+        : 'postgres://postgres:postgres@localhost:5432/rxm_automobile'
+    );
+    sqlClient = postgres(connString, {
       max: 10,
       idle_timeout: 20,
       connect_timeout: 10,
@@ -456,6 +461,26 @@ export async function initDatabase() {
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_landing_leads_created_at ON landing_leads(created_at);`;
     await sql`CREATE INDEX IF NOT EXISTS idx_landing_leads_status ON landing_leads(status);`;
+
+    // 1.2 Tabela de evenimente telemetrie trafic (Wave 1 — Telemetry Data Architecture)
+    await sql`
+      CREATE TABLE IF NOT EXISTS traffic_events (
+        id           BIGSERIAL    PRIMARY KEY,
+        dealer_slug  VARCHAR(50)  NOT NULL DEFAULT 'parcos',
+        session_hash VARCHAR(64)  NOT NULL,
+        event_type   VARCHAR(40)  NOT NULL DEFAULT 'pageview',
+        page_path    VARCHAR(255) NOT NULL DEFAULT '/',
+        source       VARCHAR(50)  NOT NULL DEFAULT 'direct',
+        device_type  VARCHAR(20)  NOT NULL DEFAULT 'desktop',
+        referrer     TEXT,
+        metadata     JSONB        NOT NULL DEFAULT '{}'::jsonb,
+        created_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+      );
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_traffic_events_dealer_time ON traffic_events(dealer_slug, created_at DESC);`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_traffic_events_session ON traffic_events(dealer_slug, session_hash, created_at DESC);`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_traffic_events_type ON traffic_events(dealer_slug, event_type, created_at DESC);`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_traffic_events_source ON traffic_events(dealer_slug, source, created_at DESC);`;
   } catch (err) {
     console.warn('[DB Init] Warning la verificarea conexiunii PostgreSQL:', err.message);
   }
@@ -2155,4 +2180,269 @@ export async function getTopViewedVehicles(dealerSlug = 'rxm', timeframe = 'all'
   }
 }
 
+/**
+ * Înregistrează un eveniment de trafic/interacțiune în tabela traffic_events (Wave 1 Telemetrie)
+ * @param {Object} data
+ * @param {string} [data.dealerSlug='parcos'] - Slug dealer ('parcos', 'rxm', etc.)
+ * @param {string} data.sessionHash - Hash anonim SHA256 sesiune vizitator
+ * @param {string} [data.eventType='pageview'] - Tip eveniment ('pageview', 'click_whatsapp', 'click_phone', 'submit_lead', 'calc_finance')
+ * @param {string} [data.pagePath='/'] - Calea paginii vizitate
+ * @param {string} [data.source='direct'] - Sursă trafic ('direct', 'google_organic', 'olx', 'autovit', 'facebook', 'instagram', 'tiktok', 'window_qr')
+ * @param {string} [data.deviceType='desktop'] - Tip dispozitiv ('mobile', 'desktop', 'tablet')
+ * @param {string|null} [data.referrer=null] - Referrer URL / string
+ * @param {Object} [data.metadata={}] - Date contextualizate JSON (carId, scrollDepth etc.)
+ * @returns {Promise<{ success: boolean, eventId?: string|number, error?: string }>}
+ */
+export async function recordTrafficEvent(data = {}) {
+  const {
+    dealerSlug = 'parcos',
+    sessionHash,
+    eventType = 'pageview',
+    pagePath = '/',
+    source = 'direct',
+    deviceType = 'desktop',
+    referrer = null,
+    metadata = {}
+  } = data || {};
 
+  try {
+    if (!sessionHash) {
+      return { success: false, error: 'sessionHash este obligatoriu' };
+    }
+
+    const sql = getSql();
+    const cleanDealer = String(dealerSlug || 'parcos').trim().toLowerCase();
+    const cleanSession = String(sessionHash).trim();
+    const cleanEventType = String(eventType || 'pageview').trim().toLowerCase();
+    const cleanPath = String(pagePath || '/').trim();
+    const cleanSource = String(source || 'direct').trim().toLowerCase();
+    const cleanDevice = String(deviceType || 'desktop').trim().toLowerCase();
+    const cleanReferrer = referrer ? String(referrer).trim() : null;
+
+    let cleanMetadata = {};
+    if (metadata) {
+      if (typeof metadata === 'object') {
+        cleanMetadata = metadata;
+      } else if (typeof metadata === 'string') {
+        try {
+          cleanMetadata = JSON.parse(metadata);
+        } catch {
+          cleanMetadata = { raw: metadata };
+        }
+      }
+    }
+
+    const inserted = await sql`
+      INSERT INTO traffic_events (
+        dealer_slug, session_hash, event_type, page_path, source, device_type, referrer, metadata
+      ) VALUES (
+        ${cleanDealer},
+        ${cleanSession},
+        ${cleanEventType},
+        ${cleanPath},
+        ${cleanSource},
+        ${cleanDevice},
+        ${cleanReferrer},
+        ${sql.json(cleanMetadata)}
+      )
+      RETURNING id
+    `;
+
+    return {
+      success: true,
+      eventId: inserted[0]?.id
+    };
+  } catch (err) {
+    console.warn('[Telemetry DB] Warning la înregistrarea evenimentului de trafic:', err.message);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Agregare metrici de trafic, vizitatori unici, surse de achiziție și conversii (Wave 1 Telemetrie)
+ * @param {string} [dealerSlug='parcos'] - Slug dealer ('parcos', 'rxm', etc.)
+ * @param {string} [timeframe='30d'] - Interval timp: 'today', '7d', '30d', 'all'
+ * @returns {Promise<Object>}
+ */
+export async function getSiteTrafficAnalytics(dealerSlug = 'parcos', timeframe = '30d') {
+  const cleanDealer = String(dealerSlug || 'parcos').trim().toLowerCase();
+  const cleanTf = String(timeframe || '30d').trim().toLowerCase();
+
+  try {
+    const sql = getSql();
+
+    let dateCondition = sql``;
+    if (cleanTf === 'today') {
+      dateCondition = sql`AND created_at >= CURRENT_DATE`;
+    } else if (cleanTf === '7d') {
+      dateCondition = sql`AND created_at >= NOW() - INTERVAL '7 days'`;
+    } else if (cleanTf === 'all') {
+      dateCondition = sql``;
+    } else {
+      // Default: 30 days
+      dateCondition = sql`AND created_at >= NOW() - INTERVAL '30 days'`;
+    }
+
+    // 1. Interogare sumară metrici generale și micro-acțiuni conversie
+    const overviewRows = await sql`
+      SELECT
+        COUNT(DISTINCT session_hash)::int AS unique_visitors,
+        COUNT(*) FILTER (WHERE event_type = 'pageview')::int AS total_pageviews,
+        COUNT(*)::int AS total_events,
+        COUNT(*) FILTER (WHERE event_type = 'click_whatsapp')::int AS whatsapp_clicks,
+        COUNT(*) FILTER (WHERE event_type = 'click_phone')::int AS phone_clicks,
+        COUNT(*) FILTER (WHERE event_type = 'submit_lead')::int AS leads_submitted,
+        COUNT(*) FILTER (WHERE event_type = 'calc_finance')::int AS finance_calc
+      FROM traffic_events
+      WHERE lower(dealer_slug) = ${cleanDealer} ${dateCondition}
+    `;
+
+    // 2. Interogare surse de achiziție ordonate descrescător după vizitatori
+    const sourcesRows = await sql`
+      SELECT
+        COALESCE(NULLIF(TRIM(source), ''), 'direct') AS source,
+        COUNT(DISTINCT session_hash)::int AS visitors,
+        COUNT(*) FILTER (WHERE event_type = 'pageview')::int AS pageviews
+      FROM traffic_events
+      WHERE lower(dealer_slug) = ${cleanDealer} ${dateCondition}
+      GROUP BY 1
+      ORDER BY visitors DESC, pageviews DESC
+    `;
+
+    // 3. Interogare dispozitive (mobile, desktop, tablet)
+    const devicesRows = await sql`
+      SELECT
+        COALESCE(NULLIF(TRIM(device_type), ''), 'desktop') AS device_type,
+        COUNT(DISTINCT session_hash)::int AS visitors,
+        COUNT(*)::int AS events
+      FROM traffic_events
+      WHERE lower(dealer_slug) = ${cleanDealer} ${dateCondition}
+      GROUP BY 1
+      ORDER BY visitors DESC
+    `;
+
+    const overview = overviewRows[0] || {};
+    const uniqueVisitors = Number(overview.unique_visitors) || 0;
+    const totalPageviews = Number(overview.total_pageviews) || 0;
+    const totalEvents = Number(overview.total_events) || 0;
+    const whatsappClicks = Number(overview.whatsapp_clicks) || 0;
+    const phoneClicks = Number(overview.phone_clicks) || 0;
+    const leadsSubmitted = Number(overview.leads_submitted) || 0;
+    const financeCalc = Number(overview.finance_calc) || 0;
+
+    const totalContactClicks = whatsappClicks + phoneClicks + leadsSubmitted + financeCalc;
+    const conversionRate = uniqueVisitors > 0
+      ? Number(((totalContactClicks / uniqueVisitors) * 100).toFixed(1))
+      : 0;
+
+    const sources = (sourcesRows || []).map((r) => {
+      const visitors = Number(r.visitors) || 0;
+      const pageviews = Number(r.pageviews) || 0;
+      const percentage = uniqueVisitors > 0
+        ? Number(((visitors / uniqueVisitors) * 100).toFixed(1))
+        : 0;
+      return {
+        source: r.source || 'direct',
+        visitors,
+        pageviews,
+        percentage
+      };
+    });
+
+    const topSource = sources.length > 0 && sources[0].source ? sources[0].source : 'direct';
+
+    let mobileVisitors = 0;
+    let desktopVisitors = 0;
+    let tabletVisitors = 0;
+
+    for (const d of (devicesRows || [])) {
+      const v = Number(d.visitors) || 0;
+      const dt = String(d.device_type || 'desktop').toLowerCase();
+      if (dt === 'mobile') mobileVisitors += v;
+      else if (dt === 'tablet') tabletVisitors += v;
+      else desktopVisitors += v;
+    }
+
+    const devices = {
+      mobile: mobileVisitors,
+      desktop: desktopVisitors,
+      tablet: tabletVisitors,
+      breakdown: [
+        {
+          device: 'mobile',
+          visitors: mobileVisitors,
+          percentage: uniqueVisitors > 0 ? Number(((mobileVisitors / uniqueVisitors) * 100).toFixed(1)) : 0
+        },
+        {
+          device: 'desktop',
+          visitors: desktopVisitors,
+          percentage: uniqueVisitors > 0 ? Number(((desktopVisitors / uniqueVisitors) * 100).toFixed(1)) : 0
+        },
+        {
+          device: 'tablet',
+          visitors: tabletVisitors,
+          percentage: uniqueVisitors > 0 ? Number(((tabletVisitors / uniqueVisitors) * 100).toFixed(1)) : 0
+        }
+      ]
+    };
+
+    const conversions = {
+      whatsappClicks,
+      phoneClicks,
+      leadsSubmitted,
+      financeCalc,
+      whatsapp: whatsappClicks,
+      phone: phoneClicks,
+      leads: leadsSubmitted,
+      finance: financeCalc,
+      total: totalContactClicks
+    };
+
+    return {
+      dealerSlug: cleanDealer,
+      timeframe: cleanTf,
+      uniqueVisitors,
+      totalPageviews,
+      totalEvents,
+      conversions,
+      conversionRate,
+      sources,
+      devices,
+      topSource
+    };
+  } catch (err) {
+    console.warn('[Telemetry DB] Warning la agregarea analiticelor de trafic:', err.message);
+    return {
+      dealerSlug: cleanDealer,
+      timeframe: cleanTf,
+      uniqueVisitors: 0,
+      totalPageviews: 0,
+      totalEvents: 0,
+      conversions: {
+        whatsappClicks: 0,
+        phoneClicks: 0,
+        leadsSubmitted: 0,
+        financeCalc: 0,
+        whatsapp: 0,
+        phone: 0,
+        leads: 0,
+        finance: 0,
+        total: 0
+      },
+      conversionRate: 0,
+      sources: [],
+      devices: {
+        mobile: 0,
+        desktop: 0,
+        tablet: 0,
+        breakdown: [
+          { device: 'mobile', visitors: 0, percentage: 0 },
+          { device: 'desktop', visitors: 0, percentage: 0 },
+          { device: 'tablet', visitors: 0, percentage: 0 }
+        ]
+      },
+      topSource: 'direct',
+      error: err.message
+    };
+  }
+}

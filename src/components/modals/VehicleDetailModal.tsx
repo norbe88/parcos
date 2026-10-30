@@ -23,7 +23,7 @@ import { DetailDeadlinesTab } from './vehicle-detail/DetailDeadlinesTab';
 import { SocialShareButtons } from '../common/SocialShareButtons';
 import { IntellectualPropertyDisclaimer } from '../common/IntellectualPropertyDisclaimer';
 import { recordIncomingLead } from '../../services/leadService';
-import { sendVehicleViewBeacon } from '../../services/telemetryService';
+import { sendVehicleViewBeacon, trackConversionEvent } from '../../services/telemetryService';
 import { useAntiScreenCapture } from '../../hooks/useAntiScreenCapture';
 
 interface VehicleDetailModalProps {
@@ -104,6 +104,15 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
       // 📡 Telemetrie vizualizare showroom pasivă non-blocantă (Wave 2) — exclus modul admin
       if (viewMode !== 'admin') {
         sendVehicleViewBeacon(currentCarId, dealer?.slug || selectedCar?.dealerSlug);
+        if (initialTab === 'finance') {
+          trackConversionEvent('calc_finance', {
+            carId: currentCarId,
+            priceEur: selectedCar?.priceEur,
+            advancePercent,
+            periodMonths,
+            estimatedMonthlyRate: calculateRate(selectedCar?.priceEur || 0, advancePercent, periodMonths)
+          }, dealer?.slug || selectedCar?.dealerSlug);
+        }
       }
     }
   }, [currentCarId, initialTab, initialVideoFormat, viewMode, dealer?.slug, selectedCar?.dealerSlug]);
@@ -174,6 +183,13 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
       notes: `Test Drive solicitat pentru ${selectedCar.brand} ${selectedCar.model} [Ref: ${stockRef}]. Data: ${tdDate}, Slot: ${tdTimeSlot}.`,
       scheduledTestDriveAt: `${tdDate} ${tdTimeSlot}`,
     });
+
+    trackConversionEvent('submit_lead', {
+      carId: selectedCar.id,
+      priceEur: selectedCar.priceEur,
+      clientName: tdName || 'Client Showroom',
+      type: 'test_drive'
+    }, dealer?.slug || selectedCar.dealerSlug);
 
     const waUrl = getWhatsAppTestDriveUrl(
       selectedCar,
@@ -495,7 +511,16 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
               
               <button 
                 type="button"
-                onClick={() => setActiveTab('finance')}
+                onClick={() => {
+                  setActiveTab('finance');
+                  trackConversionEvent('calc_finance', {
+                    carId: selectedCar.id,
+                    priceEur: selectedCar.priceEur,
+                    advancePercent,
+                    periodMonths,
+                    estimatedMonthlyRate: currentRate
+                  }, dealer?.slug || selectedCar.dealerSlug);
+                }}
                 className={`min-h-[44px] px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all text-center touch-manipulation active:scale-[0.98] border ${
                   activeTab === 'finance' 
                     ? 'bg-amber-500 text-black font-bold shadow-md shadow-amber-500/20 border-amber-400' 
@@ -690,6 +715,7 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
 
             <a 
               href={`tel:${dealer.phonePrimary.replace(/\s+/g, '')}`}
+              onClick={() => trackConversionEvent('click_phone', { carId: selectedCar.id, phone: dealer.phonePrimary }, dealer?.slug || selectedCar.dealerSlug)}
               className="w-full inline-flex items-center justify-center gap-2 border border-white/20 hover:bg-white/5 text-white h-11 rounded-xl text-sm font-medium transition-all"
             >
               <Phone className="w-4 h-4" />
@@ -700,6 +726,7 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
               href={getWhatsAppCarInquiryUrl(selectedCar, dealer.whatsappNumber)}
               target="_blank" 
               rel="noopener noreferrer"
+              onClick={() => trackConversionEvent('click_whatsapp', { carId: selectedCar.id, priceEur: selectedCar.priceEur }, dealer?.slug || selectedCar.dealerSlug)}
               className="w-full inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-11 rounded-xl text-sm transition-all"
             >
               <MessageCircle className="w-4 h-4 fill-white" />
@@ -752,6 +779,7 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
             <a
               href={`tel:${dealer.phonePrimary.replace(/\s+/g, '')}`}
               aria-label={`Sună direct la ${dealer.phonePrimary}`}
+              onClick={() => trackConversionEvent('click_phone', { carId: selectedCar.id, phone: dealer.phonePrimary }, dealer?.slug || selectedCar.dealerSlug)}
               className="min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-white/10 active:bg-white/20 text-white font-bold text-xs flex items-center gap-1.5 border border-white/15 touch-manipulation transition-all"
             >
               <Phone className="w-4 h-4 text-amber-400" />
@@ -765,6 +793,7 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Contactează pe WhatsApp despre ${selectedCar.brand} ${selectedCar.model}`}
+              onClick={() => trackConversionEvent('click_whatsapp', { carId: selectedCar.id, priceEur: selectedCar.priceEur, status: selectedCar.status }, dealer?.slug || selectedCar.dealerSlug)}
               className="min-h-[44px] px-4 py-2 rounded-xl bg-emerald-600 active:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-950/50 touch-manipulation transition-all"
             >
               <MessageCircle className="w-4 h-4 fill-white" />

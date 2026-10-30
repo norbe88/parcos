@@ -14,6 +14,7 @@ import {
   isTikTokVideoUrl
 } from '../../utils/helpers';
 import { WatermarkOverlay } from '../common/WatermarkOverlay';
+import { trackConversionEvent } from '../../services/telemetryService';
 
 interface VehicleCardProps {
   car: VehicleItem;
@@ -319,6 +320,10 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
                 target="_blank" 
                 rel="noopener noreferrer"
                 aria-label={`Rate TBI — Solicită finanțare în rate prin TBI Bank pentru ${car.brand} ${car.model}`}
+                onClick={() => {
+                  trackConversionEvent('calc_finance', { carId: car.id, priceEur: car.priceEur, advancePercent: 15, periodMonths: 48, estimatedMonthlyRate: calculateRate(car.priceEur, 15, 48) }, dealer?.slug || car.dealerSlug);
+                  trackConversionEvent('click_whatsapp', { carId: car.id, priceEur: car.priceEur, type: 'finance' }, dealer?.slug || car.dealerSlug);
+                }}
                 className="text-[10.5px] font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 shrink-0 px-2 py-0.5 rounded bg-amber-400/10 hover:bg-amber-400/20 transition-colors"
               >
                 <span>Rate TBI</span>
@@ -342,6 +347,10 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
                 target="_blank" 
                 rel="noopener noreferrer"
                 aria-label={`Rate TBI — Solicită finanțare în rate prin TBI Bank pentru ${car.brand} ${car.model}`}
+                onClick={() => {
+                  trackConversionEvent('calc_finance', { carId: car.id, priceEur: car.priceEur, advancePercent: 15, periodMonths: 48, estimatedMonthlyRate: calculateRate(car.priceEur, 15, 48) }, dealer?.slug || car.dealerSlug);
+                  trackConversionEvent('click_whatsapp', { carId: car.id, priceEur: car.priceEur, type: 'finance' }, dealer?.slug || car.dealerSlug);
+                }}
                 className="min-h-[36px] px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-200 hover:text-white border border-white/10 hover:border-white/20 font-semibold text-[11px] inline-flex items-center gap-1.5 transition-all touch-manipulation active:scale-95"
               >
                 <Calculator className="w-3.5 h-3.5 text-amber-400" />
@@ -371,6 +380,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
               target="_blank" 
               rel="noopener noreferrer"
               aria-label={`Comandă pe WhatsApp un model similar cu ${car.brand} ${car.model}`}
+              onClick={() => trackConversionEvent('click_whatsapp', { carId: car.id, priceEur: car.priceEur, status: 'sold_order' }, dealer?.slug || car.dealerSlug)}
               className="w-full inline-flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-black font-extrabold text-xs sm:text-sm min-h-[44px] h-11 rounded-xl transition-all touch-manipulation shadow-lg shadow-amber-500/20"
             >
               <Truck className="w-4 h-4" />
@@ -382,6 +392,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
               target="_blank" 
               rel="noopener noreferrer"
               aria-label={`Contactează pe WhatsApp despre ${car.brand} ${car.model} Ref ${stockRef}`}
+              onClick={() => trackConversionEvent('click_whatsapp', { carId: car.id, priceEur: car.priceEur }, dealer?.slug || car.dealerSlug)}
               className="w-full inline-flex items-center justify-center gap-1.5 bg-emerald-700 hover:bg-emerald-600 active:scale-[0.98] text-white font-semibold text-xs sm:text-sm min-h-[44px] h-11 rounded-xl transition-all touch-manipulation shadow-lg shadow-emerald-950/40 border border-emerald-500/30"
             >
               <MessageCircle className="w-4 h-4 fill-white" />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
 import { SEED_DEALER } from '../../db/seed';
+import { trackConversionEvent } from '../../services/telemetryService';
 
 interface FloatingWhatsAppProps {
   whatsappNumber?: string;
@@ -15,6 +16,7 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
         href={`https://wa.me/${whatsappNumber}?text=Bună%20ziua,%20doresc%20informații%20despre%20stocul%20RXM%20Automobile.`}
         target="_blank" 
         rel="noopener noreferrer"
+        onClick={() => trackConversionEvent('click_whatsapp', { source: 'floating_widget' })}
         className="group flex items-center gap-2.5 p-3 sm:px-4 sm:py-3 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-emerald-950 shadow-[0_4px_25px_rgba(37,211,102,0.5)] hover:shadow-[0_6px_35px_rgba(37,211,102,0.7)] hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation min-h-[44px] min-w-[44px]"
       >
         <span className="relative flex h-3 w-3 shrink-0" aria-hidden="true">
