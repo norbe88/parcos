@@ -41,3 +41,5 @@ backups/
 *.tar.gz
 dist.tar.gz
 
+
+status
