@@ -102,8 +102,8 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
       setIsLogoIlluminated(true);
     }
 
-    // 🚀 La t = 6.3s (după 2.4s de expunere a neonului aprins):
-    if (vid.currentTime >= 6.3) {
+    // 🚀 La t = 7.0s (după 3.1s de expunere a neonului aprins):
+    if (vid.currentTime >= 7.0) {
       handleMpiExit();
     }
   };
