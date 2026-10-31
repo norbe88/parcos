@@ -41,6 +41,23 @@ import { updateSeoMetadata } from './utils/seoTenantInjector';
 import { getSubdomainDealer, resolveTenantKey } from './context/TenantContext';
 import { usePageTracking } from './hooks/usePageTracking';
 
+// 🌐 Verificare dacă domeniul curent este platforma centrală ParcOS
+export function isParcosDomain(hostname: string, port?: string): boolean {
+  if (!hostname) return false;
+  const h = hostname.toLowerCase();
+  const p = port !== undefined ? port : (typeof window !== 'undefined' ? window.location.port : '');
+  // Pe subdomeniu dedicat de dealer (ex: mpiauto.parcos.ro), NU suntem pe platforma centrală SaaS parcos.ro!
+  if (getSubdomainDealer(h)) return false;
+  return (
+    h === 'parcos.ro' ||
+    h === 'www.parcos.ro' ||
+    h === 'parcos.local' ||
+    h === 'app.parcos.ro' ||
+    h === 'admin.parcos.ro' ||
+    p === '3001'
+  );
+}
+
 // 🆔 Identificator unic de sesiune per filă pentru a preveni auto-ecoul BroadcastChannel
 const APP_TAB_SESSION_ID = getTabSessionId();
 
@@ -64,7 +81,7 @@ export default function App() {
       const path = window.location.pathname.toLowerCase();
       const hostname = window.location.hostname.toLowerCase();
       const port = window.location.port;
-      const isParcos = hostname === 'parcos.ro' || hostname === 'www.parcos.ro' || hostname === 'parcos.local' || hostname.includes('parcos') || port === '3001';
+      const isParcos = isParcosDomain(hostname, port);
 
       if (
         hash.includes('admin') || hash.includes('superadmin') || hash.includes('portal') ||
@@ -79,16 +96,22 @@ export default function App() {
         return true;
       }
 
-      // Verificare stocare intro per-tenant (RXM vs MPI Auto)
-      const isMpiDomain = window.location.hostname.includes('mpiauto') || urlParams.get('dealer') === 'mpi_auto';
-      const tenantIntroKey = isMpiDomain ? 'mpi_intro_seen' : 'rxm_intro_seen';
+      // Verificare stocare intro per-tenant (izolare dinamică per slug)
+      const slug = tenant?.slug || tenantId || getSubdomainDealer(hostname) || (urlParams.get('dealer') || 'rxm').toLowerCase();
+      const tenantIntroKey = `${slug}_intro_seen`;
+      const legacyKey = slug === 'mpi_auto' ? 'mpi_intro_seen' : 'rxm_intro_seen';
 
       // În modul de dezvoltare (DEV) ignorăm cheia permanentă din localStorage pentru a permite testarea facilă la F5
       if (import.meta.env.DEV) {
-        return Boolean(sessionStorage.getItem(tenantIntroKey));
+        return Boolean(sessionStorage.getItem(tenantIntroKey) || sessionStorage.getItem(legacyKey));
       }
 
-      if (sessionStorage.getItem(tenantIntroKey) || localStorage.getItem(tenantIntroKey)) {
+      if (
+        sessionStorage.getItem(tenantIntroKey) ||
+        localStorage.getItem(tenantIntroKey) ||
+        sessionStorage.getItem(legacyKey) ||
+        localStorage.getItem(legacyKey)
+      ) {
         return true;
       }
     }
@@ -97,6 +120,9 @@ export default function App() {
 
   const handleReplayIntro = useCallback(() => {
     try {
+      const slug = tenant?.slug || tenantId || 'parcos';
+      sessionStorage.removeItem(`${slug}_intro_seen`);
+      localStorage.removeItem(`${slug}_intro_seen`);
       sessionStorage.removeItem('rxm_intro_seen');
       localStorage.removeItem('rxm_intro_seen');
       sessionStorage.removeItem('mpi_intro_seen');
@@ -104,7 +130,7 @@ export default function App() {
     } catch {}
     setIsRevealed(false);
     setIntroKey(prev => prev + 1);
-  }, []);
+  }, [tenant?.slug, tenantId]);
 
   // Expunere funcție globală window.replayIntro() și ascultare parametru URL (?intro=true / #intro)
   useEffect(() => {
@@ -436,20 +462,7 @@ export default function App() {
     );
   };
 
-  // Verificare dacă domeniul curent este platforma centrală ParcOS
-  const isParcosDomain = (hostname: string, port?: string) => {
-    const p = port !== undefined ? port : (typeof window !== 'undefined' ? window.location.port : '');
-    // Pe subdomeniu dedicat de dealer (ex: mpiauto.parcos.ro), NU suntem pe platforma centrală SaaS parcos.ro!
-    if (getSubdomainDealer(hostname)) return false;
-    return (
-      hostname === 'parcos.ro' ||
-      hostname === 'www.parcos.ro' ||
-      hostname === 'parcos.local' ||
-      hostname === 'app.parcos.ro' ||
-      hostname === 'admin.parcos.ro' ||
-      p === '3001'
-    );
-  };
+// Folosește funcția globală isParcosDomain() definită mai sus
 
   // Verificare dacă ruta accesată este pagina de prezentare SaaS (parcos.ro, /saas, #saas sau ?saas)
   const checkIsSaasPath = () => {
@@ -1589,7 +1602,7 @@ export default function App() {
       <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] font-sans antialiased selection:bg-amber-500/30 selection:text-amber-200">
       
       {/* 🎬 Cinematic Intro (Split Shutter pe RXM / Video Reveal Slide-Up pe MPI Auto) — NICIODATĂ pe ParcOS SaaS, Admin sau SuperAdmin */}
-      {viewMode === 'showroom' && (tenantId === 'rxm' || tenant?.slug === 'rxm' || tenantId === 'mpi_auto' || tenant?.slug === 'mpi_auto') && !isParcosDomain(typeof window !== 'undefined' ? window.location.hostname : '', typeof window !== 'undefined' ? window.location.port : '') && (
+      {viewMode === 'showroom' && (tenant?.landingConfig?.intro?.type !== 'none') && !isParcosDomain(typeof window !== 'undefined' ? window.location.hostname : '', typeof window !== 'undefined' ? window.location.port : '') && (
         <CinematicIntro 
           key={introKey} 
           forceReplay={introKey > 0} 
