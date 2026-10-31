@@ -23,7 +23,6 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
 
   const slug = tenant?.slug || 'showroom';
   const storageKey = `${slug}_intro_seen`;
-  const legacyKey = slug === 'mpi_auto' ? 'mpi_intro_seen' : 'rxm_intro_seen';
 
   // 1. Mod 'none': Bypass instantaneu
   useEffect(() => {
@@ -44,7 +43,7 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
       
       // În modul de dezvoltare (DEV) ignorăm cheia permanentă din localStorage pentru a permite testarea facilă la F5
       if (import.meta.env.DEV) {
-        if (sessionStorage.getItem(storageKey) || sessionStorage.getItem(legacyKey)) {
+        if (sessionStorage.getItem(storageKey)) {
           return 'done';
         }
         return 'loading';
@@ -52,9 +51,7 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
 
       if (
         sessionStorage.getItem(storageKey) ||
-        localStorage.getItem(storageKey) ||
-        sessionStorage.getItem(legacyKey) ||
-        localStorage.getItem(legacyKey)
+        localStorage.getItem(storageKey)
       ) {
         return 'done';
       }
@@ -208,8 +205,8 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
   // ══════════════════════════════════════════════════════════════
   if (introType === 'cinematic_video') {
     const isSlidingUp = phase === 'sliding_up';
-    const videoUrl = introConfig.videoUrl || '/videos/mpi-showroom-intro-v2.mp4?v=20261031_0725';
-    const logoUrl = introConfig.logoUrl || tenant?.logoUrl || '/images/mpi-logo-white.png';
+    const videoUrl = introConfig.videoUrl || '';
+    const logoUrl = introConfig.logoUrl || tenant?.logoUrl || '';
     const tagline = introConfig.tagline || (tenant?.showroomAddress ? `${tenant.showroomAddress} • Showroom Rulate` : 'Showroom Rulate');
 
     return (
@@ -308,8 +305,9 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
   // ══════════════════════════════════════════════════════════════
   // RANDARE: SPLIT SHUTTER MODE
   // ══════════════════════════════════════════════════════════════
-  const isSplit = phase === 'split';
-  const shutterLogo = introConfig.logoUrl || tenant?.logoUrl || '/images/rxm-logo-gold.png';
+  if (introType === 'split_shutter') {
+    const isSplit = phase === 'split';
+  const shutterLogo = introConfig.logoUrl || tenant?.logoUrl || '';
   const shutterTagline = introConfig.tagline || '„Fiecare drum începe cu alegerea potrivită.”';
   const dealerName = tenant?.name || 'SHOWROOM AUTOMOBILE';
   const dealerLocation = tenant?.serviceLocation || tenant?.showroomAddress || tenant?.address || 'ROMÂNIA';
@@ -423,5 +421,8 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
       </button>
 
     </div>
-  );
+    );
+  }
+
+  return null;
 };

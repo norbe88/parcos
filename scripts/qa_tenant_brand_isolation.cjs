@@ -229,6 +229,31 @@ assert(!accessoriesTs.includes('(Standard RXM)'), 'AccessoriesSidebarSection nu 
 const dealPriceTs = readFile('src/components/admin/DealPriceModal.tsx');
 assert(!dealPriceTs.includes("'SUPER DEAL RXM'"), 'DealPriceModal nu are preset hardcodat SUPER DEAL RXM');
 
+// ─── 8. Izolare Motor Generic Showroom Intro & Agnostic Data Contract ───────
+console.log('\n🔍 [SUITE 8] Motor Generic Showroom Intro & Izolare Tenanți Agnostică');
+
+const cinematicIntroTs = readFile('src/components/CinematicIntro.tsx');
+assert(!cinematicIntroTs.includes('mpi_auto'), 'CinematicIntro.tsx nu conține slug hardcodat mpi_auto');
+assert(!cinematicIntroTs.includes('isMpi'), 'CinematicIntro.tsx nu conține flag hardcodat isMpi');
+assert(!cinematicIntroTs.includes('MPI AUTO CLUJ'), 'CinematicIntro.tsx nu conține text fix MPI AUTO CLUJ');
+assert(!cinematicIntroTs.includes('Centura Apahida'), 'CinematicIntro.tsx nu conține adresă fixă Centura Apahida');
+assert(!cinematicIntroTs.includes('RXM AUTO MOBILE'), 'CinematicIntro.tsx nu conține text fix RXM AUTO MOBILE');
+assert(cinematicIntroTs.includes("introType === 'none'"), "CinematicIntro.tsx gestionează modul 'none' pentru bypass instant");
+assert(cinematicIntroTs.includes("introType === 'cinematic_video'"), "CinematicIntro.tsx gestionează modul 'cinematic_video' dinamic");
+assert(cinematicIntroTs.includes("introType === 'split_shutter'"), "CinematicIntro.tsx gestionează modul 'split_shutter' dinamic");
+
+assert(!appTs.includes("tenantId === 'rxm' || tenantId === 'mpi_auto'"), 'App.tsx nu restricționează intro-ul la tenanți specifici');
+assert(!appTs.includes("hostname.includes('parcos')"), 'App.tsx nu folosește hostname.includes(\'parcos\') care suprima subdomeniile');
+assert(appTs.includes('isParcos = isParcosDomain(hostname, port)'), 'App.tsx folosește isParcosDomain(hostname, port) pentru detectare precisă');
+assert(appTs.includes('${slug}_intro_seen'), 'App.tsx generează chei de storage izolate dinamic per tenant slug');
+
+const typesTs = readFile('src/db/types.ts');
+assert(typesTs.includes('export interface DealerIntroConfig'), 'types.ts definește interfața strongly-typed DealerIntroConfig');
+assert(typesTs.includes('intro?: DealerIntroConfig;'), 'DealerLandingConfig include câmpul opțional intro');
+
+assert(dealerTs.includes("type: 'cinematic_video'"), 'dealer.ts conține presetul video cinematic pentru DEALER_MPI_AUTO');
+assert(dealerTs.includes("type: 'split_shutter'"), 'dealer.ts conține presetul split shutter pentru SEED_DEALER');
+
 console.log('\n===============================================================');
 console.log(`REZULTAT QA IZOLARE BRAND & TEMĂ: ${testsPassed}/${testsRun} TESTE TRECUTE!`);
 if (testsFailed > 0) {
