@@ -41,7 +41,17 @@ export async function handleAuthRoutes(req, res, urlObj, pathname, {
     // Deducere context tenant & domeniu
     const rawHost = (req.headers['host'] || '').split(':')[0].toLowerCase().trim().replace(/^www\./, '');
     const reqTenant = normalizeSlug(payload.tenantId || payload.tenant_id || payload.dealerId || req.headers['x-tenant-id'] || '');
-    const isParcosContext = reqTenant === 'parcos' || rawHost.includes('parcos.ro');
+
+    // Verificare precisă: subdomeniile de showroom (*.parcos.ro, ex: mpiauto.parcos.ro) sunt CONTEXT DEALER, nu consola SuperAdmin ParcOS
+    const isSubdomainDealer = rawHost.endsWith('.parcos.ro') && 
+      !['parcos', 'app', 'admin', 'staging', 'sandbox', 'www'].includes(rawHost.slice(0, -'.parcos.ro'.length));
+
+    const isPlatformConsoleHost = ['parcos.ro', 'staging.parcos.ro', 'app.parcos.ro', 'admin.parcos.ro'].includes(rawHost);
+
+    const isParcosContext = !isSubdomainDealer && (
+      reqTenant === 'parcos' || 
+      (isPlatformConsoleHost && (!reqTenant || reqTenant === 'parcos'))
+    );
 
     // 👑 CAZUL 1: AUTENTIFICARE CONSOLĂ SUPERADMIN PARCOS (parcos.ro / tenant 'parcos')
     if (isParcosContext) {
@@ -113,12 +123,49 @@ export async function handleAuthRoutes(req, res, urlObj, pathname, {
       return true;
     }
 
-    // 2.2 Verificare Parolă Showroom Admin (Luna.RXM)
-    let isDealerMatch = false;
+    // 2.2 Rezoluție Tenant Showroom
+    let tenant;
     try {
-      isDealerMatch = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(ADMIN_PASSWORD_HASH));
+      tenant = await resolveTenant(req, urlObj);
     } catch {
-      isDealerMatch = (inputHash === ADMIN_PASSWORD_HASH);
+      tenant = null;
+    }
+    const dealerSlug = String(reqTenant || tenant?.slug || '').trim().toLowerCase();
+
+    // 2.3 Verificare Parolă Showroom Admin per-Dealer
+    let isDealerMatch = false;
+
+    // A. Verificare din tenant config (adminPasswordHash sau adminPassword din DB)
+    const configuredHash = tenant?.config?.adminPasswordHash;
+    const configuredPlain = tenant?.config?.adminPassword;
+
+    if (configuredHash) {
+      try {
+        isDealerMatch = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(configuredHash));
+      } catch {
+        isDealerMatch = (inputHash === configuredHash);
+      }
+    } else if (configuredPlain) {
+      isDealerMatch = (password === configuredPlain);
+    }
+
+    // B. Verificare parolă dedicată MPI Auto (Mircea: MPI.2026)
+    if (!isDealerMatch && (dealerSlug === 'mpi_auto' || dealerSlug === 'mpi')) {
+      const MPI_ADMIN_HASH = process.env.ADMIN_PASSWORD_HASH_MPI_AUTO || '47ac7c7bfde4dc1e081a33011bd8c4e0018404a26a2ec37799d2c5715211445f'; // SHA-256('MPI.2026')
+      try {
+        isDealerMatch = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(MPI_ADMIN_HASH));
+      } catch {
+        isDealerMatch = (inputHash === MPI_ADMIN_HASH);
+      }
+    }
+
+    // C. Fallback global pentru RXM și dealeri legacy (Luna.RXM)
+    if (!isDealerMatch && dealerSlug !== 'mpi_auto' && dealerSlug !== 'mpi') {
+      try {
+        isDealerMatch = crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(ADMIN_PASSWORD_HASH));
+      } catch {
+        isDealerMatch = (inputHash === ADMIN_PASSWORD_HASH);
+      }
     }
 
     if (!isDealerMatch) {
@@ -128,14 +175,6 @@ export async function handleAuthRoutes(req, res, urlObj, pathname, {
       });
       return true;
     }
-
-    let tenant;
-    try {
-      tenant = await resolveTenant(req, urlObj);
-    } catch {
-      tenant = null;
-    }
-    const dealerSlug = String(tenant?.slug || '').trim().toLowerCase();
     if (!tenant || tenant.unconfigured === true || !/^[a-z0-9_]+$/.test(dealerSlug)) {
       sendJson(res, 404, { success: false, error: 'Showroom neconfigurat' });
       return true;

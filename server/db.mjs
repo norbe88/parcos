@@ -207,7 +207,7 @@ export async function initDatabase() {
         '{}'::jsonb,
         'Luni - Vineri 09:00 - 18:00 | Sâmbătă - Duminică 10:00 - 15:00',
         TRUE,
-        '{"themePreset":"mpi_signature","vatRate":0.21,"bank":{"name":"Banca Transilvania","warrantyTerm":"Cont de Garanție","reservationTerm":"Garanție de Rezervare/Participare"}}'::jsonb
+        '{"themePreset":"mpi_signature","vatRate":0.21,"adminPasswordHash":"47ac7c7bfde4dc1e081a33011bd8c4e0018404a26a2ec37799d2c5715211445f","bank":{"name":"Banca Transilvania","warrantyTerm":"Cont de Garanție","reservationTerm":"Garanție de Rezervare/Participare"}}'::jsonb
       ),
       (
         'ALD AUTOLAND S.R.L.',
