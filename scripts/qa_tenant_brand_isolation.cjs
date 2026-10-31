@@ -118,7 +118,7 @@ assert(!videoTabTs.includes('Echipa RXM Automobile filmează'), 'DetailVideoTab 
 const socialPostModalTs = readFile('src/components/modals/VehicleSocialPostModal.tsx');
 assert(!socialPostModalTs.includes('• RXM Automobile`'), 'VehicleSocialPostModal nu are titlu hardcodat RXM Automobile');
 
-const footerTs = readFile('src/components/layout/Footer.tsx');
+let footerTs = readFile('src/components/layout/Footer.tsx');
 assert(!footerTs.includes('Facebook RXM Automobile"'), 'Footer nu are aria-label hardcodat Facebook RXM Automobile');
 assert(!footerTs.includes('Instagram RXM Automobile"'), 'Footer nu are aria-label hardcodat Instagram RXM Automobile');
 
@@ -253,6 +253,27 @@ assert(typesTs.includes('intro?: DealerIntroConfig;'), 'DealerLandingConfig incl
 
 assert(dealerTs.includes("type: 'cinematic_video'"), 'dealer.ts conține presetul video cinematic pentru DEALER_MPI_AUTO');
 assert(dealerTs.includes("type: 'split_shutter'"), 'dealer.ts conține presetul split shutter pentru SEED_DEALER');
+
+// ─── 9. Izolare Ghid Auto & Branding Unificat ParcOS / Carvana SRL ───────────
+console.log('\n🔍 [SUITE 9] Izolare Ghid Auto & Branding Unificat ParcOS / Carvana SRL');
+
+assert(appTs.includes("isParcosDomain(window.location.hostname, window.location.port) || Boolean(tenant?.landingConfig?.showGhidAuto)"), 'App.tsx condiționează Ghid Auto pe domenii de dealer');
+assert(appTs.includes("path === '/ghid-auto'"), 'App.tsx folosește verificare strictă pe calea /ghid-auto');
+assert(appTs.includes("hash === '#ghid-auto'"), 'App.tsx folosește verificare strictă pe hash-ul #ghid-auto');
+assert(appTs.includes("window.history.replaceState(null, '', target)"), 'App.tsx curăță istoricul cu replaceState la ieșirea din Ghid Auto');
+
+const freshFooterTs = readFile('src/components/layout/Footer.tsx');
+assert(freshFooterTs.includes('ParcOS'), 'Footer.tsx conține branding-ul explicit ParcOS');
+assert(freshFooterTs.includes('Carvana SRL'), 'Footer.tsx conține dezvoltatorul Carvana SRL');
+assert(freshFooterTs.includes('Showroom autonom rulat pe platforma'), 'Footer.tsx afișează atribuirea de platformă în coloana 1');
+assert(freshFooterTs.includes('Rulat prin'), 'Footer.tsx afișează atribuirea de platformă în bara de copyright');
+
+const ghidAutoHubTs = readFile('src/components/ghid/GhidAutoHub.tsx');
+assert(ghidAutoHubTs.includes("document.documentElement.setAttribute('data-theme', prevTheme)"), 'GhidAutoHub.tsx restaurează tema originală a tenantului la unmount');
+
+const apiMjs = readFile('server/api.mjs');
+assert(apiMjs.includes("urlObj.searchParams.get('limit')"), 'server/api.mjs suportă parametrul limit pentru paginarea stocului');
+assert(apiMjs.includes("urlObj.searchParams.get('summary')"), 'server/api.mjs suportă parametrul summary pentru payload ușor');
 
 console.log('\n===============================================================');
 console.log(`REZULTAT QA IZOLARE BRAND & TEMĂ: ${testsPassed}/${testsRun} TESTE TRECUTE!`);

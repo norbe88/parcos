@@ -67,17 +67,29 @@ export const Footer: React.FC<FooterProps> = ({
             </p>
           </div>
 
-          <p className="mt-3 text-xs text-zinc-400">
-            Dezvoltat de{' '}
-            <a 
-              href="https://carvana.ro" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="font-bold tracking-wide text-amber-400 hover:text-amber-300 transition-colors uppercase"
-            >
-              Carvana SRL
-            </a>
-          </p>
+          <div className="mt-3.5 pt-3 border-t border-white/[0.06] flex items-center gap-2 text-xs text-zinc-400">
+            <img src="/brand/icon-32x32.png" alt="ParcOS" className="w-3.5 h-3.5 rounded object-cover shadow-xs inline-block shrink-0" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+            <span>
+              Showroom autonom rulat pe platforma{' '}
+              <a 
+                href="https://parcos.ro" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="font-bold tracking-wide text-amber-400 hover:text-amber-300 transition-colors"
+              >
+                ParcOS
+              </a>
+              {' '}• Dezvoltat de{' '}
+              <a 
+                href="https://carvana.ro" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="font-bold tracking-wide text-amber-400 hover:text-amber-300 transition-colors uppercase"
+              >
+                Carvana SRL
+              </a>
+            </span>
+          </div>
           
           <div className="mt-4 pt-3 border-t border-white/[0.06] flex flex-wrap items-center gap-2">
             <button
@@ -228,13 +240,22 @@ export const Footer: React.FC<FooterProps> = ({
         >
           <span>© {new Date().getFullYear()} {dealer.name}. Toate drepturile rezervate.</span>
           <span className="text-zinc-600 hidden sm:inline">•</span>
-          <span>
-            Dezvoltat de{' '}
+          <span className="inline-flex items-center gap-1">
+            <span>Rulat prin</span>
+            <a 
+              href="https://parcos.ro" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="font-bold text-amber-400 hover:text-amber-300 transition-colors"
+            >
+              ParcOS
+            </a>
+            <span>• Dezvoltat de</span>
             <a 
               href="https://carvana.ro" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="font-bold tracking-wide text-amber-400 hover:text-amber-300 transition-colors uppercase"
+              className="font-bold text-amber-400 hover:text-amber-300 transition-colors uppercase"
             >
               Carvana SRL
             </a>

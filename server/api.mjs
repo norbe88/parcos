@@ -4090,10 +4090,30 @@ REGULI STRICTE & INVARIANTE HOLDING:
           message: 'Showroom-ul este în curs de aprobare și activare de către echipa ParcOS.'
         });
       }
-      const rows = await getAllPublicVehicles(tenant.slug);
+      const limit = parseInt(urlObj.searchParams.get('limit'), 10);
+      const offset = parseInt(urlObj.searchParams.get('offset'), 10) || 0;
+      const isSummary = urlObj.searchParams.get('summary') === 'true';
+
+      let rows = await getAllPublicVehicles(tenant.slug);
+      const totalCount = rows.length;
+
+      if (!isNaN(limit) && limit > 0) {
+        rows = rows.slice(offset, offset + limit);
+      }
+
+      if (isSummary) {
+        rows = rows.map(r => {
+          const { description, equipment_sheet_text, ...summary } = r;
+          return summary;
+        });
+      }
+
       return sendJson(res, 200, {
         success: true,
+        total: totalCount,
         count: rows.length,
+        offset: isNaN(limit) ? 0 : offset,
+        limit: isNaN(limit) ? totalCount : limit,
         dealer: tenant.slug,
         vehicles: rows,
       });

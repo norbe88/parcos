@@ -117,8 +117,22 @@ export const GhidAutoHub: React.FC<GhidAutoHubProps> = ({
 
   // 🏷️ Asigură tema deschisă luminoasă 'parcos_light' conform paginii principale ParcOS
   useEffect(() => {
+    const prevTheme = document.documentElement.getAttribute('data-theme');
+    const prevBodyTheme = document.body.getAttribute('data-theme');
     document.documentElement.setAttribute('data-theme', 'parcos_light');
     document.body.setAttribute('data-theme', 'parcos_light');
+    return () => {
+      if (prevTheme) {
+        document.documentElement.setAttribute('data-theme', prevTheme);
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+      if (prevBodyTheme) {
+        document.body.setAttribute('data-theme', prevBodyTheme);
+      } else {
+        document.body.removeAttribute('data-theme');
+      }
+    };
   }, []);
 
   // 🏷️ Sincronizare dinamică titlu document

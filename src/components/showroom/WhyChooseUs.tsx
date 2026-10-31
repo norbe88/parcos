@@ -23,13 +23,13 @@ export const WhyChooseUs: React.FC<{ dealer?: DealerProfile }> = ({ dealer = SEE
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
           {/* Card 1: Garanție */}
-          <div className="p-7 rounded-2xl bg-gradient-to-b from-[#141418] to-[#101013] border border-white/[0.08] hover:border-amber-500/30 transition-all duration-300 shadow-xl group">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-5 group-hover:scale-105 transition-transform">
+          <div className="p-7 rounded-2xl bg-gradient-to-b from-[#141418] to-[#101013] border border-white/[0.08] hover:border-[var(--color-accent)]/30 transition-all duration-300 shadow-xl group">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 flex items-center justify-center text-[var(--color-accent)] mb-5 group-hover:scale-105 transition-transform">
               <Shield className="w-6 h-6" />
             </div>
             <h3 className="font-serif text-xl sm:text-2xl font-bold text-white mb-2.5 tracking-tight leading-snug">
               {isMpi ? 'Garanție MPI Car Protect ' : 'Garanție Scrisă '}
-              <span className="text-amber-400 italic">până la 36 Luni</span>
+              <span className="text-[var(--color-accent)] italic">până la 36 Luni</span>
             </h3>
             <p className="text-zinc-300 text-xs sm:text-[13px] leading-relaxed">
               {isMpi
@@ -40,12 +40,12 @@ export const WhyChooseUs: React.FC<{ dealer?: DealerProfile }> = ({ dealer = SEE
           </div>
 
           {/* Card 2: Rate */}
-          <div className="p-7 rounded-2xl bg-gradient-to-b from-[#141418] to-[#101013] border border-white/[0.08] hover:border-amber-500/30 transition-all duration-300 shadow-xl group">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-5 group-hover:scale-105 transition-transform">
+          <div className="p-7 rounded-2xl bg-gradient-to-b from-[#141418] to-[#101013] border border-white/[0.08] hover:border-[var(--color-accent)]/30 transition-all duration-300 shadow-xl group">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 flex items-center justify-center text-[var(--color-accent)] mb-5 group-hover:scale-105 transition-transform">
               <Calculator className="w-6 h-6" />
             </div>
             <h3 className="font-serif text-xl sm:text-2xl font-bold text-white mb-2.5 tracking-tight leading-snug">
-              Rate Doar cu Buletinul <span className="text-amber-400 italic">{isMpi ? 'fără avans' : 'pe loc'}</span>
+              Rate Doar cu Buletinul <span className="text-[var(--color-accent)] italic">{isMpi ? 'fără avans' : 'pe loc'}</span>
             </h3>
             <p className="text-zinc-300 text-xs sm:text-[13px] leading-relaxed">
               {isMpi
@@ -56,13 +56,13 @@ export const WhyChooseUs: React.FC<{ dealer?: DealerProfile }> = ({ dealer = SEE
           </div>
 
           {/* Card 3: Livrare Gratuită & Km Certificați */}
-          <div className="p-7 rounded-2xl bg-gradient-to-b from-[#141418] to-[#101013] border border-white/[0.08] hover:border-amber-500/30 transition-all duration-300 shadow-xl group">
+          <div className="p-7 rounded-2xl bg-gradient-to-b from-[#141418] to-[#101013] border border-white/[0.08] hover:border-emerald-500/30 transition-all duration-300 shadow-xl group">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-5 group-hover:scale-105 transition-transform">
               {isMpi ? <Truck className="w-6 h-6" /> : <CheckCircle2 className="w-6 h-6" />}
             </div>
             <h3 className="font-serif text-xl sm:text-2xl font-bold text-white mb-2.5 tracking-tight leading-snug">
               {isMpi ? 'Livrare Gratuită ' : 'Kilometraj Certificat '}
-              <span className="text-amber-400 italic">{isMpi ? 'la domiciliu' : 'pe Factură'}</span>
+              <span className="text-emerald-400 italic">{isMpi ? 'la domiciliu' : 'pe Factură'}</span>
             </h3>
             <p className="text-zinc-300 text-xs sm:text-[13px] leading-relaxed">
               {isMpi

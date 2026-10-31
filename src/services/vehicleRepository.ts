@@ -6,6 +6,7 @@
 
 import { VehicleItem } from '../db/types';
 import { SEED_VEHICLES } from '../db/vehicles';
+import { SEED_MPI_VEHICLES } from '../db/mpiVehicles';
 import { deleteMediaForCar } from '../utils/mediaVaultDb';
 import { normalizeCarImageUrl, isTikTokVideoUrl } from '../utils/helpers';
 import { normalizeBrand } from '../utils/brandNormalizer';
@@ -222,12 +223,25 @@ export function vehicleItemToRow(v: VehicleItem, dealerSlug: string = 'rxm'): Re
 /**
  * Garantează că cel puțin o mașină are Oferta Săptămânii activă dacă seed-ul specifică asta.
  */
-export function ensureDealOfWeekActive(carList: VehicleItem[]): VehicleItem[] {
+export function getInitialSeedForSlug(slug: string): VehicleItem[] {
+  const s = String(slug || '').trim().toLowerCase();
+  if (s === 'mpi_auto' || s === 'mpi') {
+    return SEED_MPI_VEHICLES;
+  }
+  if (s === 'rxm' || s === 'rxm_sandbox') {
+    return SEED_VEHICLES;
+  }
+  return [];
+}
+
+function ensureDealOfWeekActive(carList: VehicleItem[]): VehicleItem[] {
   const hasActiveDeal = carList.some(
     (c) => c.isDealOfWeek || c.isPinnedToTop || !!(c.oldPriceEur && c.oldPriceEur > c.priceEur)
   );
   if (!hasActiveDeal) {
-    const seedDeal = SEED_VEHICLES.find((c) => c.isDealOfWeek);
+    const s = carList[0]?.dealerSlug || 'rxm';
+    const seedForSlug = getInitialSeedForSlug(s);
+    const seedDeal = seedForSlug.find((c) => c.isDealOfWeek) || carList[0];
     if (seedDeal) {
       return carList.map((c) =>
         c.id === seedDeal.id
@@ -250,7 +264,8 @@ export function ensureDealOfWeekActive(carList: VehicleItem[]): VehicleItem[] {
 function readLocalCache(dealerSlug: string = 'rxm'): VehicleItem[] {
   const slug = String(dealerSlug || '').trim().toLowerCase();
   if (!slug) return [];
-  const allowSeed = slug === 'rxm';
+  const seedForSlug = getInitialSeedForSlug(slug);
+  const allowSeed = seedForSlug.length > 0;
   if (typeof window === 'undefined') {
     return allowSeed ? ensureDealOfWeekActive(SEED_VEHICLES) : [];
   }
@@ -330,7 +345,7 @@ function readLocalCache(dealerSlug: string = 'rxm'): VehicleItem[] {
   } catch (err) {
     console.warn('[vehicleRepository] Eroare la citirea din localStorage:', err);
   }
-  return allowSeed ? ensureDealOfWeekActive(SEED_VEHICLES) : [];
+  return allowSeed ? ensureDealOfWeekActive(seedForSlug) : [];
 }
 
 /**

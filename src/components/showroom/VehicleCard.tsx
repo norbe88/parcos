@@ -39,6 +39,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = React.memo(({
   const isDeal = !!(car.isDealOfWeek || car.isPinnedToTop);
   const hasDiscount = !!(car.oldPriceEur && car.oldPriceEur > car.priceEur);
   const savings = hasDiscount ? car.oldPriceEur! - car.priceEur : 0;
+  const isMpi = (dealer?.slug === 'mpi_auto') || (car.dealerSlug === 'mpi_auto');
 
   return (
     <div 
@@ -269,20 +270,20 @@ export const VehicleCard: React.FC<VehicleCardProps> = React.memo(({
           {/* 🛡️ Beneficii & Standarde Verificare — ascunse pe mobil (banner general în catalog) */}
           <div className="hidden lg:grid grid-cols-2 gap-1.5 my-3 py-2 px-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-[9.5px] sm:text-[10.5px]">
             <div className="flex items-center gap-1.5 text-zinc-300 font-medium min-w-0">
-              <Shield className="w-3.5 h-3.5 text-amber-400/90 shrink-0" />
-              <span className="whitespace-nowrap">Garanție {car.warrantyMonths} Luni</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-zinc-300 font-medium min-w-0">
-              <FileCheck className="w-3.5 h-3.5 text-amber-400/90 shrink-0" />
-              <span className="whitespace-nowrap">Consultanță Înmatriculare</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-zinc-300 font-medium min-w-0">
-              <FileCheck className="w-3.5 h-3.5 text-emerald-400/90 shrink-0" />
-              <span className="whitespace-nowrap">Km Reali Factură</span>
+              <Shield className="w-3.5 h-3.5 text-rose-500/90 shrink-0" />
+              <span className="whitespace-nowrap">{isMpi ? 'Garanție MPI Protect' : `Garanție ${car.warrantyMonths} Luni`}</span>
             </div>
             <div className="flex items-center gap-1.5 text-zinc-300 font-medium min-w-0">
               <Sparkles className="w-3.5 h-3.5 text-amber-400/90 shrink-0" />
-              <span className="whitespace-nowrap">Numere Roșii pe Loc</span>
+              <span className="whitespace-nowrap">{isMpi ? 'Revizie Ulei+Filtre Cadou' : 'Consultanță Înmatriculare'}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-zinc-300 font-medium min-w-0">
+              <Truck className="w-3.5 h-3.5 text-emerald-400/90 shrink-0" />
+              <span className="whitespace-nowrap">{isMpi ? 'Livrare Gratuită la Ușă' : 'Km Reali Factură'}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-zinc-300 font-medium min-w-0">
+              <FileCheck className="w-3.5 h-3.5 text-blue-400/90 shrink-0" />
+              <span className="whitespace-nowrap">{isMpi ? 'Rate Doar cu Buletinul' : 'Numere Roșii pe Loc'}</span>
             </div>
           </div>
 
@@ -328,7 +329,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = React.memo(({
                 }}
                 className="text-[10.5px] font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 shrink-0 px-2 py-0.5 rounded bg-amber-400/10 hover:bg-amber-400/20 transition-colors"
               >
-                <span>Rate TBI</span>
+                <span>{isMpi ? "Rate cu Buletinul" : "Rate TBI"}</span>
                 <span>→</span>
               </a>
             )}

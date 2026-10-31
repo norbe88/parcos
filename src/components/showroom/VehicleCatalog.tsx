@@ -43,7 +43,17 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [selectedFuel, setSelectedFuel] = useState<string>('all');
   const [selectedTransmission, setSelectedTransmission] = useState<string>('all');
-  const [maxPrice, setMaxPrice] = useState<number>(35000);
+  const absoluteMaxPrice = useMemo(() => {
+    if (!cars || cars.length === 0) return 50000;
+    return Math.max(50000, ...cars.map(c => c.priceEur || 0));
+  }, [cars]);
+  const [maxPrice, setMaxPrice] = useState<number>(absoluteMaxPrice);
+
+  useEffect(() => {
+    if (absoluteMaxPrice > maxPrice) {
+      setMaxPrice(absoluteMaxPrice);
+    }
+  }, [absoluteMaxPrice]);
   // 📦 Lot vizibil curent — Progressive Batching (configurat per-parc sau fallback 6 mobil / 9 desktop)
   const [visibleCount, setVisibleCount] = useState<number>(() => getInitialBatch(landingConfig));
 
@@ -274,6 +284,40 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
         </div>
       ) : (
         <>
+      {/* 🏷️ Quick Brand Chips Bar (Rapid pentru parcuri de volum precum MPI Auto) */}
+      {availableBrands.length > 3 && (
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-none no-scrollbar">
+          <button
+            type="button"
+            onClick={() => setSelectedBrand('all')}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all ${
+              selectedBrand === 'all'
+                ? 'bg-amber-500 text-black shadow-xs'
+                : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700'
+            }`}
+          >
+            Toate Mărcile ({cars.length})
+          </button>
+          {availableBrands.slice(0, 10).map((b) => {
+            const brandCount = cars.filter(c => normalizeBrand(c.brand) === b).length;
+            return (
+              <button
+                key={b}
+                type="button"
+                onClick={() => setSelectedBrand(selectedBrand === b ? 'all' : b)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all ${
+                  selectedBrand === b
+                    ? 'bg-amber-500 text-black shadow-xs'
+                    : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700'
+                }`}
+              >
+                {b} ({brandCount})
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Panou Filtrare */}
       <div className="p-5 rounded-2xl bg-[#121215] border border-white/[0.08] mb-10 shadow-lg">
         <div className="flex items-center justify-between mb-4">
@@ -347,7 +391,7 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
               aria-label="Filtru preț maxim autovehicul în euro"
               type="range" 
               min="5000" 
-              max="35000" 
+              max={absoluteMaxPrice} 
               step="1000"
               value={maxPrice}
               onChange={e => setMaxPrice(Number(e.target.value))}

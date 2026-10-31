@@ -452,13 +452,12 @@ export default function App() {
     if (typeof window === 'undefined') return false;
     const path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();
-    const search = window.location.search.toLowerCase();
     return (
-      path.includes('ghid-auto') ||
-      path.includes('ghid') ||
-      hash.includes('ghid-auto') ||
-      hash.includes('ghid') ||
-      search.includes('ghid')
+      path === '/ghid-auto' ||
+      path.startsWith('/ghid-auto/') ||
+      hash === '#ghid-auto' ||
+      hash.startsWith('#ghid-auto/') ||
+      hash.startsWith('#ghid-auto?')
     );
   };
 
@@ -495,7 +494,7 @@ export default function App() {
       !hash.includes('portal') &&
       !path.includes('ghid') &&
       !hash.includes('ghid') &&
-      !search.includes('ghid')
+      !new URLSearchParams(search).has('ghid')
     ) {
       return true;
     }
@@ -731,7 +730,11 @@ export default function App() {
         window.location.hash.includes('ghid') ||
         window.location.pathname.includes('ghid')
       ) {
-        window.history.pushState(null, '', target);
+        if (window.location.hash.includes('ghid') || window.location.pathname.includes('ghid')) {
+          window.history.replaceState(null, '', target);
+        } else {
+          window.history.pushState(null, '', target);
+        }
       }
     }
   };
@@ -1745,7 +1748,7 @@ export default function App() {
             onOpenCookies={() => handleSetViewMode('cookies')}
             onOpenCookiePreferences={() => setIsCookiePreferencesOpen(true)}
             onOpenTerms={() => handleSetViewMode('terms')}
-            onOpenGhidAuto={() => handleSetViewMode('ghid-auto')}
+            onOpenGhidAuto={() => { handleSetViewMode('ghid-auto'); }}
           />
         </Suspense>
       )}
@@ -2040,7 +2043,7 @@ export default function App() {
           onOpenDelivery={() => handleSetViewMode('delivery')}
           onOpenCookies={() => handleSetViewMode('cookies')}
           onOpenCookiePreferences={() => setIsCookiePreferencesOpen(true)}
-          onOpenGhidAuto={() => handleSetViewMode('ghid-auto')}
+          onOpenGhidAuto={(isParcosDomain(window.location.hostname, window.location.port) || Boolean(tenant?.landingConfig?.showGhidAuto)) ? () => handleSetViewMode('ghid-auto') : undefined}
           onReplayIntro={handleReplayIntro}
         />
       )}

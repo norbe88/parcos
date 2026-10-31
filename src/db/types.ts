@@ -292,6 +292,7 @@ export interface DealerLandingConfig {
   catalogDisplayMode?: 'progressive_batch' | 'show_all';
   catalogInitialBatchDesktop?: 6 | 9 | 12 | 18;
   catalogInitialBatchMobile?: 4 | 6 | 8;
+  showGhidAuto?: boolean;
 }
 
 export interface TenantFeatures {
