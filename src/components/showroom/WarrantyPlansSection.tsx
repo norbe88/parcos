@@ -126,13 +126,13 @@ export const WarrantyPlansSection: React.FC<WarrantyPlansSectionProps> = ({
 
                   <div className="mb-6 pb-6 border-b border-[var(--line,rgba(255,255,255,0.08))]">
                     <span className="font-montserrat font-extrabold text-[32px] text-[var(--accent-text,#F04D4D)] tabular-nums">
-                      {price && price > 0 ? formatPriceEur(price) : 'Inclus în preț'}
+                      {typeof price === 'number' && price > 0 ? formatPriceEur(price) : 'Inclus în preț'}
                     </span>
-                    {price && price > 0 && (
+                    {typeof price === 'number' && price > 0 ? (
                       <span className="font-open-sans text-[12px] text-[var(--text-muted,#A3ABB6)] block mt-0.5">
                         cost opțional de extindere
                       </span>
-                    )}
+                    ) : null}
                   </div>
 
                   {/* Listă componente acoperite */}

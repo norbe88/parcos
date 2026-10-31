@@ -475,7 +475,7 @@ export const DealerAnalyticsDashboard: React.FC<DealerAnalyticsDashboardProps> =
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold self-start md:self-auto">
             <CalendarDays className="w-4 h-4 text-amber-400" />
             <span>{dateRange.label}</span>
-            {dateRange.daysCount && (
+            {Boolean(dateRange.daysCount && dateRange.daysCount > 0) && (
               <span className="text-[10px] font-mono bg-amber-500/20 px-1.5 py-0.2 rounded text-amber-200">
                 {dateRange.daysCount} zile
               </span>
