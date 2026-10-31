@@ -65,6 +65,7 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
   const [isLogoIlluminated, setIsLogoIlluminated] = useState(false);
   const [isMaxGlow, setIsMaxGlow] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const videoProgressRef = useRef<HTMLDivElement | null>(null);
 
   const markSeenInStorage = () => {
     try {
@@ -103,8 +104,9 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
     if (!vid || !vid.duration) return;
 
     const ratio = Math.min(1, Math.max(0, vid.currentTime / vid.duration));
-    setProgressRatio(ratio);
-    setDisplayPct(Math.min(100, Math.round(ratio * 100)));
+    if (videoProgressRef.current) {
+      videoProgressRef.current.style.width = `${Math.min(100, Math.round(ratio * 100))}%`;
+    }
 
     if (vid.currentTime >= headlightOffTime && !isLogoIlluminated) {
       setIsLogoIlluminated(true);
@@ -235,7 +237,7 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
           loop
           onTimeUpdate={handleVideoTimeUpdate}
           onEnded={handleVideoExit}
-          className="absolute inset-0 w-full h-full object-cover object-center"
+          className="absolute inset-0 w-full h-full object-cover object-center transform-gpu will-change-transform" style={{ transform: "translateZ(0)" }}
         />
 
         <div className="absolute inset-0 bg-radial from-transparent via-black/20 to-black/85 pointer-events-none" />
@@ -293,9 +295,10 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
 
         <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 w-44 sm:w-64 h-[2px] bg-white/15 rounded-full overflow-hidden z-30 pointer-events-none">
           <div 
+            ref={videoProgressRef}
             className="h-full transition-all duration-100 ease-linear"
             style={{ 
-              width: `${displayPct}%`,
+              width: "0%",
               background: `linear-gradient(to right, ${videoAccentColor}, ${videoAccentColor}cc, #ffffff)`,
               boxShadow: `0 0 8px ${videoAccentColor}`
             }}
