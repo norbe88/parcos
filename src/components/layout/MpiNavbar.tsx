@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Phone, MessageCircle, Menu, X, Sun, Moon, 
-  Shield, Calculator, ArrowLeftRight, CheckCircle2, MapPin
+  Shield, Calculator, ArrowLeftRight, CheckCircle2, MapPin, Search, Car
 } from 'lucide-react';
 import { SEED_DEALER } from '../../db/seed';
 import { DealerProfile } from '../../db/types';
@@ -28,6 +28,41 @@ export const MpiNavbar: React.FC<NavbarProps> = ({
   const { themeMode, toggleThemeMode } = useTenantContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [quickSearchOpen, setQuickSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeChip, setActiveChip] = useState<'all' | 'suv' | 'auto' | 'under10k' | 'under15k'>('all');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleToggleSearch = () => {
+      setQuickSearchOpen(prev => {
+        const next = !prev;
+        if (next) {
+          setTimeout(() => {
+            searchInputRef.current?.focus();
+          }, 80);
+        }
+        return next;
+      });
+    };
+
+    window.addEventListener('parcos:toggle-quick-search', handleToggleSearch);
+    return () => window.removeEventListener('parcos:toggle-quick-search', handleToggleSearch);
+  }, []);
+
+  const handleQueryChange = (query: string) => {
+    setSearchQuery(query);
+    window.dispatchEvent(new CustomEvent('parcos:catalog-filter', {
+      detail: { query, chip: activeChip }
+    }));
+  };
+
+  const handleChipSelect = (chip: 'all' | 'suv' | 'auto' | 'under10k' | 'under15k') => {
+    setActiveChip(chip);
+    window.dispatchEvent(new CustomEvent('parcos:catalog-filter', {
+      detail: { query: searchQuery, chip }
+    }));
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -206,6 +241,118 @@ export const MpiNavbar: React.FC<NavbarProps> = ({
           </button>
         </div>
       </div>
+
+      {/* 🔍 Filtru de Căutare Simplist sub Top Bar */}
+      {quickSearchOpen && (
+        <div className="border-t border-[var(--line,rgba(255,255,255,0.08))] bg-[var(--surface,#131A24)]/95 backdrop-blur-xl px-4 py-3 shadow-2xl animate-in slide-in-from-top-2 duration-200">
+          <div className="max-w-[1240px] mx-auto">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-[var(--metal,#C9CED6)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleQueryChange(e.target.value)}
+                  placeholder="Caută marcă sau model (ex: BMW, Passat, SUV)..."
+                  className="w-full h-11 pl-10 pr-9 rounded-[var(--r-sm,8px)] bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)] font-montserrat text-[14px] border border-[var(--line,rgba(255,255,255,0.12))] focus:outline-none focus:border-[var(--accent,#D83333)] placeholder:text-[var(--text-muted,#A3ABB6)] transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => handleQueryChange('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--metal,#C9CED6)] hover:text-[var(--text,#F4F6F9)] p-1 cursor-pointer"
+                    aria-label="Șterge căutarea"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setQuickSearchOpen(false)}
+                className="h-11 px-3.5 rounded-[var(--r-sm,8px)] bg-[var(--surface-2,#1B2431)] hover:bg-[var(--surface-brand,#2E3643)] text-[var(--text-muted,#A3ABB6)] hover:text-[var(--text,#F4F6F9)] text-[13px] font-montserrat font-semibold border border-[var(--line,rgba(255,255,255,0.08))] transition-colors cursor-pointer shrink-0"
+              >
+                Închide
+              </button>
+            </div>
+
+            {/* Quick Filter Chips sub input */}
+            <div className="flex items-center gap-1.5 mt-2.5 overflow-x-auto scrollbar-none pb-0.5">
+              <button
+                type="button"
+                onClick={() => {
+                  handleChipSelect('all');
+                  navigateToSection('catalog');
+                }}
+                className={`h-7 px-3 rounded-full text-[12px] font-montserrat font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  activeChip === 'all'
+                    ? 'bg-[var(--accent,#D83333)] text-white'
+                    : 'bg-[var(--surface-2,#1B2431)] text-[var(--text-muted,#A3ABB6)] hover:text-[var(--text,#F4F6F9)]'
+                }`}
+              >
+                Toate mașinile ({totalCarsCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleChipSelect('suv');
+                  navigateToSection('catalog');
+                }}
+                className={`h-7 px-3 rounded-full text-[12px] font-montserrat font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  activeChip === 'suv'
+                    ? 'bg-[var(--accent,#D83333)] text-white'
+                    : 'bg-[var(--surface-2,#1B2431)] text-[var(--text-muted,#A3ABB6)] hover:text-[var(--text,#F4F6F9)]'
+                }`}
+              >
+                SUV & 4x4
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleChipSelect('auto');
+                  navigateToSection('catalog');
+                }}
+                className={`h-7 px-3 rounded-full text-[12px] font-montserrat font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  activeChip === 'auto'
+                    ? 'bg-[var(--accent,#D83333)] text-white'
+                    : 'bg-[var(--surface-2,#1B2431)] text-[var(--text-muted,#A3ABB6)] hover:text-[var(--text,#F4F6F9)]'
+                }`}
+              >
+                Cutie Automată
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleChipSelect('under10k');
+                  navigateToSection('catalog');
+                }}
+                className={`h-7 px-3 rounded-full text-[12px] font-montserrat font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  activeChip === 'under10k'
+                    ? 'bg-[var(--accent,#D83333)] text-white'
+                    : 'bg-[var(--surface-2,#1B2431)] text-[var(--text-muted,#A3ABB6)] hover:text-[var(--text,#F4F6F9)]'
+                }`}
+              >
+                Sub 10.000 €
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleChipSelect('under15k');
+                  navigateToSection('catalog');
+                }}
+                className={`h-7 px-3 rounded-full text-[12px] font-montserrat font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  activeChip === 'under15k'
+                    ? 'bg-[var(--accent,#D83333)] text-white'
+                    : 'bg-[var(--surface-2,#1B2431)] text-[var(--text-muted,#A3ABB6)] hover:text-[var(--text,#F4F6F9)]'
+                }`}
+              >
+                Sub 15.000 €
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Full-screen Mobile Drawer (< lg) */}
       {mobileMenuOpen && (

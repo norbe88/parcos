@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { SlidersHorizontal, ChevronDown, Check, X } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { SlidersHorizontal, ChevronDown, Check, X, Search } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../db/seed';
 import { DealerProfile, DealerLandingConfig } from '../../db/types';
 import { MpiVehicleCard as VehicleCard } from './MpiVehicleCard';
@@ -25,6 +25,9 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
   // Tab-uri permise strict: 'in_stock' și 'sold' (fără termenul rezervat)
   const [stockTab, setStockTab] = useState<'in_stock' | 'sold'>('in_stock');
 
+  // Căutare după text
+  const [searchQuery, setSearchQuery] = useState('');
+
   // Quick filter chips
   const [quickFilter, setQuickFilter] = useState<'all' | 'suv' | 'auto' | 'under10k' | 'under15k'>('all');
 
@@ -33,6 +36,23 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
   const [selectedBrand, setSelectedBrand] = useState('all');
   const [selectedFuel, setSelectedFuel] = useState('all');
   const [selectedTransmission, setSelectedTransmission] = useState('all');
+
+  // Sincronizare cu filtrul de căutare din topbar / navbar
+  useEffect(() => {
+    const handleFilterEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<{ query?: string; chip?: 'all' | 'suv' | 'auto' | 'under10k' | 'under15k' }>;
+      if (customEvent.detail) {
+        if (typeof customEvent.detail.query === 'string') {
+          setSearchQuery(customEvent.detail.query);
+        }
+        if (customEvent.detail.chip) {
+          setQuickFilter(customEvent.detail.chip);
+        }
+      }
+    };
+    window.addEventListener('parcos:catalog-filter', handleFilterEvent);
+    return () => window.removeEventListener('parcos:catalog-filter', handleFilterEvent);
+  }, []);
 
   const absoluteMaxPrice = useMemo(() => {
     if (!cars || cars.length === 0) return 50000;
@@ -73,6 +93,14 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
         if (c.status !== 'sold') return false;
       }
 
+      // Căutare după text (marcă, model, versiune, an, combustibil, transmisie)
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const fullTitle = `${c.brand || ''} ${c.model || ''} ${c.versionTrim || ''}`.toLowerCase();
+        const details = `${c.fuelType || ''} ${c.transmission || ''} ${c.bodyType || ''} ${c.year || ''}`.toLowerCase();
+        if (!fullTitle.includes(q) && !details.includes(q)) return false;
+      }
+
       // Quick chips filter
       if (quickFilter === 'suv' && !(c.bodyType?.toLowerCase().includes('suv') || c.drivetrain?.includes('4x4'))) {
         return false;
@@ -91,7 +119,7 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
 
       return true;
     });
-  }, [cars, stockTab, quickFilter, selectedBrand, selectedFuel, selectedTransmission, maxPrice]);
+  }, [cars, stockTab, searchQuery, quickFilter, selectedBrand, selectedFuel, selectedTransmission, maxPrice]);
 
   const visibleCars = filteredCars.slice(0, visibleCount);
   const hasMore = visibleCount < filteredCars.length;
@@ -105,6 +133,7 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
   };
 
   const resetFilters = () => {
+    setSearchQuery('');
     setQuickFilter('all');
     setSelectedBrand('all');
     setSelectedFuel('all');
@@ -166,6 +195,29 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
               Vândute ({counts.sold})
             </button>
           </div>
+        </div>
+
+        {/* 🔍 Căutare rapidă în catalog */}
+        <div className="relative mb-6">
+          <Search className="w-4 h-4 text-[var(--metal,#C9CED6)] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            id="catalog-search-input"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Caută în stoc după marcă, model sau dotări (ex: BMW Seria 3, Megane, DSG, 4x4)..."
+            className="w-full h-11 sm:h-12 pl-11 pr-10 rounded-[var(--r-md,14px)] bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)] font-montserrat text-[13px] sm:text-[14px] border border-[var(--line,rgba(255,255,255,0.12))] focus:outline-none focus:border-[var(--accent,#D83333)] placeholder:text-[var(--text-muted,#A3ABB6)] transition-all shadow-sm"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--metal,#C9CED6)] hover:text-[var(--text,#F4F6F9)] p-1.5 cursor-pointer"
+              aria-label="Șterge textul căutat"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         {/* Quick Filter Chips Bar */}

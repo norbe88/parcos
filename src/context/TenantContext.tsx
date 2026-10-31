@@ -665,13 +665,14 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
   }, [baseTenant, dynamicConfig]);
 
   const currentSlug = tenant.slug || tenantId || 'mpi_auto';
+  const isMpiDefaultLight = tenant.themePreset === 'mpi_signature' || currentSlug === 'mpi_auto' || tenant.themePreset === 'clean_white';
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(`parcos_theme_${currentSlug}`);
       if (saved === 'dark' || saved === 'light') return saved;
-      return tenant.themePreset === 'clean_white' ? 'light' : 'dark';
+      return isMpiDefaultLight ? 'light' : 'dark';
     }
-    return 'dark';
+    return isMpiDefaultLight ? 'light' : 'dark';
   });
 
   const toggleThemeMode = useCallback(() => {

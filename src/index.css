@@ -705,37 +705,8 @@ img[src*="/cars/"],
   --ease: cubic-bezier(0.22, 0.8, 0.2, 1);
 }
 
-/* 5.1 MPI Signature Dark (Implicit / Default) */
+/* 5.1 MPI Signature Light (Clean White Luxury — Default) */
 [data-theme="mpi_signature"],
-[data-theme="mpi_signature"][data-theme-mode="dark"] {
-  --bg: #0B0F16;
-  --surface: #131A24;
-  --surface-2: #1B2431;
-  --surface-brand: #2E3643;
-  --text: #F4F6F9;
-  --text-muted: #A3ABB6;
-  --line: rgba(255, 255, 255, 0.08);
-  --accent: #D83333;
-  --accent-hover: #C02828;
-  --accent-text: #F04D4D;
-  --on-accent: #FFFFFF;
-  --metal: #C9CED6;
-  --success: #22C55E;
-  --whatsapp: #25D366;
-  --glow: radial-gradient(60% 50% at 80% 0%, rgba(216, 51, 51, 0.18), transparent 60%), radial-gradient(50% 40% at 0% 10%, rgba(45, 55, 114, 0.25), transparent 60%);
-  --color-accent: #D83333;
-  --color-accent-hover: #C02828;
-  --color-accent-text: #F04D4D;
-  --r-sm: 8px;
-  --r-md: 14px;
-  --r-lg: 24px;
-  --r-pill: 999px;
-  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 16px 40px -16px rgba(0, 0, 0, 0.7);
-  --shadow-cta: 0 12px 32px -12px rgba(216, 51, 51, 0.45);
-  color-scheme: dark;
-}
-
-/* 5.2 MPI Signature Light (Clean White Luxury) */
 [data-theme="mpi_signature"][data-theme-mode="light"],
 [data-theme="mpi_signature"].light-theme {
   --bg: #F7F8FA;
@@ -763,6 +734,35 @@ img[src*="/cars/"],
   --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.06), 0 14px 32px -16px rgba(15, 23, 42, 0.18);
   --shadow-cta: 0 12px 32px -12px rgba(216, 51, 51, 0.45);
   color-scheme: light;
+}
+
+/* 5.2 MPI Signature Dark (Dark Luxury) */
+[data-theme="mpi_signature"][data-theme-mode="dark"] {
+  --bg: #0B0F16;
+  --surface: #131A24;
+  --surface-2: #1B2431;
+  --surface-brand: #2E3643;
+  --text: #F4F6F9;
+  --text-muted: #A3ABB6;
+  --line: rgba(255, 255, 255, 0.08);
+  --accent: #D83333;
+  --accent-hover: #C02828;
+  --accent-text: #F04D4D;
+  --on-accent: #FFFFFF;
+  --metal: #C9CED6;
+  --success: #22C55E;
+  --whatsapp: #25D366;
+  --glow: radial-gradient(60% 50% at 80% 0%, rgba(216, 51, 51, 0.18), transparent 60%), radial-gradient(50% 40% at 0% 10%, rgba(45, 55, 114, 0.25), transparent 60%);
+  --color-accent: #D83333;
+  --color-accent-hover: #C02828;
+  --color-accent-text: #F04D4D;
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 24px;
+  --r-pill: 999px;
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 16px 40px -16px rgba(0, 0, 0, 0.7);
+  --shadow-cta: 0 12px 32px -12px rgba(216, 51, 51, 0.45);
+  color-scheme: dark;
 }
 
 /* Typography and Base Overrides for MPI Signature */

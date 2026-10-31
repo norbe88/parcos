@@ -11,7 +11,7 @@
           var isMpi = h.indexOf('mpi') !== -1 || dealer === 'mpi_auto' || dealer === 'mpi';
           var slug = isMpi ? 'mpi_auto' : (dealer || 'rxm');
           var saved = localStorage.getItem('parcos_theme_' + slug);
-          var mode = saved ? saved : 'dark';
+          var mode = saved ? saved : (isMpi ? 'light' : 'dark');
           var preset = isMpi ? 'mpi_signature' : (slug === 'autonord_cluj' ? 'clean_white' : 'obsidian_gold');
           document.documentElement.setAttribute('data-theme', preset);
           document.documentElement.setAttribute('data-theme-mode', mode);
