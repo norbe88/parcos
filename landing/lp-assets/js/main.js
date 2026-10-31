@@ -254,7 +254,7 @@
     var bFull = document.getElementById('tab-full');
     if (!v || !s) return;
     var targetSrc = type === 'full'
-      ? '/lp-assets/video/parcos-explicativ-notebooklm.mp4?v=20261031_1210'
+      ? '/lp-assets/video/parcos-explicativ-notebooklm.mp4?v=20261031_1240'
       : '/lp-assets/video/parcos-commercial-short.mp4?v=20261031_1235';
     if (s.getAttribute('src') === targetSrc) return;
     s.setAttribute('src', targetSrc);

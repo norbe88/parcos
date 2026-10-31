@@ -2,6 +2,7 @@ import React from 'react';
 import { DealerLandingConfig, DealerProfile } from '../../db/types';
 import { VehicleItem } from '../../db/seed';
 import { HeroSpotlight } from './HeroSpotlight';
+import { MpiRetailHero } from './MpiRetailHero';
 import { resolveDealerContact } from '../../utils/helpers';
 
 // ShowroomVideoIntro este importat lazy pentru a nu mări bundle-ul inițial dacă dealerul folosește spotlight:
@@ -77,6 +78,19 @@ export const DealerHeroAdapter: React.FC<DealerHeroAdapterProps> = ({
   onSelectCar,
   isRevealed = true,
 }) => {
+  // Retail Megastore Hero pentru MPI Auto sau profiluri cu layoutVariant compact_inventory
+  if (tenant.slug === 'mpi_auto' || landingConfig.layoutVariant === 'compact_inventory') {
+    return (
+      <MpiRetailHero
+        tenant={tenant}
+        landingConfig={landingConfig}
+        cars={cars}
+        onSelectCar={onSelectCar}
+        isRevealed={isRevealed}
+      />
+    );
+  }
+
   const { hero } = landingConfig;
   const headlineFinal = hero.headline || `${tenant.name} — Autovehicule Rulate Premium`;
 
