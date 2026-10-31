@@ -207,10 +207,10 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
         }`}
         aria-hidden="true"
       >
-        {/* 🎬 Video Background Fullscreen Responsiv */}
+        {/* 🎬 Video Background Fullscreen Responsiv (v2 - Decelerare lină fără recul) */}
         <video
           ref={videoRef}
-          src="/videos/mpi-showroom-intro.mp4"
+          src="/videos/mpi-showroom-intro-v2.mp4?v=20261031_0725"
           playsInline
           autoPlay
           muted
