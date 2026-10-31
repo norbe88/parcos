@@ -265,7 +265,7 @@ export const StepMediaUpload: React.FC<StepMediaUploadProps> = ({
           </label>
           <input 
             type="url" 
-            placeholder="https://www.tiktok.com/@rxm.automobile/video/..."
+            placeholder="https://www.tiktok.com/@dealer/video/..."
             value={newTiktokUrl}
             onChange={e => setNewTiktokUrl(e.target.value)}
             className="w-full bg-[#18181b] border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400 text-xs"
@@ -614,7 +614,7 @@ export const StepMediaUpload: React.FC<StepMediaUploadProps> = ({
           <div className="flex items-center gap-2.5">
             <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
             <div>
-              <div className="text-xs font-bold text-white">Aplică automat sigla oficială RXM Automobile pe fotografii</div>
+              <div className="text-xs font-bold text-white">Aplică automat sigla oficială a dealerului pe fotografii</div>
               <p className="text-[10px] text-zinc-400">Protejează pozele împotriva copierii cu sigla oficială din antetul showroom-ului</p>
             </div>
           </div>

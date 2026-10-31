@@ -21,8 +21,10 @@ export const PrintableGdprConsent: React.FC<PrintableGdprConsentProps> = ({
   });
 
   // Sediu social și punct de lucru conform dealer / document oficial
-  const legalAddress = dealer.legalAddress || 'jud. Cluj, loc. Florești, str. Gheorghe Doja nr. 1I, bl. I1, ap. 12';
-  const workLocation = dealer.showroomAddress || dealer.address || 'mun. Cluj-Napoca, str. Colonia Hoia FN';
+  const legalAddress = dealer.legalAddress || dealer.address || 'jud. Cluj';
+  const workLocation = dealer.showroomAddress || dealer.address || 'Cluj-Napoca';
+  const dealerEmail = dealer.email || (dealer.domain ? `contact@${dealer.domain}` : 'contact@showroom.ro');
+  const effectiveLogo = dealer.logoUrl || '/images/rxm-logo.png';
 
   return (
     <div className="printable-doc bg-white text-black p-8 sm:p-10 max-w-[210mm] mx-auto text-[11px] leading-relaxed font-serif print:p-0 print:max-w-none shadow-md print:shadow-none min-h-[270mm] flex flex-col justify-between">
@@ -32,7 +34,7 @@ export const PrintableGdprConsent: React.FC<PrintableGdprConsentProps> = ({
           <div className="flex justify-between items-center gap-4">
             <div className="flex items-center gap-3">
               <img 
-                src="/images/rxm-logo.png" 
+                src={effectiveLogo} 
                 alt={dealer.name} 
                 className="h-10 object-contain"
                 onError={(e) => {
@@ -44,15 +46,15 @@ export const PrintableGdprConsent: React.FC<PrintableGdprConsentProps> = ({
                   {dealer.name}
                 </h1>
                 <p className="text-[9.5px] text-zinc-700 mt-0.5 font-sans">
-                  Dealer Autovehicule Rulate &bull; Showroom Cluj-Napoca
+                  Dealer Autovehicule Rulate &bull; Showroom {dealer.serviceLocation || 'Cluj-Napoca'}
                 </p>
               </div>
             </div>
             <div className="text-right text-[9px] leading-tight text-zinc-800 font-sans">
-              <div><strong>C.U.I.:</strong> {dealer.cui} &bull; <strong>Reg. Com.:</strong> {dealer.regCom || 'J12/3012/2023'}</div>
+              <div><strong>C.U.I.:</strong> {dealer.cui} {dealer.regCom ? <> &bull; <strong>Reg. Com.:</strong> {dealer.regCom}</> : null}</div>
               <div><strong>Sediu Social:</strong> {legalAddress}</div>
               <div><strong>Punct de Lucru / Showroom:</strong> {workLocation}</div>
-              <div><strong>Contact:</strong> {dealer.phonePrimary} &bull; {dealer.email || 'contact@rxmautomobile.ro'}</div>
+              <div><strong>Contact:</strong> {dealer.phonePrimary} &bull; {dealerEmail}</div>
             </div>
           </div>
         </div>
@@ -137,7 +139,7 @@ export const PrintableGdprConsent: React.FC<PrintableGdprConsentProps> = ({
           </p>
 
           <div className="bg-zinc-50 border border-zinc-200 p-2.5 rounded text-[9.5px] leading-snug print:bg-transparent print:border-black/30 font-sans">
-            <strong>Drepturile Persoanei Vizate:</strong> Dreptul de acces la date (Art. 15), dreptul de rectificare a datelor inexacte (Art. 16), dreptul la ștergerea datelor / „dreptul de a fi uitat” (Art. 17), dreptul la restricționarea prelucrării (Art. 18), dreptul la portabilitatea datelor (Art. 20) și dreptul la opoziție (Art. 21). Pentru exercitarea oricărui drept, mă pot adresa în scris operatorului <strong>{dealer.name}</strong> la sediul menționat sau la e-mail <strong>{dealer.email || 'contact@rxmautomobile.ro'}</strong>. De asemenea, beneficiez de dreptul de a depune plângere în fața <em>Autorității Naționale de Supraveghere a Prelucrării Datelor cu Caracter Personal (ANSPDCP)</em>.
+            <strong>Drepturile Persoanei Vizate:</strong> Dreptul de acces la date (Art. 15), dreptul de rectificare a datelor inexacte (Art. 16), dreptul la ștergerea datelor / „dreptul de a fi uitat” (Art. 17), dreptul la restricționarea prelucrării (Art. 18), dreptul la portabilitatea datelor (Art. 20) și dreptul la opoziție (Art. 21). Pentru exercitarea oricărui drept, mă pot adresa în scris operatorului <strong>{dealer.name}</strong> la sediul menționat sau la e-mail <strong>{dealerEmail}</strong>. De asemenea, beneficiez de dreptul de a depune plângere în fața <em>Autorității Naționale de Supraveghere a Prelucrării Datelor cu Caracter Personal (ANSPDCP)</em>.
           </div>
 
           <p className="font-semibold text-black pt-1">
@@ -183,7 +185,7 @@ export const PrintableGdprConsent: React.FC<PrintableGdprConsentProps> = ({
             Exemplar original &bull; Dosar tranzacție autovehicul {car ? `${car.brand} ${car.model} (VIN: ${car.vin})` : ''}
           </span>
           <span>
-            Generat securizat prin Dealer OS &bull; RXM Automobile &bull; Conform Regulament (UE) 2016/679
+            Generat securizat prin Dealer OS &bull; {dealer.name} &bull; Conform Regulament (UE) 2016/679
           </span>
         </div>
       </div>

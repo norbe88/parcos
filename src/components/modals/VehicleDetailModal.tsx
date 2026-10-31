@@ -694,7 +694,7 @@ export const VehicleDetailModal: React.FC<VehicleDetailModalProps> = ({
           </div>
 
           {/* 🔗 Social Share Banner (Facebook, Instagram, WhatsApp) */}
-          <SocialShareButtons car={selectedCar} showToast={showToast} variant="full" className="mt-2" />
+          <SocialShareButtons car={selectedCar} dealer={dealer} showToast={showToast} variant="full" className="mt-2" />
 
           {/* ⚖️ Clauză Legală de Eroare Materială & Caracter Informativ (ANPC) */}
           <div className="mt-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-[10.5px] text-zinc-400 leading-relaxed">

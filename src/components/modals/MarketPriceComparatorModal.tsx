@@ -5,7 +5,8 @@ import {
   Info, ShieldCheck, BookmarkPlus, RotateCcw, Compass,
   SlidersHorizontal, Calendar, Gauge, Filter
 } from 'lucide-react';
-import { VehicleItem, MarketPriceEvaluation, DealerMarketBenchmark } from '../../db/types';
+import { VehicleItem, MarketPriceEvaluation, DealerMarketBenchmark, DealerProfile } from '../../db/types';
+import { SEED_DEALER } from '../../db/seed';
 import { 
   evaluateMarketPrice, 
   saveEvaluationToCache, 
@@ -27,6 +28,7 @@ interface MarketPriceComparatorModalProps {
   onSaveEvaluation?: (carId: string, evaluation: MarketPriceEvaluation) => void;
   onApplyPrice?: (priceEur: number) => void;
   showToast?: (msg: string) => void;
+  dealer?: DealerProfile;
 }
 
 export const MarketPriceComparatorModal: React.FC<MarketPriceComparatorModalProps> = ({
@@ -35,11 +37,13 @@ export const MarketPriceComparatorModal: React.FC<MarketPriceComparatorModalProp
   onClose,
   onSaveEvaluation,
   onApplyPrice,
-  showToast
+  showToast,
+  dealer = SEED_DEALER
 }) => {
   const [isScanning, setIsScanning] = useState(false);
   const [samiSnapshot, setSamiSnapshot] = useState<SamiMarketCompetitorsSnapshot | null>(null);
   const [evaluation, setEvaluation] = useState<MarketPriceEvaluation | null>(() => car ? evaluateMarketPrice(car) : null);
+  const dealerShortName = (dealer?.name || 'Showroom').split(' ')[0];
 
   // Valori implicite calculate inteligent din datele mașinii
   const defaultYearFrom = car ? Math.max(1990, (car.year || 2015) - 1) : 2014;
@@ -513,7 +517,7 @@ export const MarketPriceComparatorModal: React.FC<MarketPriceComparatorModalProp
                                 ? 'text-amber-400' 
                                 : 'text-zinc-400'
                             }`}>
-                              {priceDiff === 0 ? 'Același preț' : priceDiff > 0 ? `+${priceDiff.toLocaleString('ro-RO')} € vs RXM` : `${priceDiff.toLocaleString('ro-RO')} € vs RXM`}
+                              {priceDiff === 0 ? 'Același preț' : priceDiff > 0 ? `+${priceDiff.toLocaleString('ro-RO')} € vs ${dealerShortName}` : `${priceDiff.toLocaleString('ro-RO')} € vs ${dealerShortName}`}
                             </div>
                           ) : (
                             <div className="text-[10px] font-mono text-zinc-400">
@@ -936,7 +940,7 @@ export const MarketPriceComparatorModal: React.FC<MarketPriceComparatorModalProp
           <div className="bg-[#141418] border border-white/[0.08] rounded-2xl p-5 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <span className="text-xs text-zinc-400">Prețul Curent în Showroom RXM</span>
+                <span className="text-xs text-zinc-400">Prețul Curent în Showroom {dealerShortName}</span>
                 <div className="flex items-baseline gap-3 mt-0.5">
                   {car.priceEur > 0 ? (
                     <>
@@ -1196,7 +1200,7 @@ export const MarketPriceComparatorModal: React.FC<MarketPriceComparatorModalProp
           <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex items-start sm:items-center gap-3 text-[11px] text-zinc-400">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
             <span>
-              <strong className="text-zinc-200">Garanția de transparență RXM:</strong> Platforma oferă acces direct la căutările live ale celor mai mari platforme auto (OLX, Autovit, Mobile.de) și nu generează date artificiale sau anunțuri simulate prezentate ca fiind reale.
+              <strong className="text-zinc-200">Garanția de transparență {dealerShortName}:</strong> Platforma oferă acces direct la căutările live ale celor mai mari platforme auto (OLX, Autovit, Mobile.de) și nu generează date artificiale sau anunțuri simulate prezentate ca fiind reale.
             </span>
           </div>
 

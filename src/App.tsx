@@ -1008,7 +1008,7 @@ export default function App() {
 
   // Helper centralizat de persistență asincronă pe Netcup VPS & localStorage
   const persistVehicle = (updatedCar: VehicleItem) => {
-    vehicleRepository.saveVehicle(updatedCar, 'rxm').catch(err => {
+    vehicleRepository.saveVehicle(updatedCar, currentDealerSlug).catch(err => {
       console.warn('[App] Eroare persistență vehicul Netcup VPS:', err);
     });
   };
@@ -1086,7 +1086,7 @@ export default function App() {
   // Ștergere mașină (Admin) - Eliminare din stoc și din baza de date Netcup VPS
   const handleDeleteCar = (id: string) => {
     setCars(prev => prev.filter(c => c.id !== id));
-    vehicleRepository.deleteVehicle(id, 'rxm').catch(err => {
+    vehicleRepository.deleteVehicle(id, currentDealerSlug).catch(err => {
       console.warn('[App] Eroare la ștergerea vehiculului de pe Netcup VPS:', err);
     });
     showToast('Vehiculul a fost eliminat din stoc și din baza de date.');
@@ -1097,7 +1097,7 @@ export default function App() {
     const entry = createAuditEntry(
       'created',
       'Vehicul adăugat în portal',
-      `Autovehiculul ${newCar.brand} ${newCar.model} a fost înregistrat în parcul RXM.`
+      `Autovehiculul ${newCar.brand} ${newCar.model} a fost înregistrat în parcul ${tenant?.name || 'auto'}.`
     );
     const carWithAudit: VehicleItem = {
       ...newCar,
@@ -1582,13 +1582,14 @@ export default function App() {
     <WorkspaceProvider>
       <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] font-sans antialiased selection:bg-amber-500/30 selection:text-amber-200">
       
-      {/* 🎬 Cinematic Intro cu Deschidere Cortină (Split Shutter) — strict pe showroom RXM, NICIODATĂ pe ParcOS SaaS, Admin sau SuperAdmin */}
-      {viewMode === 'showroom' && (tenantId === 'rxm' || tenant?.slug === 'rxm') && !isParcosDomain(typeof window !== 'undefined' ? window.location.hostname : '', typeof window !== 'undefined' ? window.location.port : '') && (
+      {/* 🎬 Cinematic Intro (Split Shutter pe RXM / Video Reveal Slide-Up pe MPI Auto) — NICIODATĂ pe ParcOS SaaS, Admin sau SuperAdmin */}
+      {viewMode === 'showroom' && (tenantId === 'rxm' || tenant?.slug === 'rxm' || tenantId === 'mpi_auto' || tenant?.slug === 'mpi_auto') && !isParcosDomain(typeof window !== 'undefined' ? window.location.hostname : '', typeof window !== 'undefined' ? window.location.port : '') && (
         <CinematicIntro 
           key={introKey} 
           forceReplay={introKey > 0} 
           onSplit={() => setIsRevealed(true)}
           onComplete={() => setIsRevealed(true)}
+          tenant={tenant}
         />
       )}
 
@@ -1882,6 +1883,7 @@ export default function App() {
                 editCar={editingCar}
                 onUpdateCar={handleUpdateCar}
                 showToast={showToast}
+                dealer={tenant}
               />
             </>
           )}

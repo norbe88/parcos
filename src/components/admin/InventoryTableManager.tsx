@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useWorkspace, formatPriceWithCurrency } from '../../context/WorkspaceContext';
 import { VehicleItem, SEED_DEALER, SEED_VEHICLES } from '../../db/seed';
+import { DealerProfile } from '../../db/types';
 
 
 import { uploadCarImagesBatch } from '../../services/cloudMediaStorage';
@@ -46,6 +47,7 @@ import { InventoryTableView } from './inventory/InventoryTableView';
  */
 
 interface InventoryTableManagerProps {
+  dealer?: DealerProfile | null;
   cars: VehicleItem[];
   onStatusChange: (id: string, status: 'in_stock' | 'reserved' | 'sold' | 'preparing', soldPriceEur?: number, soldAt?: string) => void;
   onDeleteCar: (id: string) => void;
@@ -75,6 +77,7 @@ interface InventoryTableManagerProps {
 }
 
 export const InventoryTableManager: React.FC<InventoryTableManagerProps> = ({
+  dealer,
   cars,
   onStatusChange,
   onDeleteCar,
@@ -130,7 +133,9 @@ export const InventoryTableManager: React.FC<InventoryTableManagerProps> = ({
       typeof img === 'string' && (
         img.startsWith('/cars/') || 
         img.startsWith('/rxm/cars/') || 
-        img.includes('rxmautomobile.ro')
+        img.includes('rxmautomobile.ro') ||
+        img.includes('mpiauto.ro') ||
+        (dealer?.domain && img.includes(dealer.domain))
       )
     );
     if (hasCdnOrVpsImages) return 'cloud';
@@ -138,15 +143,16 @@ export const InventoryTableManager: React.FC<InventoryTableManagerProps> = ({
     return 'local';
   };
 
+  const effectiveDealerSlug = dealer?.slug || 'rxm';
   const localCars = useMemo(() => cars.filter(c => resolveVehicleSyncOrigin(c) === 'local'), [cars, seedIds]);
 
   const handlePublishToCloud = async (car: VehicleItem) => {
     setSyncingCarId(car.id);
     try {
       showToast(`☁️ Se uploadează fotografiile și datele mașinii ${car.brand} ${car.model}...`);
-      const cdnImages = await uploadCarImagesBatch(car.id, car.images, 'rxm');
-      const carWithCdnImages: VehicleItem = { ...car, images: cdnImages };
-      const result = await vehicleRepository.saveVehicle(carWithCdnImages, 'rxm');
+      const cdnImages = await uploadCarImagesBatch(car.id, car.images, effectiveDealerSlug);
+      const carWithCdnImages: VehicleItem = { ...car, images: cdnImages, dealerSlug: effectiveDealerSlug };
+      const result = await vehicleRepository.saveVehicle(carWithCdnImages, effectiveDealerSlug);
       if (result.success && result.storageDestination === 'cloud') {
         onVehicleUpdated?.(result.vehicle);
         showToast(`🟢 ${car.brand} ${car.model} a fost publicată cu succes în Showroom și este LIVE!`);
@@ -172,9 +178,9 @@ export const InventoryTableManager: React.FC<InventoryTableManagerProps> = ({
       const car = localCars[i];
       setBulkSyncProgress({ current: i + 1, total: localCars.length });
       try {
-        const cdnImages = await uploadCarImagesBatch(car.id, car.images, 'rxm');
-        const carWithCdnImages: VehicleItem = { ...car, images: cdnImages };
-        const result = await vehicleRepository.saveVehicle(carWithCdnImages, 'rxm');
+        const cdnImages = await uploadCarImagesBatch(car.id, car.images, effectiveDealerSlug);
+        const carWithCdnImages: VehicleItem = { ...car, images: cdnImages, dealerSlug: effectiveDealerSlug };
+        const result = await vehicleRepository.saveVehicle(carWithCdnImages, effectiveDealerSlug);
         if (result.success && result.storageDestination === 'cloud') {
           onVehicleUpdated?.(result.vehicle);
           successCount++;
@@ -676,6 +682,7 @@ export const InventoryTableManager: React.FC<InventoryTableManagerProps> = ({
 
       {/* 🔥 Modal Configurare Preț Promoțional & Oferta Săptămânii */}
       <DealPriceModal
+        dealer={dealer}
         isOpen={isDealModalOpen}
         car={dealModalCar}
         onClose={() => {

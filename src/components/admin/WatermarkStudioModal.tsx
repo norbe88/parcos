@@ -389,7 +389,7 @@ export const WatermarkStudioModal: React.FC<WatermarkStudioModalProps> = ({
                         className="absolute top-0.5 right-0.5 px-1 py-0.2 rounded bg-amber-500 text-black text-[8px] font-black leading-tight shadow"
                         title="Această fotografie are watermark aplicat"
                       >
-                        RXM
+                        {dealer?.slug === 'mpi_auto' ? 'MPI' : (dealer?.name ? dealer.name.split(' ')[0] : 'RXM')}
                       </span>
                     )}
                   </button>
@@ -679,7 +679,7 @@ export const WatermarkStudioModal: React.FC<WatermarkStudioModalProps> = ({
                 className="w-full min-h-[38px] py-1.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 active:scale-[0.98] border border-white/10 text-zinc-400 hover:text-zinc-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all touch-manipulation cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Descarcă poza curentă cu sigla RXM</span>
+                <span>Descarcă poza curentă cu sigla {dealer?.name ? dealer.name.split(' ')[0] : 'dealerului'}</span>
               </button>
             </div>
           </div>

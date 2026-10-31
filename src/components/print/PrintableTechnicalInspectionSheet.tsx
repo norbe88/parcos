@@ -15,8 +15,9 @@ export const PrintableTechnicalInspectionSheet: React.FC<PrintableTechnicalInspe
   dealer = SEED_DEALER
 }) => {
   const currentYear = new Date().getFullYear();
+  const dealerPrefix = (dealer.slug || 'DEALER').toUpperCase().replace('_', '');
   const inspectionDate = buyer.inspectionDate || buyer.contractDate || new Date().toISOString().split('T')[0];
-  const reportNumber = `RXM-IT-${currentYear}-${car.stockNumber || car.vin.slice(-4).toUpperCase()}`;
+  const reportNumber = `${dealerPrefix}-IT-${currentYear}-${car.stockNumber || car.vin.slice(-4).toUpperCase()}`;
   const inspectorName = buyer.inspectorName || 'Ing. Mihai Radu (Inspector Tehnic Auto)';
   const formattedMileage = formatMileage(buyer.deliveryMileageKm || car.mileageKm);
 

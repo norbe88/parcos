@@ -1,17 +1,20 @@
 import React from 'react';
 import { PackageCheck, Key, Fuel } from 'lucide-react';
 import { BuyerData } from '../../print/types';
+import { DealerProfile } from '../../../db/types';
 
 interface AccessoriesSidebarSectionProps {
   buyerData: BuyerData;
   setBuyerData: React.Dispatch<React.SetStateAction<BuyerData>>;
   activeDocTab: string;
+  dealer?: DealerProfile | null;
 }
 
 export const AccessoriesSidebarSection: React.FC<AccessoriesSidebarSectionProps> = ({
   buyerData,
   setBuyerData,
-  activeDocTab
+  activeDocTab,
+  dealer
 }) => {
   return (
     <div className={`bg-black/40 border p-4 rounded-xl space-y-3.5 transition-all ${
@@ -152,7 +155,7 @@ export const AccessoriesSidebarSection: React.FC<AccessoriesSidebarSectionProps>
           onChange={(e) => setBuyerData(prev => ({ ...prev, fuelLevel: e.target.value }))}
           className="w-full bg-[#18181b] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-amber-400 focus:outline-none cursor-pointer"
         >
-          <option value="Minim 1/4 rezervor">Minim 1/4 rezervor (Standard RXM)</option>
+          <option value="Minim 1/4 rezervor">Minim 1/4 rezervor (Standard {dealer?.name ? dealer.name.split(' ')[0] : 'Showroom'})</option>
           <option value="Aproximativ 1/2 rezervor">Aproximativ 1/2 rezervor</option>
           <option value="Rezervor Plin (1/1)">Rezervor Plin (1/1)</option>
           <option value="Rezervă aprinsă (Minim combustibil)">Rezervă aprinsă (Minim combustibil)</option>

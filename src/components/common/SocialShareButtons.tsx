@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Share2, Facebook, Instagram, Copy, Check, MessageCircle } from 'lucide-react';
-import { VehicleItem } from '../../db/types';
+import { VehicleItem, DealerProfile } from '../../db/types';
+import { SEED_DEALER } from '../../db/seed';
 import { getStockNumber } from '../../utils/helpers';
 import { generateInstagramCaption } from '../../utils/socialCopyGenerator';
 
@@ -9,6 +10,7 @@ interface SocialShareButtonsProps {
   className?: string;
   showToast?: (msg: string) => void;
   variant?: 'compact' | 'full';
+  dealer?: DealerProfile | Partial<DealerProfile> | null;
 }
 
 // 🛡️ Helper copiere în clipboard cu dublu fallback (Modern API + execCommand)
@@ -47,19 +49,24 @@ export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
   car,
   className = '',
   showToast,
-  variant = 'compact'
+  variant = 'compact',
+  dealer = SEED_DEALER
 }) => {
   const [copied, setCopied] = useState(false);
 
+  const activeDealer = (dealer || SEED_DEALER) as DealerProfile;
+  const dealerName = activeDealer.name || 'Showroom Auto';
+  const locationName = activeDealer.serviceLocation || activeDealer.address?.split(',')[0] || 'România';
   const stockRef = getStockNumber(car);
-  const shareTitle = `${car.brand} ${car.model} (${car.year}) • RXM Automobile Cluj`;
-  const shareText = `Descoperă acest ${car.brand} ${car.model} la RXM Automobile Cluj-Napoca (Ref: ${stockRef}, Preț: ${car.priceEur.toLocaleString('ro-RO')} €).`;
+  const shareTitle = `${car.brand} ${car.model} (${car.year}) • ${dealerName}`;
+  const shareText = `Descoperă acest ${car.brand} ${car.model} la ${dealerName} (${locationName}) (Ref: ${stockRef}, Preț: ${car.priceEur.toLocaleString('ro-RO')} €).`;
 
   // URL de partajare securizat
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://rxmautomobile.ro';
+  const fallbackDomain = activeDealer.domain || (activeDealer.slug === 'mpi_auto' ? 'mpiauto.ro' : (activeDealer.slug === 'rxm' ? 'rxmautomobile.ro' : 'parcos.ro'));
+  const origin = typeof window !== 'undefined' ? window.location.origin : `https://${fallbackDomain}`;
   const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
   const publicShareUrl = isLocal 
-    ? `https://rxmautomobile.ro/#catalog?car=${car.id}`
+    ? `https://${fallbackDomain}/#catalog?car=${car.id}`
     : `${origin}/#catalog?car=${car.id}`;
 
   // URL oficial Facebook Sharer
@@ -81,7 +88,7 @@ export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
 
   const handleShareInstagram = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
-    const captionData = generateInstagramCaption(car);
+    const captionData = generateInstagramCaption(car, activeDealer, { publicBaseUrl: publicShareUrl });
     const instaText = captionData.fullCaption;
     await copyToClipboard(instaText);
     setCopied(true);

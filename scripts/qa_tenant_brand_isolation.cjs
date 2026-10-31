@@ -156,6 +156,79 @@ assert(vehicleDetailModalTs.includes('dealerName: dealer?.name'), 'VehicleDetail
 assert(vehicleDetailModalTs.includes('<IntellectualPropertyDisclaimer dealer={dealer} />'), 'VehicleDetailModal transmite dealer către IntellectualPropertyDisclaimer');
 assert(footerTs.includes('<IntellectualPropertyDisclaimer dealer={dealer} />'), 'Footer transmite dealer către IntellectualPropertyDisclaimer');
 
+// ─── 6. Verificare Audit Profund (Social Share, Delivery FAQ, Print & Calendar) ─
+console.log('\n🔍 [SUITE 6] Audit Profund Eliminare Reziduuri RXM (Share, Delivery, Doc Print)');
+
+const socialShareTs = readFile('src/components/common/SocialShareButtons.tsx');
+assert(!socialShareTs.includes('• RXM Automobile Cluj'), 'SocialShareButtons nu are shareTitle hardcodat RXM');
+assert(!socialShareTs.includes('la RXM Automobile Cluj-Napoca'), 'SocialShareButtons nu are shareText hardcodat RXM');
+assert(!socialShareTs.includes(`https://rxmautomobile.ro/#catalog?car=`), 'SocialShareButtons nu forțează domeniul rxmautomobile.ro');
+assert(socialShareTs.includes('dealer?: DealerProfile'), 'SocialShareButtons acceptă prop dealer');
+assert(vehicleDetailModalTs.includes('<SocialShareButtons car={selectedCar} dealer={dealer}'), 'VehicleDetailModal transmite dealer={dealer} către SocialShareButtons');
+
+const deliveryTs = readFile('src/components/delivery/NationalDeliveryPage.tsx');
+assert(!deliveryTs.includes('emisă de RXM AUTO MOBILE'), 'NationalDeliveryPage FAQ nu conține garanție emisă de RXM AUTO MOBILE');
+assert(!deliveryTs.includes('/rxm/images/rxm-emblem.png'), 'NationalDeliveryPage nu are thumbnail hardcodat cu emblemă RXM');
+assert(deliveryTs.includes('getDeliveryFaqs'), 'NationalDeliveryPage utilizează generator dinamic de FAQ per dealer');
+
+const socialCopyGenTs = readFile('src/utils/socialCopyGenerator.ts');
+assert(!socialCopyGenTs.includes("'rxmautomobile',"), 'socialCopyGenerator nu conține hashtag hardcodat rxmautomobile');
+assert(!socialCopyGenTs.includes("'contact@rxmautomobile.ro'"), 'socialCopyGenerator nu conține email fallback fix de RXM');
+
+const helpersFullTs = readFile('src/utils/helpers.ts');
+assert(!helpersFullTs.includes('Test Drive RXM:'), 'helpers.ts nu are titlu hardcodat Test Drive RXM în linkurile de calendar');
+assert(!helpersFullTs.includes('@rxmautomobile.ro'), 'helpers.ts nu are UID fix de rxmautomobile.ro în generarea .ics');
+assert(helpersFullTs.includes("car.dealerSlug === 'mpi_auto' ? 'MPI'"), 'helpers.ts getStockNumber generează prefixul MPI pentru mpi_auto');
+
+const gdprPrintTs = readFile('src/components/print/PrintableGdprConsent.tsx');
+assert(!gdprPrintTs.includes('src="/images/rxm-logo.png"'), 'PrintableGdprConsent nu forțează logo-ul RXM pe antet');
+assert(!gdprPrintTs.includes('RXM Automobile &bull; Conform'), 'PrintableGdprConsent nu conține RXM în subsolul de conformitate');
+
+const warrantyPrintTs = readFile('src/components/print/PrintableWarrantyCertificate.tsx');
+assert(!warrantyPrintTs.includes('src="/images/rxm-logo.png"'), 'PrintableWarrantyCertificate nu forțează logo-ul RXM');
+assert(!warrantyPrintTs.includes('SERIE: RXM-GAR-'), 'PrintableWarrantyCertificate generează seria dinamic per dealerPrefix');
+
+// ─── 7. Verificare Audit Gestiune Stoc, Admin & Salvare Multi-Tenant ─────────
+console.log('\n🔍 [SUITE 7] Audit Gestiune Stoc, Admin & Persistență Multi-Tenant');
+
+const appTs = readFile('src/App.tsx');
+assert(appTs.includes('vehicleRepository.saveVehicle(updatedCar, currentDealerSlug)'), 'App.tsx persistă vehiculul folosind currentDealerSlug');
+assert(appTs.includes('vehicleRepository.deleteVehicle(id, currentDealerSlug)'), 'App.tsx șterge vehiculul folosind currentDealerSlug');
+assert(appTs.includes('dealer={tenant}'), 'App.tsx transmite dealer={tenant} către AddVehicleModal');
+
+const addVehicleTs = readFile('src/components/admin/AddVehicleModal.tsx');
+assert(addVehicleTs.includes('dealer?: DealerProfile | null'), 'AddVehicleModal acceptă prop dealer');
+assert(addVehicleTs.includes("dealerSlug === 'mpi_auto' ? 'MPI'"), 'AddVehicleModal deduce dealerPrefix MPI pentru mpi_auto');
+assert(!addVehicleTs.includes("saveVehicle(created, 'rxm')"), 'AddVehicleModal nu hardcodează salvarea pe tenant rxm (quick save)');
+assert(!addVehicleTs.includes("saveVehicle(savedCar, 'rxm')"), 'AddVehicleModal nu hardcodează salvarea pe tenant rxm (publish)');
+assert(!addVehicleTs.includes("uploadCarImagesBatch(\n          carDraftId,\n          newImages,\n          'rxm'"), 'AddVehicleModal nu uploadează poze cu tenant fix rxm');
+
+const adminPortalTs = readFile('src/components/admin/AdminPortal.tsx');
+assert(adminPortalTs.includes('dealer={activeDealer}'), 'AdminPortal transmite dealer={activeDealer} către InventoryTableManager');
+assert(!adminPortalTs.includes('pentru RXM Auto Mobile de Carvana S.R.L.'), 'AdminPortal nu conține text hardcodat pentru RXM Auto Mobile');
+
+const invTableTs = readFile('src/components/admin/InventoryTableManager.tsx');
+assert(invTableTs.includes('dealer?: DealerProfile | null'), 'InventoryTableManager acceptă prop dealer');
+assert(invTableTs.includes('saveVehicle(carWithCdnImages, effectiveDealerSlug)'), 'InventoryTableManager salvează în baza de date a tenantului activ');
+
+const salesDocsTs = readFile('src/components/modals/SalesDocumentsModal.tsx');
+assert(!salesDocsTs.includes("stockNumber: 'RXM-MANUAL'"), 'SalesDocumentsModal nu hardcodează RXM-MANUAL');
+assert(salesDocsTs.includes("dealerPrefix = dealer?.slug === 'mpi_auto' ? 'MPI'"), 'SalesDocumentsModal calculează prefixul MPI');
+
+const buyerDataTs = readFile('src/components/modals/sales-docs/BuyerDataSidebarSection.tsx');
+assert(!buyerDataTs.includes('<span>Factură & Garanție RXM</span>'), 'BuyerDataSidebarSection nu are antet hardcodat RXM');
+assert(buyerDataTs.includes('dealer?.name ? dealer.name.split'), 'BuyerDataSidebarSection afișează dinamic numele dealerului');
+
+const vehicleDataTs = readFile('src/components/modals/sales-docs/VehicleDataSidebarSection.tsx');
+assert(!vehicleDataTs.includes('invoiceNumber: `RXM-FT-'), 'VehicleDataSidebarSection nu hardcodează RXM-FT-');
+assert(!vehicleDataTs.includes('placeholder="CJ 01 RXM"'), 'VehicleDataSidebarSection nu are placeholder fix CJ 01 RXM');
+
+const accessoriesTs = readFile('src/components/modals/sales-docs/AccessoriesSidebarSection.tsx');
+assert(!accessoriesTs.includes('(Standard RXM)'), 'AccessoriesSidebarSection nu conține Standard RXM');
+
+const dealPriceTs = readFile('src/components/admin/DealPriceModal.tsx');
+assert(!dealPriceTs.includes("'SUPER DEAL RXM'"), 'DealPriceModal nu are preset hardcodat SUPER DEAL RXM');
+
 console.log('\n===============================================================');
 console.log(`REZULTAT QA IZOLARE BRAND & TEMĂ: ${testsPassed}/${testsRun} TESTE TRECUTE!`);
 if (testsFailed > 0) {

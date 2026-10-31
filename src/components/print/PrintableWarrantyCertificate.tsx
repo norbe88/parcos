@@ -14,10 +14,13 @@ export const PrintableWarrantyCertificate: React.FC<PrintableWarrantyCertificate
   buyer,
   dealer = SEED_DEALER
 }) => {
+  const dealerPrefix = (dealer.slug || 'DEALER').toUpperCase().replace('_', '');
   const currentDate = buyer.contractDate || new Date().toISOString().split('T')[0];
   const warrantyStartDate = buyer.warrantyStartDate || currentDate;
-  const invoiceNumber = buyer.invoiceNumber || `RXM-FT-${new Date().getFullYear()}-${car.stockNumber || car.vin.slice(-4).toUpperCase()}`;
+  const invoiceNumber = buyer.invoiceNumber || `${dealerPrefix}-FT-${new Date().getFullYear()}-${car.stockNumber || car.vin.slice(-4).toUpperCase()}`;
   const formattedMileage = formatMileage(buyer.deliveryMileageKm || car.mileageKm);
+  const effectiveLogo = dealer.logoUrl || '/images/rxm-logo.png';
+  const legalAddress = dealer.legalAddress || dealer.address || 'jud. Cluj';
 
   return (
     <div className="printable-doc bg-white text-black max-w-[210mm] mx-auto text-[10.5px] leading-snug font-serif print:p-0 print:max-w-none">
@@ -27,13 +30,13 @@ export const PrintableWarrantyCertificate: React.FC<PrintableWarrantyCertificate
       {/* ========================================================================= */}
       <div className="p-6 sm:p-7 print:p-5 bg-white border border-zinc-300 print:border-none shadow-md print:shadow-none min-h-[260mm] max-h-[268mm] flex flex-col justify-between overflow-hidden">
         <div>
-          {/* Antet Oficial Dealer RXM */}
+          {/* Antet Oficial Dealer */}
           <div className="border-b-2 border-black pb-2 mb-2.5">
             <div className="flex justify-between items-center gap-4">
               <div className="flex items-center gap-3">
                 <img 
-                  src="/images/rxm-logo.png" 
-                  alt="RXM Auto Mobile" 
+                  src={effectiveLogo} 
+                  alt={dealer.name} 
                   className="h-10 object-contain"
                   onError={(e) => {
                     // Fallback la text dacă imaginea nu este încărcată
@@ -45,24 +48,24 @@ export const PrintableWarrantyCertificate: React.FC<PrintableWarrantyCertificate
                     {dealer.name}
                   </h1>
                   <p className="text-[9.5px] text-zinc-700 mt-0.5 font-sans">
-                    Dealer Autovehicule Rulate • Showroom Vânzări Cluj-Napoca
+                    Dealer Autovehicule Rulate • Showroom Vânzări {dealer.serviceLocation || 'Cluj-Napoca'}
                   </p>
                 </div>
               </div>
               <div className="text-right text-[9px] leading-tight text-zinc-800 font-sans">
-                <div><strong>Sediu Social:</strong> {dealer.legalAddress || 'loc. Florești, str. Gheorghe Doja nr. 1I, ap. 12, jud. Cluj'}</div>
-                <div><strong>Reg. Com.:</strong> {dealer.regCom || 'J12/3012/13.07.2023'} • <strong>C.U.I.:</strong> {dealer.cui.replace(/^RO/, '')}</div>
-                <div><strong>Showroom Cluj:</strong> {dealer.address}</div>
-                <div><strong>Tel:</strong> {dealer.phonePrimary} / {dealer.phoneSecondary}</div>
+                <div><strong>Sediu Social:</strong> {legalAddress}</div>
+                <div>{dealer.regCom ? <><strong>Reg. Com.:</strong> {dealer.regCom} &bull; </> : null}<strong>C.U.I.:</strong> {dealer.cui.replace(/^RO/, '')}</div>
+                <div><strong>Showroom:</strong> {dealer.showroomAddress || dealer.address}</div>
+                <div><strong>Tel:</strong> {dealer.phonePrimary} {dealer.phoneSecondary ? `/ ${dealer.phoneSecondary}` : ''}</div>
               </div>
             </div>
           </div>
 
-          {/* Mesaj de Întâmpinare & Cadru Legal (Text Standard Madalina) */}
+          {/* Mesaj de Întâmpinare & Cadru Legal */}
           <div className="bg-zinc-50 border border-zinc-200 p-2 mb-2 text-[9.5px] text-justify leading-snug">
             <p className="font-bold text-[10px] mb-0.5 tracking-wide">STIMATE CLIENT!</p>
             <p>
-              Societatea comercială <strong>{dealer.name}</strong> cu sediul în {dealer.legalAddress || 'loc. Florești, str. Gheorghe Doja nr. 1I, ap. 12'}, înregistrată la Registrul Comerţului <strong>{dealer.regCom || 'J12/3012/13.07.2023'}</strong>, având C.U.I.: <strong>{dealer.cui.replace(/^RO/, '')}</strong> în calitate de vânzător/comerciant, acordă o garanţie pentru autovehiculul achiziţionat de dumneavoastră, pentru un termen de <strong>1 an sau 10.000 km</strong>, garanția se aplică de la data cumpărării acestuia, se acordă o singură dată şi nu este transmisibilă.
+              Societatea comercială <strong>{dealer.name}</strong> cu sediul în {legalAddress}, {dealer.regCom ? <>înregistrată la Registrul Comerţului <strong>{dealer.regCom}</strong>, </> : null}având C.U.I.: <strong>{dealer.cui.replace(/^RO/, '')}</strong> în calitate de vânzător/comerciant, acordă o garanţie pentru autovehiculul achiziţionat de dumneavoastră, pentru un termen de <strong>1 an sau 10.000 km</strong>, garanția se aplică de la data cumpărării acestuia, se acordă o singură dată şi nu este transmisibilă.
             </p>
             <p className="mt-0.5">
               Vă felicităm pentru achiziționarea unui autovehicul al firmei noastre. Ne face plăcere să vă oferim serviciile noastre şi vă dorim să beneficiaţi cu plăcere de noul autoturism.
@@ -86,7 +89,7 @@ export const PrintableWarrantyCertificate: React.FC<PrintableWarrantyCertificate
           <div className="border border-black p-2.5 my-2">
             <div className="font-bold uppercase text-[10px] border-b border-black pb-0.5 mb-1.5 tracking-wide flex justify-between items-center">
               <span>Datele certificatului</span>
-              <span className="font-mono text-[9px] text-zinc-600 font-normal">SERIE: RXM-GAR-{car.vin.slice(-6)}</span>
+              <span className="font-mono text-[9px] text-zinc-600 font-normal">SERIE: {dealerPrefix}-GAR-{car.vin.slice(-6)}</span>
             </div>
 
             <div className="grid grid-cols-1 gap-1 text-[10px]">

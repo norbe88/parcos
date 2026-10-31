@@ -2,6 +2,7 @@ import React from 'react';
 import { User, DollarSign, ShieldCheck } from 'lucide-react';
 import { VehicleItem } from '../../../db/seed';
 import { BuyerData } from '../../print/types';
+import { DealerProfile } from '../../../db/types';
 import { ClientIdOcrScanner } from '../ClientIdOcrScanner';
 import { ParsedClientIdDocument } from '../../../utils/clientIdOcrEngine';
 
@@ -13,6 +14,8 @@ interface BuyerDataSidebarSectionProps {
   onOcrSuccess: (parsed: ParsedClientIdDocument) => void;
   onPriceEurChange: (eur: number) => void;
   showToast: (msg: string) => void;
+  dealer?: DealerProfile | null;
+  dealerPrefix?: string;
 }
 
 export const BuyerDataSidebarSection: React.FC<BuyerDataSidebarSectionProps> = ({
@@ -22,7 +25,9 @@ export const BuyerDataSidebarSection: React.FC<BuyerDataSidebarSectionProps> = (
   wasAutoFilled,
   onOcrSuccess,
   onPriceEurChange,
-  showToast
+  showToast,
+  dealer,
+  dealerPrefix = 'FT'
 }) => {
   return (
     <>
@@ -164,12 +169,12 @@ export const BuyerDataSidebarSection: React.FC<BuyerDataSidebarSectionProps> = (
         </div>
       </div>
 
-      {/* Date Specifice Garanție & Facturare RXM */}
+      {/* Date Specifice Garanție & Facturare */}
       <div className="bg-black/40 border border-white/[0.08] p-4 rounded-xl space-y-3">
         <div className="text-xs font-bold text-white flex items-center justify-between pb-2 border-b border-white/[0.06]">
           <div className="flex items-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-            <span>Factură & Garanție RXM</span>
+            <span>Factură & Garanție {dealer?.name ? dealer.name.split(' ')[0] : 'Showroom'}</span>
           </div>
           <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20 font-mono font-bold">
             1 An / 10.000 KM
@@ -183,7 +188,7 @@ export const BuyerDataSidebarSection: React.FC<BuyerDataSidebarSectionProps> = (
             value={buyerData.invoiceNumber || ''}
             onChange={(e) => setBuyerData(prev => ({ ...prev, invoiceNumber: e.target.value }))}
             className="w-full bg-[#18181b] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono font-semibold mt-0.5 focus:border-amber-400 focus:outline-none"
-            placeholder="Ex: RXM-FT-2026-089"
+            placeholder={`Ex: ${dealerPrefix}-FT-${new Date().getFullYear()}-089`}
           />
         </div>
 

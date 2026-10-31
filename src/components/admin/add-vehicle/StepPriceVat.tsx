@@ -70,7 +70,7 @@ export const StepPriceVat: React.FC<StepPriceVatProps> = ({
       powerHp: 150,
       engineCc: 1995,
       color: 'Negru',
-      vin: 'RXM-DRAFT-0000',
+      vin: 'DRAFT-VIN-0000',
       images: [],
       features: {
         safety: [],
@@ -111,7 +111,7 @@ export const StepPriceVat: React.FC<StepPriceVatProps> = ({
       powerHp: 150,
       engineCc: 1995,
       color: 'Negru',
-      vin: 'RXM-DRAFT-0000',
+      vin: 'DRAFT-VIN-0000',
       images: [],
       features: {
         safety: [],

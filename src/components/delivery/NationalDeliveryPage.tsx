@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Truck, ShieldCheck, Video, FileCheck, CreditCard, 
   MapPin, Clock, ArrowLeft, ArrowRight, CheckCircle2, 
@@ -21,13 +21,13 @@ interface FaqItem {
   answer: string;
 }
 
-const DELIVERY_FAQS: FaqItem[] = [
+const getDeliveryFaqs = (dealerName: string, showroomCity = 'Cluj-Napoca'): FaqItem[] => [
   {
     question: "Livrati mașina chiar până la domiciliul meu?",
     answer: "Da. Livrăm în absolut orice localitate din România — de la marile orașe (București, Timișoara, Iași, Brașov, Constanța, Craiova) până la sate și comune. Autovehiculul este transportat pe platformă auto specializată, asigurată complet CMR, sau prin șofer propriu delegat."
   },
   {
-    question: "Pot cumpăra mașina fără să mă deplasez deloc la Cluj-Napoca?",
+    question: `Pot cumpăra mașina fără să mă deplasez deloc la ${showroomCity}?`,
     answer: "Categoric da! Peste 40% dintre clienții noștri cumpără la distanță. Vă trimitem pe WhatsApp o video-prezentare detaliată (pornire motor la rece, compartiment motor, caroserie, interior, eventuale urme de uzură fără filtre ascunse), raportul istoric de kilometraj carVertical/autoDNA și toate documentele autoturismului."
   },
   {
@@ -36,7 +36,7 @@ const DELIVERY_FAQS: FaqItem[] = [
   },
   {
     question: "Garanția comercială de până la 36 de luni este valabilă și în orașul meu?",
-    answer: "Da. Garanția comercială scrisă emisă de RXM AUTO MOBILE (12 luni standard inclus, cu posibilitate de extindere până la 36 de luni) este valabilă pe întreg teritoriul României și poate fi accesată în orice service auto autorizat R.A.R. din județul dumneavoastră, fără a fi nevoie să reveniți la Cluj-Napoca, conform certificatului de garanție eliberat la predare."
+    answer: `Da. Garanția comercială scrisă emisă de ${dealerName} (12 luni standard inclus, cu posibilitate de extindere până la 36 de luni) este valabilă pe întreg teritoriul României și poate fi accesată în orice service auto autorizat R.A.R. din județul dumneavoastră, fără a fi nevoie să reveniți la ${showroomCity}, conform certificatului de garanție eliberat la predare.`
   },
   {
     question: "Pot obține finanțare în rate sau leasing de la distanță?",
@@ -44,7 +44,7 @@ const DELIVERY_FAQS: FaqItem[] = [
   },
   {
     question: "Cât durează livrarea și cum procedez cu numerele de înmatriculare?",
-    answer: "Livrarea se efectuează în termen de 24 până la 72 de ore de la perfectarea actelor, în funcție de distanța față de Cluj-Napoca. Odată cu mașina, primiți dosarul complet pentru înmatriculare definitivă și, dacă este necesar, numere provizorii (roșii) valabile cu RCA activ, astfel încât să puteți circula imediat."
+    answer: `Livrarea se efectuează în termen de 24 până la 72 de ore de la perfectarea actelor, în funcție de distanța față de ${showroomCity}. Odată cu mașina, primiți dosarul complet pentru înmatriculare definitivă și, dacă este necesar, numere provizorii (roșii) valabile cu RCA activ, astfel încât să puteți circula imediat.`
   }
 ];
 
@@ -87,6 +87,8 @@ export const NationalDeliveryPage: React.FC<NationalDeliveryPageProps> = ({
     setOpenFaqIndex(prev => prev === index ? null : index);
   };
 
+  const showroomCity = dealer.serviceLocation || dealer.showroomAddress?.split(',')[0] || 'Cluj-Napoca';
+  const deliveryFaqs = useMemo(() => getDeliveryFaqs(dealer.name, showroomCity), [dealer.name, showroomCity]);
   const availableCars = cars.filter(c => c.status === 'in_stock').slice(0, 4);
 
   return (
@@ -134,7 +136,7 @@ export const NationalDeliveryPage: React.FC<NationalDeliveryPageProps> = ({
           </h1>
 
           <p className="text-sm sm:text-base md:text-lg text-zinc-300 max-w-3xl leading-relaxed mb-8">
-            Nu trebuie să bați drumul până la Cluj-Napoca. Alegi mașina online, primești o{' '}
+            Nu trebuie să bați drumul până la {showroomCity}. Alegi mașina online, primești o{' '}
             <strong className="text-white">video-prezentare reală fără filtre pe WhatsApp</strong>, raportul de kilometraj verificat, iar noi ți-o aducem direct acasă — cu acte complete și{' '}
             <strong className="text-amber-300">garanție scrisă de până la 36 luni valabilă național</strong>.
           </p>
@@ -447,7 +449,7 @@ export const NationalDeliveryPage: React.FC<NationalDeliveryPageProps> = ({
               >
                 <div className="relative aspect-[16/10] bg-zinc-900 overflow-hidden">
                   <img 
-                    src={car.images[0] || '/rxm/images/rxm-emblem.png'} 
+                    src={car.images[0] || (dealer.logoUrl || '/images/mpi-logo.png')} 
                     alt={`${car.brand} ${car.model}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
@@ -507,7 +509,7 @@ export const NationalDeliveryPage: React.FC<NationalDeliveryPageProps> = ({
         </div>
 
         <div className="space-y-3">
-          {DELIVERY_FAQS.map((faq, index) => {
+          {deliveryFaqs.map((faq: FaqItem, index: number) => {
             const isOpen = openFaqIndex === index;
             return (
               <div 

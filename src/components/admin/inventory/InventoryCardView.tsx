@@ -212,7 +212,7 @@ export const InventoryCardView: React.FC<InventoryCardViewProps> = ({
                           ? 'bg-amber-500/25 text-amber-300 border-amber-500/50 hover:bg-amber-500/35 animate-pulse'
                           : 'bg-black/80 hover:bg-black/95 text-zinc-300 hover:text-white border-white/15 hover:border-amber-400'
                       }`}
-                      title={c.images.length === 0 ? "Adaugă fotografii pentru această mașină" : "Deschide galeria foto & editorul de plăcuță RXM"}
+                      title={c.images.length === 0 ? "Adaugă fotografii pentru această mașină" : "Deschide galeria foto & editorul de plăcuță dealer"}
                     >
                       <Images className="w-3 h-3 text-amber-400" />
                       <span>{c.images.length === 0 ? '+ Adaugă Poze' : `${c.images.length} foto`}</span>
@@ -609,12 +609,12 @@ export const InventoryCardView: React.FC<InventoryCardViewProps> = ({
                       <span className="truncate">Piață</span>
                     </button>
 
-                    {/* Buton Studio Editare Foto (Crop, Reordonare, Plăcuță RXM) */}
+                    {/* Buton Studio Editare Foto (Crop, Reordonare, Plăcuță Dealer) */}
                     <button
                       type="button"
                       onClick={() => onOpenGallery?.(c)}
                       className="min-h-[38px] px-1 rounded-xl bg-white/[0.04] hover:bg-purple-500/15 text-zinc-300 hover:text-purple-300 border border-white/[0.08] hover:border-purple-500/30 text-xs font-semibold flex items-center justify-center gap-1 transition-all active:scale-[0.98] touch-manipulation cursor-pointer"
-                      title="Studio Foto: decupare (crop), ștergere, reordonare și plăcuță RXM"
+                      title="Studio Foto: decupare (crop), ștergere, reordonare și plăcuță dealer"
                     >
                       <Images className="w-3.5 h-3.5 text-purple-400 shrink-0" />
                       <span className="truncate">Foto</span>

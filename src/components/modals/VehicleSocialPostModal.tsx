@@ -576,8 +576,8 @@ export const VehicleSocialPostModal: React.FC<VehicleSocialPostModalProps> = ({
               {/* Coloana Dreapta: Mockup Previzualizare Facebook */}
               <div className="lg:col-span-5 bg-white/[0.02] border border-white/08 rounded-xl p-4 flex flex-col space-y-3">
                 <div className="flex items-center gap-2.5 pb-2 border-b border-white/08">
-                  <div className="w-9 h-9 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center font-bold text-blue-400 text-xs">
-                    RXM
+                  <div className="w-9 h-9 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center font-bold text-blue-400 text-xs uppercase">
+                    {(dealer.slug === 'mpi_auto' || dealer.name?.includes('MPI')) ? 'MPI' : (dealer.name ? dealer.name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 3).join('') : 'PARC')}
                   </div>
                   <div>
                     <div className="text-xs font-bold text-white leading-tight">{dealer.name}</div>
@@ -733,13 +733,13 @@ export const VehicleSocialPostModal: React.FC<VehicleSocialPostModalProps> = ({
                 <div className="flex items-center justify-between pb-2 border-b border-white/08">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 p-[2px]">
-                      <div className="w-full h-full rounded-full bg-black flex items-center justify-center font-bold text-[10px] text-white">
-                        RXM
+                      <div className="w-full h-full rounded-full bg-black flex items-center justify-center font-bold text-[10px] text-white uppercase">
+                        {(dealer.slug === 'mpi_auto' || dealer.name?.includes('MPI')) ? 'MPI' : (dealer.name ? dealer.name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 3).join('') : 'PARC')}
                       </div>
                     </div>
                     <div>
                       <div className="text-xs font-bold text-white leading-tight">{dealer.tiktokHandle?.replace('@', '') || dealer.slug || 'showroom'}</div>
-                      <div className="text-[10px] text-zinc-500">Cluj-Napoca, România</div>
+                      <div className="text-[10px] text-zinc-500">{dealer.serviceLocation || dealer.address?.split(',')[0] || 'România'}</div>
                     </div>
                   </div>
                   <span className="text-[10px] text-zinc-500 font-mono">

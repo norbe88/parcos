@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { X, Flame, Sparkles, Tag, TrendingDown, AlertTriangle, Check, CheckCircle2 } from 'lucide-react';
 import { VehicleItem } from '../../db/seed';
+import { DealerProfile } from '../../db/types';
 import { getStockNumber } from '../../utils/helpers';
 
 export interface DealPricingData {
@@ -18,19 +19,8 @@ interface DealPriceModalProps {
   activeDealsCount: number;
   maxDealsLimit?: number;
   showToast?: (msg: string) => void;
+  dealer?: DealerProfile | null;
 }
-
-const BADGE_PRESETS = [
-  'OFERTA SĂPTĂMÂNII',
-  'REDUCERE SPECIALĂ',
-  'PREȚ PROMOȚIONAL',
-  'SUPER DEAL RXM',
-  'LICHIDARE STOC',
-  'PROASPĂT INTRAT',
-  'KM REALI CERTIFICAȚI',
-  'TOP DOTĂRI PREMIUM',
-  'SUPER OFERTĂ CLUJ'
-];
 
 export const DealPriceModal: React.FC<DealPriceModalProps> = ({
   isOpen,
@@ -39,8 +29,23 @@ export const DealPriceModal: React.FC<DealPriceModalProps> = ({
   onSaveDeal,
   activeDealsCount,
   maxDealsLimit = 3,
-  showToast
+  showToast,
+  dealer
 }) => {
+  const presets = useMemo(() => {
+    const dealerName = dealer?.name ? dealer.name.split(' ')[0] : 'SHOWROOM';
+    return [
+      'OFERTA SĂPTĂMÂNII',
+      'REDUCERE SPECIALĂ',
+      'PREȚ PROMOȚIONAL',
+      `SUPER DEAL ${dealerName}`,
+      'LICHIDARE STOC',
+      'PROASPĂT INTRAT',
+      'KM REALI CERTIFICAȚI',
+      'TOP DOTĂRI PREMIUM',
+      'SUPER OFERTĂ'
+    ];
+  }, [dealer]);
   const [isDealActive, setIsDealActive] = useState<boolean>(false);
   const [newPrice, setNewPrice] = useState<string>('');
   const [oldPrice, setOldPrice] = useState<string>('');
@@ -306,7 +311,7 @@ export const DealPriceModal: React.FC<DealPriceModalProps> = ({
 
               {/* Preset-uri Rapide */}
               <div className="flex flex-wrap gap-1.5">
-                {BADGE_PRESETS.map((preset) => (
+                {presets.map((preset) => (
                   <button
                     key={preset}
                     type="button"

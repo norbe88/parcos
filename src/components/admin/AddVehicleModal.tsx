@@ -23,6 +23,7 @@ import { uploadCarImagesBatch } from '../../services/cloudMediaStorage';
 import { vehicleRepository } from '../../services/vehicleRepository';
 import { normalizeBrand } from '../../utils/brandNormalizer';
 import { sanitizePublicOcrError } from '../../services/demoOcrService';
+import { DealerProfile } from '../../db/types';
 
 interface AddVehicleModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ interface AddVehicleModalProps {
   editCar?: VehicleItem | null;
   onUpdateCar?: (car: VehicleItem) => void;
   showToast: (msg: string) => void;
+  dealer?: DealerProfile | null;
 }
 
 export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
@@ -39,11 +41,16 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
   onAddCar,
   editCar = null,
   onUpdateCar,
-  showToast
+  showToast,
+  dealer = null
 }) => {
   const isEditing = !!editCar;
+  const dealerSlug = dealer?.slug || editCar?.dealerSlug || 'rxm';
+  const dealerPrefix = dealerSlug === 'mpi_auto' ? 'MPI' : dealerSlug === 'top_auto' ? 'ALD' : (dealer?.name ? dealer.name.replace(/[^A-Za-z0-9]/g, '').slice(0, 3).toUpperCase() : 'RXM');
+  const draftStorageKey = `${dealerSlug}_vehicle_draft_in_progress`;
+
   const [formStep, setFormStep] = useState<1 | 2 | 3 | 4>(1);
-  const [carDraftId, setCarDraftId] = useState<string>(() => `car-rxm-${Date.now()}`);
+  const [carDraftId, setCarDraftId] = useState<string>(() => `car-${dealerSlug}-${Date.now()}`);
 
   // Stare 1-Button Publish Cloud
   const [publishState, setPublishState] = useState<{
@@ -164,10 +171,10 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
         progressTotal: 0,
       });
     } else if (isOpen && !editCar) {
-      setCarDraftId(`car-rxm-${Date.now()}`);
+      setCarDraftId(`car-${dealerSlug}-${Date.now()}`);
       setIsCivCollapsed(false);
     }
-  }, [isOpen, editCar]);
+  }, [isOpen, editCar, dealerSlug]);
 
   const isFormDirty = isEditing
     ? (
@@ -193,11 +200,11 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
   useEffect(() => {
     if (isEditing || !isFormDirty) return;
     try {
-      sessionStorage.setItem('rxm_vehicle_draft_in_progress', JSON.stringify({
+      sessionStorage.setItem(draftStorageKey, JSON.stringify({
         brand: newBrand, model: newModel, vin: newVin, price: newPrice, year: newYear
       }));
     } catch (_) {}
-  }, [newBrand, newModel, newVin, newPrice, newYear, isFormDirty, isEditing]);
+  }, [newBrand, newModel, newVin, newPrice, newYear, isFormDirty, isEditing, draftStorageKey]);
 
   // ⌨️ Interceptare tasta Escape cu protecție date nesalvate
   useEffect(() => {
@@ -258,10 +265,10 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
     setCivScanStep('');
     setCivScanProgress(0);
     setIsCivCollapsed(false);
-    setCarDraftId(`car-rxm-${Date.now()}`);
+    setCarDraftId(`car-${dealerSlug}-${Date.now()}`);
     setPublicIntentStatus('in_stock');
     setShowExitConfirm(false);
-    try { sessionStorage.removeItem('rxm_vehicle_draft_in_progress'); } catch (_) {}
+    try { sessionStorage.removeItem(draftStorageKey); } catch (_) {}
     showToast('🧹 Toate câmpurile formularului au fost golite complet.');
   };
 
@@ -610,10 +617,12 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
       showToast('⚠️ Completați cel puțin Modelul și Prețul pentru salvare.');
       return;
     }
-    const resolvedVin = newVin || `RO48482214RXM${Math.floor(1000 + Math.random() * 9000)}`;
-    const resolvedStockNumber = `RXM-${resolvedVin.slice(-4).toUpperCase()}`;
+    const rawCui = (dealer?.cui || 'RO48482214').replace(/[^0-9]/g, '') || '48482214';
+    const resolvedVin = newVin || `RO${rawCui}${dealerPrefix}${Math.floor(1000 + Math.random() * 9000)}`;
+    const resolvedStockNumber = `${dealerPrefix}-${resolvedVin.slice(-4).toUpperCase()}`;
     const created: VehicleItem = {
       id: carDraftId,
+      dealerSlug: dealerSlug,
       stockNumber: resolvedStockNumber,
       brand: normalizeBrand(newBrand) || 'Brand',
       model: newModel,
@@ -659,13 +668,13 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
     };
 
     try {
-      const result = await vehicleRepository.saveVehicle(created, 'rxm');
+      const result = await vehicleRepository.saveVehicle(created, dealerSlug);
       onAddCar(result.vehicle);
       onClose();
       setFormStep(1);
       handleResetForm();
       setShowExitConfirm(false);
-      try { sessionStorage.removeItem('rxm_vehicle_draft_in_progress'); } catch (_) {}
+      try { sessionStorage.removeItem(draftStorageKey); } catch (_) {}
       showToast(
         publicIntentStatus === 'preparing'
           ? `🟡 ${created.brand} ${created.model} a fost salvat ca «În Pregătire» în baza de date!`
@@ -696,8 +705,9 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
     setIsUploadingPhotos(true);
     setUploadProgress(10);
 
-    const resolvedVin = newVin || (editCar?.vin ?? `RO48482214RXM${Math.floor(1000 + Math.random() * 9000)}`);
-    const resolvedStockNumber = editCar?.stockNumber || `RXM-${resolvedVin.slice(-4).toUpperCase()}`;
+    const rawCui = (dealer?.cui || 'RO48482214').replace(/[^0-9]/g, '') || '48482214';
+    const resolvedVin = newVin || (editCar?.vin ?? `RO${rawCui}${dealerPrefix}${Math.floor(1000 + Math.random() * 9000)}`);
+    const resolvedStockNumber = editCar?.stockNumber || `${dealerPrefix}-${resolvedVin.slice(-4).toUpperCase()}`;
     const resolvedStatus = (editCar && (editCar.status === 'sold' || editCar.status === 'reserved'))
       ? editCar.status
       : publicIntentStatus;
@@ -709,7 +719,7 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
         cdnImages = await uploadCarImagesBatch(
           carDraftId,
           newImages,
-          'rxm',
+          dealerSlug,
           (curr, total, pct) => {
             setUploadProgress(pct);
             setPublishState(prev => ({
@@ -747,7 +757,7 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
           id: `audit_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
           timestamp: new Date().toISOString(),
           action: 'specs_updated',
-          author: 'Admin RXM',
+          author: `Admin ${dealer?.name || 'Showroom'}`,
           title: 'Anunț vehicul editat',
           details: changes.length > 0 ? changes.join('; ') : 'Specificații actualizate din panoul administrativ.'
         });
@@ -757,6 +767,7 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
       const savedCar: VehicleItem = {
         ...(editCar || {}),
         id: carDraftId,
+        dealerSlug: dealerSlug || editCar?.dealerSlug || 'rxm',
         stockNumber: resolvedStockNumber,
         brand: normalizeBrand(newBrand),
         model: newModel,
@@ -806,7 +817,7 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 
       // ── Pas 4: Salvare cloud + local simultan via vehicleRepository ──
       setPublishState(prev => ({ ...prev, stage: 'saving_record' }));
-      const result = await vehicleRepository.saveVehicle(savedCar, 'rxm');
+      const result = await vehicleRepository.saveVehicle(savedCar, dealerSlug);
 
       // ── Pas 5: Callback către App.tsx ──
       if (editCar && onUpdateCar) {
@@ -843,7 +854,7 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
         handleResetForm();
       }
       setShowExitConfirm(false);
-      try { sessionStorage.removeItem('rxm_vehicle_draft_in_progress'); } catch (_) {}
+      try { sessionStorage.removeItem(draftStorageKey); } catch (_) {}
     } catch (err) {
       console.error('Eroare salvare mașină:', err);
       setPublishState(prev => ({ ...prev, stage: 'error', isPublishing: false, errorMessage: String(err) }));
@@ -1344,7 +1355,7 @@ export const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
             powerHp: newPowerHp || 150,
             engineCc: newEngineCc || 1995,
             color: newColor || 'Negru',
-            vin: newVin || 'RXM-DRAFT-0000',
+            vin: newVin || `${dealerPrefix}-DRAFT-0000`,
             images: [],
             features: {
               safety: selectedFeatures.filter(f => /Senzor|Asistent|Camera|Distronic|Lane|LED|Xenon/i.test(f)),

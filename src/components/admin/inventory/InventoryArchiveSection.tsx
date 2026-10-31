@@ -71,7 +71,7 @@ export const InventoryArchiveSection: React.FC<InventoryArchiveSectionProps> = (
               </span>
             </div>
             <p className="text-xs text-zinc-400 mt-0.5">
-              Mașini livrate clienților RXM, retrase automat din gestiunea zilnică activă.
+              Mașini livrate clienților, retrase automat din gestiunea zilnică activă.
             </p>
           </div>
         </div>

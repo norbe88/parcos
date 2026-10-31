@@ -14,6 +14,8 @@ export const PrintableDeliveryProtocol: React.FC<PrintableDeliveryProtocolProps>
   buyer,
   dealer = SEED_DEALER
 }) => {
+  const dealerPrefix = (dealer.slug || 'DEALER').toUpperCase().replace('_', '');
+
   return (
     <div className="printable-doc bg-white text-black p-8 max-w-[210mm] mx-auto text-[11px] leading-tight font-serif print:p-0">
       <div className="text-center font-bold text-sm tracking-wide uppercase border-b-2 border-black pb-2 mb-4">
@@ -21,7 +23,7 @@ export const PrintableDeliveryProtocol: React.FC<PrintableDeliveryProtocolProps>
           PROCES - VERBAL DE PREDARE - PRIMIRE AUTOVEHICUL
         </div>
         <div className="text-[10px] font-normal normal-case italic mt-0.5">
-          Anexă la Contractul de Înstrăinare-Dobândire nr. RXM-{new Date().getFullYear()}-{car.id.slice(-4).toUpperCase()}
+          Anexă la Contractul de Înstrăinare-Dobândire nr. {dealerPrefix}-{new Date().getFullYear()}-{car.id.slice(-4).toUpperCase()}
         </div>
       </div>
 

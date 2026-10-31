@@ -9,6 +9,7 @@ interface VehicleDataSidebarSectionProps {
   cars: VehicleItem[];
   setBuyerData: React.Dispatch<React.SetStateAction<BuyerData>>;
   showToast: (msg: string) => void;
+  dealerPrefix?: string;
 }
 
 export const VehicleDataSidebarSection: React.FC<VehicleDataSidebarSectionProps> = ({
@@ -16,7 +17,8 @@ export const VehicleDataSidebarSection: React.FC<VehicleDataSidebarSectionProps>
   setEditableCar,
   cars,
   setBuyerData,
-  showToast
+  showToast,
+  dealerPrefix = 'FT'
 }) => {
   return (
     <div className="bg-black/40 border border-white/[0.08] p-4 rounded-xl space-y-3">
@@ -49,7 +51,7 @@ export const VehicleDataSidebarSection: React.FC<VehicleDataSidebarSectionProps>
                     agreedPriceEur: selected.priceEur,
                     agreedPriceRon: Math.round(selected.priceEur * prev.exchangeRate),
                     deliveryMileageKm: selected.mileageKm,
-                    invoiceNumber: `RXM-FT-${new Date().getFullYear()}-${selected.stockNumber || selected.vin.slice(-4).toUpperCase()}`
+                    invoiceNumber: `${dealerPrefix}-FT-${new Date().getFullYear()}-${selected.stockNumber || selected.vin.slice(-4).toUpperCase()}`
                   }));
                   showToast(`S-a încărcat vehiculul: ${selected.brand} ${selected.model} (VIN: ${selected.vin})`);
                 }
@@ -213,7 +215,7 @@ export const VehicleDataSidebarSection: React.FC<VehicleDataSidebarSectionProps>
             value={editableCar.licensePlate || ''}
             onChange={(e) => setEditableCar(prev => ({ ...prev, licensePlate: e.target.value.toUpperCase() }))}
             className="w-full bg-[#18181b] border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white uppercase font-mono mt-0.5 focus:border-amber-400 focus:outline-none"
-            placeholder="CJ 01 RXM"
+            placeholder="CJ 01 ABC"
           />
         </div>
       </div>

@@ -692,7 +692,7 @@ export const StepFeatures: React.FC<StepFeaturesProps> = ({
 
         <div className="flex items-center gap-1.5 text-[11px] text-zinc-400">
           <Info className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-          <span>Optimizat fără redundanțe de rate (acoperite de calculatorul dedicat RXM). Include garanție 12-36 luni, TVA 21% și transport la domiciliu.</span>
+          <span>Optimizat fără redundanțe de rate (acoperite de calculatorul dedicat de rate). Include garanție 12-36 luni, TVA 21% și transport la domiciliu.</span>
         </div>
       </div>
 

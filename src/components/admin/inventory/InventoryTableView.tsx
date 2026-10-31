@@ -224,7 +224,7 @@ export const InventoryTableView: React.FC<InventoryTableViewProps> = ({
                                   alt={c.model} 
                                   onClick={() => onOpenGallery ? onOpenGallery(c) : onSelectCar(c, 'specs')}
                                   className={`${thumbStyle.img} object-cover bg-zinc-800 border border-white/10 group-hover/row:scale-[1.03] transition-all cursor-pointer shrink-0 shadow-sm`} 
-                                  title="Deschide galeria foto & editorul de plăcuță RXM (sau ține cursorul pt. zoom)"
+                                  title="Deschide galeria foto & editorul de plăcuță dealer (sau ține cursorul pt. zoom)"
                                   loading="lazy"
                                 />
                               ) : (
@@ -536,7 +536,7 @@ export const InventoryTableView: React.FC<InventoryTableViewProps> = ({
                               type="button"
                               onClick={() => onOpenGallery?.(c)}
                               className="min-h-[26px] px-2 py-0.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[11px] font-semibold inline-flex items-center gap-1 touch-manipulation active:scale-95 transition-all cursor-pointer"
-                              title="Studio Editare Foto (Crop, Ștergere, Plăcuță RXM, Rotire)"
+                              title="Studio Editare Foto (Crop, Ștergere, Plăcuță Dealer, Rotire)"
                             >
                               <Images className="w-3 h-3 text-purple-400 shrink-0" />
                               <span>Foto</span>
@@ -1124,11 +1124,11 @@ export const InventoryTableView: React.FC<InventoryTableViewProps> = ({
                             <Images className="w-4 h-4 text-purple-400 shrink-0" />
                             <div className="flex flex-col">
                               <span>Studio Foto & Galerie</span>
-                              <span className="text-[10px] text-zinc-400 font-normal">Crop, Plăcuță RXM, Rotire</span>
+                              <span className="text-[10px] text-zinc-400 font-normal">Crop, Plăcuță Dealer, Rotire</span>
                             </div>
                           </button>
 
-                          {/* Studio Plăcuțe RXM */}
+                          {/* Studio Plăcuțe Dealer */}
                           <button
                             type="button"
                             onClick={() => {
@@ -1140,7 +1140,7 @@ export const InventoryTableView: React.FC<InventoryTableViewProps> = ({
                             <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
                             <div className="flex flex-col">
                               <span>Studio Plăcuțe & Logo</span>
-                              <span className="text-[10px] text-zinc-400 font-normal">Aplică numere negre RXM</span>
+                              <span className="text-[10px] text-zinc-400 font-normal">Aplică numere showroom</span>
                             </div>
                           </button>
 

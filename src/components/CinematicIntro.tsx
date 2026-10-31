@@ -1,13 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { DealerProfile } from '../db/types';
 
 interface CinematicIntroProps {
   onSplit?: () => void;
   onComplete?: () => void;
   forceReplay?: boolean;
+  tenant?: DealerProfile;
 }
 
-export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onSplit, onComplete, forceReplay = false }) => {
-  const [phase, setPhase] = useState<'loading' | 'split' | 'done'>(() => {
+export const CinematicIntro: React.FC<CinematicIntroProps> = ({ 
+  onSplit, 
+  onComplete, 
+  forceReplay = false,
+  tenant
+}) => {
+  const isMpi = tenant?.slug === 'mpi_auto' || (typeof window !== 'undefined' && window.location.hostname.includes('mpiauto'));
+  const storageKey = isMpi ? 'mpi_intro_seen' : 'rxm_intro_seen';
+
+  const [phase, setPhase] = useState<'loading' | 'split' | 'sliding_up' | 'done'>(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const isForcedUrl = urlParams.get('intro') === 'true' || urlParams.get('intro') === '1' || window.location.hash === '#intro';
@@ -17,45 +27,105 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onSplit, onCompl
       
       // În modul de dezvoltare (DEV) ignorăm cheia permanentă din localStorage pentru a permite testarea la F5
       if (import.meta.env.DEV) {
-        if (sessionStorage.getItem('rxm_intro_seen')) {
+        if (sessionStorage.getItem(storageKey)) {
           return 'done';
         }
         return 'loading';
       }
 
-      if (sessionStorage.getItem('rxm_intro_seen') || localStorage.getItem('rxm_intro_seen')) {
+      if (sessionStorage.getItem(storageKey) || localStorage.getItem(storageKey)) {
         return 'done';
       }
     }
     return 'loading';
   });
+
   const [progressRatio, setProgressRatio] = useState(0);
   const [displayPct, setDisplayPct] = useState(0);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
+  // ══════════════════════════════════════════════════════════════
+  // 1. LIFECYCLE PENTRU MPI AUTO (Video Background + Slide-Up Fade-Out)
+  // ══════════════════════════════════════════════════════════════
   useEffect(() => {
+    if (!isMpi) return;
     if (phase === 'done') {
       if (onSplit) onSplit();
       if (onComplete) onComplete();
       return;
     }
 
-    // Siguranță absolută: watchdog timer care deblochează ecranul dacă requestAnimationFrame e întârziat/suspendat de browser
-    // Durată totală timeline: 1800ms (progres) + 100ms (laser pulse) + 800ms (glisare cortină) = 2700ms
-    // Watchdog setat la 3800ms (buffer de siguranță de 1.1s peste durata normală)
+    // Watchdog de siguranță: dacă videoclipul se blochează, deblochează ecranul după 7.5s
     const watchdogTimer = setTimeout(() => {
-      handleSkip();
+      handleMpiExit();
+    }, 7500);
+
+    return () => {
+      clearTimeout(watchdogTimer);
+    };
+  }, [isMpi, phase]);
+
+  const handleMpiExit = () => {
+    if (phase === 'sliding_up' || phase === 'done') return;
+    
+    // Marchează sesiunea ca văzută
+    try {
+      sessionStorage.setItem(storageKey, 'true');
+      if (!import.meta.env.DEV) {
+        localStorage.setItem(storageKey, 'true');
+      }
+    } catch {
+      // Ignore storage errors
+    }
+
+    setPhase('sliding_up');
+    if (onSplit) onSplit();
+
+    // După terminarea tranziției de glisare în sus (1000ms), marchează complet
+    setTimeout(() => {
+      setPhase('done');
+      if (onComplete) onComplete();
+    }, 1000);
+  };
+
+  const handleMpiTimeUpdate = () => {
+    const vid = videoRef.current;
+    if (!vid || !vid.duration) return;
+
+    const ratio = Math.min(1, Math.max(0, vid.currentTime / vid.duration));
+    setProgressRatio(ratio);
+    setDisplayPct(Math.min(100, Math.round(ratio * 100)));
+
+    // La secunda 6.5 (sau la finalul clipului), declanșăm tranziția de ieșire
+    if (vid.currentTime >= 6.5) {
+      handleMpiExit();
+    }
+  };
+
+  // ══════════════════════════════════════════════════════════════
+  // 2. LIFECYCLE PENTRU RXM (Split Shutter / Laser Seam)
+  // ══════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (isMpi) return;
+    if (phase === 'done') {
+      if (onSplit) onSplit();
+      if (onComplete) onComplete();
+      return;
+    }
+
+    // Watchdog setat la 3800ms
+    const watchdogTimer = setTimeout(() => {
+      handleRxmSkip();
     }, 3800);
 
-    // Animație contor fluid de precizie (0 -> 100%) cu curbă organică easeInOut
     const startTime = performance.now();
-    const duration = 1800; // 1.8 secunde: ritm optim, evită senzația de blocaj sau ecran negru
+    const duration = 1800; // 1.8 secunde
 
     let animFrame: number;
     const updateProgress = (now: number) => {
       const elapsed = now - startTime;
       const linearRatio = Math.min(1, Math.max(0, elapsed / duration));
       
-      // Curbă organică continuă (start fin, croazieră elegantă, decelerare fluidă la 100%)
       const ease = linearRatio < 0.5 
         ? 4 * linearRatio * linearRatio * linearRatio 
         : 1 - Math.pow(-2 * linearRatio + 2, 3) / 2;
@@ -66,22 +136,18 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onSplit, onCompl
       if (linearRatio < 1) {
         animFrame = requestAnimationFrame(updateProgress);
       } else {
-        // La 100%, o scurtă pulsație de laser de 100ms înainte de despicarea cortinei
         setTimeout(() => {
           setPhase('split');
-          // Declanșează imediat apariția fluidă din spate a elementelor din scenă (fără așteptare abruptă)
           if (onSplit) onSplit();
-          // Marchează sesiunea și dispozitivul ca vizualizat
           try {
-            sessionStorage.setItem('rxm_intro_seen', 'true');
+            sessionStorage.setItem(storageKey, 'true');
             if (!import.meta.env.DEV) {
-              localStorage.setItem('rxm_intro_seen', 'true');
+              localStorage.setItem(storageKey, 'true');
             }
           } catch {
-            // Ignore storage access errors
+            // Ignore storage errors
           }
 
-          // După glisarea panourilor (~800ms), finalizează complet
           setTimeout(() => {
             setPhase('done');
             if (onComplete) onComplete();
@@ -96,16 +162,16 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onSplit, onCompl
       clearTimeout(watchdogTimer);
       if (animFrame) cancelAnimationFrame(animFrame);
     };
-  }, []);
+  }, [isMpi, phase]);
 
-  const handleSkip = () => {
+  const handleRxmSkip = () => {
     try {
-      sessionStorage.setItem('rxm_intro_seen', 'true');
+      sessionStorage.setItem(storageKey, 'true');
       if (!import.meta.env.DEV) {
-        localStorage.setItem('rxm_intro_seen', 'true');
+        localStorage.setItem(storageKey, 'true');
       }
     } catch {
-      // Ignore storage access errors
+      // Ignore storage errors
     }
     setPhase('done');
     if (onSplit) onSplit();
@@ -114,6 +180,70 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onSplit, onCompl
 
   if (phase === 'done') return null;
 
+  // ══════════════════════════════════════════════════════════════
+  // RANDARE: MPI AUTO CINEMATIC INTRO (Slide Out to Top)
+  // ══════════════════════════════════════════════════════════════
+  if (isMpi) {
+    const isSlidingUp = phase === 'sliding_up';
+
+    return (
+      <div 
+        className={`fixed inset-0 z-[100] bg-black overflow-hidden pointer-events-auto select-none no-print transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+          isSlidingUp ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+        }`}
+        aria-hidden="true"
+      >
+        {/* 🎬 Video Background Cinematic Fullscreen */}
+        <video
+          ref={videoRef}
+          src="/videos/mpi-showroom-intro.mp4"
+          playsInline
+          autoPlay
+          muted
+          loop
+          onTimeUpdate={handleMpiTimeUpdate}
+          onEnded={handleMpiExit}
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+
+        {/* 🌌 Ambient Vignette & Contrast Overlay */}
+        <div className="absolute inset-0 bg-radial from-transparent via-black/25 to-black/80 pointer-events-none" />
+
+        {/* 🌟 Logo MPI Auto cu Strălucire Neon pe Perete */}
+        <div className="absolute top-[16%] sm:top-[18%] left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-20 w-full max-w-md px-4">
+          <img 
+            src="/images/mpi-logo-white.png" 
+            alt="MPI AUTO CLUJ" 
+            className="h-16 sm:h-24 w-auto object-contain drop-shadow-[0_0_20px_rgba(225,29,72,0.85)] drop-shadow-[0_0_45px_rgba(255,255,255,0.9)] animate-pulse"
+          />
+          <span className="mt-3 text-[10.5px] sm:text-xs font-bold tracking-[0.3em] uppercase text-zinc-300 drop-shadow-md text-center">
+            Centura Apahida • Showroom Autovehicule Rulate
+          </span>
+        </div>
+
+        {/* ⏭️ Buton discret de „Sari intro” */}
+        <button
+          onClick={handleMpiExit}
+          className="fixed top-[max(1.5rem,calc(env(safe-area-inset-top,0px)+0.75rem))] right-4 sm:right-6 z-40 px-3.5 py-1.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white text-[11px] font-semibold tracking-wider uppercase transition-all backdrop-blur-md cursor-pointer pointer-events-auto min-h-[36px] flex items-center justify-center touch-manipulation active:scale-95"
+          title="Sari peste introducere"
+        >
+          Sari intro →
+        </button>
+
+        {/* ⏱️ Linie Subțire Progres la Bază */}
+        <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 w-44 sm:w-64 h-[2px] bg-white/15 rounded-full overflow-hidden z-30 pointer-events-none">
+          <div 
+            className="h-full bg-gradient-to-r from-rose-600 via-rose-400 to-white transition-all duration-100 ease-linear shadow-[0_0_8px_#e11d48]"
+            style={{ width: `${displayPct}%` }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // RANDARE: RXM CINEMATIC INTRO (Split Shutter Curtains)
+  // ══════════════════════════════════════════════════════════════
   const isSplit = phase === 'split';
 
   return (
@@ -127,7 +257,6 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onSplit, onCompl
           isSplit ? '-translate-y-full' : 'translate-y-0'
         }`}
       >
-        {/* Glow ambient auriu subtil */}
         <div className="absolute inset-0 bg-gradient-to-b from-amber-500/[0.03] to-transparent pointer-events-none" />
       </div>
 
@@ -137,7 +266,6 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onSplit, onCompl
           isSplit ? 'translate-y-full' : 'translate-y-0'
         }`}
       >
-        {/* Glow ambient auriu subtil */}
         <div className="absolute inset-0 bg-gradient-to-t from-amber-500/[0.03] to-transparent pointer-events-none" />
       </div>
 
@@ -161,7 +289,6 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onSplit, onCompl
       >
         <div className="w-full max-w-4xl mx-auto flex flex-col items-center text-center">
           
-          {/* Top Brand Tagline & Emblem */}
           <div className="flex items-center gap-3 mb-6 animate-pulse">
             <img 
               src="/rxm/images/rxm-emblem.png" 
@@ -173,19 +300,16 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onSplit, onCompl
             </span>
           </div>
 
-          {/* Sloganul Editorial de Impact */}
           <h1 className="font-['Playfair_Display'] italic text-3xl sm:text-5xl md:text-6xl text-[#fef3c7] font-normal tracking-tight leading-[1.15] mb-8 max-w-3xl drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
             „Fiecare drum începe cu alegerea potrivită.”
           </h1>
 
-          {/* Bară Subțire de Precizie & Procentaj (120FPS GPU Accelerated) */}
           <div className="w-full max-w-md flex flex-col items-center gap-2">
             <div className="w-full h-[2.5px] bg-zinc-800/80 rounded-full overflow-hidden relative">
               <div 
                 className="h-full w-full bg-gradient-to-r from-amber-600 via-amber-400 to-amber-200 rounded-full origin-left will-change-transform shadow-[0_0_10px_rgba(245,158,11,0.8)]"
                 style={{ transform: `scaleX(${progressRatio})` }}
               />
-              {/* Capăt luminos mobil (Laser Spark Head) */}
               <div 
                 className="absolute top-0 bottom-0 w-3 -ml-1.5 bg-white rounded-full blur-[1px] shadow-[0_0_8px_#fbbf24] pointer-events-none will-change-transform"
                 style={{ 
@@ -205,9 +329,8 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onSplit, onCompl
         </div>
       </div>
 
-      {/* ⏭️ Buton discret de „Sari intro” (protejat de notch / Dynamic Island) */}
       <button
-        onClick={handleSkip}
+        onClick={handleRxmSkip}
         className={`fixed top-[max(1.5rem,calc(env(safe-area-inset-top,0px)+0.75rem))] right-4 sm:right-6 z-40 px-3.5 py-1.5 rounded-full bg-zinc-900/70 hover:bg-zinc-800 border border-white/10 text-zinc-400 hover:text-white text-[11px] font-medium tracking-wider uppercase transition-all backdrop-blur-md pointer-events-auto min-h-[36px] flex items-center justify-center touch-manipulation ${
           isSplit ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}

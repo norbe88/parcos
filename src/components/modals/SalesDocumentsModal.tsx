@@ -30,7 +30,7 @@ import { ProformaConfigSidebarSection } from './sales-docs/ProformaConfigSidebar
 
 export const DEFAULT_MANUAL_CAR: VehicleItem = {
   id: 'manual-doc-vehicle',
-  stockNumber: 'RXM-MANUAL',
+  stockNumber: 'DOC-MANUAL',
   brand: 'Renault',
   model: 'Megane',
   versionTrim: '1.5 dCi Energy',
@@ -97,6 +97,8 @@ export const SalesDocumentsModal: React.FC<SalesDocumentsModalProps> = ({
   const [wasAutoFilled, setWasAutoFilled] = useState(false);
   const paperRef = useRef<HTMLDivElement>(null);
   
+  const dealerPrefix = dealer?.slug === 'mpi_auto' ? 'MPI' : dealer?.slug === 'top_auto' ? 'ALD' : (dealer?.slug || 'DEALER').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+
   // Stare formular date cumpărător & accesorii proces-verbal de predare
   const [buyerData, setBuyerData] = useState<BuyerData>(() => ({
     fullName: 'Popescu Mihai',
@@ -110,7 +112,7 @@ export const SalesDocumentsModal: React.FC<SalesDocumentsModalProps> = ({
     agreedPriceRon: car ? Math.round(car.priceEur * 4.975) : 72137,
     exchangeRate: 4.9750,
     contractDate: new Date().toISOString().split('T')[0],
-    invoiceNumber: car ? `RXM-FT-${new Date().getFullYear()}-${car.stockNumber || car.vin.slice(-4).toUpperCase()}` : `RXM-FT-${new Date().getFullYear()}-001`,
+    invoiceNumber: car ? `${dealerPrefix}-FT-${new Date().getFullYear()}-${car.stockNumber || car.vin.slice(-4).toUpperCase()}` : `${dealerPrefix}-FT-${new Date().getFullYear()}-001`,
     deliveryMileageKm: car ? car.mileageKm : 145000,
     warrantyStartDate: new Date().toISOString().split('T')[0],
     // Accesorii Proces-Verbal Predare-Primire (Standard: Toate bifate)
@@ -146,7 +148,7 @@ export const SalesDocumentsModal: React.FC<SalesDocumentsModalProps> = ({
         agreedPriceEur: prev.agreedPriceEur || car.priceEur,
         agreedPriceRon: prev.agreedPriceRon || Math.round(car.priceEur * (prev.exchangeRate || 4.975)),
         deliveryMileageKm: car.mileageKm,
-        invoiceNumber: prev.invoiceNumber || `RXM-FT-${new Date().getFullYear()}-${car.stockNumber || car.vin.slice(-4).toUpperCase()}`
+        invoiceNumber: prev.invoiceNumber || `${dealerPrefix}-FT-${new Date().getFullYear()}-${car.stockNumber || car.vin.slice(-4).toUpperCase()}`
       }));
       // Standard regim marjă (ajustabil oricând de dealer)
       setProformaRegime('margin_scheme');
@@ -403,6 +405,7 @@ export const SalesDocumentsModal: React.FC<SalesDocumentsModalProps> = ({
               cars={cars}
               setBuyerData={setBuyerData}
               showToast={showToast}
+              dealerPrefix={dealerPrefix}
             />
 
             {/* Formular Date Cumpărător & Scanner OCR */}
@@ -415,6 +418,8 @@ export const SalesDocumentsModal: React.FC<SalesDocumentsModalProps> = ({
               onOcrSuccess={handleOcrSuccess}
               onPriceEurChange={handlePriceEurChange}
               showToast={showToast}
+              dealer={dealer}
+              dealerPrefix={dealerPrefix}
             />
 
             {/* 🔑 Accesorii & Echipamente Predate (Proces-Verbal de Predare-Primire) */}
@@ -427,6 +432,7 @@ export const SalesDocumentsModal: React.FC<SalesDocumentsModalProps> = ({
               buyerData={buyerData}
               setBuyerData={setBuyerData}
               activeDocTab={activeDocTab}
+              dealer={dealer}
             />
 
             {/* 🔍 Setări Raport Inspecție Tehnică Showroom (100+ Puncte) */}

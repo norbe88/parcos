@@ -513,6 +513,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             />
 
             <InventoryTableManager 
+              dealer={activeDealer}
               cars={cars}
               onStatusChange={onStatusChange}
               onDeleteCar={onDeleteCar}
@@ -719,7 +720,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               <Server className="w-4 h-4 text-amber-400" /> Asistență Tehnică & Dezvoltare Dedicată &mdash; Carvana S.R.L.
             </h3>
             <p className="text-xs text-zinc-400">
-              Platformă showroom autonom dezvoltată, găzduită și monitorizată non-stop pentru RXM Auto Mobile de Carvana S.R.L.
+              Platformă showroom autonom dezvoltată, găzduită și monitorizată non-stop pentru {activeDealer.name} de Carvana S.R.L.
             </p>
           </div>
 
@@ -805,6 +806,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         <MarketPriceComparatorModal
           isOpen={isComparatorOpen}
           car={evaluatingCar}
+          dealer={activeDealer}
           onClose={() => {
             setIsComparatorOpen(false);
             setEvaluatingCar(null);
@@ -890,7 +892,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           }}
           onSaveImages={(carId, updatedImages) => {
             onSaveBrandedImages?.(carId, updatedImages);
-            showToast('✓ Plăcuțele RXM au fost salvate cu succes!');
+            showToast('✓ Plăcuțele de dealer au fost salvate cu succes!');
           }}
           showToast={showToast}
         />

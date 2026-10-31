@@ -208,8 +208,12 @@ export function generateInstagramCaption(
   ].join('\n');
 
   // Hashtags relevante (mix local + brand + nișă auto)
+  const dealerHashtag = dealer.tiktokHandle 
+    ? dealer.tiktokHandle.replace('@', '').toLowerCase() 
+    : (dealer.slug || 'autorulate').replace(/[^a-z0-9]/gi, '').toLowerCase();
+
   const defaultHashtags = [
-    'rxmautomobile',
+    dealerHashtag,
     'masinicluj',
     'dealerautocluj',
     'masinirulatecluj',
@@ -315,7 +319,7 @@ export function generateAutovitOlxCopy(
     `  ✓ Posibilitate finanțare Leasing / Credit Auto (aprobare rapidă)`,
     `  ✓ Livrare la domiciliu oriunde în România`,
     ``,
-    `🏢 ${dealer.name} • ${dealer.email || 'contact@rxmautomobile.ro'}`
+    `🏢 ${dealer.name} • ${dealer.email || (dealer.domain ? `contact@${dealer.domain}` : 'contact@showroom.ro')}`
   ].join('\n');
 
   return {

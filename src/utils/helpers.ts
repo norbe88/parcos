@@ -163,16 +163,25 @@ export function calculateRate(
 }
 
 /**
- * Returnează codul de referință internă al vehiculului (ex: RXM-7412).
+ * Returnează codul de referință internă al vehiculului (ex: RXM-7412 sau MPI-7412).
  * Dacă lipsește câmpul stockNumber, generează fallback din ultimele 4 caractere din VIN.
  */
-export function getStockNumber(car?: { stockNumber?: string; vin?: string; id?: string }): string {
-  if (!car) return 'RXM-AUTO';
+export function getStockNumber(
+  car?: { stockNumber?: string; vin?: string; id?: string; dealerSlug?: string },
+  fallbackPrefix?: string
+): string {
+  if (!car) return fallbackPrefix ? `${fallbackPrefix}-AUTO` : 'AUTO';
   if (car.stockNumber && car.stockNumber.trim()) return car.stockNumber.trim().toUpperCase();
+  
+  const prefix = fallbackPrefix || 
+    (car.dealerSlug === 'mpi_auto' ? 'MPI' : 
+    (car.dealerSlug === 'top_auto' ? 'ALD' : 
+    (car.dealerSlug === 'rxm' || !car.dealerSlug ? 'RXM' : car.dealerSlug.toUpperCase().replace('_', ''))));
+  
   if (car.vin && car.vin.length >= 4) {
-    return `RXM-${car.vin.slice(-4).toUpperCase()}`;
+    return `${prefix}-${car.vin.slice(-4).toUpperCase()}`;
   }
-  return 'RXM-AUTO';
+  return `${prefix}-AUTO`;
 }
 
 /**
@@ -394,7 +403,7 @@ export function parseTimeSlotDates(dateStr: string, timeSlotStr: string): { star
  * Generează link direct Google Calendar (action=TEMPLATE) pentru programare Test Drive
  */
 export function getGoogleCalendarTestDriveUrl(
-  car: { brand: string; model: string; stockNumber?: string; vin?: string },
+  car: { brand: string; model: string; stockNumber?: string; vin?: string; dealerSlug?: string },
   dealer: { name: string; address: string; phonePrimary: string },
   date: string,
   timeSlot: string,
@@ -403,7 +412,8 @@ export function getGoogleCalendarTestDriveUrl(
 ): string {
   const ref = getStockNumber(car);
   const { startUtc, endUtc } = parseTimeSlotDates(date, timeSlot);
-  const title = `Test Drive RXM: ${car.brand} ${car.model} [Ref: ${ref}]`;
+  const brandName = dealer.name ? dealer.name.split(' ')[0] : 'Showroom';
+  const title = `Test Drive ${brandName}: ${car.brand} ${car.model} [Ref: ${ref}]`;
   const location = `${dealer.name}, ${dealer.address}`;
   const details = `Programare Test Drive & Vizionare Showroom\n` +
     `Vehicul: ${car.brand} ${car.model} (Cod Stoc: ${ref})\n` +
@@ -419,8 +429,8 @@ export function getGoogleCalendarTestDriveUrl(
  * Descarcă direct în browser fișierul iCalendar (.ics) pentru import în Outlook / Apple Calendar / dispozitive mobile
  */
 export function downloadTestDriveIcsFile(
-  car: { brand: string; model: string; stockNumber?: string; vin?: string },
-  dealer: { name: string; address: string; phonePrimary: string },
+  car: { brand: string; model: string; stockNumber?: string; vin?: string; dealerSlug?: string },
+  dealer: { name: string; address: string; phonePrimary: string; domain?: string; slug?: string },
   date: string,
   timeSlot: string,
   clientName: string,
@@ -428,18 +438,20 @@ export function downloadTestDriveIcsFile(
 ): void {
   const ref = getStockNumber(car);
   const { startUtc, endUtc } = parseTimeSlotDates(date, timeSlot);
-  const summary = `Test Drive RXM: ${car.brand} ${car.model} [Ref: ${ref}]`;
+  const brandName = dealer.name ? dealer.name.split(' ')[0] : 'Showroom';
+  const summary = `Test Drive ${brandName}: ${car.brand} ${car.model} [Ref: ${ref}]`;
   const location = `${dealer.name}, ${dealer.address}`;
-  const description = `Test Drive cu ${car.brand} ${car.model} la showroom-ul RXM AUTO MOBILE Cluj-Napoca.\\nAdresă: ${dealer.address}\\nContact: ${dealer.phonePrimary}\\nClient: ${clientName || 'Client'} (${clientPhone || 'N/A'})`;
+  const description = `Test Drive cu ${car.brand} ${car.model} la showroom-ul ${dealer.name}.\\nAdresă: ${dealer.address}\\nContact: ${dealer.phonePrimary}\\nClient: ${clientName || 'Client'} (${clientPhone || 'N/A'})`;
 
+  const domain = dealer.domain || (dealer.slug === 'mpi_auto' ? 'mpiauto.ro' : (dealer.slug === 'rxm' ? 'rxmautomobile.ro' : 'parcos.ro'));
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//RXM AUTO MOBILE//Test Drive Booking//RO',
+    `PRODID:-//${dealer.name}//Test Drive Booking//RO`,
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `UID:rxm-td-${Date.now()}@rxmautomobile.ro`,
+    `UID:td-${Date.now()}@${domain}`,
     `DTSTAMP:${startUtc}`,
     `DTSTART:${startUtc}`,
     `DTEND:${endUtc}`,
@@ -450,7 +462,7 @@ export function downloadTestDriveIcsFile(
     'BEGIN:VALARM',
     'TRIGGER:-PT60M',
     'ACTION:DISPLAY',
-    'DESCRIPTION:Memento Test Drive RXM peste 1 oră',
+    `DESCRIPTION:Memento Test Drive ${brandName} peste 1 oră`,
     'END:VALARM',
     'END:VEVENT',
     'END:VCALENDAR'
@@ -460,7 +472,7 @@ export function downloadTestDriveIcsFile(
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', `test-drive-rxm-${ref.toLowerCase()}.ics`);
+  link.setAttribute('download', `test-drive-${ref.toLowerCase()}.ics`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

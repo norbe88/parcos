@@ -15,7 +15,8 @@ export const PrintableSaleContract: React.FC<PrintableSaleContractProps> = ({
   dealer = SEED_DEALER
 }) => {
   const currentYear = new Date().getFullYear();
-  const contractNumber = `RXM-VC-${currentYear}-${car.id.slice(-4).toUpperCase()}`;
+  const dealerPrefix = (dealer.slug || 'DEALER').toUpperCase().replace('_', '');
+  const contractNumber = `${dealerPrefix}-VC-${currentYear}-${car.id.slice(-4).toUpperCase()}`;
 
   return (
     <div className="printable-doc bg-white text-black p-8 max-w-[210mm] mx-auto text-[11px] leading-tight font-serif print:p-0">
