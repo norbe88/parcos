@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Car, CheckCircle2, ChevronDown, Truck, Award, SlidersHorizontal, Shield, FileCheck, Sparkles } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../db/seed';
+import { DealerLandingConfig } from '../../db/types';
 import { VehicleCard } from './VehicleCard';
 import { SpecialOffersCarousel } from './SpecialOffersCarousel';
 import { calculateRate as defaultCalcRate } from '../../utils/helpers';
@@ -11,9 +12,15 @@ const BATCH_INITIAL_MOBILE = 6;  // < 768px — telefoane mobile
 const BATCH_INITIAL_DESKTOP = 9; // ≥ 768px — tablete & desktop (3 rânduri x 3 col)
 export const BATCH_STEP = 6;     // Lot adăugat la fiecare click „Încarcă mai multe"
 
-function getInitialBatch(): number {
-  if (typeof window === 'undefined') return BATCH_INITIAL_DESKTOP;
-  return window.innerWidth < 768 ? BATCH_INITIAL_MOBILE : BATCH_INITIAL_DESKTOP;
+function getInitialBatch(cfg?: DealerLandingConfig): number {
+  if (cfg?.catalogDisplayMode === 'show_all') {
+    return 9999;
+  }
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  if (isMobile) {
+    return cfg?.catalogInitialBatchMobile ?? BATCH_INITIAL_MOBILE;
+  }
+  return cfg?.catalogInitialBatchDesktop ?? BATCH_INITIAL_DESKTOP;
 }
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -21,6 +28,7 @@ interface VehicleCatalogProps {
   cars: VehicleItem[];
   onSelectCar: (car: VehicleItem, tab?: 'specs' | 'finance' | 'video' | 'testdrive', videoFormat?: 'tiktok' | 'youtube') => void;
   dealer?: typeof SEED_DEALER;
+  landingConfig?: DealerLandingConfig;
   calculateRate?: (price: number, advPct: number, months: number) => number;
 }
 
@@ -28,6 +36,7 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
   cars,
   onSelectCar,
   dealer = SEED_DEALER,
+  landingConfig,
   calculateRate = defaultCalcRate
 }) => {
   const [stockTab, setStockTab] = useState<'all' | 'in_stock' | 'reserved' | 'sold'>('in_stock');
@@ -35,8 +44,10 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
   const [selectedFuel, setSelectedFuel] = useState<string>('all');
   const [selectedTransmission, setSelectedTransmission] = useState<string>('all');
   const [maxPrice, setMaxPrice] = useState<number>(35000);
-  // 📦 Lot vizibil curent — Progressive Batching (6 mobil / 9 desktop)
-  const [visibleCount, setVisibleCount] = useState<number>(getInitialBatch);
+  // 📦 Lot vizibil curent — Progressive Batching (configurat per-parc sau fallback 6 mobil / 9 desktop)
+  const [visibleCount, setVisibleCount] = useState<number>(() => getInitialBatch(landingConfig));
+
+  const isShowAll = landingConfig?.catalogDisplayMode === 'show_all';
 
   // Mărci unice pentru filtru (Normalizate și Deduplicate — zero dubluri precum "BMW" vs "Bmw" sau "RENAULT" vs "Renault")
   const availableBrands = useMemo(() => {
@@ -92,13 +103,14 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
 
   // 📦 Lot de autovehicule afișat efectiv în DOM (slice progresiv din lista sortată completă)
   const displayedCars = useMemo(() => {
+    if (isShowAll) return sortedFilteredCars;
     return sortedFilteredCars.slice(0, visibleCount);
-  }, [sortedFilteredCars, visibleCount]);
+  }, [sortedFilteredCars, visibleCount, isShowAll]);
 
-  // 🔄 Resetare lot la schimbarea oricărui filtru activ — utilizatorul vede imediat primele rezultate relevante
+  // 🔄 Resetare lot la schimbarea oricărui filtru activ sau a configurării parcului
   useEffect(() => {
-    setVisibleCount(getInitialBatch());
-  }, [stockTab, selectedBrand, selectedFuel, selectedTransmission, maxPrice]);
+    setVisibleCount(getInitialBatch(landingConfig));
+  }, [stockTab, selectedBrand, selectedFuel, selectedTransmission, maxPrice, landingConfig]);
 
   // ⚡ Oferte speciale curatoriate (max 6 autovehicule: Oferta Săptămânii + Fixate + cele mai mari reduceri)
   const specialOffers = useMemo(() => {
@@ -269,7 +281,7 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
             <SlidersHorizontal className="w-4 h-4 text-amber-400" /> Filtrează Stocul Auto
           </div>
           <div className="text-xs text-zinc-400">
-            Afișate: <strong className="text-white">{filteredCars.length}</strong> din {cars.length} autovehicule
+            Găsite: <strong className="text-white">{filteredCars.length}</strong> din {cars.length} autovehicule
           </div>
         </div>
 
@@ -359,7 +371,7 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
 
       {/* Grid Mașini Showroom */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {sortedFilteredCars.map((car, index) => (
+        {displayedCars.map((car, index) => (
           <VehicleCard
             key={car.id}
             car={car}
@@ -371,6 +383,60 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
           />
         ))}
       </div>
+
+      {/* 📦 Progress HUD & Controale Batch Load — Dark Luxury / Clean White Adaptive */}
+      {!isShowAll && sortedFilteredCars.length > 0 && (
+        <div className="mt-10 flex flex-col items-center justify-center gap-5 text-center">
+          
+          {/* Bară de Progres & Contor */}
+          <div className="w-full max-w-sm">
+            <div className="flex justify-between items-center text-xs text-zinc-400 mb-2">
+              <span>Stoc afișat:</span>
+              <span className="font-mono font-bold text-white tracking-wide">
+                {displayedCars.length} / {sortedFilteredCars.length} autovehicule
+              </span>
+            </div>
+            <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-amber-500 to-amber-300 transition-all duration-500 ease-out rounded-full"
+                style={{ width: `${Math.round((displayedCars.length / sortedFilteredCars.length) * 100)}%` }}
+                role="progressbar"
+                aria-valuenow={displayedCars.length}
+                aria-valuemax={sortedFilteredCars.length}
+                aria-label="Progres vizualizare stoc autovehicule"
+              />
+            </div>
+          </div>
+
+          {/* Acțiuni de Extindere sau Confirmare Stoc Complet */}
+          {displayedCars.length < sortedFilteredCars.length ? (
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => setVisibleCount(prev => prev + BATCH_STEP)}
+                className="min-h-[48px] px-8 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 transition-all touch-manipulation active:scale-[0.98] w-full sm:w-auto cursor-pointer"
+              >
+                <ChevronDown className="w-4 h-4 shrink-0" />
+                <span>
+                  Încarcă încă {Math.min(BATCH_STEP, sortedFilteredCars.length - displayedCars.length)} autovehicule
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisibleCount(sortedFilteredCars.length)}
+                className="min-h-[44px] text-xs text-zinc-400 hover:text-amber-300 py-2 px-3 transition-colors touch-manipulation underline decoration-zinc-700 underline-offset-4 cursor-pointer"
+              >
+                Afișează tot stocul ({sortedFilteredCars.length})
+              </button>
+            </div>
+          ) : (
+            <div className="text-xs text-zinc-400 flex items-center gap-2 py-2 px-4 rounded-xl bg-emerald-950/20 border border-emerald-800/30">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Ai vizualizat toate autovehiculele disponibile conform filtrelor tale.</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {sortedFilteredCars.length === 0 && (
         <div className="text-center py-16 px-4 bg-[#121215] rounded-2xl border border-white/[0.08]">

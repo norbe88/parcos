@@ -63,6 +63,7 @@ export const LandingSectionOrchestrator: React.FC<LandingSectionOrchestratorProp
         cars={publicVehicles}
         onSelectCar={onSelectCar}
         dealer={dealer}
+        landingConfig={cfg}
       />
     ) : null,
     FINANCING: s.financingSection ? (

@@ -3,12 +3,16 @@ import {
   Sliders, Eye, EyeOff, Check, RotateCcw, Sparkles,
   Download, ExternalLink, Bookmark, Copy, CheckCircle2,
   AlertCircle, Puzzle, ShieldCheck, Sun, Moon, Palette, Shield,
-  Image as ImageIcon
+  Image as ImageIcon,
+  LayoutGrid,
+  Zap
 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTenant } from '../../hooks/useTenant';
 import { getThemeConfig } from '../../utils/themePresets';
 import { DealerProfile, SEED_DEALER } from '../../db/seed';
+import { DEFAULT_LANDING_CONFIG } from '../../db/dealer';
+import { DealerLandingConfig } from '../../db/types';
 import { generateOlxBookmarkletUrl } from '../../utils/olxBookmarkletGenerator';
 
 import { FinancingSettingsManager } from './FinancingSettingsManager';
@@ -33,8 +37,35 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
     toggleColumn, 
     resetSettings 
   } = useWorkspace();
-  const { tenant } = useTenant();
+  const { tenant, tenantId, updateTenantProfile } = useTenant();
   const activeDealer = dealer || tenant;
+
+  const currentLandingConfig: DealerLandingConfig = activeDealer?.landingConfig || DEFAULT_LANDING_CONFIG;
+  const catalogDisplayMode = currentLandingConfig.catalogDisplayMode || 'progressive_batch';
+  const catalogBatchDesktop = currentLandingConfig.catalogInitialBatchDesktop || 9;
+  const catalogBatchMobile = currentLandingConfig.catalogInitialBatchMobile || 6;
+
+  const handleSetCatalogBatch = (
+    mode: 'progressive_batch' | 'show_all',
+    desktopCount: 6 | 9 | 12 | 18 = 9,
+    mobileCount: 4 | 6 | 8 = 6
+  ) => {
+    const curCfg = activeDealer?.landingConfig || DEFAULT_LANDING_CONFIG;
+    const updated: DealerLandingConfig = {
+      ...curCfg,
+      catalogDisplayMode: mode,
+      catalogInitialBatchDesktop: desktopCount,
+      catalogInitialBatchMobile: mobileCount,
+    };
+    updateTenantProfile(activeDealer?.slug || tenantId, {
+      landingConfig: updated
+    });
+    showToast(
+      mode === 'show_all'
+        ? '✓ Mod catalog actualizat: Afișare completă din start (fără paginare)'
+        : `✓ Lot inițial catalog actualizat: ${desktopCount} mașini Desktop / ${mobileCount} Mobil.`
+    );
+  };
 
   // Detecție extensie ParcOS instalată în browser
   const [isExtensionInstalled, setIsExtensionInstalled] = useState(false);
@@ -415,6 +446,202 @@ export const WorkspaceSettingsView: React.FC<WorkspaceSettingsViewProps> = ({
                 </button>
               );
             })}
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* CARD 1.5: AFIȘARE STOC LANDING PAGE (PROGRESSIVE BATCHING & VITEZĂ LCP)    */}
+      {/* ========================================================================= */}
+      <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-6 shadow-xl space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/[0.06]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400">
+              <LayoutGrid className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span>Afișare Stoc Landing Page & Viteză Încărcare</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-bold">
+                  Core Web Vitals
+                </span>
+              </h2>
+              <p className="text-xs text-zinc-400">
+                Alege numărul optim de mașini afișate la deschiderea showroom-ului pe telefon și desktop pentru viteză instantanee și prevenirea abandonului.
+              </p>
+            </div>
+          </div>
+          <span className="text-xs px-2.5 py-1 rounded-full font-semibold border bg-amber-500/10 border-amber-500/30 text-amber-300 w-fit font-mono">
+            {catalogDisplayMode === 'show_all' 
+              ? 'Toate Mașinile (Fără limită)' 
+              : `Lot: ${catalogBatchDesktop} Desktop / ${catalogBatchMobile} Mobil`}
+          </span>
+        </div>
+
+        <div className="space-y-4">
+          <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+            Preseturi de Încărcare Stoc Showroom
+          </label>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            {/* Opțiunea 1: Recomandat ParcOS (9 Desktop / 6 Mobil) */}
+            <button
+              type="button"
+              onClick={() => handleSetCatalogBatch('progressive_batch', 9, 6)}
+              className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
+                catalogDisplayMode === 'progressive_batch' && catalogBatchDesktop === 9
+                  ? 'bg-amber-500/15 border-amber-500/60 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/30'
+                  : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05] text-zinc-400 hover:text-white'
+              }`}
+            >
+              <div className="absolute top-2.5 right-2.5 flex items-center gap-1">
+                <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 font-mono">
+                  RECOMANDAT
+                </span>
+                {catalogDisplayMode === 'progressive_batch' && catalogBatchDesktop === 9 && (
+                  <Check className="w-4 h-4 text-amber-400" />
+                )}
+              </div>
+
+              <div>
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Zap className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-xs font-extrabold text-white">9 Desktop / 6 Mobil</span>
+                </div>
+                <div className="text-[10px] text-amber-400 font-mono mb-2">⚡ LCP &lt; 1.0s (Instant)</div>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  Raportul ideal: matrice simetrică 3×3 pe desktop, 6 mașini pe mobil. Vizitatorii ajung rapid la rate și buy-back.
+                </p>
+              </div>
+
+              <div className="mt-3 pt-2 border-t border-white/[0.06] text-[10px] text-zinc-500 font-mono">
+                Pas extindere: +6 mașini
+              </div>
+            </button>
+
+            {/* Opțiunea 2: Ultra-Compact (6 Desktop / 6 Mobil) */}
+            <button
+              type="button"
+              onClick={() => handleSetCatalogBatch('progressive_batch', 6, 6)}
+              className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
+                catalogDisplayMode === 'progressive_batch' && catalogBatchDesktop === 6
+                  ? 'bg-amber-500/15 border-amber-500/60 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/30'
+                  : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05] text-zinc-400 hover:text-white'
+              }`}
+            >
+              <div className="absolute top-2.5 right-2.5">
+                {catalogDisplayMode === 'progressive_batch' && catalogBatchDesktop === 6 && (
+                  <Check className="w-4 h-4 text-amber-400" />
+                )}
+              </div>
+
+              <div>
+                <span className="text-xs font-extrabold text-white block mb-1">6 Desktop / 6 Mobil</span>
+                <div className="text-[10px] text-emerald-400 font-mono mb-2">🚀 Ultra-Rapid</div>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  2 rânduri simetrice de câte 3 mașini. Excelent pentru parcuri cu stoc de nișă sau viteză maximă pe 4G.
+                </p>
+              </div>
+
+              <div className="mt-3 pt-2 border-t border-white/[0.06] text-[10px] text-zinc-500 font-mono">
+                Pas extindere: +6 mașini
+              </div>
+            </button>
+
+            {/* Opțiunea 3: Catalog Extins (12 Desktop / 8 Mobil) */}
+            <button
+              type="button"
+              onClick={() => handleSetCatalogBatch('progressive_batch', 12, 8)}
+              className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
+                catalogDisplayMode === 'progressive_batch' && catalogBatchDesktop === 12
+                  ? 'bg-amber-500/15 border-amber-500/60 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/30'
+                  : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05] text-zinc-400 hover:text-white'
+              }`}
+            >
+              <div className="absolute top-2.5 right-2.5">
+                {catalogDisplayMode === 'progressive_batch' && catalogBatchDesktop === 12 && (
+                  <Check className="w-4 h-4 text-amber-400" />
+                )}
+              </div>
+
+              <div>
+                <span className="text-xs font-extrabold text-white block mb-1">12 Desktop / 8 Mobil</span>
+                <div className="text-[10px] text-blue-400 font-mono mb-2">📦 Stoc Generos</div>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  4 rânduri simetrice de 3. Recomandat parcurilor cu flotă mare (peste 30-40 de mașini în stoc fizic).
+                </p>
+              </div>
+
+              <div className="mt-3 pt-2 border-t border-white/[0.06] text-[10px] text-zinc-500 font-mono">
+                Pas extindere: +6 mașini
+              </div>
+            </button>
+
+            {/* Opțiunea 4: Plafon Maxim (18 Desktop / 10 Mobil) */}
+            <button
+              type="button"
+              onClick={() => handleSetCatalogBatch('progressive_batch', 18, 8)}
+              className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
+                catalogDisplayMode === 'progressive_batch' && catalogBatchDesktop === 18
+                  ? 'bg-amber-500/15 border-amber-500/60 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/30'
+                  : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05] text-zinc-400 hover:text-white'
+              }`}
+            >
+              <div className="absolute top-2.5 right-2.5">
+                {catalogDisplayMode === 'progressive_batch' && catalogBatchDesktop === 18 && (
+                  <Check className="w-4 h-4 text-amber-400" />
+                )}
+              </div>
+
+              <div>
+                <span className="text-xs font-extrabold text-white block mb-1">18 Desktop (Plafon Maxim)</span>
+                <div className="text-[10px] text-amber-400 font-mono mb-2">⚠️ Limită Maximă Admisibilă</div>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  6 rânduri complete. Peste acest număr, timpii de descărcare a imaginilor cresc sesizabil pe mobil.
+                </p>
+              </div>
+
+              <div className="mt-3 pt-2 border-t border-white/[0.06] text-[10px] text-zinc-500 font-mono">
+                Pas extindere: +6 mașini
+              </div>
+            </button>
+
+          </div>
+
+          {/* Opțiune Avansată: Toate Vehiculele Fără Limitare */}
+          <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs bg-white/[0.01] p-3.5 rounded-xl border border-white/[0.05]">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-zinc-500 shrink-0" />
+              <span className="text-zinc-400">
+                Vrei să dezactivezi încărcarea progresivă și să afișezi tot stocul simultan?
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (catalogDisplayMode === 'show_all') {
+                  handleSetCatalogBatch('progressive_batch', 9, 6);
+                } else {
+                  handleSetCatalogBatch('show_all', 9, 6);
+                }
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                catalogDisplayMode === 'show_all'
+                  ? 'bg-rose-500/20 border-rose-500/40 text-rose-300'
+                  : 'bg-white/5 border-white/10 text-zinc-300 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              {catalogDisplayMode === 'show_all' ? 'Revin-o la Mod Recomandat' : 'Afișează Tot Stocul (Fără Paginare)'}
+            </button>
+          </div>
+
+          {/* Notă Explicativă de Viteză */}
+          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5 text-xs text-amber-200">
+            <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div className="leading-relaxed">
+              <strong>De ce limităm numărul inițial de mașini?</strong> Fiecare autovehicul încarcă o fotografie optimizată WebP și structuri interactive. Limitarea la <strong>9 mașini pe desktop și 6 pe mobil</strong> garantează un timp de încărcare sub 1 secundă și un scor maxim Google PageSpeed. Clienții pot oricând apăsa <em>„Încarcă încă 6 mașini”</em> pentru a explora întreg parcul.
+            </div>
           </div>
         </div>
       </div>

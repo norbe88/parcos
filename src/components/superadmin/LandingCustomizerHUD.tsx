@@ -76,6 +76,9 @@ export const LandingCustomizerHUD: React.FC<LandingCustomizerHUDProps> = ({
 
   const [selectedTheme, setSelectedTheme] = useState<DealerThemePreset>(tenant.themePreset || 'obsidian_gold');
   const [layoutVariant, setLayoutVariant] = useState<DealerLayoutVariant>(baseConfig.layoutVariant || 'luxury_cinematic');
+  const [catalogDisplayMode, setCatalogDisplayMode] = useState<'progressive_batch' | 'show_all'>(baseConfig.catalogDisplayMode || 'progressive_batch');
+  const [catalogInitialBatchDesktop, setCatalogInitialBatchDesktop] = useState<6 | 9 | 12 | 18>(baseConfig.catalogInitialBatchDesktop || 9);
+  const [catalogInitialBatchMobile, setCatalogInitialBatchMobile] = useState<4 | 6 | 8>(baseConfig.catalogInitialBatchMobile || 6);
   const [heroType, setHeroType] = useState<DealerHeroType>(baseConfig.hero?.type || 'spotlight');
   const [heroHeadline, setHeroHeadline] = useState<string>(baseConfig.hero?.headline || '');
   const [heroSubheadline, setHeroSubheadline] = useState<string>(baseConfig.hero?.subheadline || '');
@@ -105,6 +108,9 @@ export const LandingCustomizerHUD: React.FC<LandingCustomizerHUDProps> = ({
     const fresh = tenant.landingConfig || DEFAULT_LANDING_CONFIG;
     setSelectedTheme(tenant.themePreset || 'obsidian_gold');
     setLayoutVariant(fresh.layoutVariant || 'luxury_cinematic');
+    setCatalogDisplayMode(fresh.catalogDisplayMode || 'progressive_batch');
+    setCatalogInitialBatchDesktop(fresh.catalogInitialBatchDesktop || 9);
+    setCatalogInitialBatchMobile(fresh.catalogInitialBatchMobile || 6);
     setHeroType(fresh.hero?.type || 'spotlight');
     setHeroHeadline(fresh.hero?.headline || '');
     setHeroSubheadline(fresh.hero?.subheadline || '');
@@ -160,6 +166,9 @@ export const LandingCustomizerHUD: React.FC<LandingCustomizerHUDProps> = ({
   const handleSaveChanges = () => {
     const updatedConfig: DealerLandingConfig = {
       layoutVariant,
+      catalogDisplayMode,
+      catalogInitialBatchDesktop,
+      catalogInitialBatchMobile,
       hero: {
         type: heroType,
         headline: heroHeadline.trim() || undefined,
@@ -326,6 +335,86 @@ export const LandingCustomizerHUD: React.FC<LandingCustomizerHUDProps> = ({
               </div>
             );
           })}
+        </div>
+      </section>
+
+      {/* ─── SECȚIUNEA 2.5: CONFIGURARE AFIȘARE STOC & BATCHING ──────────────── */}
+      <section className="p-6 rounded-2xl bg-[#121215] border border-white/[0.08] space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <LayoutGrid className="w-4 h-4 text-amber-400" />
+              <span>2.5. Afișare Stoc Showroom & Încărcare Progresivă (Batching)</span>
+            </h3>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Controlează câte mașini se randează inițial la deschiderea showroom-ului pentru viteză de top.
+            </p>
+          </div>
+          <span className="text-xs px-2.5 py-0.5 rounded-full font-mono font-bold bg-amber-500/10 border border-amber-500/30 text-amber-300 w-fit">
+            {catalogDisplayMode === 'show_all' ? 'Toate (Fără limită)' : `${catalogInitialBatchDesktop} Desktop / ${catalogInitialBatchMobile} Mobil`}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {[
+            { id: 9, mob: 6 as const, label: '9 Desktop / 6 Mobil', badge: 'RECOMANDAT', desc: 'Matrice simetrică 3×3. LCP < 1.0s instant. Rata optimă de conversie.', rec: true },
+            { id: 6, mob: 6 as const, label: '6 Desktop / 6 Mobil', badge: 'ULTRA-RAPID', desc: '2 rânduri de 3. Focus pe încărcare fulger și lead rapid.', rec: false },
+            { id: 12, mob: 8 as const, label: '12 Desktop / 8 Mobil', badge: 'EXTINS', desc: '4 rânduri de 3. Pentru dealeri cu flotă mare disponibilă.', rec: false },
+            { id: 18, mob: 8 as const, label: '18 Desktop (Plafon)', badge: 'MAXIM', desc: '6 rânduri. Limită superioară recomandată pentru viteză.', rec: false }
+          ].map((preset) => {
+            const isSelected = catalogDisplayMode === 'progressive_batch' && catalogInitialBatchDesktop === preset.id;
+            return (
+              <div
+                key={preset.id}
+                onClick={() => {
+                  setCatalogDisplayMode('progressive_batch');
+                  setCatalogInitialBatchDesktop(preset.id as any);
+                  setCatalogInitialBatchMobile(preset.mob);
+                  setIsDirty(true);
+                }}
+                className={`p-4 rounded-xl border transition-all cursor-pointer space-y-2 select-none relative ${
+                  isSelected
+                    ? 'bg-amber-500/10 border-amber-500/80 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/40'
+                    : 'bg-[#18181c] border-white/[0.06] hover:border-white/20'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className={`text-[9.5px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                    preset.rec ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-white/5 text-zinc-400'
+                  }`}>
+                    {preset.badge}
+                  </span>
+                  {isSelected && <span className="text-[10px] font-bold text-amber-400 font-mono">ACTIV</span>}
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white">{preset.label}</h4>
+                  <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">{preset.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Toggle mod Fără Limită */}
+        <div className="pt-2 flex items-center justify-between text-xs bg-[#18181c] p-3 rounded-xl border border-white/[0.06]">
+          <span className="text-zinc-400">
+            Mod clasic: Afișează toate autovehiculele din start (dezactivează încărcarea progresivă)
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              const nextMode = catalogDisplayMode === 'show_all' ? 'progressive_batch' : 'show_all';
+              setCatalogDisplayMode(nextMode);
+              setIsDirty(true);
+            }}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+              catalogDisplayMode === 'show_all'
+                ? 'bg-rose-500/20 border-rose-500/40 text-rose-300'
+                : 'bg-white/5 border-white/10 text-zinc-300 hover:text-white'
+            }`}
+          >
+            {catalogDisplayMode === 'show_all' ? 'Dezactivează (Revin-o la Recomandat)' : 'Afișează Tot Stocul'}
+          </button>
         </div>
       </section>
 
@@ -835,6 +924,9 @@ export const LandingCustomizerHUD: React.FC<LandingCustomizerHUDProps> = ({
               onClick={() => {
                 const fresh = tenant.landingConfig || DEFAULT_LANDING_CONFIG;
                 setLayoutVariant(fresh.layoutVariant || 'luxury_cinematic');
+                setCatalogDisplayMode(fresh.catalogDisplayMode || 'progressive_batch');
+                setCatalogInitialBatchDesktop(fresh.catalogInitialBatchDesktop || 9);
+                setCatalogInitialBatchMobile(fresh.catalogInitialBatchMobile || 6);
                 setHeroType(fresh.hero?.type || 'spotlight');
                 setVisibleSections(fresh.visibleSections || DEFAULT_LANDING_CONFIG.visibleSections);
                 setCustomBadges(fresh.customBadges || []);

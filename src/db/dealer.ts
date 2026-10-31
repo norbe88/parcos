@@ -42,6 +42,9 @@ export function isTenantFeatureEnabled(
 // ─── Config Landing Default (fallback sigur pentru orice dealer nou) ──────────
 export const DEFAULT_LANDING_CONFIG: DealerLandingConfig = {
   layoutVariant: 'luxury_cinematic',
+  catalogDisplayMode: 'progressive_batch',
+  catalogInitialBatchDesktop: 9,
+  catalogInitialBatchMobile: 6,
   hero: { type: 'spotlight' },
   visibleSections: {
     heroCinematic: true,

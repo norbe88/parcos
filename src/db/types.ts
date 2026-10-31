@@ -289,6 +289,9 @@ export interface DealerLandingConfig {
   customBadges: string[]; // ex: ["Garanție 24 Luni", "TVA Deductibil 21%"]
   seo?: DealerSeoConfig;
   intro?: DealerIntroConfig;
+  catalogDisplayMode?: 'progressive_batch' | 'show_all';
+  catalogInitialBatchDesktop?: 6 | 9 | 12 | 18;
+  catalogInitialBatchMobile?: 4 | 6 | 8;
 }
 
 export interface TenantFeatures {

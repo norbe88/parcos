@@ -1,3 +1,4 @@
+import React from 'react';
 import { 
   Car, Eye, Shield, Play, Clock, Gauge, Fuel, Cog, 
   FileCheck, Sparkles, Calculator, Truck, MessageCircle, Tag, Building2 
@@ -25,12 +26,13 @@ interface VehicleCardProps {
   index?: number;
 }
 
-export const VehicleCard: React.FC<VehicleCardProps> = ({
+export const VehicleCard: React.FC<VehicleCardProps> = React.memo(({
   car,
   onSelectCar,
   dealer = SEED_DEALER,
   calculateRate = defaultCalcRate,
-  priority = false
+  priority = false,
+  index
 }) => {
   const stockRef = getStockNumber(car);
   const currentStatus = car.status || 'in_stock';
@@ -40,7 +42,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
 
   return (
     <div 
-      className={`group rounded-2xl bg-[#121215] overflow-hidden transition-all duration-300 flex flex-col ${
+      className={`group rounded-2xl bg-[#121215] overflow-hidden transition-all duration-300 flex flex-col animate-fade-in-up ${
         isDeal
           ? 'border-2 border-amber-400/80 ring-1 ring-amber-400/40 shadow-[0_0_32px_rgba(245,158,11,0.28)] hover:shadow-[0_0_48px_rgba(245,158,11,0.40)]'
           : 'border border-white/[0.08] shadow-xl hover:border-amber-500/40'
@@ -403,4 +405,12 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
       </div>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.car.id === nextProps.car.id &&
+    prevProps.car.priceEur === nextProps.car.priceEur &&
+    prevProps.car.status === nextProps.car.status &&
+    prevProps.priority === nextProps.priority &&
+    prevProps.dealer?.slug === nextProps.dealer?.slug
+  );
+});
