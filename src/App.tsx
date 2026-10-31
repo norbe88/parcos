@@ -79,12 +79,16 @@ export default function App() {
         return true;
       }
 
+      // Verificare stocare intro per-tenant (RXM vs MPI Auto)
+      const isMpiDomain = window.location.hostname.includes('mpiauto') || urlParams.get('dealer') === 'mpi_auto';
+      const tenantIntroKey = isMpiDomain ? 'mpi_intro_seen' : 'rxm_intro_seen';
+
       // În modul de dezvoltare (DEV) ignorăm cheia permanentă din localStorage pentru a permite testarea facilă la F5
       if (import.meta.env.DEV) {
-        return Boolean(sessionStorage.getItem('rxm_intro_seen'));
+        return Boolean(sessionStorage.getItem(tenantIntroKey));
       }
 
-      if (sessionStorage.getItem('rxm_intro_seen') || localStorage.getItem('rxm_intro_seen')) {
+      if (sessionStorage.getItem(tenantIntroKey) || localStorage.getItem(tenantIntroKey)) {
         return true;
       }
     }
@@ -95,6 +99,8 @@ export default function App() {
     try {
       sessionStorage.removeItem('rxm_intro_seen');
       localStorage.removeItem('rxm_intro_seen');
+      sessionStorage.removeItem('mpi_intro_seen');
+      localStorage.removeItem('mpi_intro_seen');
     } catch {}
     setIsRevealed(false);
     setIntroKey(prev => prev + 1);

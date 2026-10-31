@@ -56,10 +56,10 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
       return;
     }
 
-    // Watchdog de siguranță: dacă videoclipul se blochează, deblochează ecranul după 7.5s
+    // Watchdog de siguranță: dacă videoclipul se blochează, deblochează ecranul după 10s
     const watchdogTimer = setTimeout(() => {
       handleMpiExit();
-    }, 7500);
+    }, 10000);
 
     return () => {
       clearTimeout(watchdogTimer);
