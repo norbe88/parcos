@@ -2412,7 +2412,7 @@ export const server = http.createServer(async (req, res) => {
           ...(landingConfig ? { landingConfig } : {})
         },
         landingConfig: landingConfig,
-        themePreset: tenant.config?.themePreset || 'obsidian_gold',
+        themePreset: tenant.config?.themePreset || tenant.theme_preset || 'obsidian_gold',
         vatRate: 0.21,
         warrantyTerm: 'Cont de Garanție',
         reservationTerm: 'Garanție de Rezervare/Participare'
@@ -2428,7 +2428,7 @@ export const server = http.createServer(async (req, res) => {
         slug: tenant.slug,
         name: tenant.name,
         domain: tenant.domain,
-        themePreset: tenant.config?.themePreset || 'obsidian_gold',
+        themePreset: tenant.config?.themePreset || tenant.theme_preset || 'obsidian_gold',
       });
     }
 
