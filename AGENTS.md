@@ -25,6 +25,7 @@ Toate mesajele conversaționale, dictările vocale și cerințele utilizatorului
 - **Estetică Dark Luxury Dual-Theme:** Tokeni adaptivi Tailwind (`#09090b` dark, font *Plus Jakarta Sans*, contrast WCAG AA, fără culori hardcodate single-theme).
 - **Verificare Obligatorie Pre-Commit:** `npx tsc --noEmit` înainte de orice commit sau push.
 - **Media Asset Versioning & Cache-Busting (STRICT):** Toate fișierele video/media din `public/` (în special `.mp4`, `.webm`, `.webp`) sunt servite prin Cloudflare cu `Cache-Control: immutable`. La orice înlocuire de media, este OBLIGATORIE versionarea numelui de fișier (ex: `mpi-showroom-intro-v2.mp4`) și adăugarea unui query string unic (`?v=TIMESTAMP`) în codul componentei. NICIODATĂ nu se suprascrie un fișier media pe același nume fără schimbarea căii în cod.
+- **Multi-Tenant Brand Isolation & Zero-Bleed (STRICT):** Toate parcurile auto (subtenanții ParcOS) sunt 100% izolate. Niciun nume, logo, număr de telefon, clauză juridică sau stil introductiv nu se poate scurge de la un dealer la altul. Verificarea `node scripts/qa_tenant_brand_isolation.cjs` este OBLIGATORIE înainte de orice commit sau deploy.
 - **Node Identity:** Mașina curentă este **Zety** (`zbook-norby`). În plicurile de Slack / Mesh, folosește `FROM: Zety (zbook-norby)`.
 
 ---
