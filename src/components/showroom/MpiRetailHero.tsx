@@ -43,6 +43,7 @@ export const MpiRetailHero: React.FC<MpiRetailHeroProps> = ({
   // Căutare rapidă
   const [selectedBrand, setSelectedBrand] = useState('all');
   const [selectedModel, setSelectedModel] = useState('all');
+  const [selectedMinYear, setSelectedMinYear] = useState('all');
   const [maxBudget, setMaxBudget] = useState('all');
 
   const availableBrands = useMemo(() => {
@@ -52,6 +53,17 @@ export const MpiRetailHero: React.FC<MpiRetailHeroProps> = ({
       if (b) s.add(b);
     });
     return Array.from(s).sort((a, b) => a.localeCompare(b, 'ro'));
+  }, [cars]);
+
+  // Ani de producție disponibili în stoc (sortați descrescător)
+  const availableYears = useMemo(() => {
+    const s = new Set<number>();
+    cars.forEach(c => {
+      if (c.year && c.year > 1990 && c.year <= new Date().getFullYear() + 1) {
+        s.add(c.year);
+      }
+    });
+    return Array.from(s).sort((a, b) => b - a);
   }, [cars]);
 
   const availableModels = useMemo(() => {
@@ -65,6 +77,14 @@ export const MpiRetailHero: React.FC<MpiRetailHeroProps> = ({
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    window.dispatchEvent(new CustomEvent('parcos:catalog-filter', {
+      detail: {
+        brand: selectedBrand !== 'all' ? selectedBrand : undefined,
+        query: selectedModel !== 'all' ? selectedModel : undefined,
+        year: selectedMinYear !== 'all' ? selectedMinYear : undefined,
+        maxPrice: maxBudget !== 'all' ? Number(maxBudget) : undefined
+      }
+    }));
     const el = document.getElementById('catalog');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -231,7 +251,7 @@ export const MpiRetailHero: React.FC<MpiRetailHeroProps> = ({
             onSubmit={handleSearchSubmit}
             className="p-3 sm:p-4 rounded-[var(--r-md,14px)] bg-[var(--surface-2,#1B2431)] border border-[var(--line,rgba(255,255,255,0.08))] shadow-md"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-center">
               {/* Select Marcă */}
               <div>
                 <label className="block text-[11px] font-montserrat font-semibold uppercase tracking-wider text-[var(--text-muted,#A3ABB6)] mb-1">
@@ -268,6 +288,23 @@ export const MpiRetailHero: React.FC<MpiRetailHeroProps> = ({
                   </option>
                   {availableModels.map(m => (
                     <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Select An Fabricație */}
+              <div>
+                <label className="block text-[11px] font-montserrat font-semibold uppercase tracking-wider text-[var(--text-muted,#A3ABB6)] mb-1">
+                  An fabricație
+                </label>
+                <select
+                  value={selectedMinYear}
+                  onChange={(e) => setSelectedMinYear(e.target.value)}
+                  className="w-full h-11 px-3 rounded-[var(--r-sm,8px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] text-[var(--text,#F4F6F9)] text-[14px] font-open-sans focus:outline-none focus:border-[var(--accent,#D83333)]"
+                >
+                  <option value="all">Oricare an</option>
+                  {availableYears.map(y => (
+                    <option key={y} value={y.toString()}>De la {y}</option>
                   ))}
                 </select>
               </div>

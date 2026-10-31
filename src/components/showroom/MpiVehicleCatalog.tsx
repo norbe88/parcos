@@ -28,6 +28,9 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
   // Căutare după text
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Filtru an de producție
+  const [selectedMinYear, setSelectedMinYear] = useState('all');
+
   // Quick filter chips
   const [quickFilter, setQuickFilter] = useState<'all' | 'suv' | 'auto' | 'under10k' | 'under15k'>('all');
 
@@ -40,13 +43,28 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
   // Sincronizare cu filtrul de căutare din topbar / navbar
   useEffect(() => {
     const handleFilterEvent = (e: Event) => {
-      const customEvent = e as CustomEvent<{ query?: string; chip?: 'all' | 'suv' | 'auto' | 'under10k' | 'under15k' }>;
+      const customEvent = e as CustomEvent<{
+        query?: string;
+        chip?: 'all' | 'suv' | 'auto' | 'under10k' | 'under15k';
+        year?: string;
+        brand?: string;
+        maxPrice?: number;
+      }>;
       if (customEvent.detail) {
         if (typeof customEvent.detail.query === 'string') {
           setSearchQuery(customEvent.detail.query);
         }
         if (customEvent.detail.chip) {
           setQuickFilter(customEvent.detail.chip);
+        }
+        if (typeof customEvent.detail.year === 'string') {
+          setSelectedMinYear(customEvent.detail.year);
+        }
+        if (typeof customEvent.detail.brand === 'string') {
+          setSelectedBrand(customEvent.detail.brand);
+        }
+        if (typeof customEvent.detail.maxPrice === 'number') {
+          setMaxPrice(customEvent.detail.maxPrice);
         }
       }
     };
@@ -75,6 +93,17 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
     return Array.from(s).sort((a, b) => a.localeCompare(b, 'ro'));
   }, [cars]);
 
+  // Ani de producție disponibili în stoc (sortați descrescător)
+  const availableYears = useMemo(() => {
+    const s = new Set<number>();
+    cars.forEach(c => {
+      if (c.year && c.year > 1990 && c.year <= new Date().getFullYear() + 1) {
+        s.add(c.year);
+      }
+    });
+    return Array.from(s).sort((a, b) => b - a);
+  }, [cars]);
+
   // Număr mașini per tab
   const counts = useMemo(() => {
     const inStock = cars.filter(c => c.status !== 'sold' && c.status !== 'preparing').length;
@@ -101,6 +130,12 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
         if (!fullTitle.includes(q) && !details.includes(q)) return false;
       }
 
+      // Filtru An de Producție (minim)
+      if (selectedMinYear !== 'all') {
+        const minYearNum = Number(selectedMinYear);
+        if (!c.year || c.year < minYearNum) return false;
+      }
+
       // Quick chips filter
       if (quickFilter === 'suv' && !(c.bodyType?.toLowerCase().includes('suv') || c.drivetrain?.includes('4x4'))) {
         return false;
@@ -119,7 +154,7 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
 
       return true;
     });
-  }, [cars, stockTab, searchQuery, quickFilter, selectedBrand, selectedFuel, selectedTransmission, maxPrice]);
+  }, [cars, stockTab, searchQuery, selectedMinYear, quickFilter, selectedBrand, selectedFuel, selectedTransmission, maxPrice]);
 
   const visibleCars = filteredCars.slice(0, visibleCount);
   const hasMore = visibleCount < filteredCars.length;
@@ -134,6 +169,7 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
 
   const resetFilters = () => {
     setSearchQuery('');
+    setSelectedMinYear('all');
     setQuickFilter('all');
     setSelectedBrand('all');
     setSelectedFuel('all');
@@ -205,7 +241,7 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Caută în stoc după marcă, model sau dotări (ex: BMW Seria 3, Megane, DSG, 4x4)..."
+            placeholder="Caută în stoc după marcă, model, an sau dotări (ex: BMW, 2020, DSG, 4x4)..."
             className="w-full h-11 sm:h-12 pl-11 pr-10 rounded-[var(--r-md,14px)] bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)] font-montserrat text-[13px] sm:text-[14px] border border-[var(--line,rgba(255,255,255,0.12))] focus:outline-none focus:border-[var(--accent,#D83333)] placeholder:text-[var(--text-muted,#A3ABB6)] transition-all shadow-sm"
           />
           {searchQuery && (
@@ -282,6 +318,28 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
             >
               Sub 15.000 €
             </button>
+
+            {/* Selector Rapid An Producție */}
+            <div className="relative shrink-0">
+              <select
+                aria-label="Filtrează după an de producție"
+                value={selectedMinYear}
+                onChange={(e) => setSelectedMinYear(e.target.value)}
+                className={`h-10 pl-3 pr-8 rounded-[var(--r-sm,8px)] font-montserrat font-semibold text-[13px] whitespace-nowrap transition-colors cursor-pointer appearance-none ${
+                  selectedMinYear !== 'all'
+                    ? 'bg-[var(--accent,#D83333)] text-white border border-[var(--accent,#D83333)]'
+                    : 'bg-[var(--surface-2,#1B2431)] text-[var(--text-muted,#A3ABB6)] hover:text-[var(--text,#F4F6F9)] border border-[var(--line,rgba(255,255,255,0.08))]'
+                }`}
+              >
+                <option value="all" className="bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)]">An: Oricare</option>
+                {availableYears.map(y => (
+                  <option key={y} value={y.toString()} className="bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)]">
+                    An: ≥ {y}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70" />
+            </div>
           </div>
 
           <button
@@ -380,6 +438,23 @@ export const MpiVehicleCatalog: React.FC<VehicleCatalogProps> = ({
                   <option value="all">Toate mărcile ({availableBrands.length})</option>
                   {availableBrands.map(b => (
                     <option key={b} value={b}>{b}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* An de Producție (minim) */}
+              <div className="mb-5">
+                <label className="block text-[12px] font-montserrat font-semibold uppercase tracking-wider text-[var(--text-muted,#A3ABB6)] mb-2">
+                  An de producție (minim)
+                </label>
+                <select
+                  value={selectedMinYear}
+                  onChange={(e) => setSelectedMinYear(e.target.value)}
+                  className="w-full h-11 px-3 rounded-[var(--r-sm,8px)] bg-[var(--surface-2,#1B2431)] border border-[var(--line,rgba(255,255,255,0.08))] text-[var(--text,#F4F6F9)] text-[14px]"
+                >
+                  <option value="all">Oricare an de producție</option>
+                  {availableYears.map(y => (
+                    <option key={y} value={y.toString()}>De la {y} încoace</option>
                   ))}
                 </select>
               </div>

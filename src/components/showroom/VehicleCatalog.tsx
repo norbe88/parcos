@@ -42,6 +42,7 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
 }) => {
   const [stockTab, setStockTab] = useState<'all' | 'in_stock' | 'reserved' | 'sold'>('in_stock');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
+  const [selectedMinYear, setSelectedMinYear] = useState<string>('all');
   const [selectedFuel, setSelectedFuel] = useState<string>('all');
   const [selectedTransmission, setSelectedTransmission] = useState<string>('all');
   const absoluteMaxPrice = useMemo(() => {
@@ -70,6 +71,17 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
     return Array.from(brandsSet).sort((a, b) => a.localeCompare(b, 'ro'));
   }, [cars]);
 
+  // Ani de producție disponibili în stoc (sortați descrescător)
+  const availableYears = useMemo(() => {
+    const s = new Set<number>();
+    cars.forEach(c => {
+      if (c.year && c.year > 1990 && c.year <= new Date().getFullYear() + 1) {
+        s.add(c.year);
+      }
+    });
+    return Array.from(s).sort((a, b) => b - a);
+  }, [cars]);
+
   // Statistici stoc
   const stockStats = useMemo(() => {
     const totalVehicles = cars.length;
@@ -96,12 +108,16 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
       }
 
       if (selectedBrand !== 'all' && normalizeBrand(c.brand) !== selectedBrand) return false;
+      if (selectedMinYear !== 'all') {
+        const minYearNum = Number(selectedMinYear);
+        if (!c.year || c.year < minYearNum) return false;
+      }
       if (selectedFuel !== 'all' && c.fuelType !== selectedFuel) return false;
       if (selectedTransmission !== 'all' && c.transmission !== selectedTransmission) return false;
       if (c.priceEur > maxPrice) return false;
       return true;
     });
-  }, [cars, stockTab, selectedBrand, selectedFuel, selectedTransmission, maxPrice]);
+  }, [cars, stockTab, selectedBrand, selectedMinYear, selectedFuel, selectedTransmission, maxPrice]);
 
   // Sortare prioritară: Oferta Săptămânii (#1, scor 2) > Pinned to Top (scor 1) > Normal (scor 0)
   const sortedFilteredCars = useMemo(() => {
@@ -121,7 +137,7 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
   // 🔄 Resetare lot la schimbarea oricărui filtru activ sau a configurării parcului
   useEffect(() => {
     setVisibleCount(getInitialBatch(landingConfig));
-  }, [stockTab, selectedBrand, selectedFuel, selectedTransmission, maxPrice, landingConfig]);
+  }, [stockTab, selectedBrand, selectedMinYear, selectedFuel, selectedTransmission, maxPrice, landingConfig]);
 
   // ⚡ Oferte speciale curatoriate (max 6 autovehicule: Oferta Săptămânii + Fixate + cele mai mari reduceri)
   const specialOffers = useMemo(() => {
@@ -330,7 +346,7 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-xs">
           {/* Filtru Marcă */}
           <div>
             <label htmlFor="filter-brand" className="block text-zinc-400 mb-1 font-medium">Marcă</label>
@@ -344,6 +360,23 @@ export const VehicleCatalog: React.FC<VehicleCatalogProps> = ({
               <option value="all">Toate mărcile</option>
               {availableBrands.map(b => (
                 <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filtru An Fabricație */}
+          <div>
+            <label htmlFor="filter-year" className="block text-zinc-400 mb-1 font-medium">An Fabricație</label>
+            <select 
+              id="filter-year"
+              aria-label="Filtrează după an de producție"
+              value={selectedMinYear} 
+              onChange={e => setSelectedMinYear(e.target.value)}
+              className="w-full min-h-[44px] bg-[#18181b] border border-white/10 rounded-xl px-3 py-2.5 text-base sm:text-xs text-white outline-none focus:border-amber-400 touch-manipulation"
+            >
+              <option value="all">Oricare an</option>
+              {availableYears.map(y => (
+                <option key={y} value={y.toString()}>De la {y}</option>
               ))}
             </select>
           </div>

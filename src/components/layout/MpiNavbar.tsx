@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Phone, MessageCircle, Menu, X, Sun, Moon, 
-  Shield, Calculator, ArrowLeftRight, CheckCircle2, MapPin, Search, Car
+  Shield, Calculator, ArrowLeftRight, CheckCircle2, MapPin, Search, Car, ChevronDown
 } from 'lucide-react';
 import { SEED_DEALER } from '../../db/seed';
 import { DealerProfile } from '../../db/types';
@@ -30,6 +30,7 @@ export const MpiNavbar: React.FC<NavbarProps> = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const [quickSearchOpen, setQuickSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedMinYear, setSelectedMinYear] = useState('all');
   const [activeChip, setActiveChip] = useState<'all' | 'suv' | 'auto' | 'under10k' | 'under15k'>('all');
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -53,14 +54,21 @@ export const MpiNavbar: React.FC<NavbarProps> = ({
   const handleQueryChange = (query: string) => {
     setSearchQuery(query);
     window.dispatchEvent(new CustomEvent('parcos:catalog-filter', {
-      detail: { query, chip: activeChip }
+      detail: { query, chip: activeChip, year: selectedMinYear }
     }));
   };
 
   const handleChipSelect = (chip: 'all' | 'suv' | 'auto' | 'under10k' | 'under15k') => {
     setActiveChip(chip);
     window.dispatchEvent(new CustomEvent('parcos:catalog-filter', {
-      detail: { query: searchQuery, chip }
+      detail: { query: searchQuery, chip, year: selectedMinYear }
+    }));
+  };
+
+  const handleYearChange = (year: string) => {
+    setSelectedMinYear(year);
+    window.dispatchEvent(new CustomEvent('parcos:catalog-filter', {
+      detail: { query: searchQuery, chip: activeChip, year }
     }));
   };
 
@@ -254,7 +262,7 @@ export const MpiNavbar: React.FC<NavbarProps> = ({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => handleQueryChange(e.target.value)}
-                  placeholder="Caută marcă sau model (ex: BMW, Passat, SUV)..."
+                  placeholder="Caută marcă, model sau an (ex: BMW, 2020, SUV)..."
                   className="w-full h-11 pl-10 pr-9 rounded-[var(--r-sm,8px)] bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)] font-montserrat text-[14px] border border-[var(--line,rgba(255,255,255,0.12))] focus:outline-none focus:border-[var(--accent,#D83333)] placeholder:text-[var(--text-muted,#A3ABB6)] transition-colors"
                 />
                 {searchQuery && (
@@ -349,6 +357,31 @@ export const MpiNavbar: React.FC<NavbarProps> = ({
               >
                 Sub 15.000 €
               </button>
+
+              {/* Selector Rapid An în Quick Search */}
+              <div className="relative shrink-0">
+                <select
+                  aria-label="Filtrează după an de fabricație"
+                  value={selectedMinYear}
+                  onChange={(e) => {
+                    handleYearChange(e.target.value);
+                    navigateToSection('catalog');
+                  }}
+                  className={`h-7 pl-2.5 pr-6 rounded-full text-[12px] font-montserrat font-semibold whitespace-nowrap transition-colors cursor-pointer appearance-none ${
+                    selectedMinYear !== 'all'
+                      ? 'bg-[var(--accent,#D83333)] text-white'
+                      : 'bg-[var(--surface-2,#1B2431)] text-[var(--text-muted,#A3ABB6)] hover:text-[var(--text,#F4F6F9)]'
+                  }`}
+                >
+                  <option value="all" className="bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)]">An: Oricare</option>
+                  <option value="2023" className="bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)]">An ≥ 2023</option>
+                  <option value="2021" className="bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)]">An ≥ 2021</option>
+                  <option value="2019" className="bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)]">An ≥ 2019</option>
+                  <option value="2017" className="bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)]">An ≥ 2017</option>
+                  <option value="2015" className="bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)]">An ≥ 2015</option>
+                </select>
+                <ChevronDown className="w-3 h-3 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70" />
+              </div>
             </div>
           </div>
         </div>
