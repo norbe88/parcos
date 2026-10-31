@@ -42,6 +42,7 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
 
   const [progressRatio, setProgressRatio] = useState(0);
   const [displayPct, setDisplayPct] = useState(0);
+  const [isLogoIlluminated, setIsLogoIlluminated] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   // ══════════════════════════════════════════════════════════════
@@ -81,11 +82,11 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
     setPhase('sliding_up');
     if (onSplit) onSplit();
 
-    // După terminarea tranziției de glisare în sus (1000ms), marchează complet
+    // După terminarea tranziției de glisare în sus (950ms), marchează complet
     setTimeout(() => {
       setPhase('done');
       if (onComplete) onComplete();
-    }, 1000);
+    }, 950);
   };
 
   const handleMpiTimeUpdate = () => {
@@ -96,8 +97,13 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
     setProgressRatio(ratio);
     setDisplayPct(Math.min(100, Math.round(ratio * 100)));
 
-    // La secunda 6.5 (sau la finalul clipului), declanșăm tranziția de ieșire
-    if (vid.currentTime >= 6.5) {
+    // ⚡ EXACT când se sting farurile mașinii (t = 3.9s):
+    if (vid.currentTime >= 3.9 && !isLogoIlluminated) {
+      setIsLogoIlluminated(true);
+    }
+
+    // 🚀 La t = 6.3s (după 2.4s de expunere a neonului aprins):
+    if (vid.currentTime >= 6.3) {
       handleMpiExit();
     }
   };
@@ -181,7 +187,7 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
   if (phase === 'done') return null;
 
   // ══════════════════════════════════════════════════════════════
-  // RANDARE: MPI AUTO CINEMATIC INTRO (Slide Out to Top)
+  // RANDARE: MPI AUTO CINEMATIC INTRO (Fade-In Neon Logo + Slide Out Up)
   // ══════════════════════════════════════════════════════════════
   if (isMpi) {
     const isSlidingUp = phase === 'sliding_up';
@@ -193,7 +199,7 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
         }`}
         aria-hidden="true"
       >
-        {/* 🎬 Video Background Cinematic Fullscreen */}
+        {/* 🎬 Video Background Fullscreen Responsiv */}
         <video
           ref={videoRef}
           src="/videos/mpi-showroom-intro.mp4"
@@ -209,22 +215,35 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
         {/* 🌌 Ambient Vignette & Contrast Overlay */}
         <div className="absolute inset-0 bg-radial from-transparent via-black/25 to-black/80 pointer-events-none" />
 
-        {/* 🌟 Logo MPI Auto cu Strălucire Neon pe Perete */}
-        <div className="absolute top-[16%] sm:top-[18%] left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-20 w-full max-w-md px-4">
+        {/* 🌟 Logo MPI Auto pe Perete: ASCUNS inițial, se aprinde spectaculos la t=3.9s când se sting farurile */}
+        <div 
+          className={`absolute top-[14%] sm:top-[17%] md:top-[19%] left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-20 w-[92%] max-w-md px-4 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+            isLogoIlluminated 
+              ? 'opacity-100 translate-y-0 scale-100 blur-0' 
+              : 'opacity-0 translate-y-3 scale-90 blur-sm'
+          }`}
+        >
+          {/* Ambient Radial Halo Glow */}
+          <div 
+            className={`absolute -inset-8 sm:-inset-12 rounded-full bg-gradient-to-r from-rose-600/40 via-red-500/25 to-white/10 blur-3xl pointer-events-none transition-all duration-1000 ${
+              isLogoIlluminated ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+            }`} 
+          />
+
           <img 
             src="/images/mpi-logo-white.png" 
             alt="MPI AUTO CLUJ" 
-            className="h-16 sm:h-24 w-auto object-contain drop-shadow-[0_0_20px_rgba(225,29,72,0.85)] drop-shadow-[0_0_45px_rgba(255,255,255,0.9)] animate-pulse"
+            className="h-14 sm:h-20 md:h-24 w-auto object-contain drop-shadow-[0_0_20px_rgba(225,29,72,0.95)] drop-shadow-[0_0_45px_rgba(255,255,255,0.95)] relative z-10"
           />
-          <span className="mt-3 text-[10.5px] sm:text-xs font-bold tracking-[0.3em] uppercase text-zinc-300 drop-shadow-md text-center">
-            Centura Apahida • Showroom Autovehicule Rulate
+          <span className="mt-2.5 sm:mt-3 text-[10px] sm:text-xs md:text-sm font-bold tracking-[0.22em] sm:tracking-[0.35em] uppercase text-zinc-100 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] text-center relative z-10">
+            Centura Apahida • Showroom Rulate
           </span>
         </div>
 
-        {/* ⏭️ Buton discret de „Sari intro” */}
+        {/* ⏭️ Buton discret de „Sari intro” (protejat de Dynamic Island / Notch) */}
         <button
           onClick={handleMpiExit}
-          className="fixed top-[max(1.5rem,calc(env(safe-area-inset-top,0px)+0.75rem))] right-4 sm:right-6 z-40 px-3.5 py-1.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white text-[11px] font-semibold tracking-wider uppercase transition-all backdrop-blur-md cursor-pointer pointer-events-auto min-h-[36px] flex items-center justify-center touch-manipulation active:scale-95"
+          className="fixed top-[max(1.25rem,calc(env(safe-area-inset-top,0px)+0.75rem))] right-4 sm:right-6 z-40 px-3.5 py-1.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white text-[11px] font-semibold tracking-wider uppercase transition-all backdrop-blur-md cursor-pointer pointer-events-auto min-h-[36px] flex items-center justify-center touch-manipulation active:scale-95 shadow-lg shadow-black/50"
           title="Sari peste introducere"
         >
           Sari intro →
