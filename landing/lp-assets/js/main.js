@@ -246,26 +246,65 @@
     });
   }
 
-  /* 1c) Video Player Switcher: Spot Comercial (1 min) vs Tur Complet (6 min) */
-  window.switchParcosVideo = function (type) {
-    var v = document.getElementById('parcos-showcase-video');
-    var s = document.getElementById('parcos-video-source');
-    var bShort = document.getElementById('tab-short');
-    var bFull = document.getElementById('tab-full');
-    if (!v || !s) return;
-    var targetSrc = type === 'full'
-      ? '/lp-assets/video/parcos-explicativ-notebooklm.mp4?v=20261031_1240'
-      : '/lp-assets/video/parcos-commercial-short.mp4?v=20261031_1235';
-    if (s.getAttribute('src') === targetSrc) return;
-    s.setAttribute('src', targetSrc);
-    v.load();
-    v.play().catch(function () {});
-    if (bShort && bFull) {
-      bShort.classList.toggle('is-active', type === 'short');
-      bShort.setAttribute('aria-selected', String(type === 'short'));
-      bFull.classList.toggle('is-active', type === 'full');
-      bFull.setAttribute('aria-selected', String(type === 'full'));
+  /* 1c) Video Showcase: Portrait (9:16) vs Landscape (16:9) */
+  var portraitVid = document.getElementById('parcos-portrait-video');
+  var landscapeVid = document.getElementById('parcos-landscape-video');
+
+  // Mutual audio exclusivity: playing one pauses the other
+  if (portraitVid && landscapeVid) {
+    portraitVid.addEventListener('play', function () {
+      if (!landscapeVid.paused) landscapeVid.pause();
+      try {
+        if (typeof sendTrafficBeacon === 'function') sendTrafficBeacon('video_play', { format: 'portrait_9_16' });
+      } catch (e) {}
+    });
+    landscapeVid.addEventListener('play', function () {
+      if (!portraitVid.paused) portraitVid.pause();
+      try {
+        if (typeof sendTrafficBeacon === 'function') sendTrafficBeacon('video_play', { format: 'landscape_16_9' });
+      } catch (e) {}
+    });
+  }
+
+  window.selectVideoTab = function (format) {
+    var bPortrait = document.getElementById('tab-btn-portrait');
+    var bLandscape = document.getElementById('tab-btn-landscape');
+    var cPortrait = document.getElementById('card-video-portrait');
+    var cLandscape = document.getElementById('card-video-landscape');
+
+    var isPortrait = format === 'portrait';
+
+    if (bPortrait) {
+      bPortrait.classList.toggle('is-active', isPortrait);
+      bPortrait.setAttribute('aria-selected', String(isPortrait));
     }
+    if (bLandscape) {
+      bLandscape.classList.toggle('is-active', !isPortrait);
+      bLandscape.setAttribute('aria-selected', String(!isPortrait));
+    }
+    if (cPortrait) {
+      cPortrait.classList.toggle('is-active-mobile', isPortrait);
+    }
+    if (cLandscape) {
+      cLandscape.classList.toggle('is-active-mobile', !isPortrait);
+    }
+
+    // Scroll to the selected video on mobile
+    var targetEl = isPortrait ? cPortrait : cLandscape;
+    if (targetEl && window.innerWidth <= 920) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    try {
+      if (typeof sendTrafficBeacon === 'function') {
+        sendTrafficBeacon('video_tab_switch', { format: format });
+      }
+    } catch (e) {}
+  };
+
+  // Backwards-compatibility
+  window.switchParcosVideo = function (type) {
+    selectVideoTab(type === 'full' ? 'landscape' : 'portrait');
   };
 
 })();

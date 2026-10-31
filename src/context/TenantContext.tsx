@@ -31,6 +31,8 @@ export interface TenantContextType {
   tenantId: string;
   tenantBoot: TenantBootState;
   theme: ThemeConfig;
+  themeMode: 'dark' | 'light';
+  toggleThemeMode: () => void;
   setTenantId: (id: string) => void;
   availableTenants: TenantInfo[];
   allTenants: Record<string, DealerProfile>;
@@ -662,7 +664,27 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
     return withSeededFinancingPortfolio(merged);
   }, [baseTenant, dynamicConfig]);
 
-  const theme = useMemo(() => getThemeConfig(tenant.themePreset), [tenant.themePreset]);
+  const currentSlug = tenant.slug || tenantId || 'mpi_auto';
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`parcos_theme_${currentSlug}`);
+      if (saved === 'dark' || saved === 'light') return saved;
+      return tenant.themePreset === 'clean_white' ? 'light' : 'dark';
+    }
+    return 'dark';
+  });
+
+  const toggleThemeMode = useCallback(() => {
+    setThemeMode((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      try {
+        localStorage.setItem(`parcos_theme_${currentSlug}`, next);
+      } catch {}
+      return next;
+    });
+  }, [currentSlug]);
+
+  const theme = useMemo(() => getThemeConfig(tenant.themePreset, themeMode), [tenant.themePreset, themeMode]);
 
   // Actualizare atribute HTML și injectare CSS variables adaptive în :root
   useEffect(() => {
@@ -670,7 +692,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       const activeTheme = tenant.themePreset || 'obsidian_gold';
       document.documentElement.setAttribute('data-theme', activeTheme);
       document.body.setAttribute('data-theme', activeTheme);
-      const isLight = theme.isLightMode === true;
+      const isLight = themeMode === 'light' || (theme.isLightMode === true && themeMode !== 'dark');
       document.documentElement.setAttribute('data-theme-mode', isLight ? 'light' : 'dark');
       document.body.setAttribute('data-theme-mode', isLight ? 'light' : 'dark');
       if (isLight) {
@@ -688,7 +710,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
       root.style.setProperty('--color-accent-text', theme.accentTextColor);
       root.style.setProperty('--color-accent-rgb', hexToRgb(theme.accentColor));
     }
-  }, [tenant, theme]);
+  }, [tenant, theme, themeMode]);
 
   const availableTenants: TenantInfo[] = useMemo(() => {
     if (!isPitchModeAllowed) {
@@ -727,6 +749,8 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
         tenantId,
         tenantBoot,
         theme,
+        themeMode,
+        toggleThemeMode,
         setTenantId,
         availableTenants,
         allTenants: tenantsMap,
@@ -764,6 +788,8 @@ export const useTenantContext = (): TenantContextType => {
       tenantId: 'rxm',
       tenantBoot: 'ready',
       theme: fallbackTheme,
+      themeMode: 'dark',
+      toggleThemeMode: () => {},
       setTenantId: () => {},
       availableTenants: [{ 
         id: 'rxm', 

@@ -31,6 +31,21 @@ export default defineConfig({
       ignored: ['**/public/**', '**/.git/**', '**/backups/**', '**/staged_imports/**', '**/dist/**'],
     },
     proxy: {
+      '/api/tenant': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/api/tenant-config': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/api/telemetry': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
       '/api/lead': {
         target: 'http://localhost:3000',
         changeOrigin: true,

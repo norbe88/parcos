@@ -80,7 +80,7 @@ export const BuyBackSection: React.FC<BuyBackSectionProps> = ({
             Buy-Back Auto — Dă Mașina Veche la Schimb
           </h2>
           <p className="text-sm text-zinc-400 mt-2 max-w-2xl mx-auto">
-            Evaluează autovehiculul tău la prețul real al pieței. Valoarea mașinii vechi devine avans pentru orice autoturism din stocul ${dealer.name} sau îți virăm contravaloarea prin transfer bancar!
+            Evaluează autovehiculul tău la prețul real al pieței. Valoarea mașinii vechi se scade din prețul final sau constituie plata inițială pentru orice autoturism din stocul {dealer.name} sau îți virăm contravaloarea prin transfer bancar!
           </p>
         </div>
 
@@ -102,7 +102,7 @@ export const BuyBackSection: React.FC<BuyBackSectionProps> = ({
               Evaluare în <span className="text-amber-400 italic">Max. 24 Ore</span>
             </h3>
             <p className="text-zinc-300 text-xs sm:text-[13px] leading-relaxed">
-              Specialiștii ${dealer.name} analizează istoricul și cotația de piață și revin cu o ofertă fermă și transparentă.
+              Specialiștii {dealer.name} analizează istoricul și cotația de piață și revin cu o ofertă fermă și transparentă.
             </p>
           </div>
 

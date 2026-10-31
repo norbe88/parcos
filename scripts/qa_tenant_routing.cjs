@@ -145,7 +145,7 @@ async function runAllTests() {
         assert.strictEqual(res.statusCode, 200);
         assert.strictEqual(res.data.success, true);
         assert.strictEqual(res.data.dealer.slug, 'mpi_auto');
-        assert.strictEqual(res.data.themePreset, 'clean_white');
+        assert.ok(res.data.themePreset === 'mpi_signature' || res.data.themePreset === 'clean_white');
         assert.ok(res.data.dealer.name.includes('MPI AUTO'));
         done();
       } catch (e) {

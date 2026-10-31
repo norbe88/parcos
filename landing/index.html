@@ -41,7 +41,7 @@
 
 <link rel="preload" href="/lp-assets/fonts/inter-var-latin-ro.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/lp-assets/fonts/intertight-var-latin-ro.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/lp-assets/css/styles.css?v=8">
+<link rel="stylesheet" href="/lp-assets/css/styles.css?v=10">
 
 <!-- Schema.org Comprehensive Structured Data (SoftwareApplication, FAQPage, Organization, WebSite) -->
 <script type="application/ld+json">
@@ -317,39 +317,101 @@
   </div>
 </section>
 
-<!-- DEMO VIDEO SPOTLIGHT -->
+<!-- DEMO VIDEO SPOTLIGHT & DUAL SHOWCASE (PORTRAIT 9:16 & LANDSCAPE 16:9) -->
 <section id="demo-video" class="section video-section" aria-labelledby="video-demo-titlu">
-  <div class="wrap" style="max-width:960px;text-align:center;">
+  <div class="wrap" style="max-width:1080px;text-align:center;">
     <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Prezentare Video · Softul Din Spatele Parcului</p>
-    <h2 id="video-demo-titlu" class="sec-h" style="margin:14px auto 0;">Vezi în 60 de secunde cum îți pui parcul auto pe pilot automat</h2>
-    <p class="sec-sub" style="margin:12px auto 26px;">Fără dosare rătăcite, fără contracte scrise de mână și fără ore pierdute tastând serii de șasiu.</p>
+    <h2 id="video-demo-titlu" class="sec-h" style="margin:14px auto 0;">Vezi ParcOS în acțiune: Demo pe mobil &amp; analiză aprofundată</h2>
+    <p class="sec-sub" style="margin:12px auto 28px;">Spotul rapid de 1 minut în format mobil (Portrait 9:16) și podcastul tehnic explicativ în format cinema (Landscape 16:9).</p>
 
-    <!-- Switcher Tabs între Spot Comercial Rapid și Turul Tehnic -->
-    <div class="video-tabs" role="tablist" aria-label="Selectează durata prezentării">
-      <button type="button" class="video-tab-btn is-active" id="tab-short" role="tab" aria-selected="true" onclick="switchParcosVideo('short')">
-        ⚡ Spot Comercial Rapid (1 min)
+    <!-- Mobile View Switcher (vizibil pe ecrane mici) -->
+    <div class="video-tabs-mobile" role="tablist" aria-label="Selectează formatul video">
+      <button type="button" class="video-tab-btn is-active" id="tab-btn-portrait" role="tab" aria-selected="true" onclick="selectVideoTab('portrait')">
+        📱 Spot Mobil (1 min · 9:16)
       </button>
-      <button type="button" class="video-tab-btn" id="tab-full" role="tab" aria-selected="false" onclick="switchParcosVideo('full')">
-        📘 Tur Tehnic Detaliat (6 min)
+      <button type="button" class="video-tab-btn" id="tab-btn-landscape" role="tab" aria-selected="false" onclick="selectVideoTab('landscape')">
+        🖥️ Podcast Cinema (6 min · 16:9)
       </button>
     </div>
 
-    <!-- Luxury 16:9 Cinema Container -->
-    <div class="video-frame">
-      <video id="parcos-showcase-video" controls playsinline preload="metadata" poster="/lp-assets/img/showroom-poster-960.webp">
-        <source id="parcos-video-source" src="/lp-assets/video/parcos-commercial-short.mp4?v=20261031_1235" type="video/mp4">
-        Browserul tău nu suportă redarea video HTML5.
-      </video>
+    <!-- Dual Video Showcase Grid: 9:16 Portrait + 16:9 Landscape -->
+    <div class="video-dual-grid" id="video-dual-grid">
+      
+      <!-- 1. PORTRAIT REEL CARD (9:16) -->
+      <article class="video-card video-card-portrait is-active-mobile" id="card-video-portrait">
+        <div class="video-card-header">
+          <span class="card-pill"><span class="pill-dot"></span> Format Mobil 9:16 · 1:05 min</span>
+          <h3 class="card-title">⚡ Spot Comercial Rapid</h3>
+          <p class="card-desc">Faci o poză la talon cu telefonul, AI extrage datele și contractul DITL e scos la imprimantă în sub 2 minute.</p>
+        </div>
+
+        <div class="phone-frame">
+          <div class="phone-speaker" aria-hidden="true"></div>
+          <video id="parcos-portrait-video" controls playsinline preload="metadata" poster="/lp-assets/img/rxm-telefon-560.webp">
+            <source src="https://pub-5ced75b7fce64ed6b6a934bdc3a279c0.r2.dev/videos/parcos-commercial-short-v1.mp4?v=20261031_1505" type="video/mp4">
+            Browserul tău nu suportă redarea video HTML5.
+          </video>
+        </div>
+
+        <div class="video-card-badges">
+          <span class="meta-tag">📱 100% Mobil</span>
+          <span class="meta-tag">⚡ 65 sec</span>
+          <span class="meta-tag">AI Vision</span>
+        </div>
+      </article>
+
+      <!-- 2. LANDSCAPE CINEMA CARD (16:9) -->
+      <article class="video-card video-card-landscape" id="card-video-landscape">
+        <div class="video-card-header">
+          <span class="card-pill purple"><span class="pill-dot purple"></span> Format Cinema 16:9 · 6:41 min</span>
+          <h3 class="card-title">🎙️ Podcast Explicativ Google NotebookLM</h3>
+          <p class="card-desc">Deep dive tehnic audio-video: de ce pierd dealeri independenți timp și bani pe softuri învechite și cum automatizează ParcOS parcul auto.</p>
+        </div>
+
+        <div class="cinema-frame">
+          <video id="parcos-landscape-video" controls playsinline preload="metadata" poster="/lp-assets/img/showroom-poster-960.webp">
+            <source src="https://pub-5ced75b7fce64ed6b6a934bdc3a279c0.r2.dev/videos/parcos-explicativ-notebooklm-v1.mp4?v=20261031_1505" type="video/mp4">
+            Browserul tău nu suportă redarea video HTML5.
+          </video>
+        </div>
+
+        <!-- Chapters / Key Takeaways -->
+        <div class="video-chapters">
+          <div class="chapters-header">
+            <span class="chapters-title">📌 Ce conține analiza tehnică:</span>
+            <span class="chapters-cdn"><span class="hud-pulse"></span> Cloudflare R2 CDN</span>
+          </div>
+          <ul class="chapters-list">
+            <li><span><strong>0:00</strong> — Haosul hârtiilor &amp; contracte pierdute în parcurile auto</span></li>
+            <li><span><strong>1:45</strong> — Scanare AI CIV &amp; talon fără tastat manual de VIN</span></li>
+            <li><span><strong>3:30</strong> — Regim fiscal TVA la marjă vs TVA deductibil 21%</span></li>
+            <li><span><strong>5:15</strong> — Independența dealerului față de monopolul portalurilor</span></li>
+          </ul>
+        </div>
+
+        <div class="video-card-badges">
+          <span class="meta-tag">🎙️ Google NotebookLM</span>
+          <span class="meta-tag">📊 Analiză &amp; ROI</span>
+          <span class="meta-tag">⏱️ 6:41 min</span>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Active Stream HUD info bar -->
+    <div class="video-active-hud" aria-live="polite">
+      <span class="hud-indicator"><span class="hud-pulse"></span> Livrare Ultrarapidă Cloudflare R2 CDN</span>
+      <span class="hud-text">Ambele videoclipuri sunt servite la rezoluție nativă din București cu 0$ egress &amp; streaming instant.</span>
     </div>
 
     <div class="video-badges" style="display:flex;flex-wrap:wrap;justify-content:center;gap:18px;margin-top:22px;font-size:13.5px;color:var(--ink-2);font-weight:600;">
       <span style="display:inline-flex;align-items:center;gap:6px;"><svg class="i i-check" style="width:16px;height:16px;color:var(--wa);" viewBox="0 0 24 24"><use href="#i-check"/></svg> Faci o poză la talon &amp; mașina e pe site</span>
       <span style="display:inline-flex;align-items:center;gap:6px;"><svg class="i i-check" style="width:16px;height:16px;color:var(--wa);" viewBox="0 0 24 24"><use href="#i-check"/></svg> Contract DITL &amp; Factură în sub 2 minute</span>
       <span style="display:inline-flex;align-items:center;gap:6px;"><svg class="i i-check" style="width:16px;height:16px;color:var(--wa);" viewBox="0 0 24 24"><use href="#i-check"/></svg> Sincronizare automată OLX &amp; Autovit</span>
+      <span style="display:inline-flex;align-items:center;gap:6px;"><svg class="i i-check" style="width:16px;height:16px;color:var(--wa);" viewBox="0 0 24 24"><use href="#i-check"/></svg> Native 9:16 Mobile &amp; 16:9 Cinema</span>
     </div>
   </div>
 </section>
-
 
 <!-- DMS & CRM DEDICATED PILLAR -->
 <section id="dms-crm" class="section alt" aria-labelledby="dms-crm-titlu">

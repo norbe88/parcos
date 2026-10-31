@@ -225,7 +225,8 @@ export type DealerThemePreset =
   | 'clean_white'       // ⚪ Nordic Clean White / Pearl Minimalist (Stil Polestar / Porsche Studio)
   | 'midnight_blue'     // 💎 High-Tech Sapphire / Corporate Blue (Stil BMW / Mercedes)
   | 'carbon_red'        // 🏎️ Sport Crimson / Dynamic Red (Stil Audi S-Line / Cupra)
-  | 'emerald_prestige'; // 🌿 British Green / Eco Luxury (Stil Aston Martin / Alpina)
+  | 'emerald_prestige'  // 🌿 British Green / Eco Luxury (Stil Aston Martin / Alpina)
+  | 'mpi_signature';    // 🏁 MPI Signature Luxury Red & Slate (Stil Showroom MPI Auto)
 
 // ─── Landing Page Config ───────────────────────────────────────────────────
 export type DealerHeroType =
@@ -270,6 +271,7 @@ export type DealerIntroTransition = 'curtains_up' | 'fade_out' | 'zoom_fade';
 
 export interface DealerIntroConfig {
   type: DealerIntroType;
+  enabled?: boolean;
   videoUrl?: string;
   logoUrl?: string;
   tagline?: string;
@@ -293,6 +295,62 @@ export interface DealerLandingConfig {
   catalogInitialBatchDesktop?: 6 | 9 | 12 | 18;
   catalogInitialBatchMobile?: 4 | 6 | 8;
   showGhidAuto?: boolean;
+  // Extinderi aditive multi-tenant (MPI Auto & viitori parteneri)
+  usp?: Array<string | { icon?: string; title: string; subtitle?: string }>;
+  financePartners?: Array<string | { name: string; logoUrl?: string; logo?: string; type?: string; confirmed?: boolean }>;
+  warrantyDeposit?: {
+    amountEur?: number | null;
+    daysLimit?: number | null;
+    lockDays?: number | null;
+    termsText?: string | null;
+    description?: string | null;
+  } | null;
+  warrantyPlans?: Array<{
+    name: string;
+    durationMonths?: number;
+    months?: number;
+    ageLimitYears?: number;
+    mileageLimitKm?: number;
+    kmLimit?: number;
+    coverage?: string[];
+    covers?: string[];
+    isRecommended?: boolean;
+    priceEur?: number | null;
+  }> | null;
+  services?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    icon?: string;
+    ctaText?: string;
+  }> | null;
+  reviews?: Array<{
+    author: string;
+    rating: number;
+    text: string;
+    source?: string;
+    date?: string;
+  }> | null;
+  finance?: {
+    minAdvancePercent?: number;
+    maxPeriodMonths?: number;
+    aprPercent?: number;
+    defaultDownPaymentPct?: number;
+    defaultAdvancePercent?: number;
+    defaultPeriodMonths?: number;
+    defaultMonths?: number;
+    defaultApr?: number;
+    eurRonRate?: number;
+  } | null;
+  map?: {
+    embedUrl?: string;
+    title?: string;
+    latitude?: number;
+    longitude?: number;
+    lat?: number;
+    lng?: number;
+    placeId?: string;
+  } | null;
 }
 
 export interface TenantFeatures {
@@ -341,6 +399,8 @@ export interface DealerProfile {
   facebookUrl: string;
   instagramUrl: string;
   address: string;
+  city?: string;
+  county?: string;
   googleMapsUrl?: string;
   wazeUrl?: string;
   openingHours: string;

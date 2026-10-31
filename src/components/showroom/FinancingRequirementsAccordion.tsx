@@ -179,7 +179,7 @@ export const FinancingRequirementsAccordion: React.FC<FinancingRequirementsAccor
                 <div className="font-semibold text-emerald-300 flex items-center gap-1.5 mb-1">
                   <Sparkles className="w-3.5 h-3.5" /> Beneficiu Direct Persoane Fizice:
                 </div>
-                Posibilitate de finanțare cu <strong>0% avans</strong>, rate fixe în LEI sau EUR, aprobare în aceeași zi și pleci direct la volanul mașinii cu numere roșii!
+                Posibilitate de finanțare cu <strong>0% plată inițială</strong>, rate fixe în LEI sau EUR, aprobare în aceeași zi și pleci direct la volanul mașinii cu numere roșii!
               </div>
             </div>
           )}
@@ -214,7 +214,7 @@ export const FinancingRequirementsAccordion: React.FC<FinancingRequirementsAccor
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>Cerere de leasing completată</strong> cu datele de contact și opțiunea de avans/perioadă dorită.</span>
+                    <span><strong>Cerere de leasing completată</strong> cu datele de contact și opțiunea de plată inițială și perioada dorită.</span>
                   </li>
                   <li className="flex items-start gap-2 text-zinc-400">
                     <CheckCircle2 className="w-3.5 h-3.5 text-amber-400/70 shrink-0 mt-0.5" />

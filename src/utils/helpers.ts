@@ -145,6 +145,113 @@ export function initializeTikTokVolume(
   };
 }
 
+export interface EstimateMonthlyOptions {
+  downPct?: number;
+  months?: number;
+  apr?: number;
+}
+
+/**
+ * Rata lunară unificată pentru autovehicule (utilizată identic în card, oferte, simulator)
+ */
+export function estimateMonthly(
+  price: number,
+  options?: EstimateMonthlyOptions
+): number {
+  if (!price || price <= 0) return 0;
+  const downPct = options?.downPct ?? 15;
+  const months = options?.months ?? 48;
+  const apr = options?.apr ?? 7.9;
+
+  const loan = price * (1 - downPct / 100);
+  const monthlyRate = (apr / 100) / 12;
+  const payment = (loan * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
+  return Math.round(payment);
+}
+
+/**
+ * Formatare unificată titlu autovehicul (Title Case cu acronime și reguli specifice)
+ * Fallback pentru model lipsă este brand + version_trim, niciodată "Auto"
+ */
+export function formatVehicleTitle(
+  brandOrCar?: string | { brand?: string; model?: string; versionTrim?: string; version_trim?: string },
+  model?: string,
+  versionTrim?: string
+): string {
+  let brand = '';
+  let rawModel = '';
+  let rawTrim = '';
+
+  if (typeof brandOrCar === 'object' && brandOrCar !== null) {
+    brand = (brandOrCar.brand || '').trim();
+    rawModel = (brandOrCar.model || '').trim();
+    rawTrim = (brandOrCar.versionTrim || brandOrCar.version_trim || '').trim();
+  } else if (typeof brandOrCar === 'string') {
+    brand = brandOrCar.trim();
+    rawModel = (model || '').trim();
+    rawTrim = (versionTrim || '').trim();
+  } else {
+    return 'Autovehicul';
+  }
+
+  if (!rawModel || rawModel.toLowerCase() === 'auto') {
+    const fallback = (brand + ' ' + rawTrim).trim();
+    return fallback || brand || 'Autovehicul';
+  }
+
+  const uppercaseSet = new Set([
+    'BMW', 'VW', 'SUV', 'TDI', 'TSI', 'CRDI', 'DSG', 'AMG', 'GT', 'ST', 'RS',
+    '4X4', '4WD', 'AWD', '2WD', 'FWD', 'RWD',
+    'GLA', 'GLB', 'GLC', 'GLE', 'GLS', 'CLA', 'CLS', 'SLK', 'SLC', 'SL', 'CLK'
+  ]);
+
+  const regexPatterns = [
+    /^X[1-7]$/i,
+    /^Q[2-8]$/i,
+    /^A[1-8]$/i,
+    /^CX-\d+$/i,
+    /^\d{3}[a-zA-Z]+$/i,
+  ];
+
+  const words = rawModel.split(/\s+/).map(word => {
+    const clean = word.replace(/[^a-zA-Z0-9-]/g, '');
+    const upper = clean.toUpperCase();
+
+    if (upper === '4MATIC') return '4Matic';
+    if (upper === 'XDRIVE' || upper === 'X-DRIVE') return 'xDrive';
+    if (upper === '4X4') return '4x4';
+    if (uppercaseSet.has(upper)) return upper;
+
+    for (const pat of regexPatterns) {
+      if (pat.test(upper)) {
+        return upper;
+      }
+    }
+
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  });
+
+  const formattedModel = words.join(' ');
+  if (formattedModel.toLowerCase().startsWith(brand.toLowerCase())) {
+    return formattedModel;
+  }
+  return `${brand} ${formattedModel}`.trim();
+}
+
+export function formatPriceEur(priceEur?: number | null): string {
+  if (priceEur === undefined || priceEur === null) return '0 €';
+  return `${priceEur.toLocaleString('ro-RO')} €`;
+}
+
+export function formatMileageKm(km?: number | null): string {
+  if (km === undefined || km === null) return '0 km';
+  return `${km.toLocaleString('ro-RO')} km`;
+}
+
+export function formatFiscalMention(vatDeductible?: boolean): string {
+  return vatDeductible ? 'TVA 21 % deductibil · factură firmă' : 'Preț final · regim special (marjă)';
+}
+
 /**
  * Calcul rată lunară credit/leasing auto (dobândă de la 7.9% anual)
  */
@@ -154,12 +261,7 @@ export function calculateRate(
   months: number, 
   annualInterestRatePct: number = 7.9
 ): number {
-  if (!price || price <= 0 || !months || months <= 0) return 0;
-  const loan = price * (1 - advPct / 100);
-  const annualRate = (annualInterestRatePct > 0 ? annualInterestRatePct : 7.9) / 100;
-  const monthlyRate = annualRate / 12;
-  const payment = (loan * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
-  return Math.round(payment);
+  return estimateMonthly(price, { downPct: advPct, months, apr: annualInterestRatePct });
 }
 
 /**

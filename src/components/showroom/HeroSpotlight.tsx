@@ -86,7 +86,7 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
           >
             <span className="flex items-center gap-1.5 text-zinc-200 font-medium tracking-tight">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] shrink-0" />
-              {isMpi ? 'Rate doar cu buletinul (Fără avans)' : 'Autovehicule Rulate Verificate'}
+              {isMpi ? 'Rate doar cu buletinul (Plată inițială 0%)' : 'Autovehicule Rulate Verificate'}
             </span>
             <span className="w-px h-3 bg-white/15 shrink-0" />
             <span className="text-zinc-400 font-normal group-hover:text-zinc-300 transition-colors">
@@ -113,7 +113,7 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
             }`}
           >
             {isMpi
-              ? `La MPI Auto Cluj găsești peste ${cars.length || '75'} de autovehicule rulate verificate, cu istoric garantat și rulaj certificat pe factură. Finanțare online rapidă cu 0% avans inclusiv pentru venituri din diaspora sau istoric în Biroul de Credit, garanție extinsă MPI Car Protect până la 36 luni și livrare gratuită pe platformă direct acasă.`
+              ? `La MPI Auto Cluj găsești peste ${cars.length || '75'} de autovehicule rulate verificate, cu istoric garantat și rulaj certificat pe factură. Finanțare online flexibilă cu plată inițială 0% inclusiv pentru venituri din diaspora sau istoric în Biroul de Credit, garanție extinsă MPI Car Protect până la 36 luni și livrare gratuită pe platformă direct acasă.`
               : `La ${dealer.name} eliminăm promisiunile grăbite. Îți prezentăm fiecare mașină transparent în format video pe TikTok, cu rulaj garantat pe factură fiscală, consultanță gratuită pentru înmatriculare și garanție scrisă până la 36 luni în ${dealer.address || 'România'}.`
             }
           </p>
@@ -204,7 +204,7 @@ export const HeroSpotlight: React.FC<HeroSpotlightProps> = ({
             <div className="p-3 rounded-xl bg-[#121215]/80 border border-white/[0.06]">
               <Calculator className="w-5 h-5 text-amber-400 mb-1.5" />
               <div className="font-bold text-white text-xs">{isMpi ? 'Rate cu Buletinul' : 'Finanțare Rapidă'}</div>
-              <p className="text-[10px] text-zinc-400 mt-0.5">{isMpi ? 'Fără avans · Diaspora & Birou' : 'De la 7.9% prin TBI / BT'}</p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">{isMpi ? 'Plată inițială 0% · Diaspora & Birou' : 'Rate fixe prin parteneri autorizați'}</p>
             </div>
 
             <div className="p-3 rounded-xl bg-[#121215]/80 border border-white/[0.06]">

@@ -698,6 +698,147 @@ img[src*="/cars/"],
   color: #a7f3d0 !important;
 }
 
+/* 🏁 5. THEME PRESET: MPI SIGNATURE (RACING CRIMSON & SLATE) — DUAL THEME */
+:root {
+  --dur-fast: 220ms;
+  --dur-reveal: 480ms;
+  --ease: cubic-bezier(0.22, 0.8, 0.2, 1);
+}
+
+/* 5.1 MPI Signature Dark (Implicit / Default) */
+[data-theme="mpi_signature"],
+[data-theme="mpi_signature"][data-theme-mode="dark"] {
+  --bg: #0B0F16;
+  --surface: #131A24;
+  --surface-2: #1B2431;
+  --surface-brand: #2E3643;
+  --text: #F4F6F9;
+  --text-muted: #A3ABB6;
+  --line: rgba(255, 255, 255, 0.08);
+  --accent: #D83333;
+  --accent-hover: #C02828;
+  --accent-text: #F04D4D;
+  --on-accent: #FFFFFF;
+  --metal: #C9CED6;
+  --success: #22C55E;
+  --whatsapp: #25D366;
+  --glow: radial-gradient(60% 50% at 80% 0%, rgba(216, 51, 51, 0.18), transparent 60%), radial-gradient(50% 40% at 0% 10%, rgba(45, 55, 114, 0.25), transparent 60%);
+  --color-accent: #D83333;
+  --color-accent-hover: #C02828;
+  --color-accent-text: #F04D4D;
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 24px;
+  --r-pill: 999px;
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 16px 40px -16px rgba(0, 0, 0, 0.7);
+  --shadow-cta: 0 12px 32px -12px rgba(216, 51, 51, 0.45);
+  color-scheme: dark;
+}
+
+/* 5.2 MPI Signature Light (Clean White Luxury) */
+[data-theme="mpi_signature"][data-theme-mode="light"],
+[data-theme="mpi_signature"].light-theme {
+  --bg: #F7F8FA;
+  --surface: #FFFFFF;
+  --surface-2: #F1F4F8;
+  --surface-brand: #2E3643;
+  --text: #1E293B;
+  --text-muted: #5C6773;
+  --line: #E2E8F0;
+  --accent: #D83333;
+  --accent-hover: #C02828;
+  --accent-text: #C42B2B;
+  --on-accent: #FFFFFF;
+  --metal: #99A0A7;
+  --success: #15803D;
+  --whatsapp: #25D366;
+  --glow: none;
+  --color-accent: #D83333;
+  --color-accent-hover: #C02828;
+  --color-accent-text: #C42B2B;
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 24px;
+  --r-pill: 999px;
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.06), 0 14px 32px -16px rgba(15, 23, 42, 0.18);
+  --shadow-cta: 0 12px 32px -12px rgba(216, 51, 51, 0.45);
+  color-scheme: light;
+}
+
+/* Typography and Base Overrides for MPI Signature */
+[data-theme="mpi_signature"] {
+  font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+}
+
+[data-theme="mpi_signature"] h1,
+[data-theme="mpi_signature"] h2,
+[data-theme="mpi_signature"] h3,
+[data-theme="mpi_signature"] .font-montserrat,
+[data-theme="mpi_signature"] .font-serif,
+[data-theme="mpi_signature"] .font-display {
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: -0.02em;
+}
+
+[data-theme="mpi_signature"] .tabular-nums,
+[data-theme="mpi_signature"] .font-mono {
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Background & text colors when mpi_signature is active */
+[data-theme="mpi_signature"] body,
+[data-theme="mpi_signature"] #root {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+/* Fallback color adaptation so amber utility classes adapt cleanly to MPI red */
+[data-theme="mpi_signature"] .text-amber-400,
+[data-theme="mpi_signature"] .text-amber-300 {
+  color: var(--accent-text) !important;
+}
+
+[data-theme="mpi_signature"] .bg-amber-500 {
+  background-color: var(--accent) !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="mpi_signature"] .bg-amber-500:hover {
+  background-color: var(--accent-hover) !important;
+}
+
+[data-theme="mpi_signature"] .border-amber-500,
+[data-theme="mpi_signature"] .border-amber-500\/50,
+[data-theme="mpi_signature"] .border-amber-500\/40,
+[data-theme="mpi_signature"] .border-amber-500\/30 {
+  border-color: rgba(216, 51, 51, 0.35) !important;
+}
+
+[data-theme="mpi_signature"] .bg-amber-500\/10,
+[data-theme="mpi_signature"] .bg-amber-500\/15,
+[data-theme="mpi_signature"] .bg-amber-500\/20 {
+  background-color: rgba(216, 51, 51, 0.12) !important;
+  color: var(--accent-text) !important;
+}
+
+/* 5.3 Card Lift Hover for MPI Signature */
+@media (hover: hover) and (pointer: fine) {
+  [data-theme="mpi_signature"] .hover-lift {
+    transition: transform 220ms cubic-bezier(0.22, 0.8, 0.2, 1), box-shadow 220ms cubic-bezier(0.22, 0.8, 0.2, 1);
+  }
+  [data-theme="mpi_signature"] .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+  [data-theme="mpi_signature"] .hover-zoom-img {
+    transition: transform 300ms cubic-bezier(0.22, 0.8, 0.2, 1);
+  }
+  [data-theme="mpi_signature"] .hover-zoom-img:hover img,
+  [data-theme="mpi_signature"] .hover-lift:hover img.card-img {
+    transform: scale(1.03);
+  }
+}
+
 /* 🎰 Slot Machine Shimmer Animation */
 @keyframes slotShimmer {
   0% { transform: translateX(-100%); }

@@ -24,23 +24,28 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
   const defaultMsg = `Bună ziua, doresc informații despre stocul ${brand}.`;
 
   return (
-    <aside aria-label="Asistență rapidă WhatsApp" className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-4 sm:right-6 sm:bottom-6 z-40 no-print">
+    <aside 
+      aria-label="Asistență rapidă WhatsApp" 
+      className="hidden sm:block fixed bottom-6 right-6 z-40 no-print"
+    >
       <a
         href={`https://wa.me/${targetNumber}?text=${encodeURIComponent(defaultMsg)}`}
         target="_blank" 
         rel="noopener noreferrer"
         aria-label={`Discută pe WhatsApp cu ${brand}`}
         onClick={() => trackConversionEvent('click_whatsapp', { source: 'floating_widget' }, dealer?.slug)}
-        className="group flex items-center gap-2.5 p-3 sm:px-4 sm:py-3 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-emerald-950 shadow-[0_4px_25px_rgba(37,211,102,0.5)] hover:shadow-[0_6px_35px_rgba(37,211,102,0.7)] hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation min-h-[44px] min-w-[44px]"
+        className="group relative flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-[#0B0F16] shadow-[0_8px_30px_rgba(37,211,102,0.45)] hover:shadow-[0_12px_40px_rgba(37,211,102,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 touch-manipulation"
+        title="Asistență WhatsApp Showroom"
       >
-        <span className="relative flex h-3 w-3 shrink-0" aria-hidden="true">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-950 opacity-60"></span>
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-950"></span>
+        <span className="relative flex h-3 w-3 absolute -top-0.5 -right-0.5" aria-hidden="true">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
         </span>
-        <MessageCircle className="w-5 h-5 text-emerald-950 fill-none shrink-0" aria-hidden="true" />
-        <span className="sr-only sm:not-sr-only flex flex-col text-left leading-none">
-          <span className="text-[10px] text-emerald-950/80 font-bold">Asistență Live</span>
-          <span className="text-xs font-black text-emerald-950 mt-0.5">WhatsApp</span>
+        <MessageCircle className="w-7 h-7 fill-current" />
+
+        {/* Tooltip pe hover */}
+        <span className="absolute right-16 px-3 py-1.5 rounded-lg bg-[var(--surface,#131A24)] text-[var(--text,#F4F6F9)] font-montserrat font-semibold text-[12px] whitespace-nowrap border border-[var(--line,rgba(255,255,255,0.12))] shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          Discută pe WhatsApp
         </span>
       </a>
     </aside>

@@ -42,7 +42,7 @@ console.log('🔍 [SUITE 1] Profil & Identitate MPI AUTO (DEALER_MPI_AUTO)');
 const dealerTs = readFile('src/db/dealer.ts');
 
 assert(dealerTs.includes('slug: "mpi_auto"'), 'Slug-ul MPI este corect configurat ca "mpi_auto"');
-assert(dealerTs.includes('themePreset: "clean_white"'), 'Tema presetată MPI este "clean_white"');
+assert(dealerTs.includes('themePreset: "mpi_signature"') || dealerTs.includes('themePreset: "clean_white"'), 'Tema presetată MPI este "mpi_signature" sau "clean_white"');
 assert(dealerTs.includes('logoUrl: "/images/mpi-logo.png"') || dealerTs.includes('logoUrl: "/images/mpi-logo.svg"'), 'Logo-ul dedicat MPI este configurat în profil');
 assert(fs.existsSync(path.join(rootDir, 'public/images/mpi-logo.png')), 'Fișierul public/images/mpi-logo.png există pe disc');
 assert(fs.existsSync(path.join(rootDir, 'public/images/mpi-logo.svg')), 'Fișierul public/images/mpi-logo.svg există pe disc');

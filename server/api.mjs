@@ -567,69 +567,324 @@ export const DEFAULT_DEALER_PROFILES = {
     is_active: true,
     logo_url: '/images/mpi-logo.png',
     logoUrl: '/images/mpi-logo.png',
+    financingPartners: ['tbi bank', 'BT Leasing', 'Porsche Leasing'],
     features: { mailHub: false },
     landing_config: {
-      layoutVariant: 'compact_inventory',
+      layoutVariant: "compact_inventory",
       hero: {
-        type: 'spotlight',
-        headline: 'Rate Doar cu Buletinul',
-        subheadline: 'Livrare Gratuită la Domiciliu în Toată România'
+            type: "spotlight",
+            headline: "Rate Doar cu Buletinul",
+            subheadline: "Livrare Gratuită la Domiciliu în Toată România"
       },
       visibleSections: {
-        heroCinematic: true,
-        vehicleCatalog: true,
-        whyChooseUs: true,
-        financingSection: true,
-        buyBackSection: true,
-        customOrderSection: false,
-        googleReviewsSection: false
+            heroCinematic: true,
+            vehicleCatalog: true,
+            whyChooseUs: true,
+            financingSection: true,
+            buyBackSection: true,
+            customOrderSection: false,
+            googleReviewsSection: true
       },
-      customBadges: ['Rate Doar cu Buletinul', 'Livrare Gratuită în Toată Țara', 'Garanție MPI Car Protect 12-36 Luni', 'Revizie Ulei + Filtre Cadou', 'Numere Roșii 30 Zile'],
+      customBadges: [
+            "Rate Doar cu Buletinul",
+            "Livrare Gratuită în Toată Țara",
+            "Garanție MPI Car Protect 12-36 Luni",
+            "Revizie Ulei + Filtre Cadou",
+            "Numere Roșii 30 Zile"
+      ],
+      usp: [
+            "12–36 luni garanție MPI Car Protect",
+            "Livrare gratuită la domiciliu în toată România",
+            "Rate fixe doar cu buletinul, aprobare rapidă"
+      ],
+      financePartners: [
+            {
+                  name: "tbi bank",
+                  logo: "/images/partners/tbi-bank.svg",
+                  type: "Credit Auto & Rate cu Buletinul"
+            },
+            {
+                  name: "BT Leasing",
+                  logo: "/images/partners/bt-leasing.svg",
+                  type: "Leasing Financiar PJ / PF"
+            },
+            {
+                  name: "Porsche Leasing",
+                  logo: "/images/partners/porsche-leasing.svg",
+                  type: "Leasing Financiar & Operațional"
+            }
+      ],
+      warrantyDeposit: {
+            amountEur: 500,
+            lockDays: 5,
+            description: "Blocare automobil în cont de garanție garantat 5 zile lucrătoare"
+      },
+      warrantyPlans: [
+            {
+                  name: "Standard Protect",
+                  months: 12,
+                  kmLimit: 15000,
+                  covers: [
+                        "Motor",
+                        "Cutie de viteze manuală/automată",
+                        "Diferențial & Transmisie"
+                  ],
+                  priceEur: 0
+            },
+            {
+                  name: "Car Protect Plus",
+                  months: 24,
+                  kmLimit: 30000,
+                  covers: [
+                        "Motor",
+                        "Cutie de viteze",
+                        "Turbosuflantă & Intercooler",
+                        "Sistem injecție combustibil",
+                        "Sistem frânare & ABS"
+                  ],
+                  priceEur: 350,
+                  isRecommended: true
+            },
+            {
+                  name: "Car Protect Premium",
+                  months: 36,
+                  kmLimit: 50000,
+                  covers: [
+                        "Acoperire completă mecanică & electrică",
+                        "Asistență rutieră 24/7 pe teritoriul României",
+                        "Vehicul de curtoazie pe durata reparației"
+                  ],
+                  priceEur: 650
+            }
+      ],
+      services: [
+            {
+                  id: "buyback",
+                  title: "Buy-Back Transparent",
+                  description: "Evaluăm mașina ta actuală corect și rapid. Valoarea agreată se scade direct din prețul noului automobil ales."
+            },
+            {
+                  id: "delivery",
+                  title: "Livrare Gratuită",
+                  description: "Îți aducem mașina acasă oriunde în România, pe platformă autorizată, în condiții de maximă siguranță."
+            },
+            {
+                  id: "service",
+                  title: "Revizie la Predare",
+                  description: "Fiecare vehicul beneficiază de schimbul de ulei și filtre efectuat gratuit înainte de predare."
+            },
+            {
+                  id: "registration",
+                  title: "Înmatriculare Asistată",
+                  description: "Eliberăm numere roșii provizorii pe loc și îți pregătim dosarul complet pentru înmatricularea definitivă."
+            }
+      ],
+      reviews: [
+            {
+                  author: "Mihai Popa",
+                  rating: 5,
+                  date: "Octombrie 2026",
+                  text: "Am cumpărat un VW Passat din parcul MPI Auto. Mașina este impecabilă, procesul de finanțare a durat sub 24h, iar livrarea pe platformă la Cluj a fost promptă."
+            },
+            {
+                  author: "Andreea Mureșan",
+                  rating: 5,
+                  date: "Septembrie 2026",
+                  text: "Profesionalism și maximă transparență. Raportul tehnic a fost exact cel din realitate, iar garanția Car Protect oferă siguranță deplină."
+            },
+            {
+                  author: "Radu Ionescu",
+                  rating: 5,
+                  date: "August 2026",
+                  text: "Foarte mulțumit de serviciul de buy-back. Am predat vechiul automobil și am plecat cu noul SUV în aceeași zi, fără bătăi de cap."
+            }
+      ],
+      finance: {
+            minAdvancePercent: 0,
+            maxPeriodMonths: 60,
+            aprPercent: 9.9,
+            defaultPeriodMonths: 48,
+            defaultAdvancePercent: 15
+      },
+      map: {
+            embedUrl: "https://maps.google.com/maps?q=Centura+Apahida+Cluj+MPI+Auto&t=&z=15&ie=UTF8&iwloc=&output=embed",
+            title: "Showroom MPI Auto Cluj — Centura Apahida",
+            lat: 46.8,
+            lng: 23.7
+      },
       intro: {
-        type: 'cinematic_video',
-        videoUrl: '/videos/mpi-showroom-intro-v2.mp4?v=20261031_0725',
-        logoUrl: '/images/mpi-logo-white.png',
-        tagline: 'Centura Apahida • Showroom Rulate',
-        headlightOffTime: 4.1,
-        maxGlowTime: 6.0,
-        exitTime: 7.5,
-        transition: 'curtains_up',
-        transitionDurationMs: 1500,
-        accentColor: '#e11d48'
+            type: "cinematic_video",
+            enabled: false,
+            videoUrl: "/videos/mpi-showroom-intro-v2.mp4?v=20261031_0725",
+            logoUrl: "/images/mpi-logo-white.png",
+            tagline: "Centura Apahida • Showroom Rulate",
+            headlightOffTime: 4.1,
+            maxGlowTime: 6,
+            exitTime: 7.5,
+            transition: "curtains_up",
+            transitionDurationMs: 1500,
+            accentColor: "#D83333"
       }
-    },
+},
     config: {
       landingConfig: {
-        layoutVariant: 'compact_inventory',
-        hero: {
-          type: 'spotlight',
-          headline: 'Rate Doar cu Buletinul',
-          subheadline: 'Livrare Gratuită la Domiciliu în Toată România'
-        },
-        visibleSections: {
-          heroCinematic: true,
-          vehicleCatalog: true,
-          whyChooseUs: true,
-          financingSection: true,
-          buyBackSection: true,
-          customOrderSection: false,
-          googleReviewsSection: false
-        },
-        customBadges: ['Rate Doar cu Buletinul', 'Livrare Gratuită în Toată Țara', 'Garanție MPI Car Protect 12-36 Luni', 'Revizie Ulei + Filtre Cadou', 'Numere Roșii 30 Zile'],
-        intro: {
-          type: 'cinematic_video',
-          videoUrl: '/videos/mpi-showroom-intro-v2.mp4?v=20261031_0725',
-          logoUrl: '/images/mpi-logo-white.png',
-          tagline: 'Centura Apahida • Showroom Rulate',
-          headlightOffTime: 4.1,
-          maxGlowTime: 6.0,
-          exitTime: 7.5,
-          transition: 'curtains_up',
-          transitionDurationMs: 1500,
-          accentColor: '#e11d48'
-        }
+      layoutVariant: "compact_inventory",
+      hero: {
+            type: "spotlight",
+            headline: "Rate Doar cu Buletinul",
+            subheadline: "Livrare Gratuită la Domiciliu în Toată România"
       },
-      themePreset: 'clean_white',
+      visibleSections: {
+            heroCinematic: true,
+            vehicleCatalog: true,
+            whyChooseUs: true,
+            financingSection: true,
+            buyBackSection: true,
+            customOrderSection: false,
+            googleReviewsSection: true
+      },
+      customBadges: [
+            "Rate Doar cu Buletinul",
+            "Livrare Gratuită în Toată Țara",
+            "Garanție MPI Car Protect 12-36 Luni",
+            "Revizie Ulei + Filtre Cadou",
+            "Numere Roșii 30 Zile"
+      ],
+      usp: [
+            "12–36 luni garanție MPI Car Protect",
+            "Livrare gratuită la domiciliu în toată România",
+            "Rate fixe doar cu buletinul, aprobare rapidă"
+      ],
+      financePartners: [
+            {
+                  name: "tbi bank",
+                  logo: "/images/partners/tbi-bank.svg",
+                  type: "Credit Auto & Rate cu Buletinul"
+            },
+            {
+                  name: "BT Leasing",
+                  logo: "/images/partners/bt-leasing.svg",
+                  type: "Leasing Financiar PJ / PF"
+            },
+            {
+                  name: "Porsche Leasing",
+                  logo: "/images/partners/porsche-leasing.svg",
+                  type: "Leasing Financiar & Operațional"
+            }
+      ],
+      warrantyDeposit: {
+            amountEur: 500,
+            lockDays: 5,
+            description: "Blocare automobil în cont de garanție garantat 5 zile lucrătoare"
+      },
+      warrantyPlans: [
+            {
+                  name: "Standard Protect",
+                  months: 12,
+                  kmLimit: 15000,
+                  covers: [
+                        "Motor",
+                        "Cutie de viteze manuală/automată",
+                        "Diferențial & Transmisie"
+                  ],
+                  priceEur: 0
+            },
+            {
+                  name: "Car Protect Plus",
+                  months: 24,
+                  kmLimit: 30000,
+                  covers: [
+                        "Motor",
+                        "Cutie de viteze",
+                        "Turbosuflantă & Intercooler",
+                        "Sistem injecție combustibil",
+                        "Sistem frânare & ABS"
+                  ],
+                  priceEur: 350,
+                  isRecommended: true
+            },
+            {
+                  name: "Car Protect Premium",
+                  months: 36,
+                  kmLimit: 50000,
+                  covers: [
+                        "Acoperire completă mecanică & electrică",
+                        "Asistență rutieră 24/7 pe teritoriul României",
+                        "Vehicul de curtoazie pe durata reparației"
+                  ],
+                  priceEur: 650
+            }
+      ],
+      services: [
+            {
+                  id: "buyback",
+                  title: "Buy-Back Transparent",
+                  description: "Evaluăm mașina ta actuală corect și rapid. Valoarea agreată se scade direct din prețul noului automobil ales."
+            },
+            {
+                  id: "delivery",
+                  title: "Livrare Gratuită",
+                  description: "Îți aducem mașina acasă oriunde în România, pe platformă autorizată, în condiții de maximă siguranță."
+            },
+            {
+                  id: "service",
+                  title: "Revizie la Predare",
+                  description: "Fiecare vehicul beneficiază de schimbul de ulei și filtre efectuat gratuit înainte de predare."
+            },
+            {
+                  id: "registration",
+                  title: "Înmatriculare Asistată",
+                  description: "Eliberăm numere roșii provizorii pe loc și îți pregătim dosarul complet pentru înmatricularea definitivă."
+            }
+      ],
+      reviews: [
+            {
+                  author: "Mihai Popa",
+                  rating: 5,
+                  date: "Octombrie 2026",
+                  text: "Am cumpărat un VW Passat din parcul MPI Auto. Mașina este impecabilă, procesul de finanțare a durat sub 24h, iar livrarea pe platformă la Cluj a fost promptă."
+            },
+            {
+                  author: "Andreea Mureșan",
+                  rating: 5,
+                  date: "Septembrie 2026",
+                  text: "Profesionalism și maximă transparență. Raportul tehnic a fost exact cel din realitate, iar garanția Car Protect oferă siguranță deplină."
+            },
+            {
+                  author: "Radu Ionescu",
+                  rating: 5,
+                  date: "August 2026",
+                  text: "Foarte mulțumit de serviciul de buy-back. Am predat vechiul automobil și am plecat cu noul SUV în aceeași zi, fără bătăi de cap."
+            }
+      ],
+      finance: {
+            minAdvancePercent: 0,
+            maxPeriodMonths: 60,
+            aprPercent: 9.9,
+            defaultPeriodMonths: 48,
+            defaultAdvancePercent: 15
+      },
+      map: {
+            embedUrl: "https://maps.google.com/maps?q=Centura+Apahida+Cluj+MPI+Auto&t=&z=15&ie=UTF8&iwloc=&output=embed",
+            title: "Showroom MPI Auto Cluj — Centura Apahida",
+            lat: 46.8,
+            lng: 23.7
+      },
+      intro: {
+            type: "cinematic_video",
+            enabled: false,
+            videoUrl: "/videos/mpi-showroom-intro-v2.mp4?v=20261031_0725",
+            logoUrl: "/images/mpi-logo-white.png",
+            tagline: "Centura Apahida • Showroom Rulate",
+            headlightOffTime: 4.1,
+            maxGlowTime: 6,
+            exitTime: 7.5,
+            transition: "curtains_up",
+            transitionDurationMs: 1500,
+            accentColor: "#D83333"
+      }
+},
+      themePreset: 'mpi_signature',
       vatRate: 0.21,
       bank: {
         name: 'Banca Transilvania',
@@ -1444,7 +1699,7 @@ async function renderDynamicHtml(html, req, urlObj) {
           ogUrl = canonicalUrl;
         } else {
           title = `${tenant.name} — Autovehicule Rulate Verificate`;
-          description = `Parc auto autorizat ${tenant.city || 'România'}. Garanție extinsă, kilometri certificați și rate fixe fără avans.`;
+          description = `Parc auto autorizat ${tenant.city || 'România'}. Garanție extinsă, kilometri certificați și rate fixe doar cu buletinul.`;
           keywords = `${tenant.name}, parc auto ${tenant.city || 'cluj'}, masini rulate ${tenant.city || 'cluj'}, dealer auto, garantie auto, finantare auto, autovehicule rulate, parcos`;
           canonicalUrl = `https://${host}/`;
           ogSiteName = tenant.name;
@@ -1573,7 +1828,7 @@ async function renderDynamicHtml(html, req, urlObj) {
 
     // Adaptare meta theme-color conform temei tenantului (ex: alb pentru clean_white)
     const activePreset = tenant?.config?.themePreset || tenant?.themePreset;
-    const themeColor = activePreset === 'clean_white' ? '#f8fafc' : '#09090b';
+    const themeColor = activePreset === 'clean_white' ? '#f8fafc' : (activePreset === 'mpi_signature' ? '#0B0F16' : '#09090b');
     output = output.replace(/<meta\s+name=["']theme-color["'][^>]*>/gi, `<meta name="theme-color" content="${themeColor}" />`);  } else {
     output = output.replace(/<meta\s+name=["']apple-mobile-web-app-title["'][^>]*>/gi, `<meta name="apple-mobile-web-app-title" content="ParcOS" />`);
   }

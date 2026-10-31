@@ -2,6 +2,27 @@
 <html lang="ro">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (function() {
+        try {
+          var h = window.location.hostname.toLowerCase();
+          var p = new URLSearchParams(window.location.search);
+          var dealer = p.get('dealer') || p.get('dealer_slug') || p.get('tenant');
+          var isMpi = h.indexOf('mpi') !== -1 || dealer === 'mpi_auto' || dealer === 'mpi';
+          var slug = isMpi ? 'mpi_auto' : (dealer || 'rxm');
+          var saved = localStorage.getItem('parcos_theme_' + slug);
+          var mode = saved ? saved : 'dark';
+          var preset = isMpi ? 'mpi_signature' : (slug === 'autonord_cluj' ? 'clean_white' : 'obsidian_gold');
+          document.documentElement.setAttribute('data-theme', preset);
+          document.documentElement.setAttribute('data-theme-mode', mode);
+          if (mode === 'light') {
+            document.documentElement.classList.add('light-theme');
+          } else {
+            document.documentElement.classList.remove('light-theme');
+          }
+        } catch(e) {}
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=parcos2026" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=parcos2026" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=parcos2026" />

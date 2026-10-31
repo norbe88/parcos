@@ -38,6 +38,7 @@ const THEME_LABELS: Record<DealerThemePreset, { label: string; badge: string; do
   midnight_blue: { label: 'Midnight Blue', badge: 'bg-blue-500/10 text-blue-300 border-blue-500/30', dot: 'bg-blue-400' },
   carbon_red: { label: 'Carbon Red', badge: 'bg-red-500/10 text-red-300 border-red-500/30', dot: 'bg-red-400' },
   emerald_prestige: { label: 'Emerald Prestige', badge: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30', dot: 'bg-emerald-400' },
+  mpi_signature: { label: 'MPI Signature', badge: 'bg-red-500/10 text-red-300 border-red-500/30', dot: 'bg-red-500' },
 };
 
 export const SuperAdminTenantsOverviewTab: React.FC<SuperAdminTenantsOverviewTabProps> = ({

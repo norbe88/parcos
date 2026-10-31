@@ -45,12 +45,12 @@ export const WhyChooseUs: React.FC<{ dealer?: DealerProfile }> = ({ dealer = SEE
               <Calculator className="w-6 h-6" />
             </div>
             <h3 className="font-serif text-xl sm:text-2xl font-bold text-white mb-2.5 tracking-tight leading-snug">
-              Rate Doar cu Buletinul <span className="text-[var(--color-accent)] italic">{isMpi ? 'fără avans' : 'pe loc'}</span>
+              Rate Doar cu Buletinul <span className="text-[var(--color-accent)] italic">{isMpi ? 'plată inițială 0%' : 'pe loc'}</span>
             </h3>
             <p className="text-zinc-300 text-xs sm:text-[13px] leading-relaxed">
               {isMpi
-                ? 'Credit auto online rapid în 15-30 minute doar cu buletinul. Finanțare flexibilă prin Banca Transilvania, TBI Bank și parteneri. Acceptăm persoane cu istoric în Biroul de Credit sau venituri din diaspora.'
-                : 'Parteneriate oficiale cu TBI Bank (principal), Banca Transilvania (BT Direct), UniCredit și CreditFix. Dobândă de la 7.9%, avans de la 0% și aprobare pe loc în 2 ore.'
+                ? 'Credit auto online simplificat doar cu buletinul. Finanțare flexibilă prin Banca Transilvania, TBI Bank și parteneri autorizați. Acceptăm persoane cu istoric în Biroul de Credit sau venituri din diaspora.'
+                : 'Parteneriate oficiale de finanțare prin bănci și instituții autorizate. Consultanță dedicată și procesare rapidă a dosarului de credit sau leasing.'
               }
             </p>
           </div>

@@ -17,7 +17,7 @@ export const FACILITY_ITEMS = [
     id: 'rate',
     icon: Calculator,
     iconColor: 'text-amber-400',
-    title: 'Finanțare Rate (0% Avans, Aprobare Rapidă)',
+    title: 'Finanțare Rate (Plată Inițială 0%)',
     actionHref: '#finantare'
   },
   {
@@ -55,7 +55,7 @@ export const MPI_FACILITY_ITEMS = [
     id: 'buletin',
     icon: Calculator,
     iconColor: 'text-amber-400',
-    title: 'Rate Doar cu Buletinul (Fără Avans, Diaspora & Birou)',
+    title: 'Rate Doar cu Buletinul (Plată Inițială 0%, Diaspora & Birou)',
     actionHref: '#finantare'
   },
   {

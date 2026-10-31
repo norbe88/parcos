@@ -1,12 +1,20 @@
 import React, { useRef, useMemo } from 'react';
-import { Sparkles, ChevronLeft, ChevronRight, MessageCircle, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MessageCircle, Sparkles, ArrowRight } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../db/seed';
-import { formatMileage, getWhatsAppCarInquiryUrl, normalizeCarImageUrl } from '../../utils/helpers';
+import { DealerProfile } from '../../db/types';
+import { 
+  formatVehicleTitle, 
+  estimateMonthly, 
+  formatPriceEur, 
+  formatMileageKm,
+  resolveDealerContact,
+  normalizeCarImageUrl 
+} from '../../utils/helpers';
 
 export interface SpecialOffersCarouselProps {
   cars: VehicleItem[];
   onSelectCar: (car: VehicleItem, tab?: 'specs' | 'finance' | 'video' | 'testdrive') => void;
-  dealer?: typeof SEED_DEALER;
+  dealer?: DealerProfile;
   maxItems?: number;
 }
 
@@ -17,10 +25,12 @@ export const SpecialOffersCarousel: React.FC<SpecialOffersCarouselProps> = ({
   maxItems = 6
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const contact = resolveDealerContact(dealer);
 
-  // Sortare prioritară: Oferta Săptămânii (#1) > Fixate > Reduceri, limitat la maxItems (default 6)
-  const sortedOffers = useMemo(() => {
+  // Un singur bloc unitar de oferte: deal of week, pinned sau reducere de preț
+  const specialOffers = useMemo(() => {
     return [...cars]
+      .filter(c => c.isDealOfWeek || c.isPinnedToTop || (c.oldPriceEur && c.oldPriceEur > c.priceEur))
       .sort((a, b) => {
         const discountA = (a.oldPriceEur && a.oldPriceEur > a.priceEur) ? (a.oldPriceEur - a.priceEur) : 0;
         const discountB = (b.oldPriceEur && b.oldPriceEur > b.priceEur) ? (b.oldPriceEur - b.priceEur) : 0;
@@ -31,172 +41,181 @@ export const SpecialOffersCarousel: React.FC<SpecialOffersCarouselProps> = ({
       .slice(0, maxItems);
   }, [cars, maxItems]);
 
-  // Auto-hide: dacă nu există nicio mașină promoțională activă, returnează null
-  if (cars.length === 0) {
+  if (specialOffers.length === 0) {
     return null;
   }
 
   const handleScroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const scrollAmount = direction === 'left' ? -320 : 320;
+      const scrollAmount = direction === 'left' ? -380 : 380;
       scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
   };
 
   return (
-    <div className="mb-8 p-4 sm:p-6 rounded-3xl bg-gradient-to-b from-amber-500/[0.08] via-[#121215]/80 to-[#121215] border border-amber-500/25 shadow-2xl relative overflow-hidden">
-      {/* Glow ambiental de fundal */}
-      <div className="absolute top-0 left-1/4 w-96 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-      {/* Header secțiune cu butoane navigare desktop */}
-      <div className="flex items-center justify-between gap-3 mb-4 relative z-10">
-        <div className="flex items-center gap-2.5">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400" />
-          </span>
-          <h3 className="font-serif font-bold text-white text-base sm:text-lg flex items-center gap-2">
-            <span>⚡ Oferte Speciale & Reduceri</span>
-          </h3>
-          <span className="text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold font-mono">
-            {sortedOffers.length} {sortedOffers.length === 1 ? 'mașină' : 'oferte selectate'}
-          </span>
-        </div>
-
-        {/* Butoane navigare desktop */}
-        <div className="hidden sm:flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => handleScroll('left')}
-            className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-black/60 hover:bg-black/90 text-white/80 hover:text-white border border-white/10 hover:border-amber-500/40 transition-all flex items-center justify-center touch-manipulation active:scale-95"
-            aria-label="Derulează înapoi"
-          >
-            <ChevronLeft className="w-5 h-5 text-amber-400" />
-          </button>
-          <button
-            type="button"
-            onClick={() => handleScroll('right')}
-            className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-black/60 hover:bg-black/90 text-white/80 hover:text-white border border-white/10 hover:border-amber-500/40 transition-all flex items-center justify-center touch-manipulation active:scale-95"
-            aria-label="Derulează înainte"
-          >
-            <ChevronRight className="w-5 h-5 text-amber-400" />
-          </button>
-        </div>
-      </div>
-
-      {/* Strip carduri orizontale cu swipe — Centrat pe desktop când sunt puține mașini */}
-      <div 
-        ref={scrollRef} 
-        className={`flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 relative z-10 px-1 ${
-          sortedOffers.length <= 3 ? 'sm:justify-center' : 'justify-start'
-        }`}
-      >
-        {sortedOffers.map(car => (
-          <SpecialOfferCard 
-            key={car.id} 
-            car={car} 
-            onSelectCar={onSelectCar} 
-            dealer={dealer} 
-          />
-        ))}
-      </div>
-
-      {/* ⚖️ Notă Legală Directiva Omnibus (H.G. nr. 947/2000) privind Reducerile de Preț */}
-      <div className="mt-3.5 pt-2.5 border-t border-white/[0.08] text-[10px] text-zinc-400 text-center sm:text-left leading-relaxed flex items-center gap-1.5 justify-center sm:justify-start">
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-400/80 shrink-0" />
-        <span>
-          Prețul anterior tăiat reprezintă cel mai scăzut preț practicat în ultimele 30 de zile înainte de reducerea actuală, conform <strong>Directivei Omnibus (H.G. nr. 947/2000 actualizată)</strong>.
-        </span>
-      </div>
-    </div>
-  );
-};
-
-interface SpecialOfferCardProps {
-  car: VehicleItem;
-  onSelectCar: (car: VehicleItem, tab?: 'specs' | 'finance' | 'video' | 'testdrive') => void;
-  dealer: typeof SEED_DEALER;
-}
-
-const SpecialOfferCard: React.FC<SpecialOfferCardProps> = ({ car, onSelectCar, dealer }) => {
-  const hasDiscount = !!(car.oldPriceEur && car.oldPriceEur > car.priceEur);
-  const savings = hasDiscount ? car.oldPriceEur! - car.priceEur : 0;
-  const isDeal = !!(car.isDealOfWeek || car.isPinnedToTop);
-
-  return (
-    <div 
-      onClick={() => onSelectCar(car, 'specs')}
-      className="w-[82vw] max-w-[320px] sm:w-80 shrink-0 snap-center rounded-2xl bg-[#151518] border border-amber-400/40 hover:border-amber-400 transition-all duration-300 shadow-xl hover:shadow-[0_0_32px_rgba(245,158,11,0.25)] flex flex-col overflow-hidden group cursor-pointer"
+    <section 
+      aria-label="Oferte Speciale și Oportunități Showroom"
+      className="py-12 md:py-16 bg-[var(--surface-2,#1B2431)]/50 border-b border-[var(--line,rgba(255,255,255,0.08))]"
     >
-      {/* Fotografie */}
-      <div className="relative aspect-[16/9] bg-zinc-900 overflow-hidden">
-        <img
-          src={normalizeCarImageUrl(car.images[0])}
-          alt={`${car.brand} ${car.model}`}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          loading="lazy"
-        />
-
-        {/* Badge promoțional pe foto */}
-        {isDeal && (
-          <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-black font-black text-[9.5px] uppercase tracking-wide shadow-md shadow-amber-500/30">
-            <Sparkles className="w-3 h-3 shrink-0" />
-            <span>{car.dealBadgeText || 'OFERTA SĂPTĂMÂNII'}</span>
-          </div>
-        )}
-
-        {/* Preț & Reducere Overlay */}
-        <div className="absolute bottom-2 left-2 z-10 px-2.5 py-1 rounded-xl bg-black/85 backdrop-blur-md border border-white/15">
-          {hasDiscount && (
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="text-[10px] text-zinc-400 line-through font-mono leading-none">
-                {car.oldPriceEur!.toLocaleString('ro-RO')} €
-              </span>
-              <span className="text-[9px] font-extrabold text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 px-1 py-0.2 rounded">
-                -{savings.toLocaleString('ro-RO')} €
-              </span>
+      <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
+        {/* Header Secțiune Oferte */}
+        <div className="flex items-end justify-between gap-4 mb-8">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[var(--accent,#D83333)]/10 text-[var(--accent-text,#F04D4D)] text-[12px] font-montserrat font-semibold uppercase tracking-[0.14em] mb-2">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Oportunități din stoc</span>
             </div>
-          )}
-          <div className={`font-black font-mono leading-none ${hasDiscount ? 'text-amber-400 text-base' : 'text-white text-sm'}`}>
-            {car.priceEur.toLocaleString('ro-RO')} €
+            <h2 className="font-montserrat font-extrabold text-[28px] sm:text-[36px] text-[var(--text,#F4F6F9)] leading-tight tracking-[-0.01em]">
+              Oferte Speciale & Reduceri
+            </h2>
           </div>
+
+          {/* Săgeți Navigare Desktop */}
+          <div className="hidden sm:flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleScroll('left')}
+              aria-label="Oferta anterioară"
+              className="w-11 h-11 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] hover:bg-[var(--surface-brand,#2E3643)] text-[var(--metal,#C9CED6)] hover:text-white border border-[var(--line,rgba(255,255,255,0.08))] flex items-center justify-center transition-all cursor-pointer active:scale-95"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleScroll('right')}
+              aria-label="Oferta următoare"
+              className="w-11 h-11 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] hover:bg-[var(--surface-brand,#2E3643)] text-[var(--metal,#C9CED6)] hover:text-white border border-[var(--line,rgba(255,255,255,0.08))] flex items-center justify-center transition-all cursor-pointer active:scale-95"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Carousel / Snap Grid */}
+        <div 
+          ref={scrollRef}
+          className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-4 pt-1 px-1 -mx-1"
+        >
+          {specialOffers.map(car => {
+            const hasDiscount = !!(car.oldPriceEur && car.oldPriceEur > car.priceEur);
+            const savings = hasDiscount ? (car.oldPriceEur! - car.priceEur) : 0;
+            const title = formatVehicleTitle(car.brand, car.model, car.versionTrim);
+            const monthly = estimateMonthly(car.priceEur);
+
+            return (
+              <div 
+                key={car.id}
+                className="w-[85vw] sm:w-[360px] lg:w-[380px] shrink-0 snap-start rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] shadow-[var(--shadow-card)] overflow-hidden flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300"
+              >
+                <div>
+                  {/* Poză 16/10 cu Badge */}
+                  <div 
+                    onClick={() => onSelectCar(car, 'specs')}
+                    className="relative aspect-[16/10] overflow-hidden bg-black/40 cursor-pointer select-none"
+                  >
+                    {car.images && car.images.length > 0 ? (
+                      <img 
+                        src={normalizeCarImageUrl(car.images[0])}
+                        alt={title}
+                        width={400}
+                        height={250}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300 ease-[var(--ease)]"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[var(--text-muted,#A3ABB6)] text-xs">
+                        Foto în curs de actualizare
+                      </div>
+                    )}
+
+                    {/* Badge Ofertă Specială */}
+                    <div className="absolute top-3 left-3 z-10">
+                      <span className="px-2.5 py-1 rounded-full bg-[var(--accent,#D83333)] text-white font-montserrat font-bold text-[11px] uppercase tracking-wider shadow-md">
+                        {car.dealBadgeText || 'Ofertă Specială'}
+                      </span>
+                    </div>
+
+                    {/* Economie Badge */}
+                    {hasDiscount && (
+                      <div className="absolute bottom-3 left-3 z-10">
+                        <span className="px-2.5 py-0.5 rounded-md bg-[var(--surface-brand,#2E3643)]/90 backdrop-blur-sm text-white font-montserrat font-bold text-[12px] tabular-nums border border-white/10 shadow-sm">
+                          Economisești {savings.toLocaleString('ro-RO')} €
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Detalii Mașină */}
+                  <div className="p-4 sm:p-5">
+                    <h3 
+                      onClick={() => onSelectCar(car, 'specs')}
+                      className="font-montserrat font-bold text-[17px] text-[var(--text,#F4F6F9)] group-hover:text-[var(--accent-text,#F04D4D)] transition-colors cursor-pointer truncate"
+                      title={title}
+                    >
+                      {title}
+                    </h3>
+                    <p className="font-open-sans text-[13px] text-[var(--text-muted,#A3ABB6)] mt-1">
+                      {car.year} · {formatMileageKm(car.mileageKm)} · {car.fuelType} · {car.transmission}
+                    </p>
+
+                    {/* Preț & Rată */}
+                    <div className="mt-4 pt-3 border-t border-[var(--line,rgba(255,255,255,0.08))] flex items-end justify-between">
+                      <div>
+                        {hasDiscount && (
+                          <div className="text-[12px] text-[var(--text-muted,#A3ABB6)] line-through font-mono tabular-nums">
+                            {formatPriceEur(car.oldPriceEur!)}
+                          </div>
+                        )}
+                        <div className="font-montserrat font-extrabold text-[24px] text-[var(--accent-text,#F04D4D)] tabular-nums leading-none">
+                          {formatPriceEur(car.priceEur)}
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <span className="font-open-sans text-[12px] text-[var(--text-muted,#A3ABB6)] block">
+                          de la {monthly} €/lună*
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Butoane Acțiune */}
+                <div className="p-4 sm:p-5 pt-0 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onSelectCar(car, 'specs')}
+                    className="h-10 rounded-[var(--r-sm,8px)] bg-[var(--surface-2,#1B2431)] hover:bg-[var(--surface-brand,#2E3643)] text-[var(--text,#F4F6F9)] font-montserrat font-semibold text-[13px] flex items-center justify-center gap-1 border border-[var(--line,rgba(255,255,255,0.08))] transition-colors cursor-pointer"
+                  >
+                    <span>Detalii</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+
+                  {contact.salesWhatsApp && (
+                    <a
+                      href={`https://wa.me/${contact.salesWhatsApp}?text=${encodeURIComponent(`Bună ziua! Doresc informații despre oferta pentru ${title} (${formatPriceEur(car.priceEur)}).`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="h-10 rounded-[var(--r-sm,8px)] bg-[#25D366] hover:bg-[#20ba59] text-[#0B0F16] font-montserrat font-bold text-[13px] flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5 fill-current" />
+                      <span>WhatsApp</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Notă Unică de Conformitate Omnibus (HG 947/2000) sub carusel */}
+        <div className="mt-4 text-center">
+          <p className="font-open-sans text-[12px] text-[var(--text-muted,#A3ABB6)]">
+            *Prețul tăiat reprezintă cel mai scăzut preț practicat în ultimele 30 de zile, conform Directivei Omnibus (HG nr. 947/2000).
+          </p>
         </div>
       </div>
-
-      {/* Corp Card */}
-      <div className="p-3.5 flex-1 flex flex-col justify-between">
-        <div>
-          <div className="font-serif font-bold text-white text-sm sm:text-base group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
-            {car.brand} {car.model}
-          </div>
-          <div className="text-[11px] text-zinc-400 line-clamp-1 mt-0.5">
-            {car.versionTrim || `${car.year} • ${formatMileage(car.mileageKm)}`}
-          </div>
-
-          {hasDiscount && (
-            <div className="mt-2 flex items-center gap-1 text-[10.5px] text-emerald-400 font-semibold bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-lg">
-              <span>Economisești {savings.toLocaleString('ro-RO')} €</span>
-            </div>
-          )}
-        </div>
-
-        {/* Buton WhatsApp & Acțiune */}
-        <div className="mt-3 flex items-center justify-between gap-2 pt-2.5 border-t border-white/[0.06]">
-          <span className="text-[11px] text-zinc-400 font-mono">
-            {car.year} • {formatMileage(car.mileageKm)}
-          </span>
-          <a
-            href={getWhatsAppCarInquiryUrl(car, dealer)}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="px-2.5 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-[10.5px] inline-flex items-center gap-1 transition-all active:scale-95 shadow-md border border-emerald-500/30"
-          >
-            <MessageCircle className="w-3 h-3" />
-            <span>Întreabă</span>
-          </a>
-        </div>
-      </div>
-    </div>
+    </section>
   );
 };

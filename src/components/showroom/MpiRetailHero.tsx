@@ -1,11 +1,19 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
-  MapPin, Shield, Truck, FileText, Gift, Calculator, 
-  ArrowRight, Phone, MessageCircle, CheckCircle2, Sparkles, Car, ChevronRight
+  ShieldCheck, CheckCircle2, Truck, MessageCircle, 
+  ArrowRight, Search, SlidersHorizontal, Sparkles, ChevronRight
 } from 'lucide-react';
-import { VehicleItem, SEED_DEALER } from '../../db/seed';
+import { VehicleItem } from '../../db/seed';
 import { DealerProfile, DealerLandingConfig } from '../../db/types';
-import { resolveDealerContact, calculateRate as defaultCalcRate, formatMileage, normalizeCarImageUrl } from '../../utils/helpers';
+import { 
+  resolveDealerContact, 
+  formatVehicleTitle, 
+  estimateMonthly, 
+  formatPriceEur, 
+  formatMileageKm,
+  normalizeCarImageUrl 
+} from '../../utils/helpers';
+import { normalizeBrand } from '../../utils/brandNormalizer';
 
 interface MpiRetailHeroProps {
   tenant: DealerProfile;
@@ -23,305 +31,278 @@ export const MpiRetailHero: React.FC<MpiRetailHeroProps> = ({
   isRevealed = true,
 }) => {
   const contact = resolveDealerContact(tenant);
-  const salesPhone = tenant.phonePrimary || '0759 757 858';
-  const financeWa = contact.financeWhatsApp || contact.salesWhatsApp || '40749691302';
+  const totalCount = cars.length;
 
-  // Statistici rapide pentru selectorul de buget
-  const stats = useMemo(() => {
-    const total = cars.length;
-    const under10k = cars.filter(c => c.priceEur <= 10000).length;
-    const between10kAnd15k = cars.filter(c => c.priceEur > 10000 && c.priceEur <= 15000).length;
-    const suvCount = cars.filter(c => c.bodyType === 'SUV' || c.drivetrain === '4x4 / AWD').length;
-    const autoCount = cars.filter(c => c.transmission === 'Automată').length;
-    return { total, under10k, between10kAnd15k, suvCount, autoCount };
+  // Mașina vedetă (Deal of the Week sau prima mașină)
+  const heroCar = useMemo(() => {
+    if (!cars || cars.length === 0) return null;
+    const deal = cars.find(c => c.isDealOfWeek || c.isPinnedToTop);
+    return deal || cars[0];
   }, [cars]);
 
-  // Top 3 oferte reprezentative din stocul real MPI (Duster, Hyundai, Seat/Audi)
-  const spotlightDeals = useMemo(() => {
-    if (!cars || cars.length === 0) return [];
-    const pinned = cars.filter(c => c.isDealOfWeek || c.isPinnedToTop);
-    const pool = pinned.length >= 3 ? pinned : [...pinned, ...cars.filter(c => !c.isDealOfWeek && !c.isPinnedToTop)];
-    return pool.slice(0, 3);
+  // Căutare rapidă
+  const [selectedBrand, setSelectedBrand] = useState('all');
+  const [selectedModel, setSelectedModel] = useState('all');
+  const [maxBudget, setMaxBudget] = useState('all');
+
+  const availableBrands = useMemo(() => {
+    const s = new Set<string>();
+    cars.forEach(c => {
+      const b = normalizeBrand(c.brand);
+      if (b) s.add(b);
+    });
+    return Array.from(s).sort((a, b) => a.localeCompare(b, 'ro'));
   }, [cars]);
 
-  const scrollToCatalog = (e?: React.MouseEvent) => {
-    if (e) e.preventDefault();
-    const el = document.getElementById('stoc');
+  const availableModels = useMemo(() => {
+    if (selectedBrand === 'all') return [];
+    const s = new Set<string>();
+    cars.filter(c => normalizeBrand(c.brand) === selectedBrand).forEach(c => {
+      if (c.model) s.add(c.model);
+    });
+    return Array.from(s).sort((a, b) => a.localeCompare(b, 'ro'));
+  }, [cars, selectedBrand]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const el = document.getElementById('catalog');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
+  const city = tenant.city || 'Cluj-Napoca';
+  const locationLabel = tenant.showroomAddress 
+    ? tenant.showroomAddress 
+    : (tenant.address ? tenant.address : `${city}, jud. ${tenant.county || 'Cluj'}`);
+
   return (
-    <section className="relative overflow-hidden pt-6 sm:pt-10 pb-12 sm:pb-16 px-4 sm:px-8 border-b border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#09090b] transition-colors duration-300">
-      {/* Glow ambiental discret */}
+    <section 
+      aria-label={`${tenant.name} — Showroom`}
+      className="relative overflow-hidden pt-8 md:pt-14 pb-12 md:pb-20 bg-[var(--bg,#0B0F16)] text-[var(--text,#F4F6F9)] transition-colors"
+    >
+      {/* Glow radial ambiental de fundal */}
       <div 
-        className={`absolute top-0 right-1/4 w-96 h-96 bg-[var(--color-accent)]/10 rounded-full blur-3xl pointer-events-none -z-10 transition-all duration-1000 ${
-          isRevealed ? 'scale-100 opacity-100' : 'scale-150 opacity-0'
-        }`} 
+        className="absolute inset-0 pointer-events-none opacity-40 dark:opacity-100"
+        style={{ background: 'var(--glow)' }}
+        aria-hidden="true"
       />
 
-      <div className="max-w-7xl mx-auto">
-        {/* 1. Header Badges: Locație & Trust */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shadow-xs">
-            <MapPin className="w-3.5 h-3.5 shrink-0" />
-            <span>Centura Apahida • Cluj-Napoca • Deschis 7/7</span>
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-xs">
-            <Truck className="w-3.5 h-3.5 shrink-0" />
-            <span>Livrare Gratuită la Domiciliu în Toată România</span>
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 shrink-0" />
-            <span>{stats.total} Autoturisme Verificate pe Stoc</span>
-          </span>
-        </div>
-
-        {/* 2. Titlu Comercial & Subtitlu */}
-        <div className="max-w-4xl mb-8 sm:mb-10">
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white leading-[1.1] tracking-tight mb-4">
-            Parc Auto Rulate Cluj • <br className="hidden sm:inline" />
-            <span className="text-[var(--color-accent)] underline decoration-[var(--color-accent)]/30 decoration-wavy">
-              Rate Doar cu Buletinul
-            </span>
-          </h1>
-          <p className="text-base sm:text-lg text-slate-600 dark:text-zinc-400 leading-relaxed font-medium">
-            Peste {stats.total} de mașini verificate mecanic pe Centura Apahida. Aprobare credit online în 30 de minute (avans de la 0%), revizie gratuită ulei + filtre la predare și garanție contractuală extinsă până la 36 de luni.
-          </p>
-        </div>
-
-        {/* 3. Selector Rapid de Căutare după Buget (Quick Finder) */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-[#121215] border border-slate-200 dark:border-white/[0.08] shadow-sm mb-8 sm:mb-10">
-          <div className="flex items-center gap-2 mb-3 text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider">
-            <Calculator className="w-4 h-4 text-[var(--color-accent)]" />
-            <span>Găsește Rapid Mașina în Bugetul Tău:</span>
-          </div>
-
-          <div className="flex flex-wrap gap-2 sm:gap-2.5">
-            <a
-              href="#stoc"
-              onClick={scrollToCatalog}
-              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-100 border border-slate-200 dark:border-zinc-700 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all shadow-xs flex items-center gap-1.5"
-            >
-              <Car className="w-3.5 h-3.5 text-blue-500" />
-              <span>Toate Mașinile ({stats.total})</span>
-            </a>
-
-            <a
-              href="#stoc"
-              onClick={scrollToCatalog}
-              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-100 border border-slate-200 dark:border-zinc-700 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all shadow-xs flex items-center gap-1.5"
-            >
-              <span>💶 Sub 10.000 € ({stats.under10k})</span>
-            </a>
-
-            <a
-              href="#stoc"
-              onClick={scrollToCatalog}
-              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-100 border border-slate-200 dark:border-zinc-700 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all shadow-xs flex items-center gap-1.5"
-            >
-              <span>💎 10.000 € – 15.000 € ({stats.between10kAnd15k})</span>
-            </a>
-
-            <a
-              href="#stoc"
-              onClick={scrollToCatalog}
-              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-100 border border-slate-200 dark:border-zinc-700 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all shadow-xs flex items-center gap-1.5"
-            >
-              <span>🚙 SUV & 4x4 ({stats.suvCount})</span>
-            </a>
-
-            <a
-              href="#stoc"
-              onClick={scrollToCatalog}
-              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-100 border border-slate-200 dark:border-zinc-700 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all shadow-xs flex items-center gap-1.5"
-            >
-              <span>⚙️ Cutie Automată ({stats.autoCount})</span>
-            </a>
-
-            <a
-              href={`https://wa.me/${financeWa}?text=${encodeURIComponent('Bună ziua! Aș dori simulare pentru rate de la 150 EUR/lună doar cu buletinul din parcul MPI Auto.')}`}
-              target="_blank"
-              rel="noreferrer"
-              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/40 hover:bg-rose-100 transition-all shadow-xs flex items-center gap-1.5 ml-auto"
-            >
-              <span>📋 Rate de la 120 €/lună →</span>
-            </a>
-          </div>
-        </div>
-
-        {/* 4. Butoane Primare de Acțiune (WhatsApp & Explorează Stocul) */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-10 sm:mb-12">
-          <a
-            href="#stoc"
-            onClick={scrollToCatalog}
-            className="px-8 py-4 rounded-2xl font-bold text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] transition-all shadow-lg shadow-[var(--color-accent)]/20 text-center text-sm sm:text-base flex items-center justify-center gap-2 group"
-          >
-            <span>Explorează Stocul ({stats.total} Autoturisme)</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </a>
-
-          <a
-            href={`https://wa.me/${financeWa}?text=${encodeURIComponent('Bună ziua! Aș dori informații despre aprobarea unui credit doar cu buletinul pentru mașinile MPI Auto.')}`}
-            target="_blank"
-            rel="noreferrer"
-            className="px-6 py-4 rounded-2xl font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 border border-slate-300 dark:border-zinc-700 transition-all text-center text-sm sm:text-base flex items-center justify-center gap-2"
-          >
-            <MessageCircle className="w-4 h-4 text-emerald-500" />
-            <span>Consultant Finanțare pe WhatsApp</span>
-          </a>
-
-          <a
-            href={`tel:${salesPhone.replace(/\s+/g, '')}`}
-            className="px-6 py-4 rounded-2xl font-bold text-slate-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-700 transition-all text-center text-sm sm:text-base flex items-center justify-center gap-2"
-          >
-            <Phone className="w-4 h-4 text-blue-500" />
-            <span>Vânzări: {salesPhone}</span>
-          </a>
-        </div>
-
-        {/* 5. Banda de Încredere cu cele 6 Atuuri MPI Auto (Centura Apahida) */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-10">
-          <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-[#121215] border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-2.5">
-              <Car className="w-4 h-4" />
+      <div className="relative max-w-[1240px] mx-auto px-4 sm:px-6">
+        {/* Split 6/6 Desktop Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          {/* Stânga: 6 Cols (Desktop) */}
+          <div className="lg:col-span-6 flex flex-col justify-center">
+            {/* Eyebrow */}
+            <div className="inline-flex items-center gap-2 mb-3.5">
+              <span className="w-2 h-2 rounded-full bg-[var(--accent,#D83333)] animate-pulse shrink-0" />
+              <span className="font-montserrat font-semibold text-[12px] uppercase tracking-[0.16em] text-[var(--accent-text,#F04D4D)] truncate">
+                Parc auto rulate · {locationLabel}
+              </span>
             </div>
-            <div className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">80+ Mașini pe Stoc</div>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">Disponibile fizic în Cluj</p>
-          </div>
 
-          <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-[#121215] border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-2.5">
-              <FileText className="w-4 h-4" />
-            </div>
-            <div className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Doar cu Buletinul</div>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">Avans 0%, aprobare 30 min</p>
-          </div>
+            {/* H1 Principal */}
+            <h1 className="font-montserrat font-extrabold text-[36px] sm:text-[44px] lg:text-[60px] xl:text-[64px] leading-[1.12] tracking-[-0.02em] text-[var(--text,#F4F6F9)] mb-5">
+              Mașini rulate verificate, direct de la sursă.
+            </h1>
 
-          <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-[#121215] border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-2.5">
-              <Truck className="w-4 h-4" />
-            </div>
-            <div className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Livrare Gratuită</div>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">La domiciliu în toată țara</p>
-          </div>
+            {/* Subtitlu */}
+            <p className="font-open-sans text-[16px] sm:text-[18px] lg:text-[19px] leading-[1.6] text-[var(--text-muted,#A3ABB6)] max-w-xl mb-8">
+              Parc auto autorizat în {city}. Garanție 12–36 luni inclusă, livrare gratuită la domiciliu și finanțare rapidă doar cu buletinul, direct în contul dealerului.
+            </p>
 
-          <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-[#121215] border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-2.5">
-              <Gift className="w-4 h-4" />
-            </div>
-            <div className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Revizie Cadou</div>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">Ulei + filtre noi la predare</p>
-          </div>
-
-          <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-[#121215] border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-2.5">
-              <Shield className="w-4 h-4" />
-            </div>
-            <div className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Garanție 12–36 Luni</div>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">Fără limită de kilometri</p>
-          </div>
-
-          <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-[#121215] border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-lg bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center mb-2.5">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-            <div className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Numere Roșii 30 Zile</div>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">Dosar complet pe loc</p>
-          </div>
-        </div>
-
-        {/* 6. Mini-Showcase cu 3 Oferte Reale din Stocul MPI */}
-        {spotlightDeals.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-4">
+            {/* 3 Puncte de Încredere */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 pt-2 border-t border-[var(--line,rgba(255,255,255,0.08))]">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[var(--color-accent)]" />
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                  Oferte Recomandate din Showroom MPI Auto
-                </h2>
+                <ShieldCheck className="w-4 h-4 text-[var(--metal,#C9CED6)] shrink-0" />
+                <span className="text-[14px] font-open-sans text-[var(--text,#F4F6F9)] font-medium">
+                  Verificare 120 puncte
+                </span>
               </div>
-              <a
-                href="#stoc"
-                onClick={scrollToCatalog}
-                className="text-xs font-bold text-[var(--color-accent)] hover:underline flex items-center gap-1"
-              >
-                <span>Vezi tot stocul ({stats.total})</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </a>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[var(--metal,#C9CED6)] shrink-0" />
+                <span className="text-[14px] font-open-sans text-[var(--text,#F4F6F9)] font-medium">
+                  Km certificați pe factură
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-[var(--metal,#C9CED6)] shrink-0" />
+                <span className="text-[14px] font-open-sans text-[var(--text,#F4F6F9)] font-medium">
+                  Livrare gratuită în țară
+                </span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {spotlightDeals.map((car) => {
-                const estRate = defaultCalcRate(car.priceEur, 0.15, 60);
-                return (
-                  <div
-                    key={car.id}
-                    onClick={() => onSelectCar(car)}
-                    className="group cursor-pointer rounded-2xl bg-slate-50 dark:bg-[#121215] border border-slate-200 dark:border-white/[0.08] hover:border-[var(--color-accent)]/50 transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md flex flex-col justify-between"
-                  >
-                    <div className="relative aspect-[16/10] bg-zinc-800 overflow-hidden">
-                      {car.images && car.images[0] ? (
-                        <img
-                          src={normalizeCarImageUrl(car.images[0])}
-                          alt={`${car.brand} ${car.model}`}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-zinc-500">
-                          <Car className="w-8 h-8 opacity-40" />
-                        </div>
-                      )}
-                      <div className="absolute top-2.5 left-2.5">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-md">
-                          {car.dealBadgeText || 'Ofertă Specială MPI'}
-                        </span>
-                      </div>
-                      <div className="absolute bottom-2.5 right-2.5">
-                        <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-black/75 backdrop-blur-md text-white border border-white/20">
-                          {car.year} • {formatMileage(car.mileageKm)}
-                        </span>
-                      </div>
-                    </div>
+            {/* CTA Buttons Row */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+              <a
+                href="#catalog"
+                className="h-[52px] px-8 rounded-[var(--r-md,14px)] bg-[var(--accent,#D83333)] hover:bg-[var(--accent-hover,#C02828)] text-white font-montserrat font-bold text-[15px] flex items-center justify-center gap-2.5 shadow-[var(--shadow-cta)] transition-all touch-manipulation active:scale-[0.98]"
+              >
+                <span>Vezi cele {totalCount} mașini</span>
+                <ArrowRight className="w-4 h-4 shrink-0" />
+              </a>
 
-                    <div className="p-4 flex-1 flex flex-col justify-between">
-                      <div>
-                        <div className="font-bold text-slate-900 dark:text-white text-base group-hover:text-[var(--color-accent)] transition-colors line-clamp-1">
-                          {car.brand} {car.model}
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-zinc-400 line-clamp-1 mt-0.5">
-                          {car.versionTrim || `${car.fuelType} • ${car.transmission}`}
+              {contact.salesWhatsApp && (
+                <a
+                  href={`https://wa.me/${contact.salesWhatsApp}?text=${encodeURIComponent(`Bună ziua! Doresc informații despre mașinile din stocul ${tenant.name}.`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-[52px] px-6 rounded-[var(--r-md,14px)] bg-[#25D366] hover:bg-[#20ba59] text-[#0B0F16] font-montserrat font-bold text-[15px] flex items-center justify-center gap-2 shadow-md transition-all touch-manipulation active:scale-[0.98]"
+                >
+                  <MessageCircle className="w-4 h-4 fill-current shrink-0" />
+                  <span>Consultanță pe WhatsApp</span>
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* Dreapta: 6 Cols (LCP Car Image + Glass Deal Card) */}
+          <div className="lg:col-span-6 flex justify-center">
+            {heroCar ? (
+              <div className="relative w-full max-w-[580px] group">
+                {/* LCP Media Container */}
+                <div 
+                  onClick={() => onSelectCar(heroCar)}
+                  className="relative aspect-[16/10] rounded-[var(--r-lg,24px)] overflow-hidden bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] shadow-[var(--shadow-card)] cursor-pointer select-none"
+                >
+                  {heroCar.images && heroCar.images.length > 0 ? (
+                    <img 
+                      src={normalizeCarImageUrl(heroCar.images[0])}
+                      alt={formatVehicleTitle(heroCar.brand, heroCar.model, heroCar.versionTrim)}
+                      width={800}
+                      height={500}
+                      {...({ fetchpriority: 'high' } as any)}
+                      loading="eager"
+                      decoding="async"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-[var(--ease)]"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-[var(--surface-2,#1B2431)] text-[var(--text-muted,#A3ABB6)]">
+                      <span>Imagine în curs de actualizare</span>
+                    </div>
+                  )}
+
+                  {/* Gradient Overlay for card contrast */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+
+                  {/* Top Badge: Oferta Săptămânii */}
+                  <div className="absolute top-4 left-4 z-10">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent,#D83333)] text-white font-montserrat font-bold text-[12px] uppercase tracking-wider shadow-lg">
+                      <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                      <span>{heroCar.dealBadgeText || 'Ofertă Specială'}</span>
+                    </span>
+                  </div>
+
+                  {/* Floating Glass Deal Card */}
+                  <div 
+                    className="absolute inset-x-3 bottom-3 sm:inset-x-5 sm:bottom-5 p-3.5 sm:p-4 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)]/90 backdrop-blur-md border border-[var(--line,rgba(255,255,255,0.12))] shadow-xl transition-all group-hover:border-[var(--accent,#D83333)]/50"
+                  >
+                    <div className="flex items-end justify-between gap-3">
+                      <div className="min-w-0">
+                        <h2 className="font-montserrat font-bold text-[17px] sm:text-[19px] text-[var(--text,#F4F6F9)] truncate">
+                          {formatVehicleTitle(heroCar.brand, heroCar.model, heroCar.versionTrim)}
+                        </h2>
+                        <p className="font-open-sans text-[13px] text-[var(--text-muted,#A3ABB6)] mt-0.5">
+                          {heroCar.year} · {formatMileageKm(heroCar.mileageKm)} · {heroCar.fuelType}
                         </p>
                       </div>
 
-                      <div className="mt-3 pt-3 border-t border-slate-200 dark:border-white/[0.06] flex items-end justify-between">
-                        <div>
-                          <div className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500">
-                            Preț Showroom
-                          </div>
-                          <div className="text-lg font-black text-slate-900 dark:text-white font-mono leading-none">
-                            {car.priceEur.toLocaleString('ro-RO')} €
-                          </div>
+                      <div className="text-right shrink-0">
+                        <div className="font-montserrat font-extrabold text-[22px] sm:text-[24px] text-[var(--accent-text,#F04D4D)] tabular-nums leading-none">
+                          {formatPriceEur(heroCar.priceEur)}
                         </div>
-
-                        <div className="text-right">
-                          <div className="text-[10px] uppercase font-bold text-rose-600 dark:text-rose-400">
-                            Rată Estimată
-                          </div>
-                          <div className="text-xs font-bold text-slate-700 dark:text-zinc-300 font-mono">
-                            de la ~{estRate} €/lună
-                          </div>
+                        <div className="font-open-sans text-[12px] text-[var(--text-muted,#A3ABB6)] mt-1">
+                          de la {estimateMonthly(heroCar.priceEur)} €/lună*
                         </div>
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              </div>
+            ) : null}
           </div>
-        )}
+        </div>
+
+        {/* Compact Search & Filter Bar sub Hero */}
+        <div className="mt-10 sm:mt-14">
+          <form 
+            onSubmit={handleSearchSubmit}
+            className="p-3 sm:p-4 rounded-[var(--r-md,14px)] bg-[var(--surface-2,#1B2431)] border border-[var(--line,rgba(255,255,255,0.08))] shadow-md"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-center">
+              {/* Select Marcă */}
+              <div>
+                <label className="block text-[11px] font-montserrat font-semibold uppercase tracking-wider text-[var(--text-muted,#A3ABB6)] mb-1">
+                  Marcă
+                </label>
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => {
+                    setSelectedBrand(e.target.value);
+                    setSelectedModel('all');
+                  }}
+                  className="w-full h-11 px-3 rounded-[var(--r-sm,8px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] text-[var(--text,#F4F6F9)] text-[14px] font-open-sans focus:outline-none focus:border-[var(--accent,#D83333)]"
+                >
+                  <option value="all">Toate mărcile ({availableBrands.length})</option>
+                  {availableBrands.map(b => (
+                    <option key={b} value={b}>{b}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Select Model */}
+              <div>
+                <label className="block text-[11px] font-montserrat font-semibold uppercase tracking-wider text-[var(--text-muted,#A3ABB6)] mb-1">
+                  Model
+                </label>
+                <select
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  disabled={selectedBrand === 'all'}
+                  className="w-full h-11 px-3 rounded-[var(--r-sm,8px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] text-[var(--text,#F4F6F9)] text-[14px] font-open-sans focus:outline-none focus:border-[var(--accent,#D83333)] disabled:opacity-50"
+                >
+                  <option value="all">
+                    {selectedBrand === 'all' ? 'Alege mai întâi marca' : `Toate modelele (${availableModels.length})`}
+                  </option>
+                  {availableModels.map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Select Buget Maxim */}
+              <div>
+                <label className="block text-[11px] font-montserrat font-semibold uppercase tracking-wider text-[var(--text-muted,#A3ABB6)] mb-1">
+                  Buget maxim
+                </label>
+                <select
+                  value={maxBudget}
+                  onChange={(e) => setMaxBudget(e.target.value)}
+                  className="w-full h-11 px-3 rounded-[var(--r-sm,8px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] text-[var(--text,#F4F6F9)] text-[14px] font-open-sans focus:outline-none focus:border-[var(--accent,#D83333)]"
+                >
+                  <option value="all">Oricare buget</option>
+                  <option value="10000">Sub 10.000 €</option>
+                  <option value="15000">Sub 15.000 €</option>
+                  <option value="20000">Sub 20.000 €</option>
+                  <option value="30000">Sub 30.000 €</option>
+                </select>
+              </div>
+
+              {/* Buton Caută */}
+              <div className="sm:self-end">
+                <button
+                  type="submit"
+                  className="w-full h-11 rounded-[var(--r-sm,8px)] bg-[var(--accent,#D83333)] hover:bg-[var(--accent-hover,#C02828)] text-white font-montserrat font-bold text-[14px] flex items-center justify-center gap-2 shadow-[var(--shadow-cta)] transition-all cursor-pointer touch-manipulation"
+                >
+                  <Search className="w-4 h-4 shrink-0" />
+                  <span>Caută {totalCount} mașini</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </section>
   );

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { MapPin, Clock, Phone, SlidersHorizontal } from 'lucide-react';
+import { DealerProfile } from '../../db/types';
 import { SEED_DEALER } from '../../db/seed';
 import { resolveDealerContact } from '../../utils/helpers';
 import { NavigationModal } from '../modals/NavigationModal';
 
 interface TopbarProps {
-  viewMode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin';
-  setViewMode: (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin') => void;
-  dealer?: typeof SEED_DEALER;
+  viewMode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' | 'ghid-auto';
+  setViewMode: (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' | 'ghid-auto') => void;
+  dealer?: DealerProfile;
   isRevealed?: boolean;
 }
 
@@ -20,87 +21,97 @@ export const Topbar: React.FC<TopbarProps> = ({
   const [isNavModalOpen, setIsNavModalOpen] = useState(false);
   const contact = resolveDealerContact(dealer);
 
+  const displayAddress = dealer.showroomAddress || dealer.address || `${dealer.city || 'Cluj-Napoca'}, jud. ${dealer.county || 'Cluj'}`;
+  const salesPhone = contact.salesPhone;
+  const salesPhoneClean = contact.salesPhoneClean;
+  const financePhone = contact.financePhone;
+  const financePhoneClean = contact.financePhoneClean;
+
   return (
     <>
-      <div className={`bg-[#121215] border-b border-white/[0.08] text-[12px] text-zinc-400 py-2 px-3 sm:px-8 no-print transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
-        isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
-      }`}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
-          <div className="flex items-center gap-3 sm:gap-6 min-w-0">
+      <div 
+        className={`hidden md:block h-9 bg-[var(--surface-2,#1B2431)] border-b border-[var(--line,rgba(255,255,255,0.08))] text-[13px] text-[var(--text-muted,#A3ABB6)] font-open-sans select-none no-print transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
+        }`}
+      >
+        <div className="max-w-[1240px] h-full mx-auto px-6 flex items-center justify-between gap-4">
+          {/* Stânga: Adresă fizică și Program de lucru */}
+          <div className="flex items-center gap-6 min-w-0">
             <button
               type="button"
               onClick={() => setIsNavModalOpen(true)}
-              className="flex items-center gap-1.5 text-zinc-300 hover:text-amber-300 active:scale-95 text-[11px] sm:text-xs truncate transition-all text-left group cursor-pointer focus:outline-none min-h-[32px] sm:min-h-0 py-0.5 rounded-md hover:bg-white/5 px-1 -mx-1"
-              title="Deschide locația în Google Maps sau Waze"
-              aria-label={`Deschide locația showroom-ului în Google Maps sau Waze: ${dealer.address}`}
+              className="flex items-center gap-1.5 text-[var(--text-muted,#A3ABB6)] hover:text-[var(--text,#F4F6F9)] transition-colors cursor-pointer text-left truncate group"
+              title="Deschide adresa în Google Maps sau Waze"
+              aria-label={`Deschide locația în hărți: ${displayAddress}`}
             >
-              <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0 group-hover:scale-110 group-hover:text-amber-300 transition-transform" />
-              <span className="truncate underline decoration-zinc-600 underline-offset-2 group-hover:decoration-amber-400">
-                <span className="sm:hidden font-semibold">Cluj-Napoca</span>
-                <span className="hidden sm:inline">{dealer.address}</span>
+              <MapPin className="w-3.5 h-3.5 text-[var(--metal,#C9CED6)] group-hover:text-[var(--accent-text,#F04D4D)] transition-colors shrink-0" />
+              <span className="truncate underline decoration-white/20 group-hover:decoration-[var(--accent,#D83333)] underline-offset-2">
+                {displayAddress}
               </span>
             </button>
-          <span className="hidden md:flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span>{dealer.openingHours}</span>
-          </span>
-        </div>
 
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          <a 
-            href={`tel:${contact.salesPhoneClean}`} 
-            className="flex items-center gap-1.5 text-zinc-200 hover:text-amber-400 font-medium font-mono text-[11px] sm:text-xs whitespace-nowrap transition-colors min-h-[36px] px-2 py-1 rounded-lg hover:bg-white/5 touch-manipulation"
-            title="Consultanță Vânzări & Showroom"
-          >
-            <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span><span className="text-zinc-400 hidden sm:inline">Vânzări: </span>{contact.salesPhone}</span>
-          </a>
+            {dealer.openingHours && (
+              <span className="flex items-center gap-1.5 truncate">
+                <Clock className="w-3.5 h-3.5 text-[var(--metal,#C9CED6)] shrink-0" />
+                <span className="truncate">{dealer.openingHours}</span>
+              </span>
+            )}
+          </div>
 
-          <a 
-            href={`tel:${contact.financePhoneClean}`} 
-            className="hidden lg:flex items-center gap-1.5 text-amber-300 hover:text-white font-medium font-mono text-[11px] sm:text-xs whitespace-nowrap transition-colors min-h-[36px] px-2 py-1 rounded-lg hover:bg-white/5 touch-manipulation"
-            title="Consultanță Finanțare & Rate"
-          >
-            <span className="text-zinc-400">Rate: </span>
-            <span>{contact.financePhone}</span>
-          </a>
-          
-          <span className="text-zinc-600 hidden xl:inline">|</span>
-          <a href={`mailto:${dealer.email}`} className="text-zinc-400 hover:text-amber-300 transition-colors hidden xl:inline">
-            <span>{dealer.email}</span>
-          </a>
+          {/* Dreapta: Telefoane Vânzări & Finanțare */}
+          <div className="flex items-center gap-4 shrink-0">
+            {salesPhone && (
+              <a 
+                href={`tel:${salesPhoneClean}`}
+                className="flex items-center gap-1.5 hover:text-[var(--text,#F4F6F9)] transition-colors"
+                title="Consultanță Vânzări Showroom"
+              >
+                <Phone className="w-3.5 h-3.5 text-[var(--metal,#C9CED6)] shrink-0" />
+                <span><span className="text-[var(--text-muted,#A3ABB6)]/70">Vânzări:</span> <strong className="font-semibold text-[var(--text,#F4F6F9)] tabular-nums">{salesPhone}</strong></span>
+              </a>
+            )}
 
-          {/* Buton Ieșire Showroom afișat când administratorul sau pagina legală este activă */}
-          {viewMode === 'admin' && (
-            <button 
-              type="button"
-              onClick={() => setViewMode('showroom')}
-              className="min-h-[36px] sm:h-7 px-2.5 sm:px-3 text-[11px] font-bold rounded-full flex items-center gap-1.5 transition-all shadow-md touch-manipulation active:scale-95 bg-amber-500 text-black shadow-amber-500/20"
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>← Înapoi în Showroom</span>
-            </button>
-          )}
+            {financePhone && (
+              <a 
+                href={`tel:${financePhoneClean}`}
+                className="flex items-center gap-1.5 hover:text-[var(--text,#F4F6F9)] transition-colors"
+                title="Consultanță Finanțare & Rate"
+              >
+                <span className="text-white/20">|</span>
+                <span><span className="text-[var(--text-muted,#A3ABB6)]/70">Finanțare:</span> <strong className="font-semibold text-[var(--text,#F4F6F9)] tabular-nums">{financePhone}</strong></span>
+              </a>
+            )}
 
-          {(viewMode === 'terms' || viewMode === 'delivery' || viewMode === 'cookies') && (
-            <button 
-              type="button"
-              onClick={() => setViewMode('showroom')}
-              className="min-h-[36px] sm:h-7 px-2.5 sm:px-3 text-[11px] font-bold rounded-full flex items-center gap-1.5 transition-all shadow-md touch-manipulation active:scale-95 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 cursor-pointer"
-            >
-              <span>← Înapoi în Showroom</span>
-            </button>
-          )}
+            {dealer.email && (
+              <a 
+                href={`mailto:${dealer.email}`}
+                className="hidden lg:flex items-center gap-1 hover:text-[var(--text,#F4F6F9)] transition-colors truncate"
+              >
+                <span className="text-white/20">|</span>
+                <span className="truncate">{dealer.email}</span>
+              </a>
+            )}
+
+            {/* Revenire Showroom pentru modurile secundare */}
+            {viewMode !== 'showroom' && viewMode !== 'saas' && viewMode !== 'superadmin' && (
+              <button 
+                type="button"
+                onClick={() => setViewMode('showroom')}
+                className="ml-2 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--surface-brand,#2E3643)] text-[var(--text,#F4F6F9)] hover:bg-[var(--accent,#D83333)] transition-colors flex items-center gap-1"
+              >
+                <SlidersHorizontal className="w-3 h-3" />
+                <span>← Showroom</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
 
-    {/* Modal / Pop-up Selectare Navigație (Google Maps vs Waze) */}
-    <NavigationModal 
-      isOpen={isNavModalOpen} 
-      onClose={() => setIsNavModalOpen(false)} 
-      dealer={dealer} 
-    />
-  </>
+      <NavigationModal 
+        isOpen={isNavModalOpen} 
+        onClose={() => setIsNavModalOpen(false)} 
+        dealer={dealer} 
+      />
+    </>
   );
 };

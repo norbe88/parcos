@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Truck, Calculator, ArrowLeftRight, Play, 
-  LayoutDashboard, MessageCircle, Menu, X, Car, Shield, Phone, MapPin
+  Phone, MessageCircle, Menu, X, Sun, Moon, 
+  Shield, Calculator, ArrowLeftRight, CheckCircle2, MapPin
 } from 'lucide-react';
 import { SEED_DEALER } from '../../db/seed';
+import { DealerProfile } from '../../db/types';
 import { resolveDealerContact } from '../../utils/helpers';
 import { TenantBrandBadge } from '../common/TenantBrandBadge';
-import { NavigationModal } from '../modals/NavigationModal';
-import { useScrollDirection } from '../../hooks/useScrollDirection';
+import { useTenantContext } from '../../context/TenantContext';
 
 interface NavbarProps {
   totalCarsCount: number;
-  viewMode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin';
-  setViewMode: (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin') => void;
-  dealer?: typeof SEED_DEALER;
+  viewMode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' | 'ghid-auto';
+  setViewMode: (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' | 'ghid-auto') => void;
+  dealer?: DealerProfile;
   isRevealed?: boolean;
 }
 
@@ -25,35 +25,38 @@ export const Navbar: React.FC<NavbarProps> = ({
   isRevealed = true
 }) => {
   const contact = resolveDealerContact(dealer);
+  const { themeMode, toggleThemeMode } = useTenantContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isNavModalOpen, setIsNavModalOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-  // Hook reactiv Headroom (60 FPS, passive listener, anti-jitter)
-  const { scrollDirection, isAtTop } = useScrollDirection({ threshold: 15, topOffset: 60 });
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 40);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  // Reguli dinamice de afișare/ascundere:
-  // 1. Meniul mobil deschis forțează navbar-ul să rămână vizibil permanent
-  // 2. La scroll în jos, dincolo de Hero, navbar-ul se retrage lin (-translate-y-full)
-  // 3. La cel mai mic impuls în sus, navbar-ul reapare instant cu umbră profundă de lux
-  const isHidden = isRevealed && !isAtTop && scrollDirection === 'down' && !mobileMenuOpen;
-  const isElevated = !isAtTop && scrollDirection === 'up';
+  // Prevenire scroll pe body când meniul mobil este deschis
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
-  // Vizibilitate dinamică a secțiunilor conform landingConfig dealer
-  const visibleSecs = dealer?.landingConfig?.visibleSections;
-  const showCatalog = visibleSecs?.vehicleCatalog !== false;
-  const showWhyUs = visibleSecs?.whyChooseUs !== false;
-  const showCustomOrder = visibleSecs?.customOrderSection !== false;
-  const showFinancing = visibleSecs?.financingSection !== false;
-  const showBuyBack = visibleSecs?.buyBackSection !== false;
-
-  // Navigare fluidă la secțiunile din Showroom cu calcul precis de offset
   const navigateToSection = (sectionId: string) => {
     setMobileMenuOpen(false);
 
     const performScroll = () => {
       const element = document.getElementById(sectionId);
       if (element) {
-        const headerOffset = 90;
+        const headerOffset = 80;
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -68,18 +71,16 @@ export const Navbar: React.FC<NavbarProps> = ({
       setViewMode('showroom');
       setTimeout(performScroll, 120);
     } else {
-      setTimeout(performScroll, 60);
+      setTimeout(performScroll, 50);
     }
   };
 
-  // Navigare către paginile dedicate (Livrare, Termeni, Cookies, Showroom)
-  const navigateToView = (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies') => {
+  const navigateToView = (mode: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'ghid-auto') => {
     setMobileMenuOpen(false);
     setViewMode(mode);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Click pe Logo: 1-Tap Return-to-Top fluid fără reîncărcare
   const handleLogoClick = () => {
     setMobileMenuOpen(false);
     if (viewMode !== 'showroom') {
@@ -89,304 +90,210 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className={`sticky top-0 z-30 backdrop-blur-xl no-print transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
-      !isRevealed 
-        ? 'opacity-0 -translate-y-4 pointer-events-none bg-[#09090b]/95 border-b border-white/[0.08]' 
-        : isHidden
-          ? 'opacity-100 -translate-y-full shadow-none bg-[#09090b]/95 border-b border-white/[0.08]'
-          : isElevated
-            ? 'opacity-100 translate-y-0 shadow-2xl bg-[#09090b]/95 border-b border-white/[0.12]'
-            : 'opacity-100 translate-y-0 shadow-none bg-[#09090b]/95 border-b border-white/[0.08]'
-    }`}>
-      <div className="max-w-7xl mx-auto px-3 sm:px-8 h-20 flex items-center justify-between gap-2 sm:gap-4">
-        
-        {/* Brand Logo & Monogram — Dynamic per Tenant */}
-        <TenantBrandBadge 
-          dealer={dealer} 
-          variant="navbar"
-          onClick={handleLogoClick}
-        />
+    <header 
+      className={`sticky top-0 z-40 transition-all duration-300 no-print will-change-transform ${
+        !isRevealed ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'
+      } ${
+        isScrolled || mobileMenuOpen
+          ? 'bg-[var(--surface,#131A24)]/90 backdrop-blur-md border-b border-[var(--line,rgba(255,255,255,0.08))] shadow-lg'
+          : 'bg-transparent border-b border-transparent'
+      }`}
+    >
+      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 h-[60px] md:h-[72px] flex items-center justify-between gap-4">
+        {/* Brand Logo & Nume */}
+        <div className="flex items-center gap-3">
+          <TenantBrandBadge 
+            dealer={dealer} 
+            variant="navbar"
+            onClick={handleLogoClick}
+          />
+        </div>
 
-        {/* Desktop Navigation (>= lg) — Editorial, curat, fără iconițe redundante înghesuite */}
-        <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-[13.5px] xl:text-sm font-medium text-zinc-300">
-          {showCatalog && (
-            <button 
-              type="button"
-              onClick={() => navigateToSection('catalog')} 
-              className={`transition-colors font-semibold flex items-center gap-2 cursor-pointer ${
-                viewMode === 'showroom' ? 'text-amber-400' : 'hover:text-white'
-              }`}
-            >
-              <span>Stoc Auto</span>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/15 border border-amber-500/30 text-amber-300 shadow-sm">
-                {totalCarsCount}
-              </span>
-            </button>
-          )}
-          
-          {showWhyUs && (
-            <button 
-              type="button"
-              onClick={() => navigateToSection('garantie')} 
-              className="hover:text-amber-300 transition-colors cursor-pointer"
-            >
-              Garanție
-            </button>
-          )}
-
-          {showCustomOrder && (
-            <button 
-              type="button"
-              onClick={() => navigateToSection('comanda')} 
-              className="hover:text-amber-300 transition-colors cursor-pointer"
-            >
-              La Comandă
-            </button>
-          )}
-
-          {showFinancing && (
-            <button 
-              type="button"
-              onClick={() => navigateToSection('finantare')} 
-              className="hover:text-amber-300 transition-colors cursor-pointer"
-            >
-              Finanțare
-            </button>
-          )}
-
-          {showBuyBack && (
-            <button 
-              type="button"
-              onClick={() => navigateToSection('buyback')} 
-              className="hover:text-amber-300 transition-colors cursor-pointer"
-            >
-              Buy-Back
-            </button>
-          )}
+        {/* Desktop Navigation Links */}
+        <nav 
+          aria-label="Navigație Principală Showroom"
+          className="hidden lg:flex items-center gap-7 text-[14px] font-montserrat font-medium text-[var(--text-muted,#A3ABB6)]"
+        >
+          <button 
+            type="button"
+            onClick={() => navigateToSection('catalog')} 
+            className="hover:text-[var(--text,#F4F6F9)] transition-colors cursor-pointer flex items-center gap-2 group py-1 border-b-2 border-transparent hover:border-[var(--accent,#D83333)]"
+          >
+            <span className="font-semibold text-[var(--text,#F4F6F9)]">Stoc</span>
+            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold font-mono bg-[var(--surface-2,#1B2431)] text-[var(--accent-text,#F04D4D)] border border-[var(--line,rgba(255,255,255,0.08))] tabular-nums">
+              {totalCarsCount}
+            </span>
+          </button>
 
           <button 
             type="button"
-            onClick={() => navigateToView('delivery')} 
-            className={`transition-colors font-medium flex items-center gap-1.5 cursor-pointer ${
-              viewMode === 'delivery' ? 'text-amber-400 font-bold' : 'hover:text-amber-300'
-            }`}
+            onClick={() => navigateToSection('finantare')} 
+            className="hover:text-[var(--text,#F4F6F9)] transition-colors cursor-pointer py-1 border-b-2 border-transparent hover:border-[var(--accent,#D83333)]"
           >
-            <Truck className="w-3.5 h-3.5 text-amber-400" />
-            <span>Livrare Națională</span>
+            Finanțare
           </button>
 
-          {viewMode === 'admin' && (
-            <button 
-              type="button"
-              onClick={() => navigateToView('showroom')} 
-              className="text-amber-400 hover:text-white transition-colors flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 cursor-pointer"
-            >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              <span>← Showroom</span>
-            </button>
-          )}
+          <button 
+            type="button"
+            onClick={() => navigateToSection('cont-garantie')} 
+            className="hover:text-[var(--text,#F4F6F9)] transition-colors cursor-pointer py-1 border-b-2 border-transparent hover:border-[var(--accent,#D83333)]"
+          >
+            Cont de Garanție
+          </button>
 
-          {(viewMode === 'terms' || viewMode === 'delivery' || viewMode === 'cookies') && (
-            <button 
-              type="button"
-              onClick={() => navigateToView('showroom')} 
-              className="text-amber-400 hover:text-white transition-colors flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 cursor-pointer"
-            >
-              <Car className="w-3.5 h-3.5" />
-              <span>← Înapoi la Stoc</span>
-            </button>
-          )}
+          <button 
+            type="button"
+            onClick={() => navigateToSection('garantie')} 
+            className="hover:text-[var(--text,#F4F6F9)] transition-colors cursor-pointer py-1 border-b-2 border-transparent hover:border-[var(--accent,#D83333)]"
+          >
+            Garanție
+          </button>
+
+          <button 
+            type="button"
+            onClick={() => navigateToSection('servicii')} 
+            className="hover:text-[var(--text,#F4F6F9)] transition-colors cursor-pointer py-1 border-b-2 border-transparent hover:border-[var(--accent,#D83333)]"
+          >
+            Servicii & Buy-Back
+          </button>
+
+          <button 
+            type="button"
+            onClick={() => navigateToSection('contact')} 
+            className="hover:text-[var(--text,#F4F6F9)] transition-colors cursor-pointer py-1 border-b-2 border-transparent hover:border-[var(--accent,#D83333)]"
+          >
+            Contact
+          </button>
         </nav>
 
-        {/* Right Actions: TikTok Badge + WhatsApp Showroom + Mobile Trigger */}
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-          
-          {/* TikTok Badge discret Luxury */}
-          <a 
-            href={dealer.tiktokUrl} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="hidden sm:flex items-center justify-center w-9 h-9 rounded-xl bg-white/5 hover:bg-[#fe2c55]/20 border border-white/10 hover:border-[#fe2c55]/40 text-zinc-300 hover:text-white transition-all shadow-sm group touch-manipulation"
-            title={`Urmărește clipurile TikTok ${dealer.tiktokHandle || ""}`}
-            aria-label={`Canal Oficial TikTok ${dealer.name}`}
+        {/* Right Actions: Theme Toggle, Sună Acum, Hamburger */}
+        <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
+          {/* Comutator Temă: Dark / Light */}
+          <button
+            type="button"
+            onClick={toggleThemeMode}
+            aria-label={`Comută tema pe modul ${themeMode === 'dark' ? 'luminos' : 'întunecat'}`}
+            aria-pressed={themeMode === 'light'}
+            title={`Tema curentă: ${themeMode === 'dark' ? 'Întunecat' : 'Luminos'}. Apasă pentru comutare.`}
+            className="w-10 h-10 rounded-[var(--r-md,14px)] bg-[var(--surface-2,#1B2431)] hover:bg-[var(--surface-brand,#2E3643)] text-[var(--metal,#C9CED6)] hover:text-[var(--text,#F4F6F9)] border border-[var(--line,rgba(255,255,255,0.08))] flex items-center justify-center transition-all cursor-pointer touch-manipulation active:scale-95"
           >
-            <Play className="w-3.5 h-3.5 fill-[#fe2c55] text-[#fe2c55] group-hover:scale-110 transition-transform" />
-          </a>
+            {themeMode === 'dark' ? (
+              <Sun className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Moon className="w-4 h-4 text-slate-700" />
+            )}
+          </button>
 
-          {/* Buton WhatsApp Showroom — Design Dark Luxury Compact & Ergonomic */}
-          <a 
-            href={`https://wa.me/${contact.salesWhatsApp}?text=${encodeURIComponent(`Bună ziua! Sunt interesat de mașinile din stocul ${dealer.name}.`)}`} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            aria-label={`WhatsApp Showroom - Contactează ${dealer.name}`}
-            className="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-[0.98] text-white font-semibold text-xs sm:text-[13px] h-9 sm:h-10 px-2.5 sm:px-4 rounded-xl shadow-md shadow-emerald-950/40 border border-emerald-500/30 transition-all touch-manipulation shrink-0"
-          >
-            <MessageCircle className="w-3.5 h-3.5 fill-white shrink-0" />
-            <span>WhatsApp Showroom</span>
-          </a>
+          {/* Primary CTA Button: Sună Acum */}
+          {contact.salesPhoneClean && (
+            <a
+              href={`tel:${contact.salesPhoneClean}`}
+              className="hidden sm:inline-flex items-center gap-2 h-11 px-5 rounded-[var(--r-md,14px)] bg-[var(--accent,#D83333)] hover:bg-[var(--accent-hover,#C02828)] text-white font-montserrat font-bold text-[14px] shadow-[var(--shadow-cta)] transition-all touch-manipulation active:scale-[0.98] select-none"
+            >
+              <Phone className="w-4 h-4 shrink-0" />
+              <span>Sună acum</span>
+            </a>
+          )}
 
-          {/* Mobile Menu Hamburger Button (Garantat vizibil, min-w 44px touch target) */}
+          {/* Mobile Menu Toggle Button */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label={mobileMenuOpen ? "Închide meniul principal" : "Deschide meniul principal"}
-            className="lg:hidden flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-zinc-300 hover:text-white transition-all touch-manipulation shrink-0"
+            className="lg:hidden w-11 h-11 min-w-[44px] min-h-[44px] rounded-[var(--r-md,14px)] bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)] border border-[var(--line,rgba(255,255,255,0.08))] flex items-center justify-center transition-all touch-manipulation active:scale-95 cursor-pointer"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5 text-amber-400" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <X className="w-5 h-5 text-[var(--accent-text,#F04D4D)]" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer / Slide-Down Menu (< lg) */}
+      {/* Full-screen Mobile Drawer (< lg) */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-white/[0.08] bg-[#0c0c0e]/98 backdrop-blur-2xl px-4 py-4 space-y-3 animate-in slide-in-from-top-4 duration-200 max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain">
-          <div className="grid grid-cols-1 gap-1 text-sm font-medium">
-            {showCatalog && (
-              <button
-                type="button"
-                onClick={() => navigateToSection('catalog')}
-                className={`w-full text-left px-3.5 py-3 rounded-xl flex items-center justify-between min-h-[44px] touch-manipulation cursor-pointer ${
-                  viewMode === 'showroom' ? 'bg-amber-500/15 text-amber-300 font-bold border border-amber-500/30' : 'text-zinc-200 hover:bg-white/5'
-                }`}
-              >
-                <span className="flex items-center gap-2.5">
-                  <Car className="w-4 h-4 text-amber-400" />
-                  <span>Mașini în stoc</span>
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-xs bg-amber-400 text-black font-mono font-bold">
-                  {totalCarsCount}
-                </span>
-              </button>
-            )}
-
-            {showWhyUs && (
-              <button
-                type="button"
-                onClick={() => navigateToSection('garantie')}
-                className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation cursor-pointer"
-              >
-                <Shield className="w-4 h-4 text-emerald-400" />
-                <span>Garanție până la 36 Luni</span>
-              </button>
-            )}
-
-            {showCustomOrder && (
-              <button
-                type="button"
-                onClick={() => navigateToSection('comanda')}
-                className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation cursor-pointer"
-              >
-                <Truck className="w-4 h-4 text-amber-400" />
-                <span>Mașini la Comandă</span>
-              </button>
-            )}
-
-            {showFinancing && (
-              <button
-                type="button"
-                onClick={() => navigateToSection('finantare')}
-                className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation cursor-pointer"
-              >
-                <Calculator className="w-4 h-4 text-amber-400" />
-                <span>Finanțare Rate (0% Avans)</span>
-              </button>
-            )}
-
-            {showBuyBack && (
-              <button
-                type="button"
-                onClick={() => navigateToSection('buyback')}
-                className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation cursor-pointer"
-              >
-                <ArrowLeftRight className="w-4 h-4 text-amber-400" />
-                <span>Buy-Back & Schimb Auto</span>
-              </button>
-            )}
+        <div className="lg:hidden fixed inset-x-0 top-[60px] md:top-[72px] bottom-0 bg-[var(--bg,#0B0F16)]/98 backdrop-blur-2xl z-50 p-6 flex flex-col justify-between overflow-y-auto overscroll-contain animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => navigateToSection('catalog')}
+              className="w-full h-14 px-4 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] flex items-center justify-between text-left font-montserrat font-semibold text-[16px] text-[var(--text,#F4F6F9)] active:bg-[var(--surface-2,#1B2431)]"
+            >
+              <span>Mașini în stoc</span>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[var(--accent,#D83333)] text-white tabular-nums">
+                {totalCarsCount}
+              </span>
+            </button>
 
             <button
               type="button"
-              onClick={() => navigateToView('delivery')}
-              className={`w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 min-h-[44px] touch-manipulation cursor-pointer ${
-                viewMode === 'delivery' ? 'bg-amber-500/15 text-amber-300 font-bold border border-amber-500/30' : 'text-zinc-200 hover:bg-white/5'
-              }`}
+              onClick={() => navigateToSection('finantare')}
+              className="w-full h-14 px-4 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] flex items-center justify-between text-left font-montserrat font-semibold text-[16px] text-[var(--text,#F4F6F9)] active:bg-[var(--surface-2,#1B2431)]"
             >
-              <Truck className="w-4 h-4 text-amber-400" />
-              <span>Livrare în toată România</span>
+              <span>Finanțare & Rate fixe</span>
+              <span className="text-xs text-[var(--text-muted,#A3ABB6)]">Doar cu buletinul</span>
             </button>
 
-            <a
-              href={dealer.tiktokUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-200 hover:bg-white/5 min-h-[44px] touch-manipulation"
+            <button
+              type="button"
+              onClick={() => navigateToSection('cont-garantie')}
+              className="w-full h-14 px-4 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] flex items-center justify-between text-left font-montserrat font-semibold text-[16px] text-[var(--text,#F4F6F9)] active:bg-[var(--surface-2,#1B2431)]"
             >
-              <Play className="w-4 h-4 fill-[#fe2c55] text-[#fe2c55]" />
-              <span>TikTok Prezentări HD</span>
-            </a>
+              <span>Cont de Garanție</span>
+              <span className="text-xs text-[var(--accent-text,#F04D4D)] font-semibold">Blocare 5 zile</span>
+            </button>
 
-            {viewMode === 'admin' && (
-              <button
-                type="button"
-                onClick={() => navigateToView('showroom')}
-                className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 min-h-[44px] touch-manipulation bg-amber-500 text-black font-bold cursor-pointer"
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                <span>← Înapoi în Showroom</span>
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => navigateToSection('garantie')}
+              className="w-full h-14 px-4 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] flex items-center justify-between text-left font-montserrat font-semibold text-[16px] text-[var(--text,#F4F6F9)] active:bg-[var(--surface-2,#1B2431)]"
+            >
+              <span>Garanție extinsă</span>
+              <span className="text-xs text-[var(--text-muted,#A3ABB6)]">12–36 Luni</span>
+            </button>
 
-            {(viewMode === 'terms' || viewMode === 'delivery' || viewMode === 'cookies') ? (
-              <button
-                type="button"
-                onClick={() => navigateToView('showroom')}
-                className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 min-h-[44px] touch-manipulation bg-amber-500 text-black font-bold cursor-pointer"
-              >
-                <Car className="w-4 h-4" />
-                <span>← Înapoi în Showroom</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => navigateToView('terms')}
-                className="w-full text-left px-3.5 py-3 rounded-xl flex items-center gap-2.5 text-zinc-300 hover:bg-white/5 min-h-[44px] touch-manipulation text-xs cursor-pointer"
-              >
-                <Shield className="w-4 h-4 text-amber-400" />
-                <span>Termeni & Condiții / GDPR</span>
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => navigateToSection('servicii')}
+              className="w-full h-14 px-4 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] flex items-center justify-between text-left font-montserrat font-semibold text-[16px] text-[var(--text,#F4F6F9)] active:bg-[var(--surface-2,#1B2431)]"
+            >
+              <span>Servicii & Buy-Back</span>
+              <span className="text-xs text-[var(--text-muted,#A3ABB6)]">Livrare · Revizie</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigateToSection('contact')}
+              className="w-full h-14 px-4 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] flex items-center justify-between text-left font-montserrat font-semibold text-[16px] text-[var(--text,#F4F6F9)] active:bg-[var(--surface-2,#1B2431)]"
+            >
+              <span>Contact Showroom</span>
+              <span className="text-xs text-[var(--text-muted,#A3ABB6)]">{dealer.city || 'Cluj'}</span>
+            </button>
           </div>
 
-          {/* Quick Call & Location Row inside Mobile Menu */}
-          <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between gap-2.5">
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                setIsNavModalOpen(true);
-              }}
-              className="flex-1 py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-white text-xs flex items-center justify-center gap-2 min-h-[44px] touch-manipulation cursor-pointer"
-            >
-              <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>Locație (GPS)</span>
-            </button>
-            <a
-              href={`tel:${contact.salesPhoneClean}`}
-              className="flex-1 py-2.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 active:scale-95 border border-amber-500/30 text-amber-300 font-mono text-xs flex items-center justify-center gap-2 min-h-[44px] touch-manipulation font-semibold"
-            >
-              <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>Sună: {contact.salesPhone}</span>
-            </a>
+          {/* Quick Actions & Contact Footer în Drawer Mobil */}
+          <div className="pt-6 border-t border-[var(--line,rgba(255,255,255,0.08))] space-y-3">
+            {contact.salesPhoneClean && (
+              <a
+                href={`tel:${contact.salesPhoneClean}`}
+                className="w-full h-14 rounded-[var(--r-md,14px)] bg-[var(--accent,#D83333)] text-white flex items-center justify-center gap-2 font-montserrat font-bold text-[16px] shadow-[var(--shadow-cta)]"
+              >
+                <Phone className="w-5 h-5" />
+                <span>Sună Vânzări: {contact.salesPhone}</span>
+              </a>
+            )}
+
+            {contact.salesWhatsApp && (
+              <a
+                href={`https://wa.me/${contact.salesWhatsApp}?text=${encodeURIComponent(`Bună ziua! Doresc informații despre mașinile din stocul ${dealer.name}.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full h-14 rounded-[var(--r-md,14px)] bg-[#25D366] text-[#0B0F16] flex items-center justify-center gap-2 font-montserrat font-bold text-[16px]"
+              >
+                <MessageCircle className="w-5 h-5 fill-current" />
+                <span>WhatsApp Showroom</span>
+              </a>
+            )}
           </div>
         </div>
       )}
-
-      {/* Modal Navigație GPS (Google Maps vs Waze) */}
-      <NavigationModal
-        isOpen={isNavModalOpen}
-        onClose={() => setIsNavModalOpen(false)}
-        dealer={dealer}
-      />
     </header>
   );
 };

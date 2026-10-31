@@ -1,378 +1,307 @@
 import React, { useState, useMemo } from 'react';
-import { Calculator, SlidersHorizontal, Sparkles, Shield, MessageCircle, CheckCircle2, Phone } from 'lucide-react';
+import { Calculator, Phone, MessageCircle, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { VehicleItem, SEED_DEALER } from '../../db/seed';
-import { calculateRate, VAT_RATE, resolveDealerContact } from '../../utils/helpers';
+import { DealerProfile } from '../../db/types';
+import { resolveDealerContact, formatPriceEur } from '../../utils/helpers';
 import { convertEurToRon, getExchangeRateDisclaimer } from '../../utils/currencyEngine';
-import { FinancingRequirementsAccordion } from './FinancingRequirementsAccordion';
 
 interface FinancingSectionProps {
   cars: VehicleItem[];
-  dealer?: typeof SEED_DEALER;
+  dealer?: DealerProfile;
 }
-
-export type CreditorPartnerId = 'tbi' | 'bt' | 'unicredit' | 'creditfix';
-
-export const CREDITOR_PARTNERS: Record<CreditorPartnerId, { 
-  name: string; 
-  sublabel: string; 
-  interestRate: number; 
-  isPrimary?: boolean;
-}> = {
-  tbi: { 
-    name: 'TBI Bank', 
-    sublabel: 'Principal • 100% online', 
-    interestRate: 7.9, 
-    isPrimary: true 
-  },
-  bt: { 
-    name: 'Banca Transilvania', 
-    sublabel: 'BT Direct', 
-    interestRate: 8.5 
-  },
-  unicredit: { 
-    name: 'UniCredit', 
-    sublabel: 'Consumer Financing', 
-    interestRate: 8.9 
-  },
-  creditfix: { 
-    name: 'CreditFix', 
-    sublabel: 'Aprobare rapidă', 
-    interestRate: 9.9 
-  },
-};
 
 export const FinancingSection: React.FC<FinancingSectionProps> = ({
   cars,
   dealer = SEED_DEALER
 }) => {
   const contact = resolveDealerContact(dealer);
-  // Stare Finanțare Secțiune Dedicată (TBI Bank selectat implicit)
-  const [finCarId, setFinCarId] = useState<string>('custom');
-  const [finCustomPrice, setFinCustomPrice] = useState<number>(16900);
-  const [finAdvPct, setFinAdvPct] = useState<number>(15);
-  const [finMonths, setFinMonths] = useState<number>(48);
-  const [finPartner, setFinPartner] = useState<CreditorPartnerId>('tbi');
 
-  const activeCreditor = CREDITOR_PARTNERS[finPartner];
+  // Stare simulator
+  const [priceEur, setPriceEur] = useState<number>(15000);
+  const [downPaymentPct, setDownPaymentPct] = useState<number>(15);
+  const [months, setMonths] = useState<number>(48);
 
-  const activeFinCar = useMemo(() => {
-    if (finCarId === 'custom') return null;
-    return cars.find(c => c.id === finCarId) || null;
-  }, [finCarId, cars]);
+  // Tab cerințe finanțare (Persoane Fizice vs Persoane Juridice)
+  const [applicantType, setApplicantType] = useState<'pf' | 'pj'>('pf');
 
-  // Calcul Finanțare Secțiune Dedicată
-  const activeFinPrice = useMemo(() => {
-    if (finCarId === 'custom') return finCustomPrice;
-    return activeFinCar ? activeFinCar.priceEur : finCustomPrice;
-  }, [finCarId, finCustomPrice, activeFinCar]);
+  // Calcul matematic rată lunară
+  // Valoare finanțată = Preț - Plată Inițială
+  const downPaymentEur = Math.round(priceEur * (downPaymentPct / 100));
+  const principalEur = Math.max(0, priceEur - downPaymentEur);
 
-  const finAdvanceEur = Math.round(activeFinPrice * (finAdvPct / 100));
-  const finLoanEur = activeFinPrice - finAdvanceEur;
-  const finMonthlyRate = calculateRate(activeFinPrice, finAdvPct, finMonths, activeCreditor.interestRate);
+  const monthlyRateEur = useMemo(() => {
+    if (principalEur <= 0) return 0;
+    // Rata standard de referință 9.9% DAE conform pieței
+    const annualRate = 0.099;
+    const monthlyRate = annualRate / 12;
+    const payment = (principalEur * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+    return Math.round(payment);
+  }, [principalEur, months]);
 
-  // Invariantă Fiscală TVA 21% (VAT_RATE = 0.21; Net = Gross / 1.21)
-  const finNetPriceEur = Math.round(activeFinPrice / (1 + VAT_RATE));
-  const finVatAmountEur = activeFinPrice - finNetPriceEur;
+  const monthlyRateRon = useMemo(() => {
+    return convertEurToRon(monthlyRateEur);
+  }, [monthlyRateEur]);
+
+  const financePhone = contact.financePhone || contact.salesPhone;
+  const financePhoneClean = contact.financePhoneClean || contact.salesPhoneClean;
+  const financeWa = contact.financeWhatsApp || contact.salesWhatsApp;
 
   return (
-    <section id="finantare" className="border-t border-white/[0.08] bg-[#09090b] py-16 px-4 sm:px-8 scroll-mt-20 sm:scroll-mt-24">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold mb-3">
-              <Calculator className="w-3.5 h-3.5" /> Soluții Financiare Personalizate • Dobândă de la 7.9%
+    <section 
+      id="finantare"
+      aria-label="Finanțare și Simulator Rate Auto"
+      className="py-14 md:py-24 bg-[var(--surface-2,#1B2431)] text-[var(--text,#F4F6F9)] border-b border-[var(--line,rgba(255,255,255,0.08))] scroll-mt-16"
+    >
+      <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+          {/* Stânga: 6 Cols (Pași & Cerințe PF/PJ) */}
+          <div className="lg:col-span-6">
+            <div className="font-montserrat font-semibold text-[12px] uppercase tracking-[0.16em] text-[var(--accent-text,#F04D4D)] mb-2">
+              Finanțare auto
             </div>
-            <h2 className="text-3xl sm:text-5xl font-serif font-bold text-white">
-              Finanțare Rapidă în Rate & Leasing Auto
+            <h2 className="font-montserrat font-extrabold text-[32px] sm:text-[40px] text-[var(--text,#F4F6F9)] leading-tight tracking-[-0.02em] mb-4">
+              Rate fixe, doar cu buletinul.
             </h2>
-            <p className="text-sm text-zinc-400 mt-2 max-w-2xl">
-              Parteneriate oficiale cu <strong>TBI Bank</strong> (principal), <strong>Banca Transilvania (BT Direct)</strong>, <strong>UniCredit Consumer Financing</strong> și <strong>CreditFix</strong>. Aprobare pe loc în 2 ore!
+            <p className="font-open-sans text-[15px] sm:text-[16px] text-[var(--text-muted,#A3ABB6)] leading-relaxed mb-8">
+              Fie că alegi credit auto pentru persoane fizice sau leasing financiar pentru firmă, beneficiezi de rate fixe în euro sau lei, fără drumuri inutile la bancă.
             </p>
-          </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <span className="text-xs text-zinc-400">Creditori agreați:</span>
-            <div className="flex flex-wrap gap-1.5">
-              <span className="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 font-bold text-xs flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-amber-400" /> TBI Bank (Principal)
-              </span>
-              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-zinc-300 font-medium text-xs">BT Direct</span>
-              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-zinc-300 font-medium text-xs">UniCredit</span>
-              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-zinc-300 font-medium text-xs">CreditFix</span>
+            {/* 3 Pași Numerotați */}
+            <div className="space-y-4 mb-8">
+              <div className="p-4 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] flex items-start gap-4">
+                <span className="font-montserrat font-extrabold text-[20px] text-[var(--accent-text,#F04D4D)] tabular-nums shrink-0">
+                  01
+                </span>
+                <div>
+                  <h3 className="font-montserrat font-bold text-[16px] text-[var(--text,#F4F6F9)]">
+                    Alegi mașina și trimiți buletinul
+                  </h3>
+                  <p className="font-open-sans text-[13px] text-[var(--text-muted,#A3ABB6)] mt-0.5">
+                    Selectezi automobilul din stoc și transmiți copia actului de identitate online pe WhatsApp sau în showroom.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] flex items-start gap-4">
+                <span className="font-montserrat font-extrabold text-[20px] text-[var(--accent-text,#F04D4D)] tabular-nums shrink-0">
+                  02
+                </span>
+                <div>
+                  <h3 className="font-montserrat font-bold text-[16px] text-[var(--text,#F4F6F9)]">
+                    Aprobare rapidă direct de la parteneri
+                  </h3>
+                  <p className="font-open-sans text-[13px] text-[var(--text-muted,#A3ABB6)] mt-0.5">
+                    Dosarul tău este analizat direct prin parteneriatele noastre autorizate cu tbi bank, BT Leasing și Porsche Leasing.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] flex items-start gap-4">
+                <span className="font-montserrat font-extrabold text-[20px] text-[var(--accent-text,#F04D4D)] tabular-nums shrink-0">
+                  03
+                </span>
+                <div>
+                  <h3 className="font-montserrat font-bold text-[16px] text-[var(--text,#F4F6F9)]">
+                    Semnezi contractul și pleci cu mașina
+                  </h3>
+                  <p className="font-open-sans text-[13px] text-[var(--text-muted,#A3ABB6)] mt-0.5">
+                    Semnarea se poate face electronic sau la predarea vehiculului, cu numere roșii și dosar complet de înmatriculare.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Acordeon / Selector Cerințe: PF vs PJ */}
+            <div className="p-4 rounded-[var(--r-md,14px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))]">
+              <div className="flex items-center gap-2 mb-3">
+                <button
+                  type="button"
+                  onClick={() => setApplicantType('pf')}
+                  className={`h-9 px-4 rounded-[6px] font-montserrat font-semibold text-[13px] transition-colors cursor-pointer ${
+                    applicantType === 'pf'
+                      ? 'bg-[var(--accent,#D83333)] text-white'
+                      : 'text-[var(--text-muted,#A3ABB6)] hover:text-white bg-[var(--surface-2,#1B2431)]'
+                  }`}
+                >
+                  Persoane Fizice
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setApplicantType('pj')}
+                  className={`h-9 px-4 rounded-[6px] font-montserrat font-semibold text-[13px] transition-colors cursor-pointer ${
+                    applicantType === 'pj'
+                      ? 'bg-[var(--accent,#D83333)] text-white'
+                      : 'text-[var(--text-muted,#A3ABB6)] hover:text-white bg-[var(--surface-2,#1B2431)]'
+                  }`}
+                >
+                  Persoane Juridice (Firme)
+                </button>
+              </div>
+
+              {applicantType === 'pf' ? (
+                <ul className="space-y-1.5 font-open-sans text-[13px] text-[var(--text-muted,#A3ABB6)]">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--accent-text,#F04D4D)] shrink-0" />
+                    <span>Act de identitate (carte de identitate valabilă)</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--accent-text,#F04D4D)] shrink-0" />
+                    <span>Vechime de minimum 3 luni la actualul loc de muncă</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--accent-text,#F04D4D)] shrink-0" />
+                    <span>Se acceptă venituri din salarii, pensii, contracte externe sau diurne</span>
+                  </li>
+                </ul>
+              ) : (
+                <ul className="space-y-1.5 font-open-sans text-[13px] text-[var(--text-muted,#A3ABB6)]">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--accent-text,#F04D4D)] shrink-0" />
+                    <span>Certificat de Înregistrare (CUI) și act constitutiv firmă</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--accent-text,#F04D4D)] shrink-0" />
+                    <span>Ultimul bilanț contabil și ultima balanță încheiată</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--accent-text,#F04D4D)] shrink-0" />
+                    <span>Finanțare pe societăți comerciale, PFA sau profesii liberale</span>
+                  </li>
+                </ul>
+              )}
             </div>
           </div>
-        </div>
 
-        {/* Calculator Interactiv Finanțare */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Coloana Stânga: Formular Calculator + Ghid Documentație Tucked-In */}
-          <div className="lg:col-span-7 space-y-4">
-            
-            {/* Formular Calculator */}
-            <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-4 sm:p-8 shadow-xl">
-              <div className="font-bold text-white text-base mb-6 flex items-center gap-2">
-                <SlidersHorizontal className="w-4 h-4 text-amber-400" /> Configurează Planul Tău de Finanțare
+          {/* Dreapta: 6 Cols (Simulator Rate Integrat) */}
+          <div className="lg:col-span-6">
+            <div className="p-6 sm:p-8 rounded-[var(--r-lg,24px)] bg-[var(--surface,#131A24)] border border-[var(--line,rgba(255,255,255,0.08))] shadow-[var(--shadow-card)]">
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--line,rgba(255,255,255,0.08))] mb-6">
+                <div className="flex items-center gap-2">
+                  <Calculator className="w-5 h-5 text-[var(--accent-text,#F04D4D)]" />
+                  <h3 className="font-montserrat font-bold text-[18px] text-[var(--text,#F4F6F9)]">
+                    Simulator rată lunară
+                  </h3>
+                </div>
+                <span className="text-[12px] font-open-sans text-[var(--text-muted,#A3ABB6)]">
+                  Calcul estimativ
+                </span>
               </div>
 
-            <div className="space-y-6 text-xs">
-              {/* Selectare Vehicul din Stoc sau Sumă Personalizată */}
-              <div>
-                <label htmlFor="fin-car-select" className="block text-zinc-300 font-semibold mb-2">Alege mașina din stocul {dealer.name} sau introdu valoarea:</label>
-                <select 
-                  id="fin-car-select"
-                  aria-label="Selectează mașina pentru finanțare"
-                  value={finCarId}
-                  onChange={e => setFinCarId(e.target.value)}
-                  className="w-full min-h-[44px] bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-amber-400 text-base sm:text-sm font-semibold mb-3 touch-manipulation"
-                >
-                  <option value="custom">Valoare personalizată (simulator)</option>
-                  {cars.map(c => (
-                    <option key={c.id} value={c.id}>
-                      {c.brand} {c.model} ({c.year}) — {c.priceEur.toLocaleString('ro-RO')} € {c.vatDeductible ? '(TVA deductibil)' : ''}
-                    </option>
-                  ))}
-                </select>
-
-                {finCarId === 'custom' && (
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
-                    <label htmlFor="fin-custom-price" className="text-zinc-300 font-medium text-xs sm:text-sm whitespace-nowrap cursor-pointer">Valoare autoturism:</label>
-                    <div className="relative w-full sm:w-52">
-                      <input 
-                        id="fin-custom-price"
-                        aria-label="Valoare autoturism în euro"
-                        type="number"
-                        min="3000"
-                        max="60000"
-                        step="500"
-                        value={finCustomPrice}
-                        onChange={e => setFinCustomPrice(Number(e.target.value))}
-                        className="w-full min-h-[44px] bg-[#18181b] border border-white/10 rounded-xl px-4 py-2.5 text-white font-mono font-bold text-base outline-none focus:border-amber-400 pr-10 touch-manipulation"
-                      />
-                      <span className="absolute right-3 top-3 text-zinc-400 font-bold">€</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Slider Avans */}
-              <div>
-                <div className="flex flex-wrap sm:flex-nowrap justify-between items-baseline gap-1 mb-2">
-                  <span className="text-zinc-300 font-semibold text-xs sm:text-sm whitespace-nowrap">
-                    Avans inițial: <strong className="text-amber-400 text-sm">{finAdvPct}%</strong>
-                  </span>
-                  <span className="text-zinc-400 font-mono text-xs sm:text-sm whitespace-nowrap">
-                    {finAdvanceEur.toLocaleString('ro-RO')} € <span className="text-zinc-400 text-[11px] font-normal">({convertEurToRon(finAdvanceEur).toLocaleString('ro-RO')} RON)</span>
+              {/* Slider 1: Preț Vehicul */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-[12px] font-montserrat font-semibold uppercase tracking-wider text-[var(--text-muted,#A3ABB6)]">
+                    Preț automobil (€)
+                  </label>
+                  <span className="font-montserrat font-bold text-[16px] text-[var(--text,#F4F6F9)] tabular-nums">
+                    {formatPriceEur(priceEur)}
                   </span>
                 </div>
-                <input 
-                  id="fin-advance-slider"
-                  aria-label="Procent avans inițial"
+                <input
                   type="range"
-                  min="0"
-                  max="50"
-                  step="5"
-                  value={finAdvPct}
-                  onChange={e => setFinAdvPct(Number(e.target.value))}
-                  className="w-full h-2 bg-zinc-800 rounded-lg accent-amber-500 cursor-pointer touch-manipulation"
+                  min={5000}
+                  max={45000}
+                  step={500}
+                  value={priceEur}
+                  onChange={(e) => setPriceEur(Number(e.target.value))}
+                  className="w-full h-2 bg-[var(--surface-2,#1B2431)] rounded-lg cursor-pointer accent-[var(--accent,#D83333)]"
                 />
-                <div className="flex justify-between text-[10px] sm:text-[11px] text-zinc-400 mt-1 font-mono">
-                  <span>0% <span className="hidden sm:inline">(Fără avans)</span></span>
-                  <span>15%</span>
-                  <span>30%</span>
+              </div>
+
+              {/* Slider 2: Plată Inițială (termen conform cerinței, termen conform cerinței) */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-[12px] font-montserrat font-semibold uppercase tracking-wider text-[var(--text-muted,#A3ABB6)]">
+                    Plată inițială ({downPaymentPct}%)
+                  </label>
+                  <span className="font-montserrat font-bold text-[15px] text-[var(--text,#F4F6F9)] tabular-nums">
+                    {formatPriceEur(downPaymentEur)}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={50}
+                  step={5}
+                  value={downPaymentPct}
+                  onChange={(e) => setDownPaymentPct(Number(e.target.value))}
+                  className="w-full h-2 bg-[var(--surface-2,#1B2431)] rounded-lg cursor-pointer accent-[var(--accent,#D83333)]"
+                />
+                <div className="flex justify-between text-[11px] font-open-sans text-[var(--text-muted,#A3ABB6)] mt-1">
+                  <span>0% (fără plată inițială)</span>
                   <span>50%</span>
                 </div>
               </div>
 
-              {/* Slider Perioadă */}
-              <div>
-                <div className="flex flex-wrap sm:flex-nowrap justify-between items-baseline gap-1 mb-2">
-                  <span className="text-zinc-300 font-semibold text-xs sm:text-sm whitespace-nowrap">
-                    Perioadă: <strong className="text-amber-400 text-sm">{finMonths} luni</strong> <span className="text-zinc-400 text-xs font-normal">({finMonths / 12} {finMonths === 12 ? 'an' : 'ani'})</span>
-                  </span>
-                  <span className="text-[11px] sm:text-xs text-zinc-400 font-medium whitespace-nowrap">
-                    Rată fixă LEI / EUR
-                  </span>
-                </div>
-                <input 
-                  id="fin-months-slider"
-                  aria-label="Perioadă rambursare în luni"
-                  type="range"
-                  min="12"
-                  max="60"
-                  step="12"
-                  value={finMonths}
-                  onChange={e => setFinMonths(Number(e.target.value))}
-                  className="w-full h-2 bg-zinc-800 rounded-lg accent-amber-500 cursor-pointer touch-manipulation"
-                />
-                <div className="flex justify-between text-[10px] sm:text-[11px] text-zinc-400 mt-1 font-mono">
-                  <span>12 luni <span className="hidden sm:inline">(1 an)</span></span>
-                  <span>24 luni</span>
-                  <span>36 luni</span>
-                  <span>48 luni</span>
-                  <span>60 luni <span className="hidden sm:inline">(5 ani)</span></span>
-                </div>
-              </div>
-
-              {/* Selector Partener (4 Creditori în ordinea agreată) */}
-              <div>
+              {/* Slider 3: Perioadă */}
+              <div className="mb-8">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="text-zinc-300 font-semibold text-xs sm:text-sm">Finanțator partener:</div>
-                  <div className="text-[11px] text-amber-400 font-mono font-medium">Dobândă: {activeCreditor.interestRate}% / an</div>
+                  <label className="text-[12px] font-montserrat font-semibold uppercase tracking-wider text-[var(--text-muted,#A3ABB6)]">
+                    Perioadă rambursare
+                  </label>
+                  <span className="font-montserrat font-bold text-[15px] text-[var(--text,#F4F6F9)] tabular-nums">
+                    {months} luni ({Math.round(months / 12)} {months / 12 === 1 ? 'an' : 'ani'})
+                  </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
-                  {(Object.keys(CREDITOR_PARTNERS) as CreditorPartnerId[]).map(key => {
-                    const cred = CREDITOR_PARTNERS[key];
-                    const isSelected = finPartner === key;
-                    return (
-                      <button 
-                        key={key}
-                        type="button"
-                        onClick={() => setFinPartner(key)}
-                        className={`min-h-[46px] p-2.5 rounded-xl border text-center transition-all touch-manipulation active:scale-95 relative ${
-                          isSelected 
-                            ? 'bg-amber-500/15 border-amber-500 text-amber-300 font-bold shadow-lg shadow-amber-500/10' 
-                            : 'bg-black/30 border-white/10 text-zinc-400 hover:text-white'
-                        }`}
-                      >
-                        {cred.isPrimary && (
-                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded-full bg-amber-500 text-black font-extrabold text-[8px] uppercase tracking-wider">
-                            Principal
-                          </span>
-                        )}
-                        <div className="text-[11px] sm:text-xs font-bold leading-tight mt-0.5">{cred.name}</div>
-                        <div className="text-[9.5px] text-zinc-400 mt-0.5">{cred.interestRate}% • {cred.sublabel.split('•')[0]}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Ghid Condiții & Documente Necesare (Expandabil / Tucked In, începe Collapsed) */}
-          <FinancingRequirementsAccordion dealer={dealer} />
-        </div>
-
-          {/* Rezumat Rată & Aplicare Rapidă */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="bg-gradient-to-b from-[#18181b] to-[#121215] border border-amber-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
-              
-              <div className="text-xs text-amber-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" /> Rezultat Simulare Finanțare
-              </div>
-              
-              <div className="mt-4 mb-6">
-                <span className="text-xs text-zinc-400">Rată Lunară Estimată ({activeCreditor.name}):</span>
-                <div className="text-4xl sm:text-5xl font-black text-white font-mono mt-1">
-                  {finMonthlyRate} € <span className="text-base font-normal text-zinc-400">/ lună</span>
-                </div>
-                <div className="text-sm text-amber-300/90 font-mono mt-1.5 font-bold tracking-tight">
-                  {convertEurToRon(finMonthlyRate).toLocaleString('ro-RO')} RON / lună
-                </div>
-                <div className="text-[10.5px] text-zinc-400 mt-1 font-mono">
-                  {getExchangeRateDisclaimer()}
+                <input
+                  type="range"
+                  min={12}
+                  max={60}
+                  step={12}
+                  value={months}
+                  onChange={(e) => setMonths(Number(e.target.value))}
+                  className="w-full h-2 bg-[var(--surface-2,#1B2431)] rounded-lg cursor-pointer accent-[var(--accent,#D83333)]"
+                />
+                <div className="flex justify-between text-[11px] font-open-sans text-[var(--text-muted,#A3ABB6)] mt-1">
+                  <span>12 luni</span>
+                  <span>60 luni (5 ani)</span>
                 </div>
               </div>
 
-              <div className="space-y-2.5 border-t border-white/[0.08] pt-4 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Preț Vehicul:</span>
-                  <strong className="text-white font-mono">{activeFinPrice.toLocaleString('ro-RO')} €</strong>
+              {/* Afișaj Rată Estimată Mare */}
+              <div className="p-5 rounded-[var(--r-md,14px)] bg-[var(--surface-2,#1B2431)] border border-[var(--line,rgba(255,255,255,0.08))] text-center mb-6">
+                <span className="text-[11px] font-montserrat font-semibold uppercase tracking-wider text-[var(--text-muted,#A3ABB6)] block mb-1">
+                  Rată lunară estimată
+                </span>
+                <div className="font-montserrat font-extrabold text-[40px] sm:text-[48px] text-[var(--accent-text,#F04D4D)] tabular-nums leading-none tracking-tight">
+                  {monthlyRateEur} €<span className="text-[18px] sm:text-[22px] font-normal text-[var(--text-muted,#A3ABB6)]">/lună*</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Avans ({finAdvPct}%):</span>
-                  <strong className="text-white font-mono">{finAdvanceEur.toLocaleString('ro-RO')} € ({convertEurToRon(finAdvanceEur).toLocaleString('ro-RO')} RON)</strong>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Sumă Finanțată:</span>
-                  <strong className="text-amber-300 font-mono">{finLoanEur.toLocaleString('ro-RO')} €</strong>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Perioadă & Dobândă:</span>
-                  <strong className="text-white">{finMonths} luni @ {activeCreditor.interestRate}%/an</strong>
+                <div className="font-open-sans text-[13px] text-[var(--text-muted,#A3ABB6)] mt-1.5 tabular-nums">
+                  aproximativ {monthlyRateRon.toLocaleString('ro-RO')} RON / lună
                 </div>
               </div>
 
-              {/* Notă Strictă TVA 21% pentru Firme vs Regim Marjă */}
-              <div className="mt-5 p-3 rounded-xl bg-black/40 border border-white/[0.08] text-[11px] text-zinc-300 leading-relaxed">
-                {activeFinCar ? (
-                  activeFinCar.vatDeductible ? (
-                    <>
-                      <div className="font-semibold text-emerald-400 mb-0.5 flex items-center gap-1">
-                        <Shield className="w-3.5 h-3.5 text-emerald-400" /> Beneficiu Fiscal Firme (TVA Deductibil 21%):
-                      </div>
-                      Mașina beneficiază de factură fiscală cu <strong>21% TVA deductibil</strong> pentru persoane juridice (SRL / PFA). Valoare netă: <strong>{finNetPriceEur.toLocaleString('ro-RO')} €</strong> (TVA 21%: <strong>{finVatAmountEur.toLocaleString('ro-RO')} €</strong>).
-                    </>
-                  ) : (
-                    <>
-                      <div className="font-semibold text-amber-300 mb-0.5 flex items-center gap-1">
-                        <Shield className="w-3.5 h-3.5 text-amber-400" /> Regim Fiscal Firmă (Art. 312 Cod Fiscal):
-                      </div>
-                      Vehicul comercializat în <strong>Regim Special al Marjei</strong> (fără TVA deductibil la achiziție). Rata lunară de leasing/credit este deductibilă ca și cheltuială operațională în contabilitatea firmei.
-                    </>
-                  )
-                ) : (
-                  <>
-                    <div className="font-semibold text-white mb-0.5 flex items-center gap-1">
-                      <Shield className="w-3.5 h-3.5 text-amber-400" /> Simulator Fiscal Firme (SRL / PFA):
-                    </div>
-                    Pentru vehiculele eligibile cu TVA deductibil (21%), valoarea fără TVA este <strong>{finNetPriceEur.toLocaleString('ro-RO')} €</strong> (TVA 21%: <strong>{finVatAmountEur.toLocaleString('ro-RO')} €</strong>). Pentru vehiculele în regim de marjă, prețul afișat este final.
-                  </>
+              {/* Consilier Finanțare Direct & Butoane */}
+              <div className="pt-2 border-t border-[var(--line,rgba(255,255,255,0.08))] flex flex-col sm:flex-row items-center justify-between gap-3">
+                {financePhone && (
+                  <a
+                    href={`tel:${financePhoneClean}`}
+                    className="w-full sm:w-auto h-11 px-4 rounded-[var(--r-sm,8px)] bg-[var(--surface-2,#1B2431)] hover:bg-[var(--surface-brand,#2E3643)] text-[var(--text,#F4F6F9)] font-montserrat font-semibold text-[13px] flex items-center justify-center gap-2 border border-[var(--line,rgba(255,255,255,0.08))] transition-colors"
+                  >
+                    <Phone className="w-4 h-4 text-[var(--accent-text,#F04D4D)]" />
+                    <span>Sună: {financePhone}</span>
+                  </a>
+                )}
+
+                {financeWa && (
+                  <a
+                    href={`https://wa.me/${financeWa}?text=${encodeURIComponent(`Bună ziua! Doresc o simulare de finanțare pentru un vehicul de ${priceEur} € cu plata inițială de ${downPaymentPct}% pe ${months} luni.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto h-11 px-5 rounded-[var(--r-sm,8px)] bg-[#25D366] hover:bg-[#20ba59] text-[#0B0F16] font-montserrat font-bold text-[13px] flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4 fill-current" />
+                    <span>Aplică pe WhatsApp</span>
+                  </a>
                 )}
               </div>
 
-              {/* Card Contact Consilier Finanțare */}
-              <div className="mt-5 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between gap-3 text-xs">
-                <div>
-                  <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Consilier Credite & Leasing</div>
-                  <div className="text-white font-bold text-sm">Consultanță Rate: <span className="font-mono text-amber-300">{contact.financePhone}</span></div>
-                  <div className="text-[10.5px] text-zinc-400 mt-0.5">Consultanță gratuită dosar • Aprobare rapidă 15–30 min</div>
-                </div>
-                <a 
-                  href={`tel:${contact.financePhoneClean}`}
-                  className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-colors border border-white/10 shrink-0 touch-manipulation active:scale-95"
-                  title="Apelează consilierul de credite"
-                >
-                  <Phone className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Sună</span>
-                </a>
-              </div>
-
-              <a 
-                href={`https://wa.me/${contact.financeWhatsApp}?text=Bună%20ziua!%20Doresc%20să%20aplic%20pentru%20finanțare%20auto%20la%20${encodeURIComponent(dealer.name)}:%0A- Valoare:%20${activeFinPrice}€%0A- Avans:%20${finAdvPct}%20(${finAdvanceEur}€)%0A- Perioadă:%20${finMonths}%20luni%0A- Rată%20estimată:%20${finMonthlyRate}€/lună%20(${convertEurToRon(finMonthlyRate)}%20RON)%0A- Finanțator:%20${encodeURIComponent(activeCreditor.name)}%20(Dobândă%20${activeCreditor.interestRate}%)`}
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="mt-4 w-full min-h-[48px] inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-bold h-12 rounded-xl text-sm shadow-lg shadow-amber-500/20 transition-all touch-manipulation active:scale-[0.98]"
-              >
-                <MessageCircle className="w-4 h-4 fill-black" />
-                <span>Aplică pe WhatsApp ({activeCreditor.name})</span>
-              </a>
-
-              {/* Disclaimer Legal OUG 50/2010 & ANPC */}
-              <div className="mt-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-[10.5px] text-zinc-400 leading-relaxed">
-                <strong className="text-zinc-300">Exemplu orientativ & Disclaimer OUG nr. 50/2010:</strong> Calculele prezentate în simulator au caracter strict informativ și nu reprezintă o ofertă contractuală de creditare sau leasing. DAE, dobânda finală și valoarea totală plătibilă sunt stabilite exclusiv de finanțatorul autorizat ({activeCreditor.name}) în baza analizei dosarului financiar.
-              </div>
-            </div>
-
-            {/* 3 Beneficii Rapide */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <div className="p-3.5 rounded-xl bg-[#121215] border border-white/[0.08]">
-                <div className="text-emerald-400 font-bold mb-1">✓ Aprobare 2h</div>
-                <p className="text-[11px] text-zinc-400">Doar cu buletinul</p>
-              </div>
-              <div className="p-3.5 rounded-xl bg-[#121215] border border-white/[0.08]">
-                <div className="text-emerald-400 font-bold mb-1">✓ Avans 0%</div>
-                <p className="text-[11px] text-zinc-400">Până la 60 de luni</p>
-              </div>
-              <div className="p-3.5 rounded-xl bg-[#121215] border border-white/[0.08]">
-                <div className="text-emerald-400 font-bold mb-1">✓ Venit Extern</div>
-                <p className="text-[11px] text-zinc-400">Contracte din diaspora</p>
-              </div>
+              {/* Disclaimer Legal Conform OUG 50/2010 */}
+              <p className="mt-4 text-[12px] font-open-sans text-[var(--text-muted,#A3ABB6)] text-center leading-normal">
+                *Simulare cu titlu informativ. Dobânda, ratele și condițiile finale de creditare sau leasing sunt stabilite direct de instituția finanțatoare parteneră, în funcție de profilul solicitantului.
+              </p>
             </div>
           </div>
-
         </div>
       </div>
     </section>

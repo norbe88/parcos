@@ -8,6 +8,7 @@ import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { FloatingWhatsApp } from './components/layout/FloatingWhatsApp';
 import { FloatingBackToTop } from './components/layout/FloatingBackToTop';
+import { MobileShowroomDock } from './components/layout/MobileShowroomDock';
 
 // Componente Showroom & Orchestrator
 import { CinematicIntro } from './components/CinematicIntro';
@@ -2053,7 +2054,10 @@ export default function App() {
 
       {/* 💬 BUTON PLUTITOR WHATSAPP (EXCLUSIV ÎN VEDERILE PUBLICE PENTRU CLIENȚI) */}
       {viewMode !== 'saas' && viewMode !== 'admin' && viewMode !== 'superadmin' && viewMode !== 'ghid-auto' && (
-        <FloatingWhatsApp dealer={tenant} />
+        <>
+          <FloatingWhatsApp dealer={tenant} />
+          <MobileShowroomDock dealer={tenant} />
+        </>
       )}
 
       {/* 🍪 BANNER INTERACTIV CONSIMȚĂMÂNT COOKIE-URI (POP-UP ACCEPTARE & PREFERINȚE) */}

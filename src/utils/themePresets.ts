@@ -81,12 +81,33 @@ export const THEME_PRESETS: Record<DealerThemePreset, ThemeConfig> = {
     ringClass: 'ring-emerald-500/50',
     previewBg: '#060d0a',
     previewCard: '#062016'
+  },
+  mpi_signature: {
+    id: 'mpi_signature',
+    label: 'MPI Signature / Racing Crimson & Slate',
+    description: 'Estetică Dark Luxury & Clean White duală, roșu atletic #D83333 și slate #2E3643 (Stil Oficial MPI Auto)',
+    accentColor: '#D83333',
+    accentHoverColor: '#C02828',
+    accentTextColor: '#F04D4D',
+    accentBadgeBg: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
+    accentBorder: 'border-[#D83333]/40',
+    ringClass: 'ring-[#D83333]/50',
+    previewBg: '#0B0F16',
+    previewCard: '#131A24',
+    isLightMode: false
   }
 };
 
-export const getThemeConfig = (preset?: DealerThemePreset): ThemeConfig => {
-  if (preset && THEME_PRESETS[preset]) {
-    return THEME_PRESETS[preset];
+export const getThemeConfig = (preset?: DealerThemePreset, mode?: 'dark' | 'light'): ThemeConfig => {
+  const base = (preset && THEME_PRESETS[preset]) ? THEME_PRESETS[preset] : THEME_PRESETS.obsidian_gold;
+  if (base.id === 'mpi_signature' && mode === 'light') {
+    return {
+      ...base,
+      accentTextColor: '#C42B2B',
+      isLightMode: true,
+      previewBg: '#F7F8FA',
+      previewCard: '#FFFFFF'
+    };
   }
-  return THEME_PRESETS.obsidian_gold;
+  return base;
 };

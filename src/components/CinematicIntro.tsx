@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { DealerProfile } from '../db/types';
+import { getCdnMediaUrl } from '../utils/mediaCdn';
 
 interface CinematicIntroProps {
   onSplit?: () => void;
@@ -205,7 +206,8 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
   // ══════════════════════════════════════════════════════════════
   if (introType === 'cinematic_video') {
     const isSlidingUp = phase === 'sliding_up';
-    const videoUrl = introConfig.videoUrl || '';
+    const rawVideoUrl = introConfig.videoUrl || '';
+    const videoUrl = rawVideoUrl ? getCdnMediaUrl(rawVideoUrl) : '';
     const logoUrl = introConfig.logoUrl || tenant?.logoUrl || '';
     const tagline = introConfig.tagline || (tenant?.showroomAddress ? `${tenant.showroomAddress} • Showroom Rulate` : 'Showroom Rulate');
 
@@ -226,6 +228,7 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
         <video
           ref={videoRef}
           src={videoUrl}
+          preload="auto"
           playsInline
           autoPlay
           muted
