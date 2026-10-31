@@ -1,7 +1,7 @@
 import React from 'react';
-import { Landmark, Building2, Mail, Sliders, Save } from 'lucide-react';
+import { Landmark, Building2, Mail, Sliders, Save, Sparkles, ExternalLink, Check } from 'lucide-react';
 import { DealerProfile } from '../../../db/seed';
-import { TenantTier } from '../../../db/types';
+import { TenantTier, DealerIntroConfig } from '../../../db/types';
 
 interface SuperAdminTenantProfileTabProps {
   currentTenant: DealerProfile;
@@ -29,6 +29,8 @@ interface SuperAdminTenantProfileTabProps {
   setEditedTier: (v: TenantTier) => void;
   editedMaxQuota: number;
   setEditedMaxQuota: (v: number) => void;
+  editedIntro: DealerIntroConfig;
+  setEditedIntro: React.Dispatch<React.SetStateAction<DealerIntroConfig>>;
   onSave: (e: React.FormEvent) => void;
 }
 
@@ -58,6 +60,8 @@ export const SuperAdminTenantProfileTab: React.FC<SuperAdminTenantProfileTabProp
   setEditedTier,
   editedMaxQuota,
   setEditedMaxQuota,
+  editedIntro,
+  setEditedIntro,
   onSave
 }) => {
   return (
@@ -253,6 +257,276 @@ export const SuperAdminTenantProfileTab: React.FC<SuperAdminTenantProfileTabProp
               />
             </div>
           </div>
+        </div>
+
+        {/* 5. Experiență Vizuală & Showroom Intro */}
+        <div className="bg-[#121215] border border-white/[0.08] rounded-2xl p-6 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/[0.06] gap-3">
+            <div>
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-400" /> Experiență Vizuală & Showroom Intro
+              </h3>
+              <p className="text-[11px] text-zinc-400 mt-0.5">
+                Configurează stilul de intrare cinematică, video-ul, logo-ul, culorile și timpii de declanșare în 0 secunde.
+              </p>
+            </div>
+            
+            <button
+              type="button"
+              onClick={() => {
+                const targetUrl = currentTenant.domain 
+                  ? `https://${currentTenant.domain}/?intro=true`
+                  : `/?dealer=${currentTenant.slug}&intro=true`;
+                window.open(targetUrl, '_blank');
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 hover:text-white border border-white/10 text-xs font-semibold transition-all cursor-pointer shadow-sm"
+              title="Deschide showroom-ul dealerului cu forțare intro"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-amber-400" />
+              <span>Testează Intro în Showroom</span>
+            </button>
+          </div>
+
+          {/* Selector Tip Intro */}
+          <div>
+            <label className="block text-[11px] font-mono text-zinc-400 mb-2">Stil Introducere Showroom</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                { id: 'none', label: 'Fără Intro', desc: 'Bypass instant, intrare directă în stoc' },
+                { id: 'split_shutter', label: 'Split Shutter Auriu', desc: 'Cortină centrală cu laser și motto' },
+                { id: 'cinematic_video', label: 'Video Cinematic cu Faruri & Neon', desc: 'Clip fullscreen cu halo reactiv la stingere faruri' },
+              ].map(mode => {
+                const isSelected = (editedIntro?.type || 'split_shutter') === mode.id;
+                return (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    onClick={() => setEditedIntro(prev => ({ ...prev, type: mode.id as any }))}
+                    className={`p-3.5 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
+                      isSelected 
+                        ? 'bg-amber-500/10 border-amber-500/60 shadow-lg shadow-amber-500/10' 
+                        : 'bg-[#18181f] border-white/5 hover:border-white/15'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={`text-xs font-bold ${isSelected ? 'text-amber-300' : 'text-zinc-200'}`}>
+                        {mode.label}
+                      </span>
+                      {isSelected && <Check className="w-3.5 h-3.5 text-amber-400" />}
+                    </div>
+                    <span className="text-[10px] text-zinc-400 leading-relaxed">{mode.desc}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Configurații specifice Video Cinematic */}
+          {editedIntro?.type === 'cinematic_video' && (
+            <div className="space-y-4 pt-2 border-t border-white/[0.04]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] font-mono text-zinc-400 mb-1">URL Video Background (.mp4 / R2)</label>
+                  <input
+                    type="text"
+                    value={editedIntro.videoUrl || ''}
+                    onChange={(e) => setEditedIntro(prev => ({ ...prev, videoUrl: e.target.value }))}
+                    placeholder="/videos/mpi-showroom-intro-v2.mp4?v=20261031_0725"
+                    className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono text-zinc-400 mb-1">URL Logo Iluminat (PNG / SVG alb)</label>
+                  <input
+                    type="text"
+                    value={editedIntro.logoUrl || ''}
+                    onChange={(e) => setEditedIntro(prev => ({ ...prev, logoUrl: e.target.value }))}
+                    placeholder="/images/mpi-logo-white.png"
+                    className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-mono text-zinc-400 mb-1">Tagline / Subtitlu Showroom</label>
+                  <input
+                    type="text"
+                    value={editedIntro.tagline || ''}
+                    onChange={(e) => setEditedIntro(prev => ({ ...prev, tagline: e.target.value }))}
+                    placeholder="Centura Apahida • Showroom Rulate"
+                    className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+              </div>
+
+              {/* Timpi & Milisecunde */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#18181f] p-3.5 rounded-xl border border-white/5">
+                <div>
+                  <label className="block text-[10px] font-mono text-zinc-400 mb-1">Stingere Faruri (s)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="30"
+                    value={editedIntro.headlightOffTime ?? 4.1}
+                    onChange={(e) => setEditedIntro(prev => ({ ...prev, headlightOffTime: parseFloat(e.target.value) || 0 }))}
+                    className="w-full bg-[#121215] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-mono text-zinc-400 mb-1">Intensificare Glow (s)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="30"
+                    value={editedIntro.maxGlowTime ?? 6.0}
+                    onChange={(e) => setEditedIntro(prev => ({ ...prev, maxGlowTime: parseFloat(e.target.value) || 0 }))}
+                    className="w-full bg-[#121215] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-mono text-zinc-400 mb-1">Ieșire Cortină (s)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="30"
+                    value={editedIntro.exitTime ?? 7.5}
+                    onChange={(e) => setEditedIntro(prev => ({ ...prev, exitTime: parseFloat(e.target.value) || 0 }))}
+                    className="w-full bg-[#121215] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-mono text-zinc-400 mb-1">Durată Tranziție (ms)</label>
+                  <input
+                    type="number"
+                    step="50"
+                    min="200"
+                    max="5000"
+                    value={editedIntro.transitionDurationMs ?? 1500}
+                    onChange={(e) => setEditedIntro(prev => ({ ...prev, transitionDurationMs: parseInt(e.target.value, 10) || 1500 }))}
+                    className="w-full bg-[#121215] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+              </div>
+
+              {/* Selector Culoare Accent */}
+              <div>
+                <label className="block text-[11px] font-mono text-zinc-400 mb-1.5">Culoare Accent Laser & Halou Neon</label>
+                <div className="flex flex-wrap items-center gap-3">
+                  {[
+                    { color: '#e11d48', label: 'Crimson Red' },
+                    { color: '#f59e0b', label: 'Amber Gold' },
+                    { color: '#3b82f6', label: 'Sapphire Blue' },
+                    { color: '#10b981', label: 'Emerald Green' },
+                    { color: '#ffffff', label: 'Pure White' },
+                  ].map(c => (
+                    <button
+                      key={c.color}
+                      type="button"
+                      onClick={() => setEditedIntro(prev => ({ ...prev, accentColor: c.color }))}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono transition-all cursor-pointer ${
+                        (editedIntro.accentColor || '#e11d48').toLowerCase() === c.color.toLowerCase()
+                          ? 'border-white text-white bg-white/10'
+                          : 'border-white/10 text-zinc-400 hover:text-white bg-[#18181f]'
+                      }`}
+                    >
+                      <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: c.color }} />
+                      <span>{c.label}</span>
+                    </button>
+                  ))}
+                  <input
+                    type="text"
+                    value={editedIntro.accentColor || '#e11d48'}
+                    onChange={(e) => setEditedIntro(prev => ({ ...prev, accentColor: e.target.value }))}
+                    placeholder="#e11d48"
+                    className="w-24 bg-[#18181f] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Configurații specifice Split Shutter */}
+          {editedIntro?.type === 'split_shutter' && (
+            <div className="space-y-4 pt-2 border-t border-white/[0.04]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] font-mono text-zinc-400 mb-1">URL Emblemă / Logo Showroom</label>
+                  <input
+                    type="text"
+                    value={editedIntro.logoUrl || ''}
+                    onChange={(e) => setEditedIntro(prev => ({ ...prev, logoUrl: e.target.value }))}
+                    placeholder="/images/rxm-logo-gold.png"
+                    className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono text-zinc-400 mb-1">Durată Animație Deschidere (ms)</label>
+                  <input
+                    type="number"
+                    step="100"
+                    min="500"
+                    max="5000"
+                    value={editedIntro.duration ?? 1800}
+                    onChange={(e) => setEditedIntro(prev => ({ ...prev, duration: parseInt(e.target.value, 10) || 1800 }))}
+                    className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-mono text-zinc-400 mb-1">Motto / Tagline Introductiv</label>
+                  <input
+                    type="text"
+                    value={editedIntro.tagline || ''}
+                    onChange={(e) => setEditedIntro(prev => ({ ...prev, tagline: e.target.value }))}
+                    placeholder="„Fiecare drum începe cu alegerea potrivită.”"
+                    className="w-full bg-[#18181f] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+              </div>
+
+              {/* Selector Culoare Accent */}
+              <div>
+                <label className="block text-[11px] font-mono text-zinc-400 mb-1.5">Culoare Accent Cusătură Laser</label>
+                <div className="flex flex-wrap items-center gap-3">
+                  {[
+                    { color: '#f59e0b', label: 'Amber Gold' },
+                    { color: '#3b82f6', label: 'Sapphire Blue' },
+                    { color: '#e11d48', label: 'Crimson Red' },
+                    { color: '#10b981', label: 'Emerald Green' },
+                    { color: '#ffffff', label: 'Pure White' },
+                  ].map(c => (
+                    <button
+                      key={c.color}
+                      type="button"
+                      onClick={() => setEditedIntro(prev => ({ ...prev, accentColor: c.color }))}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono transition-all cursor-pointer ${
+                        (editedIntro.accentColor || '#f59e0b').toLowerCase() === c.color.toLowerCase()
+                          ? 'border-white text-white bg-white/10'
+                          : 'border-white/10 text-zinc-400 hover:text-white bg-[#18181f]'
+                      }`}
+                    >
+                      <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: c.color }} />
+                      <span>{c.label}</span>
+                    </button>
+                  ))}
+                  <input
+                    type="text"
+                    value={editedIntro.accentColor || '#f59e0b'}
+                    onChange={(e) => setEditedIntro(prev => ({ ...prev, accentColor: e.target.value }))}
+                    placeholder="#f59e0b"
+                    className="w-24 bg-[#18181f] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Buton Salvare */}

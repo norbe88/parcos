@@ -10,7 +10,7 @@ import {
 import { useTenant } from '../../hooks/useTenant';
 import { DealerProfile, SEED_DEALER } from '../../db/seed';
 import { approveTenantBackend } from '../../utils/superAdminApi';
-import { TenantFeatures, TenantTier, TenantStatus, DealerThemePreset, DealerLandingConfig, VehicleItem, VehicleExpenseItem } from '../../db/types';
+import { TenantFeatures, TenantTier, TenantStatus, DealerThemePreset, DealerLandingConfig, DealerIntroConfig, VehicleItem, VehicleExpenseItem } from '../../db/types';
 import { VehicleReconBoard } from '../admin/service-tracker/VehicleReconBoard';
 import { SuperAdminOnboardingModal } from '../admin/SuperAdminOnboardingModal';
 import { SuperAdminSidebar, SuperAdminNavTab } from './SuperAdminSidebar';
@@ -98,6 +98,11 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
   const [editedDomain, setEditedDomain] = useState('');
   const [editedTier, setEditedTier] = useState<TenantTier>('starter');
   const [editedMaxQuota, setEditedMaxQuota] = useState<number>(25);
+  const [editedIntro, setEditedIntro] = useState<DealerIntroConfig>({
+    type: 'split_shutter',
+    duration: 1800,
+    accentColor: '#f59e0b'
+  });
 
   // Stare formular integrare FGO
   const [fgoApiKey, setFgoApiKey] = useState('');
@@ -262,6 +267,12 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
       setEditedDomain(currentTenant.domain || '');
       setEditedTier(currentTenant.tier || 'starter');
       setEditedMaxQuota(currentTenant.maxVehiclesQuota || 25);
+      const tenantIntro = currentTenant.landingConfig?.intro || {
+        type: 'split_shutter',
+        duration: 1800,
+        accentColor: '#f59e0b'
+      };
+      setEditedIntro(tenantIntro);
 
       const fgoCfg = currentTenant.config?.invoicing?.fgo;
       if (fgoCfg) {
@@ -307,6 +318,26 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
     e.preventDefault();
     if (!currentTenant?.slug) return;
 
+    const existingLanding = currentTenant.landingConfig || {
+      layoutVariant: 'luxury_cinematic',
+      hero: { type: 'spotlight' },
+      visibleSections: {
+        heroCinematic: true,
+        vehicleCatalog: true,
+        whyChooseUs: true,
+        financingSection: true,
+        buyBackSection: true,
+        customOrderSection: true,
+        googleReviewsSection: true,
+      },
+      customBadges: ['Garanție 24 Luni', 'TVA Deductibil 21%', 'Livrare Națională'],
+    };
+
+    const updatedLandingConfig: DealerLandingConfig = {
+      ...existingLanding,
+      intro: editedIntro
+    };
+
     updateTenantProfile(currentTenant.slug, {
       name: editedLegalName,
       cui: editedCui,
@@ -320,6 +351,7 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
       domain: editedDomain,
       tier: editedTier,
       maxVehiclesQuota: Number(editedMaxQuota),
+      landingConfig: updatedLandingConfig
     });
 
     showToast(`✓ Datele pentru ${editedLegalName} au fost salvate cu succes!`);
@@ -672,6 +704,8 @@ export const ParcOSSuperAdminHub: React.FC<ParcOSSuperAdminHubProps> = ({
               setEditedTier={setEditedTier}
               editedMaxQuota={editedMaxQuota}
               setEditedMaxQuota={setEditedMaxQuota}
+              editedIntro={editedIntro}
+              setEditedIntro={setEditedIntro}
               onSave={handleSaveTenantProfile}
             />
           )}
