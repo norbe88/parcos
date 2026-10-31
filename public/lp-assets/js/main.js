@@ -16,8 +16,6 @@
     if (c) {
       if (c.saveData) return false;
       if (/(^|-)?(slow-2g|2g|3g)$/.test(c.effectiveType || '')) return false;
-    } else if (window.matchMedia && window.matchMedia('(max-width: 860px)').matches) {
-      return false; // mobil fără Network Information API (ex. iOS Safari): doar poster
     }
     return true;
   }
@@ -28,6 +26,11 @@
     var canWebm = v.canPlayType('video/webm; codecs="vp9"');
     var src = canWebm ? v.getAttribute('data-src-webm') : v.getAttribute('data-src-mp4');
     if (!src) return;
+    v.muted = true;
+    v.playsInline = true;
+    v.loop = true;
+    v.setAttribute('playsinline', '');
+    v.setAttribute('muted', '');
     v.src = src;
     v.addEventListener('playing', function () { v.classList.add('is-playing'); }, { once: true });
     var tryPlay = function () { var p = v.play(); if (p && p.catch) p.catch(function () {}); };
@@ -135,4 +138,27 @@
       waFallback(data);
     }).then(function () { btn.disabled = false; });
   });
+
+  /* 1c) Video Player Switcher: Spot Comercial (1 min) vs Tur Complet (6 min) */
+  window.switchParcosVideo = function (type) {
+    var v = document.getElementById('parcos-showcase-video');
+    var s = document.getElementById('parcos-video-source');
+    var bShort = document.getElementById('tab-short');
+    var bFull = document.getElementById('tab-full');
+    if (!v || !s) return;
+    var targetSrc = type === 'full'
+      ? '/lp-assets/video/parcos-explicativ-notebooklm.mp4?v=20261031_1210'
+      : '/lp-assets/video/parcos-commercial-short.mp4?v=20261031_1235';
+    if (s.getAttribute('src') === targetSrc) return;
+    s.setAttribute('src', targetSrc);
+    v.load();
+    v.play().catch(function () {});
+    if (bShort && bFull) {
+      bShort.classList.toggle('is-active', type === 'short');
+      bShort.setAttribute('aria-selected', String(type === 'short'));
+      bFull.classList.toggle('is-active', type === 'full');
+      bFull.setAttribute('aria-selected', String(type === 'full'));
+    }
+  };
+
 })();

@@ -220,12 +220,12 @@ h1 mark{background:linear-gradient(transparent 60%,var(--amber-mark) 60%);color:
   .hero{padding:28px 0 40px}
   .hero-grid{grid-template-columns:minmax(0,1fr);gap:32px}
   .ctas .btn{width:100%}
-  .hero-visual{min-height:0;display:flex;flex-direction:column;gap:18px}
-  .showroom{position:relative;top:auto;order:2}
-  .phone{order:1;margin:0 auto;width:230px}
-  .floats{order:0;display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;margin:0 -24px;padding-left:24px;padding-right:24px;scrollbar-width:none}
-  .floats::-webkit-scrollbar{display:none}
-  .float{position:static;flex:0 0 auto;scroll-snap-align:start;max-width:none}
+  .hero-visual{position:relative;min-height:auto;margin:16px auto 0;width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center}
+  .showroom{position:absolute;top:38px;left:0;right:0;width:100%;aspect-ratio:16/9;border-radius:18px;z-index:1;overflow:hidden;background:#1d2433;box-shadow:0 16px 36px -10px rgba(20,22,27,0.45)}
+  .phone{position:relative;z-index:2;margin:0 auto;width:215px;border-radius:38px;background:#0d0f13;padding:9px;box-shadow:0 30px 60px -20px rgba(10,12,16,0.7),0 0 0 1px #2a2d35}
+  .phone img{border-radius:29px;width:100%;display:block}
+  .floats{position:relative;z-index:3;margin:24px auto 0;display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px;padding:0}
+  .float{position:static;display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px;box-shadow:0 8px 20px -8px rgba(29,36,51,.12);font-size:13.5px;max-width:100%}
   .section{padding:56px 0}
   .grid3{grid-template-columns:minmax(0,1fr)}
     .proof{grid-template-columns:minmax(0,1fr);gap:32px}
@@ -241,3 +241,17 @@ h1 mark{background:linear-gradient(transparent 60%,var(--amber-mark) 60%);color:
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
 .sprite{position:absolute;width:0;height:0;overflow:hidden}
+
+/* Video Spotlight & Switcher */
+.video-section{padding:64px 0;background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.video-tabs{display:flex;justify-content:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.video-tab-btn{padding:10px 20px;border-radius:14px;font-size:14px;font-weight:700;border:1px solid var(--line);background:var(--bg);color:var(--ink-2);cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.video-tab-btn:hover{border-color:var(--amber);color:var(--amber-text)}
+.video-tab-btn.is-active{background:var(--amber);color:#14120f;border-color:var(--amber);box-shadow:0 4px 16px rgba(229,144,38,.35)}
+.video-frame{position:relative;width:100%;max-width:920px;margin:0 auto;aspect-ratio:16/9;border-radius:24px;overflow:hidden;background:#0d0f13;box-shadow:0 24px 60px -15px rgba(20,22,27,.45),0 0 0 1px rgba(255,255,255,.08)}
+.video-frame video{width:100%;height:100%;object-fit:cover;display:block}
+@media (max-width:860px){
+  .video-section{padding:44px 0}
+  .video-tab-btn{padding:8px 14px;font-size:13px}
+  .video-frame{border-radius:16px}
+}
