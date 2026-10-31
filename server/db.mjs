@@ -72,6 +72,7 @@ export async function initDatabase() {
         features            JSONB         NOT NULL DEFAULT '{"ocrCivTalon":true,"olxStockSync":true,"tikTokStudio":true,"autolicitPush":false,"salesDocsEngine":true,"windowStickersQr":true,"financingCalculator":true,"whatsappLeadsBot":true,"fgoInvoicing":true,"financingPortfolio":false,"reconTracker":false,"googleDriveVault":false,"mailHub":false}'::jsonb,
         integrations        JSONB         NOT NULL DEFAULT '{}'::jsonb,
         is_active           BOOLEAN       NOT NULL DEFAULT TRUE,
+        landing_config      JSONB,
         config              JSONB         NOT NULL DEFAULT '{}'::jsonb,
         created_at          TIMESTAMPTZ   DEFAULT NOW() NOT NULL
       );
@@ -95,6 +96,19 @@ export async function initDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_dealers_is_active ON dealers(is_active);`;
     await sql`CREATE INDEX IF NOT EXISTS idx_dealers_status ON dealers(status);`;
     await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN DEFAULT FALSE;`;
+    await sql`ALTER TABLE dealers ADD COLUMN IF NOT EXISTS landing_config JSONB;`;
+
+    // Sincronizare bidirecțională automată între dealers.landing_config și dealers.config.landingConfig
+    await sql`
+      UPDATE dealers
+      SET landing_config = config->'landingConfig'
+      WHERE landing_config IS NULL AND config ? 'landingConfig';
+    `;
+    await sql`
+      UPDATE dealers
+      SET config = jsonb_set(config, '{landingConfig}', landing_config, true)
+      WHERE landing_config IS NOT NULL AND NOT (config ? 'landingConfig');
+    `;
 
     // 0.1 Tabele SMS Gateway & Securitate Verificare Numere Mobile (Hardware Nodes Samy + S9+)
     await sql`
@@ -1201,7 +1215,45 @@ export const FALLBACK_DEALERS = {
     },
     is_active: true,
     active_vehicles_count: 24,
+    landing_config: {
+      layoutVariant: 'luxury_cinematic',
+      hero: { type: 'spotlight' },
+      visibleSections: {
+        heroCinematic: true,
+        vehicleCatalog: true,
+        whyChooseUs: true,
+        financingSection: true,
+        buyBackSection: true,
+        customOrderSection: true,
+        googleReviewsSection: true
+      },
+      customBadges: ['Garanție 24 Luni', 'TVA Deductibil 21%', 'Livrare Națională'],
+      intro: {
+        type: 'split_shutter',
+        duration: 1800,
+        accentColor: '#f59e0b'
+      }
+    },
     config: {
+      landingConfig: {
+        layoutVariant: 'luxury_cinematic',
+        hero: { type: 'spotlight' },
+        visibleSections: {
+          heroCinematic: true,
+          vehicleCatalog: true,
+          whyChooseUs: true,
+          financingSection: true,
+          buyBackSection: true,
+          customOrderSection: true,
+          googleReviewsSection: true
+        },
+        customBadges: ['Garanție 24 Luni', 'TVA Deductibil 21%', 'Livrare Națională'],
+        intro: {
+          type: 'split_shutter',
+          duration: 1800,
+          accentColor: '#f59e0b'
+        }
+      },
       themePreset: 'obsidian_gold',
       vatRate: 0.21,
       bank: {
@@ -1250,7 +1302,67 @@ export const FALLBACK_DEALERS = {
     integrations: {},
     is_active: true,
     active_vehicles_count: 14,
+    landing_config: {
+      layoutVariant: 'compact_inventory',
+      hero: {
+        type: 'spotlight',
+        headline: 'Rate Doar cu Buletinul',
+        subheadline: 'Livrare Gratuită la Domiciliu în Toată România'
+      },
+      visibleSections: {
+        heroCinematic: true,
+        vehicleCatalog: true,
+        whyChooseUs: true,
+        financingSection: true,
+        buyBackSection: true,
+        customOrderSection: false,
+        googleReviewsSection: false
+      },
+      customBadges: ['Rate Doar cu Buletinul', 'Livrare Gratuită în Toată Țara', 'Garanție MPI Car Protect 12-36 Luni', 'Revizie Ulei + Filtre Cadou', 'Numere Roșii 30 Zile'],
+      intro: {
+        type: 'cinematic_video',
+        videoUrl: '/videos/mpi-showroom-intro-v2.mp4?v=20261031_0725',
+        logoUrl: '/images/mpi-logo-white.png',
+        tagline: 'Centura Apahida • Showroom Rulate',
+        headlightOffTime: 4.1,
+        maxGlowTime: 6.0,
+        exitTime: 7.5,
+        transition: 'curtains_up',
+        transitionDurationMs: 1500,
+        accentColor: '#e11d48'
+      }
+    },
     config: {
+      landingConfig: {
+        layoutVariant: 'compact_inventory',
+        hero: {
+          type: 'spotlight',
+          headline: 'Rate Doar cu Buletinul',
+          subheadline: 'Livrare Gratuită la Domiciliu în Toată România'
+        },
+        visibleSections: {
+          heroCinematic: true,
+          vehicleCatalog: true,
+          whyChooseUs: true,
+          financingSection: true,
+          buyBackSection: true,
+          customOrderSection: false,
+          googleReviewsSection: false
+        },
+        customBadges: ['Rate Doar cu Buletinul', 'Livrare Gratuită în Toată Țara', 'Garanție MPI Car Protect 12-36 Luni', 'Revizie Ulei + Filtre Cadou', 'Numere Roșii 30 Zile'],
+        intro: {
+          type: 'cinematic_video',
+          videoUrl: '/videos/mpi-showroom-intro-v2.mp4?v=20261031_0725',
+          logoUrl: '/images/mpi-logo-white.png',
+          tagline: 'Centura Apahida • Showroom Rulate',
+          headlightOffTime: 4.1,
+          maxGlowTime: 6.0,
+          exitTime: 7.5,
+          transition: 'curtains_up',
+          transitionDurationMs: 1500,
+          accentColor: '#e11d48'
+        }
+      },
       themePreset: 'clean_white',
       vatRate: 0.21,
       bank: {
@@ -1364,6 +1476,26 @@ export const FALLBACK_DEALERS = {
 /**
  * Preluare profil dealer după slug (ex: 'rxm', 'mpi_auto')
  */
+/**
+ * Asigură sincronizarea bidirecțională și proprietățile derivate pe rândul de dealer
+ */
+export function hydrateDealerRow(row) {
+  if (!row) return row;
+  const cfg = (typeof row.config === 'object' && row.config) ? { ...row.config } : {};
+  let landingConfig = row.landing_config || cfg.landingConfig || null;
+  if (!row.landing_config && landingConfig) {
+    row.landing_config = landingConfig;
+  }
+  if (!cfg.landingConfig && landingConfig) {
+    cfg.landingConfig = landingConfig;
+  }
+  row.config = cfg;
+  if (!row.landingConfig && landingConfig) {
+    row.landingConfig = landingConfig;
+  }
+  return row;
+}
+
 export async function getDealerBySlug(slug, includeInactive = false) {
   const sql = getSql();
   const cleanSlug = String(slug || '').trim().toLowerCase();
@@ -1371,14 +1503,14 @@ export async function getDealerBySlug(slug, includeInactive = false) {
     const rows = includeInactive
       ? await sql`SELECT * FROM dealers WHERE lower(slug) = ${cleanSlug} LIMIT 1`
       : await sql`SELECT * FROM dealers WHERE lower(slug) = ${cleanSlug} AND is_active = TRUE LIMIT 1`;
-    if (rows && rows[0]) return rows[0];
+    if (rows && rows[0]) return hydrateDealerRow(rows[0]);
   } catch (err) {
     console.warn('[DB] getDealerBySlug warning (using fallback):', err.message);
   }
 
   const fallback = FALLBACK_DEALERS[cleanSlug];
   if (fallback) {
-    return (includeInactive || fallback.is_active) ? { ...fallback } : null;
+    return (includeInactive || fallback.is_active) ? hydrateDealerRow({ ...fallback }) : null;
   }
   return null;
 }
@@ -1393,13 +1525,13 @@ export async function getDealerByDomain(domain) {
     const rows = await sql`
       SELECT * FROM dealers WHERE lower(domain) = ${cleanDomain} AND is_active = TRUE LIMIT 1
     `;
-    if (rows && rows[0]) return rows[0];
+    if (rows && rows[0]) return hydrateDealerRow(rows[0]);
   } catch (err) {
     console.warn('[DB] getDealerByDomain warning (using fallback):', err.message);
   }
 
   const match = Object.values(FALLBACK_DEALERS).find(d => d.domain && d.domain.toLowerCase() === cleanDomain);
-  return match ? { ...match } : null;
+  return match ? hydrateDealerRow({ ...match }) : null;
 }
 
 /**
@@ -1421,14 +1553,14 @@ export async function getAllDealers(includeInactive = true) {
       ${includeInactive ? sql`` : sql`WHERE d.is_active = TRUE`}
       ORDER BY d.id ASC
     `;
-    if (rows && rows.length > 0) return rows;
+    if (rows && rows.length > 0) return rows.map(hydrateDealerRow);
   } catch (err) {
     console.warn('[DB] getAllDealers warning (using fallback):', err.message);
   }
 
   return Object.values(FALLBACK_DEALERS)
     .filter(d => includeInactive || d.is_active)
-    .map(d => ({ ...d }));
+    .map(d => hydrateDealerRow({ ...d }));
 }
 
 /**
@@ -1477,10 +1609,15 @@ export async function updateDealer(slug, updates) {
   if (updates.config && typeof updates.config === 'object') {
     config = { ...(typeof current.config === 'object' && current.config ? current.config : {}), ...updates.config };
   }
+  let landingConfig = updates.landingConfig || updates.landing_config || config?.landingConfig || current.landing_config || null;
   if (updates.landingConfig && typeof updates.landingConfig === 'object') {
+    landingConfig = updates.landingConfig;
     config = { ...(typeof config === 'object' && config ? config : {}), landingConfig: updates.landingConfig };
   } else if (updates.landing_config && typeof updates.landing_config === 'object') {
+    landingConfig = updates.landing_config;
     config = { ...(typeof config === 'object' && config ? config : {}), landingConfig: updates.landing_config };
+  } else if (config?.landingConfig) {
+    landingConfig = config.landingConfig;
   }
 
   try {
@@ -1508,11 +1645,12 @@ export async function updateDealer(slug, updates) {
         features = ${sql.json(features)},
         integrations = ${sql.json(integrations)},
         config = ${sql.json(config)},
+        landing_config = ${landingConfig ? sql.json(landingConfig) : null},
         is_active = ${isActive}
       WHERE lower(slug) = ${cleanSlug}
       RETURNING *
     `;
-    if (rows && rows[0]) return rows[0];
+    if (rows && rows[0]) return hydrateDealerRow(rows[0]);
   } catch (err) {
     console.warn('[DB] updateDealer warning (updating in-memory fallback):', err.message);
   }
@@ -1525,9 +1663,9 @@ export async function updateDealer(slug, updates) {
       whatsapp_number: whatsappNumber, email, address_street: addressStreet, city, county,
       cui, vat_number: cui, reg_com: regCom, bank_name: bankName, iban_ron: ibanRon, iban_eur: ibanEur,
       tier, status, max_vehicles_quota: maxVehiclesQuota, theme_preset: themePreset,
-      features, integrations, config, is_active: isActive
+      features, integrations, config, landing_config: landingConfig, landingConfig: landingConfig, is_active: isActive
     };
-    return { ...FALLBACK_DEALERS[cleanSlug] };
+    return hydrateDealerRow({ ...FALLBACK_DEALERS[cleanSlug] });
   }
 
   return { slug: cleanSlug, name, is_active: isActive, features, config };
@@ -1678,7 +1816,11 @@ export async function upsertDealer(data) {
     mailHub: false
   };
   const integrations = (data.integrations && typeof data.integrations === 'object') ? data.integrations : {};
-  const config = (data.config && typeof data.config === 'object') ? data.config : {};
+  let landingConfig = data.landingConfig || data.landing_config || (data.config && data.config.landingConfig) || null;
+  const config = (data.config && typeof data.config === 'object') ? { ...data.config } : {};
+  if (landingConfig && !config.landingConfig) {
+    config.landingConfig = landingConfig;
+  }
 
   try {
     const rows = await sql`
@@ -1686,12 +1828,12 @@ export async function upsertDealer(data) {
         name, slug, domain, phone_primary, phone_secondary, whatsapp_number, email,
         address_street, city, county, vat_number, cui, reg_com, bank_name, iban_ron, iban_eur,
         tier, status, max_vehicles_quota, theme_preset, features, integrations,
-        opening_hours, is_active, config
+        opening_hours, is_active, landing_config, config
       ) VALUES (
         ${name}, ${slug}, ${domain}, ${phonePrimary}, ${phoneSecondary}, ${whatsappNumber}, ${email},
         ${addressStreet}, ${city}, ${county}, ${vatNumber}, ${cui}, ${regCom}, ${bankName}, ${ibanRon}, ${ibanEur},
         ${tier}, ${status}, ${maxVehiclesQuota}, ${themePreset}, ${sql.json(features)}, ${sql.json(integrations)},
-        ${openingHours}, ${isActive}, ${sql.json(config)}
+        ${openingHours}, ${isActive}, ${landingConfig ? sql.json(landingConfig) : null}, ${sql.json(config)}
       )
       ON CONFLICT (slug) DO UPDATE SET
         name = EXCLUDED.name,
@@ -1717,6 +1859,7 @@ export async function upsertDealer(data) {
         integrations = EXCLUDED.integrations,
         opening_hours = EXCLUDED.opening_hours,
         is_active = EXCLUDED.is_active,
+        landing_config = COALESCE(EXCLUDED.landing_config, dealers.landing_config),
         config = EXCLUDED.config
       RETURNING *
     `;

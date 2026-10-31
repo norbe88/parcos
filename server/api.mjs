@@ -501,7 +501,45 @@ export const DEFAULT_DEALER_PROFILES = {
     vat_number: 'RO48482214',
     is_active: true,
     features: { mailHub: true },
+    landing_config: {
+      layoutVariant: 'luxury_cinematic',
+      hero: { type: 'spotlight' },
+      visibleSections: {
+        heroCinematic: true,
+        vehicleCatalog: true,
+        whyChooseUs: true,
+        financingSection: true,
+        buyBackSection: true,
+        customOrderSection: true,
+        googleReviewsSection: true
+      },
+      customBadges: ['Garanție 24 Luni', 'TVA Deductibil 21%', 'Livrare Națională'],
+      intro: {
+        type: 'split_shutter',
+        duration: 1800,
+        accentColor: '#f59e0b'
+      }
+    },
     config: {
+      landingConfig: {
+        layoutVariant: 'luxury_cinematic',
+        hero: { type: 'spotlight' },
+        visibleSections: {
+          heroCinematic: true,
+          vehicleCatalog: true,
+          whyChooseUs: true,
+          financingSection: true,
+          buyBackSection: true,
+          customOrderSection: true,
+          googleReviewsSection: true
+        },
+        customBadges: ['Garanție 24 Luni', 'TVA Deductibil 21%', 'Livrare Națională'],
+        intro: {
+          type: 'split_shutter',
+          duration: 1800,
+          accentColor: '#f59e0b'
+        }
+      },
       themePreset: 'obsidian_gold',
       vatRate: 0.21,
       bank: {
@@ -530,7 +568,67 @@ export const DEFAULT_DEALER_PROFILES = {
     logo_url: '/images/mpi-logo.png',
     logoUrl: '/images/mpi-logo.png',
     features: { mailHub: false },
+    landing_config: {
+      layoutVariant: 'compact_inventory',
+      hero: {
+        type: 'spotlight',
+        headline: 'Rate Doar cu Buletinul',
+        subheadline: 'Livrare Gratuită la Domiciliu în Toată România'
+      },
+      visibleSections: {
+        heroCinematic: true,
+        vehicleCatalog: true,
+        whyChooseUs: true,
+        financingSection: true,
+        buyBackSection: true,
+        customOrderSection: false,
+        googleReviewsSection: false
+      },
+      customBadges: ['Rate Doar cu Buletinul', 'Livrare Gratuită în Toată Țara', 'Garanție MPI Car Protect 12-36 Luni', 'Revizie Ulei + Filtre Cadou', 'Numere Roșii 30 Zile'],
+      intro: {
+        type: 'cinematic_video',
+        videoUrl: '/videos/mpi-showroom-intro-v2.mp4?v=20261031_0725',
+        logoUrl: '/images/mpi-logo-white.png',
+        tagline: 'Centura Apahida • Showroom Rulate',
+        headlightOffTime: 4.1,
+        maxGlowTime: 6.0,
+        exitTime: 7.5,
+        transition: 'curtains_up',
+        transitionDurationMs: 1500,
+        accentColor: '#e11d48'
+      }
+    },
     config: {
+      landingConfig: {
+        layoutVariant: 'compact_inventory',
+        hero: {
+          type: 'spotlight',
+          headline: 'Rate Doar cu Buletinul',
+          subheadline: 'Livrare Gratuită la Domiciliu în Toată România'
+        },
+        visibleSections: {
+          heroCinematic: true,
+          vehicleCatalog: true,
+          whyChooseUs: true,
+          financingSection: true,
+          buyBackSection: true,
+          customOrderSection: false,
+          googleReviewsSection: false
+        },
+        customBadges: ['Rate Doar cu Buletinul', 'Livrare Gratuită în Toată Țara', 'Garanție MPI Car Protect 12-36 Luni', 'Revizie Ulei + Filtre Cadou', 'Numere Roșii 30 Zile'],
+        intro: {
+          type: 'cinematic_video',
+          videoUrl: '/videos/mpi-showroom-intro-v2.mp4?v=20261031_0725',
+          logoUrl: '/images/mpi-logo-white.png',
+          tagline: 'Centura Apahida • Showroom Rulate',
+          headlightOffTime: 4.1,
+          maxGlowTime: 6.0,
+          exitTime: 7.5,
+          transition: 'curtains_up',
+          transitionDurationMs: 1500,
+          accentColor: '#e11d48'
+        }
+      },
       themePreset: 'clean_white',
       vatRate: 0.21,
       bank: {
@@ -2024,6 +2122,7 @@ export const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && (pathname === '/api/tenant-config' || pathname === '/api/tenant/config')) {
       const tenant = await resolveTenant(req, urlObj);
       if (isUnconfiguredTenant(tenant)) return sendUnconfiguredShowroom(res);
+      const landingConfig = tenant.landing_config || tenant.landingConfig || tenant.config?.landingConfig || null;
       return sendJson(res, 200, {
         success: true,
         dealer: {
@@ -2046,9 +2145,18 @@ export const server = http.createServer(async (req, res) => {
           phone_verified: Boolean(tenant.phone_verified),
           logo_url: tenant.logo_url || tenant.logoUrl || tenant.config?.logoUrl || (tenant.slug === 'mpi_auto' ? '/images/mpi-logo.png' : ''),
           logoUrl: tenant.logo_url || tenant.logoUrl || tenant.config?.logoUrl || (tenant.slug === 'mpi_auto' ? '/images/mpi-logo.png' : ''),
-          config: tenant.config || {},
+          landing_config: landingConfig,
+          landingConfig: landingConfig,
+          config: {
+            ...(tenant.config || {}),
+            ...(landingConfig ? { landingConfig } : {})
+          },
         },
-        config: tenant.config || {},
+        config: {
+          ...(tenant.config || {}),
+          ...(landingConfig ? { landingConfig } : {})
+        },
+        landingConfig: landingConfig,
         themePreset: tenant.config?.themePreset || 'obsidian_gold',
         vatRate: 0.21,
         warrantyTerm: 'Cont de Garanție',

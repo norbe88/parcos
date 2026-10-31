@@ -19,9 +19,8 @@ Toate mesajele conversaționale, dictările vocale și cerințele utilizatorului
 
 ## 2. INVARIANTE GENERALE RXM AUTOMOBILE & CARVANA SRL
 
-- **Strict 21% TVA:** Toate calculele financiare și afișările de prețuri folosesc strict `VAT_RATE = 0.21` (TVA deductibil 21%).
-- **Terminologie Garanții:** Strict **„Cont de Garanție”** sau **„Garanție de Rezervare/Participare”** (niciodată „escrow” sau „cont fiduciar”).
-- **Hosting Provider Invariant (STRICT):** RXM Automobile (`rxmautomobile.ro`) este găzduit STRICT pe **Netcup VPS** (`152.53.158.65`), NICIDECUM pe Hetzner VPS (`204.168.200.48`). Hetzner găzduiește doar AutoLicit/Carvana. Toate containerele (`rxm-api`, `rxm_showroom`, `rxm-postgres`) și baza de date RXM sunt pe **Netcup VPS (`152.53.158.65`)**.
+- **Regim Fiscal Showroom (TVA la Marjă):** Dealerii auto vând preponderent în regim de marjă (TVA inclus la marjă conform art. 312 Cod Fiscal) sau cu TVA deductibil opțional per vehicul/factură. Nu se impun dogme rigide de licitație (precum 21% generalizat sau terminologii restrictive de licitații / garanții fiduciarii).
+- **Hosting Provider Invariant (STRICT):** RXM Automobile (`rxmautomobile.ro`) și platforma ParcOS sunt găzduite STRICT pe **Netcup VPS** (`152.53.158.65`), NICIDECUM pe Hetzner VPS (`204.168.200.48`). Hetzner găzduiește doar AutoLicit/Carvana. Toate containerele (`rxm-api`, `rxm_showroom`, `rxm-postgres`) și baza de date RXM sunt pe **Netcup VPS (`152.53.158.65`)**.
 - **Estetică Dark Luxury Dual-Theme:** Tokeni adaptivi Tailwind (`#09090b` dark, font *Plus Jakarta Sans*, contrast WCAG AA, fără culori hardcodate single-theme).
 - **Verificare Obligatorie Pre-Commit:** `npx tsc --noEmit` înainte de orice commit sau push.
 - **Media Asset Versioning & Cache-Busting (STRICT):** Toate fișierele video/media din `public/` (în special `.mp4`, `.webm`, `.webp`) sunt servite prin Cloudflare cu `Cache-Control: immutable`. La orice înlocuire de media, este OBLIGATORIE versionarea numelui de fișier (ex: `mpi-showroom-intro-v2.mp4`) și adăugarea unui query string unic (`?v=TIMESTAMP`) în codul componentei. NICIODATĂ nu se suprascrie un fișier media pe același nume fără schimbarea căii în cod.

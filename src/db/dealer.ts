@@ -53,6 +53,11 @@ export const DEFAULT_LANDING_CONFIG: DealerLandingConfig = {
     googleReviewsSection: true,
   },
   customBadges: ['Garanție 24 Luni', 'TVA Deductibil 21%', 'Livrare Națională'],
+  intro: {
+    type: 'split_shutter',
+    duration: 1800,
+    accentColor: '#f59e0b',
+  },
 };
 
 /**
@@ -116,7 +121,12 @@ export const SEED_DEALER: DealerProfile = {
   },
   landingConfig: {
     ...DEFAULT_LANDING_CONFIG,
-    hero: { type: 'spotlight' }
+    hero: { type: 'spotlight' },
+    intro: {
+      type: 'split_shutter',
+      duration: 1800,
+      accentColor: '#f59e0b',
+    },
   },
   logoUrl: "/images/rxm-logo-gold.png",
   windowStickerConfig: {
@@ -197,6 +207,18 @@ export const DEALER_MPI_AUTO: DealerProfile = {
       googleReviewsSection: false,
     },
     customBadges: ['Rate Doar cu Buletinul', 'Livrare Gratuită în Toată Țara', 'Garanție MPI Car Protect 12-36 Luni', 'Revizie Ulei + Filtre Cadou', 'Numere Roșii 30 Zile'],
+    intro: {
+      type: 'cinematic_video',
+      videoUrl: '/videos/mpi-showroom-intro-v2.mp4?v=20261031_0725',
+      logoUrl: '/images/mpi-logo-white.png',
+      tagline: 'Centura Apahida • Showroom Rulate',
+      headlightOffTime: 4.1,
+      maxGlowTime: 6.0,
+      exitTime: 7.5,
+      transition: 'curtains_up',
+      transitionDurationMs: 1500,
+      accentColor: '#e11d48',
+    },
   },
   logoUrl: "/images/mpi-logo.png"
 };

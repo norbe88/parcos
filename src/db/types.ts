@@ -265,12 +265,30 @@ export interface DealerSeoConfig {
   canonicalUrl?: string;
 }
 
+export type DealerIntroType = 'none' | 'split_shutter' | 'cinematic_video';
+export type DealerIntroTransition = 'curtains_up' | 'fade_out' | 'zoom_fade';
+
+export interface DealerIntroConfig {
+  type: DealerIntroType;
+  videoUrl?: string;
+  logoUrl?: string;
+  tagline?: string;
+  headlightOffTime?: number;
+  maxGlowTime?: number;
+  exitTime?: number;
+  duration?: number;
+  transition?: DealerIntroTransition | string;
+  transitionDurationMs?: number;
+  accentColor?: string;
+}
+
 export interface DealerLandingConfig {
   layoutVariant: DealerLayoutVariant;
   hero: DealerHeroConfig;
   visibleSections: DealerLandingSections;
   customBadges: string[]; // ex: ["Garanție 24 Luni", "TVA Deductibil 21%"]
   seo?: DealerSeoConfig;
+  intro?: DealerIntroConfig;
 }
 
 export interface TenantFeatures {
