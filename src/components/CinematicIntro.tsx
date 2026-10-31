@@ -43,10 +43,11 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
   const [progressRatio, setProgressRatio] = useState(0);
   const [displayPct, setDisplayPct] = useState(0);
   const [isLogoIlluminated, setIsLogoIlluminated] = useState(false);
+  const [isMaxGlow, setIsMaxGlow] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   // ══════════════════════════════════════════════════════════════
-  // 1. LIFECYCLE PENTRU MPI AUTO (Video Background + Slide-Up Fade-Out)
+  // 1. LIFECYCLE PENTRU MPI AUTO (Video Background + Curtains-Up Exit)
   // ══════════════════════════════════════════════════════════════
   useEffect(() => {
     if (!isMpi) return;
@@ -56,10 +57,10 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
       return;
     }
 
-    // Watchdog de siguranță: dacă videoclipul se blochează, deblochează ecranul după 10s
+    // Watchdog de siguranță: dacă videoclipul se blochează, deblochează ecranul după 11s
     const watchdogTimer = setTimeout(() => {
       handleMpiExit();
-    }, 10000);
+    }, 11000);
 
     return () => {
       clearTimeout(watchdogTimer);
@@ -82,11 +83,11 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
     setPhase('sliding_up');
     if (onSplit) onSplit();
 
-    // După terminarea tranziției de glisare în sus (950ms), marchează complet
+    // După terminarea tranziției de cortină în sus (1500ms), marchează complet
     setTimeout(() => {
       setPhase('done');
       if (onComplete) onComplete();
-    }, 950);
+    }, 1500);
   };
 
   const handleMpiTimeUpdate = () => {
@@ -97,13 +98,18 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
     setProgressRatio(ratio);
     setDisplayPct(Math.min(100, Math.round(ratio * 100)));
 
-    // ⚡ EXACT când se sting farurile mașinii (t = 3.9s):
-    if (vid.currentTime >= 3.9 && !isLogoIlluminated) {
+    // ⚡ EXACT când se sting farurile mașinii pe noul clip (t = 4.1s):
+    if (vid.currentTime >= 4.1 && !isLogoIlluminated) {
       setIsLogoIlluminated(true);
     }
 
-    // 🚀 La t = 7.0s (după 3.1s de expunere a neonului aprins):
-    if (vid.currentTime >= 7.0) {
+    // 🌟 Intensificare neon la sfârșit de video (t >= 6.0s):
+    if (vid.currentTime >= 6.0 && !isMaxGlow) {
+      setIsMaxGlow(true);
+    }
+
+    // 🚀 La t = 7.5s: declanșăm cortina lentă și majestică în sus (1.5s):
+    if (vid.currentTime >= 7.5) {
       handleMpiExit();
     }
   };
@@ -194,8 +200,10 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
 
     return (
       <div 
-        className={`fixed inset-0 z-[100] bg-black overflow-hidden pointer-events-auto select-none no-print transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
-          isSlidingUp ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+        className={`fixed inset-0 z-[100] bg-black overflow-hidden pointer-events-auto select-none no-print transition-all duration-[1500ms] ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform ${
+          isSlidingUp 
+            ? '-translate-y-full border-b-2 border-rose-500/80 shadow-[0_25px_60px_rgba(225,29,72,0.6),0_40px_100px_rgba(0,0,0,0.95)] pointer-events-none' 
+            : 'translate-y-0 opacity-100'
         }`}
         aria-hidden="true"
       >
@@ -213,29 +221,39 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
         />
 
         {/* 🌌 Ambient Vignette & Contrast Overlay */}
-        <div className="absolute inset-0 bg-radial from-transparent via-black/25 to-black/80 pointer-events-none" />
+        <div className="absolute inset-0 bg-radial from-transparent via-black/20 to-black/85 pointer-events-none" />
 
-        {/* 🌟 Logo MPI Auto pe Perete: ASCUNS inițial, se aprinde spectaculos la t=3.9s când se sting farurile */}
+        {/* 🌟 Logo MPI Auto pe Perete: ASCUNS inițial, se aprinde spectaculos la t=4.1s când se sting farurile */}
         <div 
-          className={`absolute top-[14%] sm:top-[17%] md:top-[19%] left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-20 w-[92%] max-w-md px-4 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+          className={`absolute top-[12%] sm:top-[14%] md:top-[16%] left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-20 w-[94%] max-w-xl px-4 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
             isLogoIlluminated 
               ? 'opacity-100 translate-y-0 scale-100 blur-0' 
-              : 'opacity-0 translate-y-3 scale-90 blur-sm'
+              : 'opacity-0 translate-y-4 scale-90 blur-sm'
           }`}
         >
-          {/* Ambient Radial Halo Glow */}
+          {/* Ambient Radial Halo Glow (Se intensifică la finalul videoclipului) */}
           <div 
-            className={`absolute -inset-8 sm:-inset-12 rounded-full bg-gradient-to-r from-rose-600/40 via-red-500/25 to-white/10 blur-3xl pointer-events-none transition-all duration-1000 ${
-              isLogoIlluminated ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+            className={`absolute -inset-10 sm:-inset-16 md:-inset-20 rounded-full bg-gradient-to-r blur-3xl pointer-events-none transition-all duration-1000 ${
+              isMaxGlow 
+                ? 'opacity-90 scale-125 from-rose-600/80 via-red-500/60 to-white/30' 
+                : isLogoIlluminated 
+                  ? 'opacity-70 scale-100 from-rose-600/50 via-red-500/35 to-white/15' 
+                  : 'opacity-0 scale-50'
             }`} 
           />
 
           <img 
             src="/images/mpi-logo-white.png" 
             alt="MPI AUTO CLUJ" 
-            className="h-14 sm:h-20 md:h-24 w-auto object-contain drop-shadow-[0_0_20px_rgba(225,29,72,0.95)] drop-shadow-[0_0_45px_rgba(255,255,255,0.95)] relative z-10"
+            className={`h-20 sm:h-28 md:h-36 lg:h-40 w-auto object-contain relative z-10 transition-all duration-700 ${
+              isMaxGlow
+                ? 'drop-shadow-[0_0_35px_rgba(225,29,72,1)] drop-shadow-[0_0_75px_rgba(255,255,255,1)] drop-shadow-[0_0_110px_rgba(225,29,72,0.9)] brightness-110 scale-105'
+                : 'drop-shadow-[0_0_25px_rgba(225,29,72,0.95)] drop-shadow-[0_0_55px_rgba(255,255,255,0.95)] drop-shadow-[0_0_80px_rgba(225,29,72,0.7)]'
+            }`}
           />
-          <span className="mt-2.5 sm:mt-3 text-[10px] sm:text-xs md:text-sm font-bold tracking-[0.22em] sm:tracking-[0.35em] uppercase text-zinc-100 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] text-center relative z-10">
+          <span className={`mt-3 sm:mt-4 text-[11px] sm:text-xs md:text-sm font-black tracking-[0.25em] sm:tracking-[0.38em] uppercase text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] text-center relative z-10 transition-all duration-700 ${
+            isMaxGlow ? 'drop-shadow-[0_0_20px_rgba(225,29,72,0.9)] text-zinc-50' : 'text-zinc-200'
+          }`}>
             Centura Apahida • Showroom Rulate
           </span>
         </div>
@@ -243,7 +261,7 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({
         {/* ⏭️ Buton discret de „Sari intro” (protejat de Dynamic Island / Notch) */}
         <button
           onClick={handleMpiExit}
-          className="fixed top-[max(1.25rem,calc(env(safe-area-inset-top,0px)+0.75rem))] right-4 sm:right-6 z-40 px-3.5 py-1.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white text-[11px] font-semibold tracking-wider uppercase transition-all backdrop-blur-md cursor-pointer pointer-events-auto min-h-[36px] flex items-center justify-center touch-manipulation active:scale-95 shadow-lg shadow-black/50"
+          className="fixed top-[max(1.25rem,calc(env(safe-area-inset-top,0px)+0.75rem))] right-4 sm:right-6 z-40 px-4 py-2 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/20 text-zinc-300 hover:text-white text-[11px] sm:text-xs font-semibold tracking-wider uppercase transition-all backdrop-blur-md cursor-pointer pointer-events-auto min-h-[38px] flex items-center justify-center touch-manipulation active:scale-95 shadow-xl shadow-black/60"
           title="Sari peste introducere"
         >
           Sari intro →
