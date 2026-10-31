@@ -16,7 +16,7 @@ import { getAdminAuthHeaders, isCurrentSessionAdmin } from '../utils/adminAuth';
 /** Cheie istorică, doar pentru migrarea unică a stocului RXM. */
 export const LEGACY_INVENTORY_STORAGE_KEY = 'rxm_cars_inventory';
 const LEGACY_INVENTORY_VERSION_KEY = 'rxm_cars_version';
-export const RXM_INVENTORY_VERSION = 'v10_db_images_json_parse_2026_10_18';
+export const RXM_INVENTORY_VERSION = 'v11_clean_seed_features_desc_2026_10_31';
 
 export function inventoryStorageKey(dealerSlug: string): string {
   const slug = String(dealerSlug || '').trim().toLowerCase();
@@ -267,7 +267,7 @@ function readLocalCache(dealerSlug: string = 'rxm'): VehicleItem[] {
   const seedForSlug = getInitialSeedForSlug(slug);
   const allowSeed = seedForSlug.length > 0;
   if (typeof window === 'undefined') {
-    return allowSeed ? ensureDealOfWeekActive(SEED_VEHICLES) : [];
+    return allowSeed ? ensureDealOfWeekActive(seedForSlug) : [];
   }
   if (allowSeed) migrateLegacyRxmInventoryOnce();
   try {
@@ -280,12 +280,15 @@ function readLocalCache(dealerSlug: string = 'rxm'): VehicleItem[] {
     if (allowSeed && saved && savedVersion !== RXM_INVENTORY_VERSION) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed)) {
-        const seedMap = new Map(SEED_VEHICLES.map((c) => [c.id, c]));
+        const seedMap = new Map(seedForSlug.map((c) => [c.id, c]));
         const updated = parsed.map((c) => {
           const freshSeed = seedMap.get(c.id);
           if (freshSeed) {
             return {
               ...c,
+              features: freshSeed.features || c.features,
+              equipmentSheetText: freshSeed.equipmentSheetText || c.equipmentSheetText,
+              description: (!c.description || c.description.length < 60 || c.description.includes('MPAKET')) ? freshSeed.description : c.description,
               images: freshSeed.images,
               tiktokUrl: freshSeed.tiktokUrl,
               tiktokViews: freshSeed.tiktokViews,
@@ -325,7 +328,7 @@ function readLocalCache(dealerSlug: string = 'rxm'): VehicleItem[] {
           .map((c) => {
             let carImages = Array.isArray(c.images) ? c.images : [];
             if (allowSeed && carImages.length === 0) {
-              const seedMatch = SEED_VEHICLES.find((s) => s.id === c.id);
+              const seedMatch = seedForSlug.find((s) => s.id === c.id);
               if (seedMatch && Array.isArray(seedMatch.images) && seedMatch.images.length > 0) {
                 carImages = seedMatch.images;
               }

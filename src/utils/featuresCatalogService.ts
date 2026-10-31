@@ -39,6 +39,111 @@ export const DEFAULT_SHOWROOM_FEATURES: readonly string[] = [
   'Jante Aliaj R18 / R19'
 ];
 
+/**
+ * Dicționar de normalizare pentru chei brute/slug-uri extrase din platforme externe (WordPress, OLX, scrapere)
+ */
+export const RAW_FEATURE_DISPLAY_MAP: Record<string, string> = {
+  // Siguranță & Asistență la condus
+  'senzor_ploaie': 'Senzori de ploaie cu acționare automată',
+  'senzor_lumini': 'Senzori de lumină (aprindere automată faruri)',
+  'senzoriparcarefata': 'Senzori de parcare față',
+  'senzoriparcarespate': 'Senzori de parcare spate',
+  'parktronic': 'Sistem asistență parcare Parktronic (față/spate)',
+  'parcarea': 'Asistent parcare automată (Park Assist)',
+  'farurixenon': 'Faruri Bi-Xenon / Xenon adaptive',
+  'spalatoarefar': 'Spălătoare faruri telescopice',
+  'cameramarsarier': 'Cameră video marșarier',
+  'adaptivecruisecontrol': 'Pilot automat adaptiv (Adaptive Cruise Control)',
+  'speed warning': 'Avertizare depășire viteză (Speed Warning)',
+  'stopuri led': 'Stopuri spate cu tehnologie LED',
+  'lumini de zi led': 'Lumini de zi LED (Daylight)',
+  'laneassist': 'Lane Assist (Asistent activ menținere bandă)',
+  'semne': 'Sign Assist (Recunoaștere indicatoare rutiere)',
+  'frontassis': 'Front Assist cu frânare autonomă de urgență',
+  'driveralert': 'Driver Alert (Sistem detectare oboseală șofer)',
+  'asistentiesireparcare': 'Rear Traffic Alert (Asistent ieșire parcare)',
+  'blindsportassist': 'Blind Spot Assist (Asistent monitorizare unghi mort)',
+  'asistent faza lunga': 'Asistent fază lungă automată (High Beam Assist)',
+  'roata de rezerva': 'Roată de rezervă completă',
+
+  // Confort & Interior
+  'servo_directie': 'Servodirecție asistată electronic',
+  'clima': 'Climatizare automată Climatronic',
+  'geamuri_electrice': 'Geamuri electrice față / spate',
+  'computer_bord': 'Computer de bord multifuncțional',
+  'incalzire_scaune': 'Scaune față încălzite cu reglaj termic',
+  'incalzire_oglinzi': 'Oglinzi exterioare încălzite și reglabile electric',
+  'oglinzirabatabileelectric': 'Oglinzi exterioare rabatabile electric',
+  'interior_piele': 'Tapițerie interior piele de înaltă calitate',
+  'keyless entry': 'Keyless Entry (Acces fără cheie)',
+  'keyless go': 'Keyless GO (Pornire motor la buton)',
+  'moduri de condus': 'Selector moduri de condus (Drive Mode Select)',
+  'carlig': 'Cârlig de remorcare omologat',
+  'carlig_copy': 'Cârlig de remorcare omologat',
+  'haionelectric': 'Portbagaj / Haion acționat electric',
+  'trapapanoramica': 'Plafon panoramic din sticlă',
+  'trapa': 'Trapă electrică rabatabilă',
+  'volansport': 'Volan sport multifuncțional îmbrăcat în piele',
+  'incalzireinvolan': 'Volan încălzit cu reglaj termic',
+  'scaune sport': 'Scaune sport ergonomice cu suport lateral',
+  'incalzirebancheta': 'Banchetă spate încălzită',
+  'incalzireinparbriz': 'Parbriz cu degivrare termică încălzit',
+  'set complet roti de iarna/vara extra': 'Set complet roți suplimentare (Iarnă / Vară)',
+  'webasto': 'Încălzire auxiliară programabilă (Webasto)',
+  'scaunemasaj': 'Scaune ergonomice cu funcție de masaj',
+  'cruise_control': 'Pilot automat (Cruise Control / Tempomat)',
+
+  // Tehnologie & Multimedia
+  'usbaux': 'Conexiune multimedia USB & AUX-In',
+  'bluethooth': 'Conectivitate Bluetooth Audio & Handsfree',
+  'navigatie_gps': 'Sistem de navigație GPS profesional',
+  'applecarplay': 'Conectivitate Apple CarPlay',
+  'androidauto': 'Conectivitate Android Auto',
+  'sistemsonorizarepremium': 'Sistem sonorizare audio premium',
+  'bordvirtual': 'Ceasuri de bord digitale (Virtual Cockpit)',
+  'wirelesstel': 'Încărcare telefon prin inducție (Wireless Charging)'
+};
+
+/**
+ * Formatează o dotare pentru afișarea estetică în UI:
+ * Elimină caractere invizibile (\u2060), snake_case, typo-uri și mapează la denumiri curate.
+ */
+export function formatFeatureDisplay(feat: string): string {
+  if (!feat || typeof feat !== 'string') return '';
+  const cleanKey = feat.replace(/^[\u2060\u00a0\s]+|[\u2060\u00a0\s]+$/g, '').toLowerCase().trim();
+  if (RAW_FEATURE_DISPLAY_MAP[cleanKey]) {
+    return RAW_FEATURE_DISPLAY_MAP[cleanKey];
+  }
+  // Curățare fallback pentru snake_case sau caractere ciudate
+  const deSnaked = feat.replace(/^[\u2060\u00a0\s]+/, '').replace(/_/g, ' ').trim();
+  return deSnaked.charAt(0).toUpperCase() + deSnaked.slice(1);
+}
+
+/**
+ * Curăță și deduplică textul fișei tehnice complete din fabrică
+ */
+export function formatEquipmentSheetText(rawText: string): string {
+  if (!rawText || typeof rawText !== 'string') return '';
+  const parts = rawText
+    .split(/[•,\n]/)
+    .map(p => p.trim())
+    .filter(Boolean);
+
+  const seen = new Set<string>();
+  const cleanParts: string[] = [];
+
+  for (const part of parts) {
+    const formatted = formatFeatureDisplay(part);
+    const norm = formatted.toLowerCase();
+    if (!seen.has(norm)) {
+      seen.add(norm);
+      cleanParts.push(formatted);
+    }
+  }
+
+  return cleanParts.join(' • ');
+}
+
 let inMemoryCustomFeatures: string[] = [];
 
 /**

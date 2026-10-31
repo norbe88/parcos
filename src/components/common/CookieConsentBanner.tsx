@@ -1,8 +1,10 @@
+import { MpiCookieConsentBanner } from './MpiCookieConsentBanner';
+import { useTenantContext } from '../../context/TenantContext';
 import React, { useState, useEffect } from 'react';
-import { Cookie, Check, X, Settings2, ExternalLink } from 'lucide-react';
+import { Cookie, ShieldCheck, ChevronDown, Check, X, Settings2, ExternalLink } from 'lucide-react';
 
 export interface CookiePreferences {
-  essential: boolean;
+  essential: boolean; // mereu true
   analytics: boolean;
   marketing: boolean;
   decided: boolean;
@@ -19,17 +21,19 @@ interface CookieConsentBannerProps {
   viewMode?: 'showroom' | 'admin' | 'terms' | 'delivery' | 'cookies' | 'saas' | 'superadmin' | 'ghid-auto';
 }
 
-export const CookieConsentBanner: React.FC<CookieConsentBannerProps> = ({
+const RxmCookieConsentBanner: React.FC<CookieConsentBannerProps> = ({
   onOpenPolicy,
   isOpenPreferenceTrigger = false,
   onClosePreferences,
-  viewMode = 'showroom'
+  viewMode = 'saas'
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
+  // Regula ANSPDCP: Opțiunile non-esențiale sunt dezactivate (false) în mod implicit
   const [analyticsAllowed, setAnalyticsAllowed] = useState(false);
   const [marketingAllowed, setMarketingAllowed] = useState(false);
 
+  // Verifică starea consimțământului la încărcare și declanșează apariția după scroll-ul de video
   useEffect(() => {
     try {
       const stored = localStorage.getItem(PRIMARY_COOKIE_STORAGE_KEY) || localStorage.getItem(LEGACY_COOKIE_STORAGE_KEY);
@@ -37,19 +41,85 @@ export const CookieConsentBanner: React.FC<CookieConsentBannerProps> = ({
         const parsed = JSON.parse(stored) as CookiePreferences;
         setAnalyticsAllowed(parsed.analytics ?? false);
         setMarketingAllowed(parsed.marketing ?? false);
-        return;
+        return; // Consimțământul a fost deja exprimat, nu mai afișăm bannerul
       }
     } catch (e) {
       console.warn('Nu s-au putut citi preferințele de cookie:', e);
     }
 
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 1500);
+    // Pe paginile fără video intro (ex: showroom, terms, etc.) afișăm bannerul după o scurtă întârziere discretă
+    const isSaasViewWithVideo = viewMode === 'saas';
 
-    return () => clearTimeout(timer);
+    let hasTriggered = false;
+    let ticking = false;
+
+    const checkScrollPosition = () => {
+      if (hasTriggered) return;
+
+      // 🎯 Regula: Pop-up-ul apare mult mai jos în pagină, când utilizatorul chiar a ajuns la conținut
+      const deepTriggerElement = isSaasViewWithVideo
+        ? (document.getElementById('oferte-whatsapp') || 
+           document.getElementById('module') || 
+           document.getElementById('teme') ||
+           document.getElementById('comparatie'))
+        : (document.getElementById('catalog') || 
+           document.getElementById('finantare') || 
+           document.getElementById('recenzii') ||
+           document.querySelector('footer'));
+
+      let hasReachedDeepSection = false;
+
+      if (deepTriggerElement) {
+        const rect = deepTriggerElement.getBoundingClientRect();
+        // Apare când secțiunea adâncă pătrunde în mod clar în viewport (top <= 75% din înălțimea ferestrei)
+        if (rect.top <= window.innerHeight * 0.75) {
+          hasReachedDeepSection = true;
+        }
+      } else {
+        // Fallback: dacă elementele țintă nu sunt găsite, cerem o derulare profundă de cel puțin 45% din pagină
+        const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (scrollableHeight > 800 && window.scrollY >= scrollableHeight * 0.45) {
+          hasReachedDeepSection = true;
+        }
+      }
+
+      if (hasReachedDeepSection) {
+        hasTriggered = true;
+        setIsVisible(true);
+        window.removeEventListener('scroll', handleScroll);
+      }
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          checkScrollPosition();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    // Ascultăm scroll-ul utilizatorului pentru apariție contextuală la adâncime
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Verificăm imediat doar în caz de reload când pagina este deja derulată adânc
+    checkScrollPosition();
+
+    // Timer de siguranță foarte relaxat (30s): doar dacă utilizatorul rămâne pe pagină fără să deruleze deloc
+    const fallbackTimer = setTimeout(() => {
+      if (!hasTriggered) {
+        hasTriggered = true;
+        setIsVisible(true);
+      }
+    }, 30000);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(fallbackTimer);
+    };
   }, [viewMode]);
 
+  // Ascultă deschiderea manuală din Footer / Pagină
   useEffect(() => {
     if (isOpenPreferenceTrigger) {
       setIsVisible(true);
@@ -57,28 +127,40 @@ export const CookieConsentBanner: React.FC<CookieConsentBannerProps> = ({
     }
   }, [isOpenPreferenceTrigger]);
 
-  const saveConsent = (analytics: boolean, marketing: boolean) => {
-    const preferences: CookiePreferences = {
+  const savePreferences = (prefs: { analytics: boolean; marketing: boolean }) => {
+    const consentData: CookiePreferences = {
       essential: true,
-      analytics,
-      marketing,
+      analytics: prefs.analytics,
+      marketing: prefs.marketing,
       decided: true,
       timestamp: Date.now()
     };
+
     try {
-      localStorage.setItem(PRIMARY_COOKIE_STORAGE_KEY, JSON.stringify(preferences));
-      localStorage.setItem(LEGACY_COOKIE_STORAGE_KEY, JSON.stringify(preferences));
+      localStorage.setItem(PRIMARY_COOKIE_STORAGE_KEY, JSON.stringify(consentData));
+      localStorage.setItem(LEGACY_COOKIE_STORAGE_KEY, JSON.stringify(consentData));
     } catch (e) {
-      console.warn('Nu s-au putut salva preferințele:', e);
+      console.warn('Nu s-au putut salva preferințele de cookie:', e);
     }
+
+    setAnalyticsAllowed(prefs.analytics);
+    setMarketingAllowed(prefs.marketing);
     setIsVisible(false);
     setIsPreferencesOpen(false);
     onClosePreferences?.();
   };
 
-  const handleAcceptAll = () => saveConsent(true, true);
-  const handleAcceptEssentialOnly = () => saveConsent(false, false);
-  const handleSaveCustom = () => saveConsent(analyticsAllowed, marketingAllowed);
+  const handleAcceptAll = () => {
+    savePreferences({ analytics: true, marketing: true });
+  };
+
+  const handleAcceptEssentialOnly = () => {
+    savePreferences({ analytics: false, marketing: false });
+  };
+
+  const handleSaveCustom = () => {
+    savePreferences({ analytics: analyticsAllowed, marketing: marketingAllowed });
+  };
 
   const handleClose = () => {
     setIsVisible(false);
@@ -89,116 +171,227 @@ export const CookieConsentBanner: React.FC<CookieConsentBannerProps> = ({
   if (!isVisible) return null;
 
   return (
-    <aside
-      aria-label="Consimțământ Cookie-uri și Confidențialitate"
-      role="region"
-      className="fixed bottom-0 sm:bottom-6 sm:left-6 z-50 w-full sm:max-w-[420px] max-h-[40vh] sm:max-h-none overflow-y-auto no-print animate-in slide-in-from-bottom-4 duration-300"
+    <aside 
+      aria-label="Setări consimțământ cookie-uri"
+      className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-50 w-[calc(100%-2rem)] sm:w-[460px] md:w-[480px] max-w-[calc(100vw-2rem)] no-print safe-pb animate-in fade-in slide-in-from-bottom-5 duration-500"
     >
-      <div className="bg-[var(--surface,#131A24)] text-[var(--text,#F4F6F9)] border border-[var(--line,rgba(255,255,255,0.12))] sm:rounded-[var(--r-md,14px)] rounded-t-[var(--r-md,14px)] shadow-[var(--shadow-card)] p-4 sm:p-5">
-        {/* Header Compact */}
-        <div className="flex items-start justify-between gap-3 mb-2.5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-[var(--r-sm,8px)] bg-[var(--surface-2,#1B2431)] flex items-center justify-center text-[var(--accent-text,#F04D4D)] shrink-0">
-              <Cookie className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-[10px] font-montserrat uppercase tracking-wider text-[var(--accent-text,#F04D4D)] font-bold block">
-                Confidențialitate & Cookie-uri
-              </span>
-              <h2 className="text-[14px] font-montserrat font-bold text-[var(--text,#F4F6F9)] leading-tight">
-                Controlul tău asupra datelor
-              </h2>
-            </div>
-          </div>
+      <div className="rounded-2xl bg-[#0e0e11]/98 backdrop-blur-2xl border border-white/[0.12] shadow-2xl shadow-black/90 text-zinc-300 overflow-hidden">
+        
+        {/* Bara superioară subtilă de accent luxury */}
+        <div className="h-0.5 w-full bg-gradient-to-r from-amber-500/20 via-amber-400 to-amber-500/20" />
 
-          {isOpenPreferenceTrigger && (
-            <button
-              type="button"
-              onClick={handleClose}
-              className="text-[var(--text-muted,#A3ABB6)] hover:text-white p-1 cursor-pointer"
-              aria-label="Închide"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-
-        {/* Text explicativ */}
-        <p className="text-[12px] font-open-sans text-[var(--text-muted,#A3ABB6)] leading-relaxed mb-3">
-          Folosim cookie-uri necesare bunei funcționări a showroom-ului și a securității sesiunii. Opțional, poți activa cookie-urile de analiză.
-        </p>
-
-        {/* Panou Preferințe */}
-        {isPreferencesOpen && (
-          <div className="py-2 mb-3 border-y border-[var(--line,rgba(255,255,255,0.08))] space-y-2 text-[12px]">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="font-semibold text-[var(--text,#F4F6F9)]">Strict Necesare</span>
-                <p className="text-[11px] text-[var(--text-muted,#A3ABB6)]">Esențiale pentru navigație și rate.</p>
+        <div className="p-4 sm:p-5">
+          {/* Header Banner cu Badge Luxury */}
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 shadow-inner">
+                <Cookie className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                ACTIV
-              </span>
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-bold block">
+                  CONFIDENȚIALITATE & COOKIE-URI
+                </span>
+                <h2 className="text-sm sm:text-base font-bold text-white tracking-tight leading-snug">
+                  Respectăm confidențialitatea datelor
+                </h2>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between pt-1">
-              <div>
-                <span className="font-semibold text-[var(--text,#F4F6F9)]">Măsurare & Performanță</span>
-                <p className="text-[11px] text-[var(--text-muted,#A3ABB6)]">Statistici anonime de încărcare.</p>
-              </div>
+            {/* Buton închidere dacă a fost deschis manual din footer */}
+            {isOpenPreferenceTrigger && (
               <button
                 type="button"
-                role="switch"
-                aria-checked={analyticsAllowed}
-                onClick={() => setAnalyticsAllowed(!analyticsAllowed)}
-                className={`w-9 h-5 rounded-full transition-colors flex items-center px-0.5 cursor-pointer ${
-                  analyticsAllowed ? 'bg-[var(--accent,#D83333)] justify-end' : 'bg-[var(--surface-2,#1B2431)] justify-start'
-                }`}
+                onClick={handleClose}
+                className="p-1.5 -mr-1 -mt-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+                aria-label="Închide panoul de preferințe"
               >
-                <span className="w-4 h-4 rounded-full bg-white shadow-sm" />
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Text explicativ concis adaptat pentru card compact */}
+          <p className="text-xs text-zinc-400 leading-relaxed mb-4">
+            Utilizăm module cookie și tehnologii similare de stocare pentru funcționarea platformei ParcOS, 
+            memorarea preferințelor de navigare și securitatea sesiunilor, conform GDPR (UE 2016/679).
+          </p>
+
+          {/* Panou extins de configurare preferințe (Accordion cu scroll intern) */}
+          {isPreferencesOpen && (
+            <div className="max-h-[45vh] overflow-y-auto pr-1 my-3 pt-3 border-t border-white/[0.08] space-y-2.5 text-left animate-in fade-in duration-200">
+              <div className="text-xs font-semibold text-zinc-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <Settings2 className="w-3.5 h-3.5 text-amber-400" />
+                <span>Personalizare Module Cookie:</span>
+              </div>
+
+              {/* 1. Cookie-uri Esențiale */}
+              <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-start justify-between gap-3">
+                <div className="space-y-1 pr-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs sm:text-sm font-semibold text-white">Strict Necesare (Tehnice)</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
+                      ACTIV
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    Esențiale pentru navigație, simulatoarele DMS, securitate și salvarea preferințelor de confidențialitate. Nu pot fi dezactivate.
+                  </p>
+                </div>
+                <div className="shrink-0 pt-0.5">
+                  <div className="w-10 h-6 rounded-full bg-emerald-500/30 border border-emerald-500/50 flex items-center justify-end px-1 cursor-not-allowed opacity-80">
+                    <div className="w-4 h-4 rounded-full bg-emerald-400 shadow-sm flex items-center justify-center">
+                      <Check className="w-2.5 h-2.5 text-black stroke-[3]" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Cookie-uri Analitice */}
+              <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-start justify-between gap-3">
+                <div className="space-y-1 pr-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs sm:text-sm font-semibold text-white">Măsurare & Performanță</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold">
+                      OPȚIONAL
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    Analiză anonimă a vitezei de încărcare (Core Web Vitals) și stabilității platformei pentru optimizare continuă.
+                  </p>
+                </div>
+                <div className="shrink-0 pt-0.5">
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={analyticsAllowed}
+                    onClick={() => setAnalyticsAllowed(!analyticsAllowed)}
+                    className={`w-11 h-6 rounded-full transition-colors relative flex items-center px-0.5 cursor-pointer touch-manipulation min-h-[44px] min-w-[44px] justify-center ${
+                      analyticsAllowed ? 'bg-amber-500' : 'bg-zinc-700'
+                    }`}
+                    aria-label="Activează/dezactivează cookie-uri de analiză"
+                  >
+                    <span 
+                      className={`block w-5 h-5 rounded-full bg-white shadow-md transform transition-transform ${
+                        analyticsAllowed ? 'translate-x-2.5' : '-translate-x-2.5'
+                      }`} 
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {/* 3. Conținut Terț & Media */}
+              <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-start justify-between gap-3">
+                <div className="space-y-1 pr-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs sm:text-sm font-semibold text-white">Conținut Multimedia & Video</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold">
+                      OPȚIONAL
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    Permit optimizarea redării clipurilor video introductive 4K și integrarea hărților și instrumentelor interactive.
+                  </p>
+                </div>
+                <div className="shrink-0 pt-0.5">
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={marketingAllowed}
+                    onClick={() => setMarketingAllowed(!marketingAllowed)}
+                    className={`w-11 h-6 rounded-full transition-colors relative flex items-center px-0.5 cursor-pointer touch-manipulation min-h-[44px] min-w-[44px] justify-center ${
+                      marketingAllowed ? 'bg-amber-500' : 'bg-zinc-700'
+                    }`}
+                    aria-label="Activează/dezactivează conținut multimedia terț"
+                  >
+                    <span 
+                      className={`block w-5 h-5 rounded-full bg-white shadow-md transform transition-transform ${
+                        marketingAllowed ? 'translate-x-2.5' : '-translate-x-2.5'
+                      }`} 
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Rând de Acțiuni & Butoane Mobile-First cu Paritate Legală Strictă (ANSPDCP) */}
+          <div className="flex flex-col gap-2.5 pt-2 border-t border-white/[0.08]">
+            {isPreferencesOpen ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleAcceptEssentialOnly}
+                  className="flex-1 min-h-[44px] px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 active:scale-[0.98] border border-zinc-600 text-white font-bold text-xs transition-all touch-manipulation cursor-pointer text-center shadow-md"
+                >
+                  Doar Necesare
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveCustom}
+                  className="flex-1 min-h-[44px] px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 active:scale-[0.98] border border-amber-500/40 text-amber-300 hover:text-white font-bold text-xs transition-all touch-manipulation cursor-pointer text-center"
+                >
+                  Salvează Selecția
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAcceptAll}
+                  className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-[0.98] text-black font-extrabold text-xs transition-all shadow-lg shadow-amber-500/20 touch-manipulation cursor-pointer text-center"
+                >
+                  Acceptă Toate
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={handleAcceptEssentialOnly}
+                  className="flex-1 min-h-[44px] px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 active:scale-[0.98] border border-zinc-600 text-white font-bold text-xs transition-all touch-manipulation cursor-pointer text-center shadow-md"
+                >
+                  Refuză Opționalele
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAcceptAll}
+                  className="flex-1 min-h-[44px] px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-[0.98] text-black font-extrabold text-xs transition-all shadow-lg shadow-amber-500/20 touch-manipulation cursor-pointer text-center"
+                >
+                  Acceptă Toate
+                </button>
+              </div>
+            )}
+
+            {/* Link-uri secundare discrete: Personalizează & Politică */}
+            <div className="flex items-center justify-between text-xs text-zinc-400 pt-0.5">
+              <button
+                type="button"
+                onClick={() => setIsPreferencesOpen(!isPreferencesOpen)}
+                className="hover:text-amber-400 transition-colors inline-flex items-center gap-1.5 cursor-pointer touch-manipulation py-1"
+              >
+                <Settings2 className="w-3.5 h-3.5 text-amber-400" />
+                <span>{isPreferencesOpen ? 'Ascunde opțiuni' : 'Personalizează'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onOpenPolicy}
+                className="hover:text-amber-400 transition-colors inline-flex items-center gap-1 cursor-pointer touch-manipulation py-1"
+              >
+                <span>Politica Cookies</span>
+                <ExternalLink className="w-3 h-3" />
               </button>
             </div>
           </div>
-        )}
-
-        {/* Butoane Egale fără nicio culoare portocalie */}
-        <div className="flex items-center gap-2.5 mb-2.5">
-          <button
-            type="button"
-            onClick={isPreferencesOpen ? handleSaveCustom : handleAcceptEssentialOnly}
-            className="flex-1 h-10 px-3 rounded-[var(--r-sm,8px)] bg-[var(--surface-2,#1B2431)] hover:bg-[var(--surface-brand,#2E3643)] text-[var(--text,#F4F6F9)] font-montserrat font-semibold text-[13px] border border-[var(--line,rgba(255,255,255,0.12))] transition-colors cursor-pointer text-center"
-          >
-            {isPreferencesOpen ? 'Salvează' : 'Doar cele necesare'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleAcceptAll}
-            className="flex-1 h-10 px-3 rounded-[var(--r-sm,8px)] bg-[var(--accent,#D83333)] hover:bg-[var(--accent-hover,#C02828)] text-white font-montserrat font-bold text-[13px] transition-colors cursor-pointer text-center shadow-[var(--shadow-cta)]"
-          >
-            Acceptă toate
-          </button>
-        </div>
-
-        {/* Linkuri Preferințe & Politică */}
-        <div className="flex items-center justify-between text-[11px] font-open-sans text-[var(--text-muted,#A3ABB6)]">
-          <button
-            type="button"
-            onClick={() => setIsPreferencesOpen(!isPreferencesOpen)}
-            className="hover:text-[var(--text,#F4F6F9)] underline cursor-pointer"
-          >
-            {isPreferencesOpen ? 'Ascunde opțiunile' : 'Personalizează preferințele'}
-          </button>
-
-          <button
-            type="button"
-            onClick={onOpenPolicy}
-            className="hover:text-[var(--text,#F4F6F9)] underline cursor-pointer"
-          >
-            Politica Cookies
-          </button>
         </div>
       </div>
     </aside>
   );
+};
+
+
+export const CookieConsentBanner: React.FC<CookieConsentBannerProps> = (props) => {
+  const { tenant } = useTenantContext();
+  const isMpi = tenant?.slug === 'mpi_auto' || tenant?.themePreset === 'mpi_signature';
+  if (isMpi) {
+    return <MpiCookieConsentBanner {...props} />;
+  }
+  return <RxmCookieConsentBanner {...props} />;
 };

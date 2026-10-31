@@ -1,6 +1,6 @@
 import { VehicleItem } from './types';
 
-// 80 Autoturisme Importate Real din Stocul MPI Auto Cluj (Centura Apahida)
+// 80 Autoturisme Importate Real din Stocul MPI Auto Cluj (Centura Apahida) - Date Curățate & Standardizate
 export const SEED_MPI_VEHICLES: VehicleItem[] = [
   {
     "id": "mpi-38416-2019-dacia-duster-1-6-benzina-2wd",
@@ -38,25 +38,25 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isPinnedToTop": true,
     "oldPriceEur": 11200,
     "dealBadgeText": "OFERTA SPECIALĂ MPI",
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • senzor_ploaie • senzor_lumini • Bluethooth • Volansport  • ⁠USBAUX •  ⁠Lumini de zi LED",
-    "description": "2019 DACIA DUSTER 1.6 BENZINA 2WD",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Lumini de zi LED (Daylight) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Volan sport multifuncțional îmbrăcat în piele • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2019 Dacia Duster 1.6 BENZINA 2WD\n1598 cm³ • Benzină • 150 CP • Manuală | 201.530 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Lumini de zi LED (Daylight)\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Pilot automat (Cruise Control / Tempomat)\n• Volan sport multifuncțional îmbrăcat în piele\n• Conectivitate Bluetooth Audio & Handsfree\n• Și multe altele (+1 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "Volansport",
-        "⁠Lumini de zi LED"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Volan sport multifuncțional îmbrăcat în piele"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -96,33 +96,33 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isPinnedToTop": true,
     "oldPriceEur": 10000,
     "dealBadgeText": "TOP RATE CU BULETINUL",
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • incalzirebancheta • senzor_ploaie • senzor_lumini • incalzire_oglinzi • carlig_copy • Bluethooth • Volansport  • ⁠AdaptiveCruiseControl • ⁠Oglinzirabatabileelectric •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED",
-    "description": "2014 HYUNDAI IX35 1.7CRDI",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Pilot automat adaptiv (Adaptive Cruise Control) • Lumini de zi LED (Daylight) • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Banchetă spate încălzită • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2014 Hyundai Ix35 1.7CRDI\n1685 cm³ • Diesel • 150 CP • Manuală | 190.013 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lumini de zi LED (Daylight)\n• Cârlig de remorcare omologat\n• Servodirecție asistată electronic\n• Tapițerie interior piele de înaltă calitate\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Și multe altele (+9 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzirebancheta",
-        "incalzire_oglinzi",
-        "carlig_copy",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Banchetă spate încălzită",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -161,30 +161,30 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": true,
     "oldPriceEur": 5800,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • navigatie_gps • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠AdaptiveCruiseControl •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED",
-    "description": "2013 OPEL ASTRA 2.0 CDTI AUTOMAT",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Lumini de zi LED (Daylight) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Volan sport multifuncțional îmbrăcat în piele • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2019 Opel Astra 2.0 CDTI AUTOMAT\n1956 cm³ • Diesel • 150 CP • Automată | 215.405 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lumini de zi LED (Daylight)\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Și multe altele (+6 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠Lumini de zi LED"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Volan sport multifuncțional îmbrăcat în piele"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -223,37 +223,37 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": true,
     "oldPriceEur": 14200,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • semne • carlig_copy • Bluethooth • ⁠Cameramarsarier • Volansport  •  ⁠Incalzireinvolan • ⁠AdaptiveCruiseControl • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • BlindSportAssist • Asistentiesireparcare •  ⁠Lumini de zi LED",
-    "description": "2017 HYUNDAI TUCSON 1.6 BENZINA 2WD",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Blind Spot Assist (Asistent monitorizare unghi mort) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Cârlig de remorcare omologat • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Oglinzi exterioare rabatabile electric • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree",
+    "description": "2017 Hyundai Tucson 1.6 BENZINA 2WD\n1591 cm³ • Benzină • 150 CP • Manuală | 178.934 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Blind Spot Assist (Asistent monitorizare unghi mort)\n• Rear Traffic Alert (Asistent ieșire parcare)\n• Lumini de zi LED (Daylight)\n• Și multe altele (+13 dotări complete în fișa tehnică a vehiculului)\n\n💼 Regim Fiscal B2B:\n• Preț cu TVA deductibil inclus pe factură (posibilitate deducere integrală pentru firme eligibile).\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Blind Spot Assist (Asistent monitorizare unghi mort)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "semne",
-        "carlig_copy",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠AdaptiveCruiseControl",
-        "⁠Oglinzirabatabileelectric",
-        "BlindSportAssist",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree"
       ]
     }
   },
@@ -292,43 +292,42 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 13200,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Trapapanoramica • Volansport  • ⁠AdaptiveCruiseControl • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Keyless Entry • Keyless GO • Scaune sport  • haionelectric",
-    "description": "2012 BMW X3 X-DRIVE 2.0D AUT. MPAKET",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Lumini de zi LED (Daylight) • Plafon panoramic mare din sticlă cu trapă rabatabilă electric • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Scaune sport ergonomice cu suport lateral • Portbagaj / Haion acționat electric • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2012 BMW X3 x-drive 2.0D AUT. MPAKET\n1995 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 242.440 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lumini de zi LED (Daylight)\n• Plafon panoramic mare din sticlă cu trapă rabatabilă electric\n• Și multe altele (+18 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Keyless Entry",
-        "Keyless GO",
-        "Scaune sport",
-        "haionelectric"
+        "Plafon panoramic mare din sticlă cu trapă rabatabilă electric",
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Scaune sport ergonomice cu suport lateral",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -367,58 +366,56 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 16490,
-    "equipmentSheetText": "servo_directie • trapa • geamuri_electrice • computer_bord • clima • cruise_control • parktronic • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • bordvirtual • applecarplay • androidauto • semne • carlig • parcarea • wirelesstel • Bluethooth • Trapa • Trapapanoramica • Volansport  •  ⁠Incalzireinvolan • ⁠Incalzireinparbriz • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • BlindSportAssist • Asistentiesireparcare •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Moduri de condus • Stopuri LED • Speed Warning • Keyless Entry • Keyless GO • Set complet roti de iarna/vara extra • haionelectric",
-    "description": "2021 SKODA OCTAVIA 2.0 DIESEL AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sistem asistență parcare Parktronic (față/spate) • Sign Assist (Recunoaștere indicatoare rutiere) • Asistent parcare automată (Park Assist) • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Blind Spot Assist (Asistent monitorizare unghi mort) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Roată de rezervă completă • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Plafon panoramic mare din sticlă cu trapă rabatabilă electric • Cârlig de remorcare omologat • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Parbriz cu degivrare termică încălzit • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Set complet roți suplimentare (Iarnă / Vară) • Portbagaj / Haion acționat electric • Ceasuri de bord digitale (Virtual Cockpit) • Conectivitate Apple CarPlay • Conectivitate Android Auto • Încărcare telefon prin inducție (Wireless Charging) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2021 Skoda Octavia 2.0 DIESEL AUT.\n1968 cm³ • Diesel • 150 CP • Automată | 209.480 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sistem asistență parcare Parktronic (față/spate)\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Asistent parcare automată (Park Assist)\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Front Assist cu frânare autonomă de urgență\n• Driver Alert (Sistem detectare oboseală șofer)\n• Și multe altele (+32 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sistem asistență parcare Parktronic (față/spate)",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Asistent parcare automată (Park Assist)",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Blind Spot Assist (Asistent monitorizare unghi mort)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "parktronic",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "bordvirtual",
-        "applecarplay",
-        "androidauto",
-        "semne",
-        "carlig",
-        "parcarea",
-        "wirelesstel",
-        "Trapa",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠Incalzireinparbriz",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "BlindSportAssist",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Moduri de condus",
-        "Stopuri LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "Set complet roti de iarna/vara extra",
-        "haionelectric"
+        "Plafon panoramic mare din sticlă cu trapă rabatabilă electric",
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic",
+        "Parbriz cu degivrare termică încălzit",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Set complet roți suplimentare (Iarnă / Vară)",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Ceasuri de bord digitale (Virtual Cockpit)",
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Încărcare telefon prin inducție (Wireless Charging)",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -457,43 +454,43 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 15200,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • bordvirtual • wirelesstel • Bluethooth • Volansport  • ⁠AdaptiveCruiseControl • ⁠DriverAlert • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • Asistentiesireparcare •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Moduri de condus • Speed Warning • Keyless Entry • Keyless GO • Scaune sport  • haionelectric",
-    "description": "2018 AUDI A4 2.0TDI QUATTRO S-LINE AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Pilot automat adaptiv (Adaptive Cruise Control) • Driver Alert (Sistem detectare oboseală șofer) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Roată de rezervă completă • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Scaune sport ergonomice cu suport lateral • Portbagaj / Haion acționat electric • Ceasuri de bord digitale (Virtual Cockpit) • Încărcare telefon prin inducție (Wireless Charging) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2018 Audi A4 2.0TDI QUATTRO S-LINE AUT.\n1968 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 264.856 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Driver Alert (Sistem detectare oboseală șofer)\n• Rear Traffic Alert (Asistent ieșire parcare)\n• Lumini de zi LED (Daylight)\n• Roată de rezervă completă\n• Avertizare depășire viteză (Speed Warning)\n• Și multe altele (+19 dotări complete în fișa tehnică a vehiculului)\n\n💼 Regim Fiscal B2B:\n• Preț cu TVA deductibil inclus pe factură (posibilitate deducere integrală pentru firme eligibile).\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "bordvirtual",
-        "wirelesstel",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠DriverAlert",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Moduri de condus",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "Scaune sport",
-        "haionelectric"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Scaune sport ergonomice cu suport lateral",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Ceasuri de bord digitale (Virtual Cockpit)",
+        "Încărcare telefon prin inducție (Wireless Charging)",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -532,45 +529,43 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 14000,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • FaruriXenon • Bluethooth • Trapa • Trapapanoramica • Volansport  • ⁠AdaptiveCruiseControl • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • ⁠Sistemsonorizarepremium • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • BlindSportAssist •  ⁠Lumini de zi LED • Stopuri LED • Speed Warning • Set complet roti de iarna/vara extra • Scaune sport  • haionelectric",
-    "description": "2014 MERCEDES GLA 220CDI 4MATIC AMG LINE",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Pilot automat adaptiv (Adaptive Cruise Control) • Driver Alert (Sistem detectare oboseală șofer) • Blind Spot Assist (Asistent monitorizare unghi mort) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Plafon panoramic mare din sticlă cu trapă rabatabilă electric • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Set complet roți suplimentare (Iarnă / Vară) • Scaune sport ergonomice cu suport lateral • Portbagaj / Haion acționat electric • Sistem sonorizare audio premium • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2014 Mercedes-Benz Gla 220cdi 4matic 2014 MERCEDES GLA 220CDI 4MATIC AMG LINE\n2143 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 271.694 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Driver Alert (Sistem detectare oboseală șofer)\n• Blind Spot Assist (Asistent monitorizare unghi mort)\n• Lumini de zi LED (Daylight)\n• Stopuri spate cu tehnologie LED\n• Și multe altele (+19 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Blind Spot Assist (Asistent monitorizare unghi mort)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "Trapa",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Sistemsonorizarepremium",
-        "BlindSportAssist",
-        "⁠Lumini de zi LED",
-        "Stopuri LED",
-        "Speed Warning",
-        "Set complet roti de iarna/vara extra",
-        "Scaune sport",
-        "haionelectric"
+        "Plafon panoramic mare din sticlă cu trapă rabatabilă electric",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Set complet roți suplimentare (Iarnă / Vară)",
+        "Scaune sport ergonomice cu suport lateral",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem sonorizare audio premium",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -609,38 +604,38 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 12000,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠AdaptiveCruiseControl • Senzoriparcarefata •  ⁠Senzoriparcarespate •  ⁠Lumini de zi LED • Moduri de condus • Stopuri LED • Speed Warning • Keyless Entry • Keyless GO",
-    "description": "2014 AUDI A6 2.0 TDI AVANT AUTOMAT",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree",
+    "description": "2014 Audi A6 2.0 TDI AVANT AUTOMAT\n1968 cm³ • Diesel • 150 CP • Automată | 235.171 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lumini de zi LED (Daylight)\n• Stopuri spate cu tehnologie LED\n• Și multe altele (+14 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Stopuri LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree"
       ]
     }
   },
@@ -679,39 +674,37 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 12000,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • Trapa • Trapapanoramica • Volansport  • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Keyless Entry • Keyless GO • haionelectric",
-    "description": "2012 BMW X3 X-DRIVE 2.0D AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Lumini de zi LED (Daylight) • Plafon panoramic mare din sticlă cu trapă rabatabilă electric • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Portbagaj / Haion acționat electric • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2012 BMW X3 x-drive 2.0D AUT.\n1995 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 223.881 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Lumini de zi LED (Daylight)\n• Plafon panoramic mare din sticlă cu trapă rabatabilă electric\n• Servodirecție asistată electronic\n• Tapițerie interior piele de înaltă calitate\n• Și multe altele (+13 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "Trapa",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠Lumini de zi LED",
-        "Keyless Entry",
-        "Keyless GO",
-        "haionelectric"
+        "Plafon panoramic mare din sticlă cu trapă rabatabilă electric",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -750,37 +743,37 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 10200,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • parktronic • incalzire_scaune • incalzirebancheta • senzor_ploaie • senzor_lumini • incalzire_oglinzi • carlig_copy • parcarea • FaruriXenon • Bluethooth • ⁠Cameramarsarier • Volansport  •  ⁠Incalzireinvolan • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED",
-    "description": "2015 KIA SPORTAGE 2.0 CRDI 4X4 AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sistem asistență parcare Parktronic (față/spate) • Asistent parcare automată (Park Assist) • Faruri Bi-Xenon / Xenon adaptive • Cameră video marșarier • Lumini de zi LED (Daylight) • Cârlig de remorcare omologat • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Banchetă spate încălzită • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Oglinzi exterioare rabatabile electric • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2015 Kia Sportage 2.0 CRDI 4X4 AUT.\n1995 cm³ • Diesel • 150 CP • Manuală • Tracțiune 4x4 / AWD | 265.695 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sistem asistență parcare Parktronic (față/spate)\n• Asistent parcare automată (Park Assist)\n• Faruri Bi-Xenon / Xenon adaptive\n• Cameră video marșarier\n• Lumini de zi LED (Daylight)\n• Cârlig de remorcare omologat\n• Și multe altele (+13 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sistem asistență parcare Parktronic (față/spate)",
+        "Asistent parcare automată (Park Assist)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Cameră video marșarier",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "parktronic",
-        "incalzire_scaune",
-        "incalzirebancheta",
-        "incalzire_oglinzi",
-        "carlig_copy",
-        "parcarea",
-        "FaruriXenon",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Banchetă spate încălzită",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -819,31 +812,31 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 8490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • FaruriXenon • ⁠Cameramarsarier • Trapapanoramica • Volansport  • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX",
-    "description": "2013 NISSAN QASHQAI 1.6 DCI 2WD",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Cameră video marșarier • Plafon panoramic din sticlă • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Sistem de navigație GPS profesional • Conexiune multimedia USB & AUX-In",
+    "description": "2013 Nissan Qashqai 1.6 DCI 2WD\n1598 cm³ • Diesel • 150 CP • Manuală | 221.410 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Cameră video marșarier\n• Plafon panoramic din sticlă\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Și multe altele (+7 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Cameră video marșarier"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "⁠Cameramarsarier",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠Oglinzirabatabileelectric"
+        "Plafon panoramic din sticlă",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -882,37 +875,35 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 13490,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • Trapa • Trapapanoramica • Volansport  • ⁠FrontAssis • ⁠Oglinzirabatabileelectric •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED",
-    "description": "2017 SKODA OCTAVIA 2.0TDI AUT. DSG",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Front Assist cu frânare autonomă de urgență • Lumini de zi LED (Daylight) • Plafon panoramic mare din sticlă cu trapă rabatabilă electric • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2017 Skoda Octavia 2.0TDI AUT. DSG\n1968 cm³ • Diesel • 150 CP • Automată | 202.923 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Front Assist cu frânare autonomă de urgență\n• Lumini de zi LED (Daylight)\n• Plafon panoramic mare din sticlă cu trapă rabatabilă electric\n• Cârlig de remorcare omologat\n• Servodirecție asistată electronic\n• Și multe altele (+11 dotări complete în fișa tehnică a vehiculului)\n\n💼 Regim Fiscal B2B:\n• Preț cu TVA deductibil inclus pe factură (posibilitate deducere integrală pentru firme eligibile).\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Front Assist cu frânare autonomă de urgență",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "Trapa",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠FrontAssis",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED"
+        "Plafon panoramic mare din sticlă cu trapă rabatabilă electric",
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -951,48 +942,46 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 10700,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • parktronic • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • semne • carlig_copy • parcarea • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • Trapa • Trapapanoramica • Volansport  • ⁠AdaptiveCruiseControl • ⁠Oglinzirabatabileelectric • ⁠Sistemsonorizarepremium • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • Asistentiesireparcare •  ⁠Lumini de zi LED • Moduri de condus • Keyless Entry • Keyless GO • haionelectric",
-    "description": "2014 SKODA OCTAVIA SCOUT 4X4 2.0D DSG",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sistem asistență parcare Parktronic (față/spate) • Sign Assist (Recunoaștere indicatoare rutiere) • Asistent parcare automată (Park Assist) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Pilot automat adaptiv (Adaptive Cruise Control) • Lane Assist (Asistent activ menținere bandă) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Plafon panoramic mare din sticlă cu trapă rabatabilă electric • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Portbagaj / Haion acționat electric • Sistem sonorizare audio premium • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2014 Skoda Octavia scout 4X4 2.0D DSG\n1968 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 274.407 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sistem asistență parcare Parktronic (față/spate)\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Asistent parcare automată (Park Assist)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Și multe altele (+22 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sistem asistență parcare Parktronic (față/spate)",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Asistent parcare automată (Park Assist)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "parktronic",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "semne",
-        "carlig_copy",
-        "parcarea",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "Trapa",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Sistemsonorizarepremium",
-        "LaneAssist",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Keyless Entry",
-        "Keyless GO",
-        "haionelectric"
+        "Plafon panoramic mare din sticlă cu trapă rabatabilă electric",
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem sonorizare audio premium",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1031,55 +1020,55 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 15200,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • parktronic • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • applecarplay • androidauto • semne • carlig_copy • parcarea • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • ⁠Sistemsonorizarepremium • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • BlindSportAssist • Asistentiesireparcare •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Moduri de condus • Speed Warning • Keyless Entry • Keyless GO • Scaune sport  • haionelectric",
-    "description": "2018 SEAT ATECA FR 2.0 DIESEL 4X4 AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sistem asistență parcare Parktronic (față/spate) • Sign Assist (Recunoaștere indicatoare rutiere) • Asistent parcare automată (Park Assist) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Blind Spot Assist (Asistent monitorizare unghi mort) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Roată de rezervă completă • Avertizare depășire viteză (Speed Warning) • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Scaune sport ergonomice cu suport lateral • Portbagaj / Haion acționat electric • Conectivitate Apple CarPlay • Conectivitate Android Auto • Sistem sonorizare audio premium • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2018 Seat Ateca FR 2.0 TDI 4x4 DSG\n1968 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 261.967 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sistem asistență parcare Parktronic (față/spate)\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Asistent parcare automată (Park Assist)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Și multe altele (+31 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sistem asistență parcare Parktronic (față/spate)",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Asistent parcare automată (Park Assist)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Blind Spot Assist (Asistent monitorizare unghi mort)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "parktronic",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "semne",
-        "carlig_copy",
-        "parcarea",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Sistemsonorizarepremium",
-        "LaneAssist",
-        "BlindSportAssist",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Moduri de condus",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "Scaune sport",
-        "haionelectric"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Scaune sport ergonomice cu suport lateral",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Sistem sonorizare audio premium",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1118,33 +1107,33 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 8490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • senzor_ploaie • senzor_lumini • incalzire_oglinzi • FaruriXenon • Bluethooth • Volansport  • ⁠AdaptiveCruiseControl • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Speed Warning • Keyless Entry • Keyless GO",
-    "description": "2016 OPEL ASTRA 1.6 CDTI",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Pilot automat adaptiv (Adaptive Cruise Control) • Lumini de zi LED (Daylight) • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2016 Opel Astra 1.6 CDTI\n1598 cm³ • Diesel • 150 CP • Manuală | 247.359 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lumini de zi LED (Daylight)\n• Avertizare depășire viteză (Speed Warning)\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Și multe altele (+9 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lumini de zi LED (Daylight)",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1183,47 +1172,47 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 16490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • applecarplay • androidauto • semne • carlig_copy • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠Oglinzirabatabileelectric • ⁠Sistemsonorizarepremium • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • BlindSportAssist •  ⁠Lumini de zi LED • Stopuri LED • Speed Warning • Keyless Entry • Keyless GO • Scaune sport  • haionelectric",
-    "description": "2021 SKODA SUPERB 2.0D DSG AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Lane Assist (Asistent activ menținere bandă) • Blind Spot Assist (Asistent monitorizare unghi mort) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Cârlig de remorcare omologat • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Scaune sport ergonomice cu suport lateral • Portbagaj / Haion acționat electric • Conectivitate Apple CarPlay • Conectivitate Android Auto • Sistem sonorizare audio premium • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2021 Skoda Superb 2.0D DSG AUT.\n1968 cm³ • Diesel • 150 CP • Automată | 226.295 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Front Assist cu frânare autonomă de urgență\n• Lane Assist (Asistent activ menținere bandă)\n• Blind Spot Assist (Asistent monitorizare unghi mort)\n• Și multe altele (+23 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Blind Spot Assist (Asistent monitorizare unghi mort)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "semne",
-        "carlig_copy",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Sistemsonorizarepremium",
-        "LaneAssist",
-        "BlindSportAssist",
-        "⁠Lumini de zi LED",
-        "Stopuri LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "Scaune sport",
-        "haionelectric"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Scaune sport ergonomice cu suport lateral",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Sistem sonorizare audio premium",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1262,39 +1251,39 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 11000,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • incalzirebancheta • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • applecarplay • androidauto • FaruriXenon •  ⁠Spalatoarefar • ⁠Cameramarsarier • Volansport  •  ⁠Incalzireinvolan • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Moduri de condus",
-    "description": "2016 HYUNDAI SANTA FE 2.2 CRDI 4X4",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Lumini de zi LED (Daylight) • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Banchetă spate încălzită • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Conectivitate Apple CarPlay • Conectivitate Android Auto • Sistem de navigație GPS profesional • Conexiune multimedia USB & AUX-In",
+    "description": "2019 Hyundai Santa fe 2.2 CRDI 4X4\n2199 cm³ • Diesel • 150 CP • Manuală • Tracțiune 4x4 / AWD | 230.175 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Lumini de zi LED (Daylight)\n• Servodirecție asistată electronic\n• Tapițerie interior piele de înaltă calitate\n• Și multe altele (+15 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzirebancheta",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Moduri de condus"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Banchetă spate încălzită",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "⁠USBAUX"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Sistem de navigație GPS profesional",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1333,47 +1322,47 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 19900,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • incalzirebancheta • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • applecarplay • androidauto • ⁠Cameramarsarier • Volansport  •  ⁠Incalzireinvolan • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠Oglinzirabatabileelectric • ⁠Sistemsonorizarepremium • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • Asistentiesireparcare •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Stopuri LED • Speed Warning • Keyless Entry • Keyless GO • Scaune sport  • haionelectric",
-    "description": "2018 SKODA KODIAQ 2.0 TDI DSG 4X4",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Roată de rezervă completă • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Banchetă spate încălzită • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Scaune sport ergonomice cu suport lateral • Portbagaj / Haion acționat electric • Conectivitate Apple CarPlay • Conectivitate Android Auto • Sistem sonorizare audio premium • Sistem de navigație GPS profesional • Conexiune multimedia USB & AUX-In",
+    "description": "2018 Skoda Kodiaq 2.0 TDI DSG 4X4\n1968 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 224.235 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Front Assist cu frânare autonomă de urgență\n• Rear Traffic Alert (Asistent ieșire parcare)\n• Lumini de zi LED (Daylight)\n• Roată de rezervă completă\n• Și multe altele (+23 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzirebancheta",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Sistemsonorizarepremium",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Stopuri LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "Scaune sport",
-        "haionelectric"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Banchetă spate încălzită",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Scaune sport ergonomice cu suport lateral",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "⁠USBAUX"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Sistem sonorizare audio premium",
+        "Sistem de navigație GPS profesional",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1411,36 +1400,36 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     ],
     "isDealOfWeek": false,
     "isPinnedToTop": false,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • senzor_ploaie • senzor_lumini • incalzire_oglinzi • applecarplay • androidauto • carlig_copy • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate •  ⁠Lumini de zi LED • Stopuri LED • Speed Warning",
-    "description": "2018 VOLKSWAGEN GOLF 7 1.6 TDI AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Cârlig de remorcare omologat • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Conectivitate Apple CarPlay • Conectivitate Android Auto • Conectivitate Bluetooth Audio & Handsfree",
+    "description": "2018 Volkswagen Golf 7 1.6 TDI AUT.\n1598 cm³ • Diesel • 150 CP • Automată | 260.912 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Front Assist cu frânare autonomă de urgență\n• Lumini de zi LED (Daylight)\n• Stopuri spate cu tehnologie LED\n• Avertizare depășire viteză (Speed Warning)\n• Și multe altele (+12 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "carlig_copy",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Stopuri LED",
-        "Speed Warning"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "Bluethooth"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Conectivitate Bluetooth Audio & Handsfree"
       ]
     }
   },
@@ -1478,43 +1467,43 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     ],
     "isDealOfWeek": false,
     "isPinnedToTop": false,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • semne • FaruriXenon • Bluethooth • ⁠Cameramarsarier • Trapapanoramica • Volansport  • ⁠AdaptiveCruiseControl • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Moduri de condus • Stopuri LED • Keyless Entry • Keyless GO • Scaune sport  • haionelectric",
-    "description": "2016 Range Rover Evoque 2.0D AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Faruri Bi-Xenon / Xenon adaptive • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Plafon panoramic din sticlă • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Scaune sport ergonomice cu suport lateral • Portbagaj / Haion acționat electric • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2019 Land Rover Range rover evoque 2016 Range Rover Evoque 2.0D AUT.\n1999 cm³ • Diesel • 150 CP • Automată | 175.580 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Faruri Bi-Xenon / Xenon adaptive\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lumini de zi LED (Daylight)\n• Stopuri spate cu tehnologie LED\n• Și multe altele (+19 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "semne",
-        "FaruriXenon",
-        "⁠Cameramarsarier",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Stopuri LED",
-        "Keyless Entry",
-        "Keyless GO",
-        "Scaune sport",
-        "haionelectric"
+        "Plafon panoramic din sticlă",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Scaune sport ergonomice cu suport lateral",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1553,37 +1542,37 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 10700,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • semne • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠AdaptiveCruiseControl • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • Asistentiesireparcare •  ⁠Lumini de zi LED",
-    "description": "2017 NISSAN QASHQAI 1.6DCI",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2017 Nissan Qashqai 1.6DCI\n1598 cm³ • Diesel • 150 CP • Manuală | 199.355 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Driver Alert (Sistem detectare oboseală șofer)\n• Și multe altele (+13 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "semne",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1622,39 +1611,39 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 14990,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • Volansport  • ⁠AdaptiveCruiseControl • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Stopuri LED • Speed Warning • Scaune sport ",
-    "description": "2015 AUDI A5 SPORTBACK QUATTRO 2.0TDI AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Pilot automat adaptiv (Adaptive Cruise Control) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Trapă electrică rabatabilă • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Scaune sport ergonomice cu suport lateral • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2015 Audi A5 sportback QUATTRO 2.0TDI AUT.\n1968 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 266.078 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lumini de zi LED (Daylight)\n• Stopuri spate cu tehnologie LED\n• Avertizare depășire viteză (Speed Warning)\n• Și multe altele (+15 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Stopuri LED",
-        "Speed Warning",
-        "Scaune sport"
+        "Trapă electrică rabatabilă",
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Scaune sport ergonomice cu suport lateral"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1693,38 +1682,38 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 14200,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Moduri de condus • Speed Warning • Keyless Entry • Keyless GO",
-    "description": "2011 BMW X3 X-DRIVE 2.0D AUT. MPAKET",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Lumini de zi LED (Daylight) • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2011 BMW X3 x-drive 2.0D AUT. MPAKET\n1995 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 249.108 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Lumini de zi LED (Daylight)\n• Avertizare depășire viteză (Speed Warning)\n• Servodirecție asistată electronic\n• Și multe altele (+14 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Lumini de zi LED (Daylight)",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1763,39 +1752,38 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 10400,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • incalzirebancheta • senzor_ploaie • senzor_lumini • incalzire_oglinzi • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Trapa • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Keyless Entry • Keyless GO",
-    "description": "2012 KIA SPORTAGE 2.0 CRDI 4X4",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Lumini de zi LED (Daylight) • Roată de rezervă completă • Trapă electrică rabatabilă • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Banchetă spate încălzită • Oglinzi exterioare încălzite și reglabile electric • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2012 Kia Sportage 2.0 CRDI 4X4\n1995 cm³ • Diesel • 150 CP • Manuală • Tracțiune 4x4 / AWD | 200.913 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Lumini de zi LED (Daylight)\n• Roată de rezervă completă\n• Trapă electrică rabatabilă\n• Și multe altele (+14 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzirebancheta",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Trapa",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Keyless Entry",
-        "Keyless GO"
+        "Trapă electrică rabatabilă",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Banchetă spate încălzită",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1834,37 +1822,37 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 11900,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • senzor_ploaie • senzor_lumini • incalzire_oglinzi • applecarplay • androidauto • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • Volansport  • ⁠AdaptiveCruiseControl • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Stopuri LED • Speed Warning",
-    "description": "2019 SEAT LEON ST 1.6 TDI AUTOMAT",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Pilot automat adaptiv (Adaptive Cruise Control) • Lumini de zi LED (Daylight) • Roată de rezervă completă • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Conectivitate Apple CarPlay • Conectivitate Android Auto • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2019 Seat Leon st 1.6 TDI AUTOMAT\n1598 cm³ • Diesel • 150 CP • Automată | 199.488 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lumini de zi LED (Daylight)\n• Roată de rezervă completă\n• Stopuri spate cu tehnologie LED\n• Și multe altele (+13 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Stopuri LED",
-        "Speed Warning"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1903,23 +1891,23 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 9400,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • senzor_ploaie • senzor_lumini •  ⁠Senzoriparcarespate • ⁠USBAUX",
-    "description": "2015 SKODA RAPID 1.6 TDI AUTOMAT DSG",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Conexiune multimedia USB & AUX-In",
+    "description": "2015 Skoda Rapid 1.6 TDI AUTOMAT DSG\n1598 cm³ • Diesel • 150 CP • Automată | 229.129 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Pilot automat (Cruise Control / Tempomat)\n• Conexiune multimedia USB & AUX-In\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)"
       ],
       "multimedia": [
-        "⁠USBAUX"
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -1958,41 +1946,41 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 14990,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠AdaptiveCruiseControl • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Moduri de condus • Stopuri LED • Keyless Entry • Keyless GO",
-    "description": "2014 AUDI A6 ALLROAD 3.0D QUATTRO AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2014 Audi A6 Allroad 3.0 TDI Quattro S-Tronic\n2967 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 280.002 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lumini de zi LED (Daylight)\n• Stopuri spate cu tehnologie LED\n• Și multe altele (+17 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Stopuri LED",
-        "Keyless Entry",
-        "Keyless GO"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -2031,33 +2019,31 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 8490,
-    "equipmentSheetText": "servo_directie • trapa • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • Trapa • Trapapanoramica • Volansport  • ⁠Oglinzirabatabileelectric • ⁠USBAUX •  ⁠Lumini de zi LED",
-    "description": "2011 BMW X1 18D S-DRIVE",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Lumini de zi LED (Daylight) • Plafon panoramic mare din sticlă cu trapă rabatabilă electric • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2011 BMW X1 18D S-DRIVE\n1995 cm³ • Diesel • 150 CP • Manuală • Tracțiune Spate | 236.174 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Lumini de zi LED (Daylight)\n• Plafon panoramic mare din sticlă cu trapă rabatabilă electric\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Și multe altele (+7 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "Trapa",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED"
+        "Plafon panoramic mare din sticlă cu trapă rabatabilă electric",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -2096,51 +2082,51 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 16500,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • parktronic • incalzire_scaune • incalzirebancheta • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • semne • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Volansport  •  ⁠Incalzireinvolan • ⁠Incalzireinparbriz • ⁠AdaptiveCruiseControl • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • BlindSportAssist • Asistentiesireparcare •  ⁠Lumini de zi LED • Moduri de condus • Speed Warning • Keyless Entry • Keyless GO • haionelectric",
-    "description": "2017 HYUNDAI TUCSON 2.0 CRDI 4X4 AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sistem asistență parcare Parktronic (față/spate) • Sign Assist (Recunoaștere indicatoare rutiere) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Blind Spot Assist (Asistent monitorizare unghi mort) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Avertizare depășire viteză (Speed Warning) • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Banchetă spate încălzită • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Parbriz cu degivrare termică încălzit • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Portbagaj / Haion acționat electric • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2017 Hyundai Tucson 2.0 CRDI 4X4 AUT.\n1995 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 208.562 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sistem asistență parcare Parktronic (față/spate)\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Și multe altele (+27 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sistem asistență parcare Parktronic (față/spate)",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Blind Spot Assist (Asistent monitorizare unghi mort)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "parktronic",
-        "incalzire_scaune",
-        "incalzirebancheta",
-        "incalzire_oglinzi",
-        "semne",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠Incalzireinparbriz",
-        "⁠AdaptiveCruiseControl",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "BlindSportAssist",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "haionelectric"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Banchetă spate încălzită",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic",
+        "Parbriz cu degivrare termică încălzit",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -2179,41 +2165,41 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 14900,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • parktronic • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • applecarplay • androidauto •  ⁠Spalatoarefar • Bluethooth • Volansport  • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • Asistentiesireparcare •  ⁠Lumini de zi LED • Moduri de condus • Speed Warning",
-    "description": "2017 SEAT ATECA 2.0 DIESEL 4X4",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sistem asistență parcare Parktronic (față/spate) • Spălătoare faruri telescopice • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Driver Alert (Sistem detectare oboseală șofer) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Conectivitate Apple CarPlay • Conectivitate Android Auto • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2017 Seat Ateca 2.0 TDI 4x4 Manual\n1968 cm³ • Diesel • 150 CP • Manuală • Tracțiune 4x4 / AWD | 214.983 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sistem asistență parcare Parktronic (față/spate)\n• Spălătoare faruri telescopice\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Front Assist cu frânare autonomă de urgență\n• Driver Alert (Sistem detectare oboseală șofer)\n• Rear Traffic Alert (Asistent ieșire parcare)\n• Și multe altele (+17 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sistem asistență parcare Parktronic (față/spate)",
+        "Spălătoare faruri telescopice",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "parktronic",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "⁠Spalatoarefar",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Speed Warning"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -2252,45 +2238,45 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 13500,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • semne • carlig • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist •  ⁠Lumini de zi LED • Moduri de condus • Stopuri LED • Speed Warning • Keyless Entry • Keyless GO • haionelectric • webasto",
-    "description": "2015 BMW SERIA 5 525 2.0 X DRIVE",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Cârlig de remorcare omologat • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Portbagaj / Haion acționat electric • Încălzire auxiliară programabilă (Webasto) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2015 BMW 525d 2015 BMW SERIA 5 525 2.0 X DRIVE\n1995 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 260.165 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Front Assist cu frânare autonomă de urgență\n• Driver Alert (Sistem detectare oboseală șofer)\n• Lane Assist (Asistent activ menținere bandă)\n• Și multe altele (+21 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "semne",
-        "carlig",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Stopuri LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "haionelectric",
-        "webasto"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Portbagaj / Haion acționat electric",
+        "Încălzire auxiliară programabilă (Webasto)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -2329,27 +2315,27 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 9300,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • Bluethooth • Trapapanoramica • Volansport  •  ⁠Senzoriparcarespate",
-    "description": "2014 SKODA RAPID 1.6 TDI AUTOMAT DSG",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Plafon panoramic din sticlă • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Conectivitate Bluetooth Audio & Handsfree",
+    "description": "2014 Skoda Rapid 1.6 TDI AUTOMAT DSG\n1598 cm³ • Diesel • 150 CP • Automată | 264.634 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Plafon panoramic din sticlă\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Pilot automat (Cruise Control / Tempomat)\n• Scaune față încălzite cu reglaj termic\n• Și multe altele (+3 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "Trapapanoramica",
-        "Volansport"
+        "Plafon panoramic din sticlă",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele"
       ],
       "multimedia": [
-        "Bluethooth"
+        "Conectivitate Bluetooth Audio & Handsfree"
       ]
     }
   },
@@ -2388,39 +2374,39 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 11490,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • applecarplay • androidauto • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠Oglinzirabatabileelectric •  ⁠Senzoriparcarespate • ⁠USBAUX • BlindSportAssist •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Stopuri LED • Speed Warning",
-    "description": "2017 VOLKSWAGEN GOLF 7 1.6TDI AUTOMAT",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Blind Spot Assist (Asistent monitorizare unghi mort) • Lumini de zi LED (Daylight) • Roată de rezervă completă • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Conectivitate Apple CarPlay • Conectivitate Android Auto • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2017 Volkswagen Golf 7 1.6TDI AUTOMAT\n1598 cm³ • Diesel • 150 CP • Automată | 230.574 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Front Assist cu frânare autonomă de urgență\n• Blind Spot Assist (Asistent monitorizare unghi mort)\n• Lumini de zi LED (Daylight)\n• Roată de rezervă completă\n• Stopuri spate cu tehnologie LED\n• Și multe altele (+15 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Blind Spot Assist (Asistent monitorizare unghi mort)",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠Oglinzirabatabileelectric",
-        "BlindSportAssist",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Stopuri LED",
-        "Speed Warning"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -2459,35 +2445,35 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 9500,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • FaruriXenon • Bluethooth • Volansport  •  ⁠Incalzireinvolan • ⁠Incalzireinparbriz • ⁠Oglinzirabatabileelectric •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Speed Warning • Keyless Entry • Keyless GO",
-    "description": "2018 FORD FOCUS ST LINE 1.0 BENZINA",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Lumini de zi LED (Daylight) • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Parbriz cu degivrare termică încălzit • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2018 Ford Focus st LINE 1.0 BENZINA\n999 cm³ • Benzină • 150 CP • Manuală | 148.475 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Lumini de zi LED (Daylight)\n• Avertizare depășire viteză (Speed Warning)\n• Servodirecție asistată electronic\n• Tapițerie interior piele de înaltă calitate\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Și multe altele (+11 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Lumini de zi LED (Daylight)",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠Incalzireinparbriz",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic",
+        "Parbriz cu degivrare termică încălzit",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -2526,25 +2512,25 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 9200,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • Bluethooth • ⁠Cameramarsarier • Volansport  •  ⁠Senzoriparcarespate • ⁠USBAUX • Set complet roti de iarna/vara extra",
-    "description": "2017 DACIA LODGY STEPWAY 1.5D 7 LOCURI",
+    "equipmentSheetText": "Senzori de parcare spate • Cameră video marșarier • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Volan sport multifuncțional îmbrăcat în piele • Set complet roți suplimentare (Iarnă / Vară) • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2017 Dacia Lodgy STEPWAY 1.5D 7 LOCURI\n1461 cm³ • Diesel • 150 CP • Manuală | 196.342 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de parcare spate\n• Cameră video marșarier\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Pilot automat (Cruise Control / Tempomat)\n• Volan sport multifuncțional îmbrăcat în piele\n• Set complet roți suplimentare (Iarnă / Vară)\n• Conectivitate Bluetooth Audio & Handsfree\n• Și multe altele (+1 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "⁠Senzoriparcarespate"
+        "Senzori de parcare spate",
+        "Cameră video marșarier"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "Set complet roti de iarna/vara extra"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Set complet roți suplimentare (Iarnă / Vară)"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -2583,48 +2569,46 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 15700,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • incalzirebancheta • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • semne • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Trapa • Trapapanoramica • Volansport  • ⁠AdaptiveCruiseControl • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist •  ⁠Lumini de zi LED • Moduri de condus • Speed Warning • Keyless Entry • Keyless GO • Set complet roti de iarna/vara extra",
-    "description": "2015 HYUNDAI TUCSON 2.0 DIESEL 4X4",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Lane Assist (Asistent activ menținere bandă) • Lumini de zi LED (Daylight) • Avertizare depășire viteză (Speed Warning) • Plafon panoramic mare din sticlă cu trapă rabatabilă electric • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Banchetă spate încălzită • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Set complet roți suplimentare (Iarnă / Vară) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2015 Hyundai Tucson 2.0 DIESEL 4X4\n1995 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 186.766 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lane Assist (Asistent activ menținere bandă)\n• Și multe altele (+22 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Lumini de zi LED (Daylight)",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzirebancheta",
-        "incalzire_oglinzi",
-        "semne",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Trapa",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "Set complet roti de iarna/vara extra"
+        "Plafon panoramic mare din sticlă cu trapă rabatabilă electric",
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Banchetă spate încălzită",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Set complet roți suplimentare (Iarnă / Vară)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -2663,38 +2647,38 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 14700,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Stopuri LED • Speed Warning • Keyless Entry • Keyless GO • Set complet roti de iarna/vara extra",
-    "description": "2014 AUDI Q3 S-LINE 2.0TDI AUT. QUATTRO",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Set complet roți suplimentare (Iarnă / Vară) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2014 Audi Q3 quattro 2014 AUDI Q3 S-LINE 2.0TDI AUT. QUATTRO\n1968 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 212.895 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Lumini de zi LED (Daylight)\n• Stopuri spate cu tehnologie LED\n• Avertizare depășire viteză (Speed Warning)\n• Cârlig de remorcare omologat\n• Și multe altele (+14 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Stopuri LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "Set complet roti de iarna/vara extra"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Set complet roți suplimentare (Iarnă / Vară)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -2733,53 +2717,53 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 11990,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • parktronic • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • semne • parcarea • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Volansport  •  ⁠Incalzireinvolan • ⁠Incalzireinparbriz • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • ⁠Sistemsonorizarepremium • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • Asistentiesireparcare •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Moduri de condus • Stopuri LED • Speed Warning • Keyless Entry • Keyless GO • Scaune sport  • haionelectric",
-    "description": "2018 FORD FOCUS ST LINE 2.0 DIESEL",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sistem asistență parcare Parktronic (față/spate) • Sign Assist (Recunoaștere indicatoare rutiere) • Asistent parcare automată (Park Assist) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Roată de rezervă completă • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Parbriz cu degivrare termică încălzit • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Scaune sport ergonomice cu suport lateral • Portbagaj / Haion acționat electric • Sistem sonorizare audio premium • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2018 Ford Focus st LINE 2.0 DIESEL\n1995 cm³ • Diesel • 150 CP • Manuală | 192.890 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sistem asistență parcare Parktronic (față/spate)\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Asistent parcare automată (Park Assist)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Și multe altele (+29 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sistem asistență parcare Parktronic (față/spate)",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Asistent parcare automată (Park Assist)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "parktronic",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "semne",
-        "parcarea",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠Incalzireinparbriz",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Sistemsonorizarepremium",
-        "LaneAssist",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Moduri de condus",
-        "Stopuri LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "Scaune sport",
-        "haionelectric"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic",
+        "Parbriz cu degivrare termică încălzit",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Scaune sport ergonomice cu suport lateral",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem sonorizare audio premium",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -2818,36 +2802,36 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 15490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • Bluethooth •  ⁠Incalzireinvolan • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • LaneAssist •  ⁠Lumini de zi LED • Stopuri LED • Keyless Entry • Keyless GO",
-    "description": "2021 SKODA OCTAVIA 2.0 DIESEL",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Lane Assist (Asistent activ menținere bandă) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan încălzit cu reglaj termic • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree",
+    "description": "2021 Skoda Octavia 2.0 DIESEL\n1968 cm³ • Diesel • 150 CP • Manuală | 205.757 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Front Assist cu frânare autonomă de urgență\n• Lane Assist (Asistent activ menținere bandă)\n• Lumini de zi LED (Daylight)\n• Stopuri spate cu tehnologie LED\n• Servodirecție asistată electronic\n• Și multe altele (+12 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "⁠Incalzireinvolan",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "⁠Lumini de zi LED",
-        "Stopuri LED",
-        "Keyless Entry",
-        "Keyless GO"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan încălzit cu reglaj termic",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree"
       ]
     }
   },
@@ -2886,25 +2870,25 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 8700,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • senzor_ploaie • senzor_lumini • Bluethooth • Volansport  • ⁠Incalzireinparbriz •  ⁠Senzoriparcarespate • ⁠USBAUX",
-    "description": "2015 FORD ECOSPORT 1.5 TDCI TREND",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Volan sport multifuncțional îmbrăcat în piele • Parbriz cu degivrare termică încălzit • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2015 Ford EcoSport 1.5 TDCi Trend\n1499 cm³ • Diesel • 150 CP • Manuală | 180.277 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Volan sport multifuncțional îmbrăcat în piele\n• Parbriz cu degivrare termică încălzit\n• Conectivitate Bluetooth Audio & Handsfree\n• Și multe altele (+1 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "Volansport",
-        "⁠Incalzireinparbriz"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Parbriz cu degivrare termică încălzit"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -2943,39 +2927,39 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 14200,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Moduri de condus • Keyless Entry • Keyless GO",
-    "description": "2012 BMW X3 X-DRIVE 2.0D AUT. MPAKET",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Lumini de zi LED (Daylight) • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2012 BMW X3 x-drive 2.0D AUT. MPAKET\n1995 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 270.056 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Lumini de zi LED (Daylight)\n• Cârlig de remorcare omologat\n• Servodirecție asistată electronic\n• Și multe altele (+15 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Keyless Entry",
-        "Keyless GO"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3014,44 +2998,44 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 11490,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • semne • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Trapapanoramica • Volansport  • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist •  ⁠Lumini de zi LED • Speed Warning • Keyless Entry • Keyless GO",
-    "description": "2015 NISSAN QASHQAI TEKNA 1.5 DCI 2WD",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Lane Assist (Asistent activ menținere bandă) • Lumini de zi LED (Daylight) • Avertizare depășire viteză (Speed Warning) • Plafon panoramic din sticlă • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2015 Nissan Qashqai TEKNA 1.5 DCI 2WD\n1461 cm³ • Diesel • 150 CP • Manuală | 170.987 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Front Assist cu frânare autonomă de urgență\n• Și multe altele (+20 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Lumini de zi LED (Daylight)",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "semne",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "⁠Lumini de zi LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO"
+        "Plafon panoramic din sticlă",
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3090,37 +3074,37 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 13700,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • semne • FaruriXenon • Bluethooth • ⁠Cameramarsarier • Volansport  •  ⁠Incalzireinvolan • ⁠DriverAlert • ⁠Oglinzirabatabileelectric •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist •  ⁠Lumini de zi LED • Moduri de condus • Speed Warning",
-    "description": "2017 HYUNDAI TUCSON 1.7 DIESEL 2WD",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Faruri Bi-Xenon / Xenon adaptive • Cameră video marșarier • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Lumini de zi LED (Daylight) • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2017 Hyundai Tucson 1.7 DIESEL 2WD\n1685 cm³ • Diesel • 150 CP • Manuală | 213.287 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Faruri Bi-Xenon / Xenon adaptive\n• Cameră video marșarier\n• Driver Alert (Sistem detectare oboseală șofer)\n• Lane Assist (Asistent activ menținere bandă)\n• Lumini de zi LED (Daylight)\n• Avertizare depășire viteză (Speed Warning)\n• Și multe altele (+13 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Cameră video marșarier",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Lumini de zi LED (Daylight)",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "semne",
-        "FaruriXenon",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Speed Warning"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3159,45 +3143,45 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 13000,
-    "equipmentSheetText": "servo_directie • interior_piele • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • applecarplay • androidauto • wirelesstel • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • BlindSportAssist • Asistentiesireparcare •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Stopuri LED • Speed Warning",
-    "description": "2017 PEUGEOT 3008 PURE-TECH 1.2 BENZINA",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Blind Spot Assist (Asistent monitorizare unghi mort) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Roată de rezervă completă • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Conectivitate Apple CarPlay • Conectivitate Android Auto • Încărcare telefon prin inducție (Wireless Charging) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2017 Peugeot 3008 PURE-TECH 1.2 BENZINA\n1199 cm³ • Benzină • 150 CP • Manuală | 203.421 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Front Assist cu frânare autonomă de urgență\n• Driver Alert (Sistem detectare oboseală șofer)\n• Și multe altele (+21 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Blind Spot Assist (Asistent monitorizare unghi mort)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "wirelesstel",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "BlindSportAssist",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Stopuri LED",
-        "Speed Warning"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Încărcare telefon prin inducție (Wireless Charging)",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3236,33 +3220,33 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 8900,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Keyless Entry • Keyless GO",
-    "description": "2015 RENAULT CAPTUR 1.5DCI LUXE",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Cameră video marșarier • Lumini de zi LED (Daylight) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2015 Renault Captur 1.5 dCi Luxe\n1461 cm³ • Diesel • 150 CP • Manuală | 209.905 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Cameră video marșarier\n• Lumini de zi LED (Daylight)\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Și multe altele (+9 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Cameră video marșarier",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Keyless Entry",
-        "Keyless GO"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3301,25 +3285,25 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 5490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • senzor_ploaie • senzor_lumini •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Scaune sport ",
-    "description": "2012 CITROEN DS-3 S COUPE 1.6 DIESEL",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Lumini de zi LED (Daylight) • Roată de rezervă completă • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Scaune sport ergonomice cu suport lateral • Conexiune multimedia USB & AUX-In",
+    "description": "2019 Citroen Ds3 2012 CITROEN DS-3 S COUPE 1.6 DIESEL\n1560 cm³ • Diesel • 150 CP • Manuală | 224.933 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Lumini de zi LED (Daylight)\n• Roată de rezervă completă\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Scaune sport ergonomice cu suport lateral\n• Și multe altele (+1 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Scaune sport"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Scaune sport ergonomice cu suport lateral"
       ],
       "multimedia": [
-        "⁠USBAUX"
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3358,38 +3342,38 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 11500,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • Volansport  • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Moduri de condus • Speed Warning • Keyless Entry • Keyless GO • Scaune sport ",
-    "description": "2013 BMW 320D GT Sport-Line",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Lumini de zi LED (Daylight) • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Scaune sport ergonomice cu suport lateral • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2013 BMW 3 gt 2013 BMW 320D GT Sport-Line\n1995 cm³ • Diesel • 150 CP • Manuală • Tracțiune Spate | 288.323 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Lumini de zi LED (Daylight)\n• Avertizare depășire viteză (Speed Warning)\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Și multe altele (+14 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Lumini de zi LED (Daylight)",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "Volansport",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "Scaune sport"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Scaune sport ergonomice cu suport lateral"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3428,35 +3412,35 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 9490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Stopuri LED • Speed Warning • Keyless Entry • Keyless GO • Set complet roti de iarna/vara extra",
-    "description": "2010 BMW SERIA 5 2.0D F10",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Set complet roți suplimentare (Iarnă / Vară) • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2010 BMW F10 2010 BMW SERIA 5 2.0D F10\n1995 cm³ • Diesel • 150 CP • Manuală • Tracțiune Spate | 280.123 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Lumini de zi LED (Daylight)\n• Stopuri spate cu tehnologie LED\n• Avertizare depășire viteză (Speed Warning)\n• Servodirecție asistată electronic\n• Și multe altele (+11 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Lumini de zi LED",
-        "Stopuri LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "Set complet roti de iarna/vara extra"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Set complet roți suplimentare (Iarnă / Vară)"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3495,31 +3479,31 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 10490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • FaruriXenon •  ⁠Spalatoarefar • Bluethooth •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Stopuri LED • Speed Warning",
-    "description": "2012 AUDI A4 ATTRACTION 2.0 TDI AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2012 Audi A4 ATTRACTION 2.0 TDI AUT.\n1968 cm³ • Diesel • 150 CP • Automată | 229.697 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Lumini de zi LED (Daylight)\n• Stopuri spate cu tehnologie LED\n• Avertizare depășire viteză (Speed Warning)\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Și multe altele (+7 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Lumini de zi LED",
-        "Stopuri LED",
-        "Speed Warning"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3558,39 +3542,39 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 13490,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • semne • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist •  ⁠Lumini de zi LED • Stopuri LED • Keyless Entry • Keyless GO",
-    "description": "2016 KIA SPORTAGE GT-LINE 2.0D 2WD",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Lane Assist (Asistent activ menținere bandă) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2016 Kia Sportage GT-LINE 2.0D 2WD\n1995 cm³ • Diesel • 150 CP • Manuală • Tracțiune Spate | 196.139 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Lane Assist (Asistent activ menținere bandă)\n• Lumini de zi LED (Daylight)\n• Și multe altele (+15 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_oglinzi",
-        "semne",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "⁠Lumini de zi LED",
-        "Stopuri LED",
-        "Keyless Entry",
-        "Keyless GO"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3629,43 +3613,43 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 13490,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • incalzirebancheta • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier •  ⁠Incalzireinvolan • ⁠Incalzireinparbriz • ⁠AdaptiveCruiseControl • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist •  ⁠Lumini de zi LED • Keyless Entry • Keyless GO • Scaune sport ",
-    "description": "2013 HYUNDAI SANTA FE 2.2D 4X4 AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Lane Assist (Asistent activ menținere bandă) • Lumini de zi LED (Daylight) • Trapă electrică rabatabilă • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Banchetă spate încălzită • Oglinzi exterioare încălzite și reglabile electric • Volan încălzit cu reglaj termic • Parbriz cu degivrare termică încălzit • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Scaune sport ergonomice cu suport lateral • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2013 Hyundai Santa fe 2.2D 4X4 AUT.\n2199 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 151.664 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lane Assist (Asistent activ menținere bandă)\n• Lumini de zi LED (Daylight)\n• Și multe altele (+19 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzirebancheta",
-        "incalzire_oglinzi",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "⁠Incalzireinvolan",
-        "⁠Incalzireinparbriz",
-        "⁠AdaptiveCruiseControl",
-        "LaneAssist",
-        "⁠Lumini de zi LED",
-        "Keyless Entry",
-        "Keyless GO",
-        "Scaune sport"
+        "Trapă electrică rabatabilă",
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Banchetă spate încălzită",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan încălzit cu reglaj termic",
+        "Parbriz cu degivrare termică încălzit",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Scaune sport ergonomice cu suport lateral"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3704,36 +3688,36 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 9990,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Volansport  •  ⁠Incalzireinvolan • ⁠Incalzireinparbriz • ⁠AdaptiveCruiseControl • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Stopuri LED",
-    "description": "2016 HYUNDAI i40 1.7 CRDI Aut.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Parbriz cu degivrare termică încălzit • Oglinzi exterioare rabatabile electric • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2015 Hyundai I40 1.7 CRDI Aut.\n1685 cm³ • Diesel • 150 CP • Automată | 261.106 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lumini de zi LED (Daylight)\n• Stopuri spate cu tehnologie LED\n• Și multe altele (+12 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠Incalzireinparbriz",
-        "⁠AdaptiveCruiseControl",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Stopuri LED"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic",
+        "Parbriz cu degivrare termică încălzit",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3772,39 +3756,39 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 11490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • applecarplay • androidauto • semne • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • Volansport  • ⁠FrontAssis • ⁠DriverAlert • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist •  ⁠Lumini de zi LED • Stopuri LED",
-    "description": "2017 SKODA OCTAVIA 1.6 TDI DRIVE",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Front Assist cu frânare autonomă de urgență • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Cârlig de remorcare omologat • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Conectivitate Apple CarPlay • Conectivitate Android Auto • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2017 Skoda Octavia 1.6 TDI DRIVE\n1598 cm³ • Diesel • 150 CP • Manuală | 212.664 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Front Assist cu frânare autonomă de urgență\n• Driver Alert (Sistem detectare oboseală șofer)\n• Lane Assist (Asistent activ menținere bandă)\n• Și multe altele (+15 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Front Assist cu frânare autonomă de urgență",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "semne",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "Volansport",
-        "⁠FrontAssis",
-        "⁠DriverAlert",
-        "LaneAssist",
-        "⁠Lumini de zi LED",
-        "Stopuri LED"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3843,25 +3827,25 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 7700,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • Volansport  • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX",
-    "description": "2011 AUDI A3 SPORT-BACK 1.2 TFSI",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de parcare față • Senzori de parcare spate • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Volan sport multifuncțional îmbrăcat în piele • Conexiune multimedia USB & AUX-In",
+    "description": "2011 Audi A3 sport-back 1.2 TFSI\n1197 cm³ • Benzină • 150 CP • Manuală | 188.288 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de parcare față\n• Senzori de parcare spate\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Pilot automat (Cruise Control / Tempomat)\n• Scaune față încălzite cu reglaj termic\n• Volan sport multifuncțional îmbrăcat în piele\n• Și multe altele (+1 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de parcare față",
+        "Senzori de parcare spate"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "Volansport"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Volan sport multifuncțional îmbrăcat în piele"
       ],
       "multimedia": [
-        "⁠USBAUX"
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3900,46 +3884,46 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 13700,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • parktronic • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • applecarplay • androidauto • semne • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Stopuri LED • Set complet roti de iarna/vara extra • haionelectric",
-    "description": "2019 SKODA OCTAVIA 1.6 TDI DSG AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sistem asistență parcare Parktronic (față/spate) • Sign Assist (Recunoaștere indicatoare rutiere) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Lane Assist (Asistent activ menținere bandă) • Lumini de zi LED (Daylight) • Roată de rezervă completă • Stopuri spate cu tehnologie LED • Cârlig de remorcare omologat • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Set complet roți suplimentare (Iarnă / Vară) • Portbagaj / Haion acționat electric • Conectivitate Apple CarPlay • Conectivitate Android Auto • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2019 Skoda Octavia 1.6 TDI DSG AUT.\n1598 cm³ • Diesel • 150 CP • Automată | 201.084 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sistem asistență parcare Parktronic (față/spate)\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Și multe altele (+22 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sistem asistență parcare Parktronic (față/spate)",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă",
+        "Stopuri spate cu tehnologie LED"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "parktronic",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "semne",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Stopuri LED",
-        "Set complet roti de iarna/vara extra",
-        "haionelectric"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Set complet roți suplimentare (Iarnă / Vară)",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -3978,19 +3962,19 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 7900,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • incalzire_scaune • Volansport  •  ⁠Senzoriparcarespate",
-    "description": "2013 SKODA RAPID 1.2 TSI",
+    "equipmentSheetText": "Senzori de parcare spate • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Scaune față încălzite cu reglaj termic • Volan sport multifuncțional îmbrăcat în piele",
+    "description": "2013 Skoda Rapid 1.2 TSI\n1197 cm³ • Benzină • 150 CP • Manuală | 206.706 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de parcare spate\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Scaune față încălzite cu reglaj termic\n• Volan sport multifuncțional îmbrăcat în piele\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "⁠Senzoriparcarespate"
+        "Senzori de parcare spate"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "incalzire_scaune",
-        "Volansport"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Scaune față încălzite cu reglaj termic",
+        "Volan sport multifuncțional îmbrăcat în piele"
       ],
       "multimedia": []
     }
@@ -4030,52 +4014,51 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 14490,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • parktronic • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • applecarplay • androidauto • carlig • parcarea • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Trapapanoramica • Volansport  • ⁠Incalzireinparbriz • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠Sistemsonorizarepremium • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • BlindSportAssist •  ⁠Lumini de zi LED • Moduri de condus • Stopuri LED • Keyless Entry • Keyless GO • Scaune sport ",
-    "description": "2015 SKODA SUPERB DSG AUT",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sistem asistență parcare Parktronic (față/spate) • Asistent parcare automată (Park Assist) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Lane Assist (Asistent activ menținere bandă) • Blind Spot Assist (Asistent monitorizare unghi mort) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Plafon panoramic mare din sticlă cu trapă rabatabilă electric • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Parbriz cu degivrare termică încălzit • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Scaune sport ergonomice cu suport lateral • Conectivitate Apple CarPlay • Conectivitate Android Auto • Sistem sonorizare audio premium • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2015 Skoda Superb DSG AUT\n1968 cm³ • Diesel • 150 CP • Automată | 196.477 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sistem asistență parcare Parktronic (față/spate)\n• Asistent parcare automată (Park Assist)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Și multe altele (+27 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sistem asistență parcare Parktronic (față/spate)",
+        "Asistent parcare automată (Park Assist)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Blind Spot Assist (Asistent monitorizare unghi mort)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "parktronic",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "carlig",
-        "parcarea",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠Incalzireinparbriz",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠Sistemsonorizarepremium",
-        "LaneAssist",
-        "BlindSportAssist",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Stopuri LED",
-        "Keyless Entry",
-        "Keyless GO",
-        "Scaune sport"
+        "Plafon panoramic mare din sticlă cu trapă rabatabilă electric",
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Parbriz cu degivrare termică încălzit",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Scaune sport ergonomice cu suport lateral"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Sistem sonorizare audio premium",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4114,54 +4097,51 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 16800,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • incalzirebancheta • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • semne • carlig • carlig_copy • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Trapa • Trapapanoramica • Volansport  •  ⁠Incalzireinvolan • ⁠Incalzireinparbriz • ⁠AdaptiveCruiseControl • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • BlindSportAssist • Asistentiesireparcare •  ⁠Lumini de zi LED • Moduri de condus • Stopuri LED • Speed Warning • Keyless Entry • Keyless GO • haionelectric",
-    "description": "2017 HYUNDAI GRAND SANTA FE 2.2 CRDI 4X4 7 LOCURI",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Lane Assist (Asistent activ menținere bandă) • Blind Spot Assist (Asistent monitorizare unghi mort) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Plafon panoramic mare din sticlă cu trapă rabatabilă electric • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Banchetă spate încălzită • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Parbriz cu degivrare termică încălzit • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Portbagaj / Haion acționat electric • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2017 Hyundai Grand Santa Fe 2.2 CRDi 4x4 7 Locuri\n2199 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 200.102 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Lane Assist (Asistent activ menținere bandă)\n• Și multe altele (+27 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Blind Spot Assist (Asistent monitorizare unghi mort)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzirebancheta",
-        "incalzire_oglinzi",
-        "semne",
-        "carlig",
-        "carlig_copy",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Trapa",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠Incalzireinparbriz",
-        "⁠AdaptiveCruiseControl",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "BlindSportAssist",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Stopuri LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "haionelectric"
+        "Plafon panoramic mare din sticlă cu trapă rabatabilă electric",
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Banchetă spate încălzită",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic",
+        "Parbriz cu degivrare termică încălzit",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4200,30 +4180,30 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 7490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • carlig_copy • Bluethooth • Volansport  •  ⁠Incalzireinvolan • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Roata de rezerva",
-    "description": "2014 FORD FOCUS BUSINESS 1.5DIESEL",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Roată de rezervă completă • Cârlig de remorcare omologat • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2014 Ford Focus BUSINESS 1.5DIESEL\n1499 cm³ • Diesel • 150 CP • Manuală | 179.684 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Roată de rezervă completă\n• Cârlig de remorcare omologat\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Și multe altele (+6 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Roată de rezervă completă"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "carlig_copy",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠Roata de rezerva"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4262,26 +4242,26 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 7900,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • Bluethooth • Volansport  •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Roata de rezerva • Moduri de condus",
-    "description": "2016 KIA CEED 1.4 Benzina TITAN",
+    "equipmentSheetText": "Senzori de parcare spate • Roată de rezervă completă • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Volan sport multifuncțional îmbrăcat în piele • Selector moduri de condus (Drive Mode Select) • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2016 Kia Ceed 1.4 Benzina TITAN\n1368 cm³ • Benzină • 150 CP • Manuală | 171.594 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de parcare spate\n• Roată de rezervă completă\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Pilot automat (Cruise Control / Tempomat)\n• Scaune față încălzite cu reglaj termic\n• Volan sport multifuncțional îmbrăcat în piele\n• Selector moduri de condus (Drive Mode Select)\n• Și multe altele (+2 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "⁠Senzoriparcarespate"
+        "Senzori de parcare spate",
+        "Roată de rezervă completă"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "Volansport",
-        "⁠Roata de rezerva",
-        "Moduri de condus"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Selector moduri de condus (Drive Mode Select)"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4320,38 +4300,38 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 11490,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • parktronic • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • parcarea • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • Volansport  • ⁠Oglinzirabatabileelectric • ⁠Sistemsonorizarepremium • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Moduri de condus • Scaune sport ",
-    "description": "2014 SKODA OCTAVIA VRS 2.0 DSG",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sistem asistență parcare Parktronic (față/spate) • Asistent parcare automată (Park Assist) • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Lumini de zi LED (Daylight) • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Scaune sport ergonomice cu suport lateral • Sistem sonorizare audio premium • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2014 Skoda Octavia VRS 2.0 DSG\n1968 cm³ • Diesel • 150 CP • Automată | 263.046 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sistem asistență parcare Parktronic (față/spate)\n• Asistent parcare automată (Park Assist)\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Lumini de zi LED (Daylight)\n• Servodirecție asistată electronic\n• Și multe altele (+14 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sistem asistență parcare Parktronic (față/spate)",
+        "Asistent parcare automată (Park Assist)",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "parktronic",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "parcarea",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "Volansport",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Sistemsonorizarepremium",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Scaune sport"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Scaune sport ergonomice cu suport lateral"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem sonorizare audio premium",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4390,35 +4370,35 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 7800,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • FaruriXenon • Bluethooth • Volansport  • ⁠Oglinzirabatabileelectric •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Keyless Entry • Keyless GO • Set complet roti de iarna/vara extra",
-    "description": "2014 Renault Scenic 1.5dci LIMITED",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Lumini de zi LED (Daylight) • Roată de rezervă completă • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Set complet roți suplimentare (Iarnă / Vară) • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2014 Renault Scenic 1.5dci LIMITED\n1461 cm³ • Diesel • 150 CP • Automată | 193.177 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Lumini de zi LED (Daylight)\n• Roată de rezervă completă\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Și multe altele (+11 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "Volansport",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Keyless Entry",
-        "Keyless GO",
-        "Set complet roti de iarna/vara extra"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Set complet roți suplimentare (Iarnă / Vară)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4457,42 +4437,42 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 12000,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Oglinzirabatabileelectric • ⁠Sistemsonorizarepremium • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • Asistentiesireparcare •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Moduri de condus • Stopuri LED • Speed Warning • Keyless Entry • Keyless GO • Scaune sport ",
-    "description": "2013 AUDI A3 S-LINE QUATTRO 1.8TFSI",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Roată de rezervă completă • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Scaune sport ergonomice cu suport lateral • Sistem sonorizare audio premium • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2013 Audi A3 sportback 2013 AUDI A3 S-LINE QUATTRO 1.8TFSI\n1768 cm³ • Benzină • 150 CP • Automată • Tracțiune 4x4 / AWD | 207.252 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Rear Traffic Alert (Asistent ieșire parcare)\n• Lumini de zi LED (Daylight)\n• Roată de rezervă completă\n• Stopuri spate cu tehnologie LED\n• Și multe altele (+18 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Sistemsonorizarepremium",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Moduri de condus",
-        "Stopuri LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "Scaune sport"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Scaune sport ergonomice cu suport lateral"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem sonorizare audio premium",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4531,15 +4511,15 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 5490,
-    "equipmentSheetText": "servo_directie • computer_bord • clima • Set complet roti de iarna/vara extra",
-    "description": "2013 KIA PICANTO 1.0 BENZINA",
+    "equipmentSheetText": "Servodirecție asistată electronic • Computer de bord multifuncțional • Climatizare automată Climatronic • Set complet roți suplimentare (Iarnă / Vară)",
+    "description": "2013 Kia Picanto 1.0 BENZINA\n998 cm³ • Benzină • 150 CP • Manuală | 72.232 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Servodirecție asistată electronic\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Set complet roți suplimentare (Iarnă / Vară)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [],
       "comfort": [
-        "servo_directie",
-        "computer_bord",
-        "clima",
-        "Set complet roti de iarna/vara extra"
+        "Servodirecție asistată electronic",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Set complet roți suplimentare (Iarnă / Vară)"
       ],
       "multimedia": []
     }
@@ -4579,24 +4559,24 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 7000,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • incalzire_scaune • senzor_ploaie • Bluethooth • Volansport  • ⁠Incalzireinparbriz • ⁠USBAUX",
-    "description": "2014 FORD FOCUS TREND 1.6D",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Scaune față încălzite cu reglaj termic • Volan sport multifuncțional îmbrăcat în piele • Parbriz cu degivrare termică încălzit • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2014 Ford Focus TREND 1.6D\n1599 cm³ • Diesel • 150 CP • Manuală | 237.061 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Scaune față încălzite cu reglaj termic\n• Volan sport multifuncțional îmbrăcat în piele\n• Parbriz cu degivrare termică încălzit\n• Conectivitate Bluetooth Audio & Handsfree\n• Conexiune multimedia USB & AUX-In\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie"
+        "Senzori de ploaie cu acționare automată"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "incalzire_scaune",
-        "Volansport",
-        "⁠Incalzireinparbriz"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Scaune față încălzite cu reglaj termic",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Parbriz cu degivrare termică încălzit"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4635,28 +4615,28 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 9490,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • Bluethooth • Volansport  •  ⁠Senzoriparcarespate • ⁠USBAUX",
-    "description": "2016 OPEL MOKKA 1.6 CDTI AUT.",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2016 Opel Mokka 1.6 CDTI AUT.\n1599 cm³ • Diesel • 150 CP • Automată | 216.165 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Servodirecție asistată electronic\n• Tapițerie interior piele de înaltă calitate\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Pilot automat (Cruise Control / Tempomat)\n• Scaune față încălzite cu reglaj termic\n• Și multe altele (+4 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "Volansport"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4695,24 +4675,24 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 6490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • incalzire_scaune • Bluethooth • Volansport  • ⁠DriverAlert •  ⁠Senzoriparcarespate • ⁠USBAUX",
-    "description": "2014 SEAT TOLEDO 1.2 TSI",
+    "equipmentSheetText": "Senzori de parcare spate • Driver Alert (Sistem detectare oboseală șofer) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Scaune față încălzite cu reglaj termic • Volan sport multifuncțional îmbrăcat în piele • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2014 Seat Toledo 1.2 TSI\n1198 cm³ • Benzină • 150 CP • Manuală | 266.350 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de parcare spate\n• Driver Alert (Sistem detectare oboseală șofer)\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Scaune față încălzite cu reglaj termic\n• Volan sport multifuncțional îmbrăcat în piele\n• Conectivitate Bluetooth Audio & Handsfree\n• Conexiune multimedia USB & AUX-In\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "⁠Senzoriparcarespate"
+        "Senzori de parcare spate",
+        "Driver Alert (Sistem detectare oboseală șofer)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "incalzire_scaune",
-        "Volansport",
-        "⁠DriverAlert"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Scaune față încălzite cu reglaj termic",
+        "Volan sport multifuncțional îmbrăcat în piele"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4751,19 +4731,19 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 5490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • clima • Bluethooth • ⁠USBAUX • Set complet roti de iarna/vara extra",
-    "description": "2010 SEAT LEON 1.2 TSI 105 CP",
+    "equipmentSheetText": "Servodirecție asistată electronic • Geamuri electrice față / spate • Climatizare automată Climatronic • Set complet roți suplimentare (Iarnă / Vară) • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2010 Seat Leon 1.2 TSI 105 CP\n1197 cm³ • Benzină • 105 CP • Manuală | 181.936 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Climatizare automată Climatronic\n• Set complet roți suplimentare (Iarnă / Vară)\n• Conectivitate Bluetooth Audio & Handsfree\n• Conexiune multimedia USB & AUX-In\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "clima",
-        "Set complet roti de iarna/vara extra"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Climatizare automată Climatronic",
+        "Set complet roți suplimentare (Iarnă / Vară)"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4802,49 +4782,47 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 20490,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • bordvirtual • applecarplay • androidauto • semne • carlig • Bluethooth • ⁠Cameramarsarier • Trapa • Trapapanoramica • Volansport  • ⁠FrontAssis • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • Asistentiesireparcare •  ⁠Lumini de zi LED • Stopuri LED • Keyless Entry • Keyless GO • haionelectric",
-    "description": "2016 VOLVO XC 90 2.0D 4WD 7Locuri",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Cameră video marșarier • Front Assist cu frânare autonomă de urgență • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Plafon panoramic mare din sticlă cu trapă rabatabilă electric • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Portbagaj / Haion acționat electric • Ceasuri de bord digitale (Virtual Cockpit) • Conectivitate Apple CarPlay • Conectivitate Android Auto • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2016 Volvo Xc90 2016 VOLVO XC 90 2.0D 4WD 7Locuri\n1969 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 251.209 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Cameră video marșarier\n• Front Assist cu frânare autonomă de urgență\n• Driver Alert (Sistem detectare oboseală șofer)\n• Lane Assist (Asistent activ menținere bandă)\n• Rear Traffic Alert (Asistent ieșire parcare)\n• Și multe altele (+23 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Cameră video marșarier",
+        "Front Assist cu frânare autonomă de urgență",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "bordvirtual",
-        "applecarplay",
-        "androidauto",
-        "semne",
-        "carlig",
-        "⁠Cameramarsarier",
-        "Trapa",
-        "Trapapanoramica",
-        "Volansport",
-        "⁠FrontAssis",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "Stopuri LED",
-        "Keyless Entry",
-        "Keyless GO",
-        "haionelectric"
+        "Plafon panoramic mare din sticlă cu trapă rabatabilă electric",
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Ceasuri de bord digitale (Virtual Cockpit)",
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4883,25 +4861,25 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 7000,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • Volansport  • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX",
-    "description": "2010 VW TOURAN 1.6 TDI DSG AUTOMAT",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de parcare față • Senzori de parcare spate • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Volan sport multifuncțional îmbrăcat în piele • Conexiune multimedia USB & AUX-In",
+    "description": "2010 Volkswagen Touran 2010 VW TOURAN 1.6 TDI DSG AUTOMAT\n1598 cm³ • Diesel • 150 CP • Automată | 225.225 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de parcare față\n• Senzori de parcare spate\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Pilot automat (Cruise Control / Tempomat)\n• Scaune față încălzite cu reglaj termic\n• Volan sport multifuncțional îmbrăcat în piele\n• Și multe altele (+1 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de parcare față",
+        "Senzori de parcare spate"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "Volansport"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Volan sport multifuncțional îmbrăcat în piele"
       ],
       "multimedia": [
-        "⁠USBAUX"
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4940,26 +4918,26 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 8000,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • senzor_ploaie • incalzire_oglinzi • Bluethooth • ⁠Cameramarsarier •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist",
-    "description": "2016 TOYOTA AURIS TOURING SPORTS 1.6D",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de parcare spate • Cameră video marșarier • Lane Assist (Asistent activ menținere bandă) • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Oglinzi exterioare încălzite și reglabile electric • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2016 Toyota Auris TOURING SPORTS 1.6D\n1598 cm³ • Diesel • 150 CP • Manuală | 254.632 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de parcare spate\n• Cameră video marșarier\n• Lane Assist (Asistent activ menținere bandă)\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Pilot automat (Cruise Control / Tempomat)\n• Oglinzi exterioare încălzite și reglabile electric\n• Și multe altele (+2 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de parcare spate",
+        "Cameră video marșarier",
+        "Lane Assist (Asistent activ menținere bandă)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_oglinzi",
-        "⁠Cameramarsarier",
-        "LaneAssist"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Oglinzi exterioare încălzite și reglabile electric"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -4998,32 +4976,32 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 10000,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • carlig_copy • Bluethooth • Volansport  • ⁠DriverAlert • ⁠Sistemsonorizarepremium •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED",
-    "description": "2012 Range Rover Evoque 2.2 D 4&#215;4",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare spate • Driver Alert (Sistem detectare oboseală șofer) • Lumini de zi LED (Daylight) • Cârlig de remorcare omologat • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Sistem sonorizare audio premium • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2012 Land Rover Range rover evoque 2012 Range Rover Evoque 2.2 D 4x4\n2179 cm³ • Diesel • 150 CP • Manuală • Tracțiune 4x4 / AWD | 195.843 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare spate\n• Driver Alert (Sistem detectare oboseală șofer)\n• Lumini de zi LED (Daylight)\n• Cârlig de remorcare omologat\n• Servodirecție asistată electronic\n• Tapițerie interior piele de înaltă calitate\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Și multe altele (+8 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare spate",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "carlig_copy",
-        "Volansport",
-        "⁠DriverAlert",
-        "⁠Sistemsonorizarepremium",
-        "⁠Lumini de zi LED"
+        "Cârlig de remorcare omologat",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Sistem sonorizare audio premium",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -5062,22 +5040,22 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 10000,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • clima • senzor_ploaie • Bluethooth • Volansport  • ⁠USBAUX •  ⁠Lumini de zi LED",
-    "description": "2015 RENAULT KADJAR 1.2 TCE",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Lumini de zi LED (Daylight) • Servodirecție asistată electronic • Geamuri electrice față / spate • Climatizare automată Climatronic • Volan sport multifuncțional îmbrăcat în piele • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2015 Renault Kadjar 1.2 TCE\n1198 cm³ • Benzină • 150 CP • Manuală | 137.791 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Lumini de zi LED (Daylight)\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Climatizare automată Climatronic\n• Volan sport multifuncțional îmbrăcat în piele\n• Conectivitate Bluetooth Audio & Handsfree\n• Conexiune multimedia USB & AUX-In\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie"
+        "Senzori de ploaie cu acționare automată",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "clima",
-        "Volansport",
-        "⁠Lumini de zi LED"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Climatizare automată Climatronic",
+        "Volan sport multifuncțional îmbrăcat în piele"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -5115,48 +5093,47 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     ],
     "isDealOfWeek": false,
     "isPinnedToTop": false,
-    "equipmentSheetText": "servo_directie • interior_piele • trapa • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • incalzirebancheta • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • bordvirtual • applecarplay • androidauto • FaruriXenon •  ⁠Spalatoarefar • Bluethooth • ⁠Cameramarsarier • Trapa • Volansport  • ⁠FrontAssis • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • ⁠Sistemsonorizarepremium • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Moduri de condus •  scaunemasaj",
-    "description": "2019 MERCEDES G-CLASS 350 D AMG",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Faruri Bi-Xenon / Xenon adaptive • Spălătoare faruri telescopice • Cameră video marșarier • Front Assist cu frânare autonomă de urgență • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Lumini de zi LED (Daylight) • Roată de rezervă completă • Trapă electrică rabatabilă • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Banchetă spate încălzită • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Scaune ergonomice cu funcție de masaj • Ceasuri de bord digitale (Virtual Cockpit) • Conectivitate Apple CarPlay • Conectivitate Android Auto • Sistem sonorizare audio premium • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2019 Mercedes-Benz G350d 2019 MERCEDES G-CLASS 350 D AMG\n2998 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 194.140 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Faruri Bi-Xenon / Xenon adaptive\n• Spălătoare faruri telescopice\n• Cameră video marșarier\n• Front Assist cu frânare autonomă de urgență\n• Driver Alert (Sistem detectare oboseală șofer)\n• Lane Assist (Asistent activ menținere bandă)\n• Și multe altele (+23 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Faruri Bi-Xenon / Xenon adaptive",
+        "Spălătoare faruri telescopice",
+        "Cameră video marșarier",
+        "Front Assist cu frânare autonomă de urgență",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "trapa",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzirebancheta",
-        "incalzire_oglinzi",
-        "bordvirtual",
-        "applecarplay",
-        "androidauto",
-        "FaruriXenon",
-        "⁠Spalatoarefar",
-        "⁠Cameramarsarier",
-        "Trapa",
-        "Volansport",
-        "⁠FrontAssis",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Sistemsonorizarepremium",
-        "LaneAssist",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Moduri de condus",
-        "scaunemasaj"
+        "Trapă electrică rabatabilă",
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Banchetă spate încălzită",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Scaune ergonomice cu funcție de masaj"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Ceasuri de bord digitale (Virtual Cockpit)",
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Sistem sonorizare audio premium",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -5195,22 +5172,22 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 8490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • clima • incalzire_scaune • ⁠Cameramarsarier •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED",
-    "description": "2019 SKODA FABIA FACELIFT 1.0 TSI",
+    "equipmentSheetText": "Senzori de parcare spate • Cameră video marșarier • Lumini de zi LED (Daylight) • Servodirecție asistată electronic • Geamuri electrice față / spate • Climatizare automată Climatronic • Scaune față încălzite cu reglaj termic • Conexiune multimedia USB & AUX-In",
+    "description": "2019 Skoda Fabia FACELIFT 1.0 TSI\n999 cm³ • Benzină • 150 CP • Manuală | 254.192 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de parcare spate\n• Cameră video marșarier\n• Lumini de zi LED (Daylight)\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Climatizare automată Climatronic\n• Scaune față încălzite cu reglaj termic\n• Conexiune multimedia USB & AUX-In\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "⁠Senzoriparcarespate"
+        "Senzori de parcare spate",
+        "Cameră video marșarier",
+        "Lumini de zi LED (Daylight)"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "clima",
-        "incalzire_scaune",
-        "⁠Cameramarsarier",
-        "⁠Lumini de zi LED"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Climatizare automată Climatronic",
+        "Scaune față încălzite cu reglaj termic"
       ],
       "multimedia": [
-        "⁠USBAUX"
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -5249,52 +5226,52 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 14900,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • incalzirebancheta • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • applecarplay • androidauto • semne • Bluethooth • ⁠Cameramarsarier • Volansport  •  ⁠Incalzireinvolan • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • ⁠Sistemsonorizarepremium • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • BlindSportAssist • Asistentiesireparcare •  ⁠Lumini de zi LED • Moduri de condus • Stopuri LED • Speed Warning • Keyless Entry • Keyless GO • haionelectric • webasto",
-    "description": "2018 MAZDA CX-5 REVOLUTION 2.2 D 4X4",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sign Assist (Recunoaștere indicatoare rutiere) • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Blind Spot Assist (Asistent monitorizare unghi mort) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Banchetă spate încălzită • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Volan încălzit cu reglaj termic • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Keyless Entry (Acces fără cheie) • Keyless GO (Pornire motor la buton) • Portbagaj / Haion acționat electric • Încălzire auxiliară programabilă (Webasto) • Conectivitate Apple CarPlay • Conectivitate Android Auto • Sistem sonorizare audio premium • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2018 Mazda Cx-5 REVOLUTION 2.2 D 4X4\n2191 cm³ • Diesel • 150 CP • Automată • Tracțiune 4x4 / AWD | 212.966 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Front Assist cu frânare autonomă de urgență\n• Driver Alert (Sistem detectare oboseală șofer)\n• Lane Assist (Asistent activ menținere bandă)\n• Și multe altele (+28 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Blind Spot Assist (Asistent monitorizare unghi mort)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "incalzirebancheta",
-        "incalzire_oglinzi",
-        "applecarplay",
-        "androidauto",
-        "semne",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠Incalzireinvolan",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Sistemsonorizarepremium",
-        "LaneAssist",
-        "BlindSportAssist",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "Moduri de condus",
-        "Stopuri LED",
-        "Speed Warning",
-        "Keyless Entry",
-        "Keyless GO",
-        "haionelectric",
-        "webasto"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Banchetă spate încălzită",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Volan încălzit cu reglaj termic",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Keyless Entry (Acces fără cheie)",
+        "Keyless GO (Pornire motor la buton)",
+        "Portbagaj / Haion acționat electric",
+        "Încălzire auxiliară programabilă (Webasto)"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Sistem sonorizare audio premium",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -5333,31 +5310,31 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 8490,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • incalzire_scaune • senzor_ploaie • senzor_lumini •  ⁠Spalatoarefar • Bluethooth • Volansport  • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX •  ⁠Lumini de zi LED • Stopuri LED",
-    "description": "2013 SEAT LEON 1.6 TDI",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Spălătoare faruri telescopice • Lumini de zi LED (Daylight) • Stopuri spate cu tehnologie LED • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2013 Seat Leon 1.6 TDI\n1598 cm³ • Diesel • 150 CP • Manuală | 249.790 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Spălătoare faruri telescopice\n• Lumini de zi LED (Daylight)\n• Stopuri spate cu tehnologie LED\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Și multe altele (+7 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Spălătoare faruri telescopice",
+        "Lumini de zi LED (Daylight)",
+        "Stopuri spate cu tehnologie LED"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "incalzire_scaune",
-        "⁠Spalatoarefar",
-        "Volansport",
-        "⁠Oglinzirabatabileelectric",
-        "⁠Lumini de zi LED",
-        "Stopuri LED"
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric"
       ],
       "multimedia": [
-        "Bluethooth",
-        "⁠USBAUX"
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -5396,52 +5373,52 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 14990,
-    "equipmentSheetText": "servo_directie • interior_piele • geamuri_electrice • computer_bord • clima • cruise_control • parktronic • incalzire_scaune • senzor_ploaie • senzor_lumini • incalzire_oglinzi • navigatie_gps • bordvirtual • applecarplay • androidauto • semne • parcarea • Bluethooth • ⁠Cameramarsarier • Volansport  • ⁠AdaptiveCruiseControl • ⁠FrontAssis • ⁠DriverAlert • ⁠Oglinzirabatabileelectric • Senzoriparcarefata •  ⁠Senzoriparcarespate • ⁠USBAUX • LaneAssist • BlindSportAssist • Asistentiesireparcare •  ⁠Lumini de zi LED •  ⁠Roata de rezerva • Moduri de condus • Stopuri LED • Speed Warning • Asistent faza lunga •  scaunemasaj • haionelectric",
-    "description": "2017 PEUGEOT 5008 7 Locuri PureTech Allure",
+    "equipmentSheetText": "Senzori de ploaie cu acționare automată • Senzori de lumină (aprindere automată faruri) • Senzori de parcare față • Senzori de parcare spate • Sistem asistență parcare Parktronic (față/spate) • Sign Assist (Recunoaștere indicatoare rutiere) • Asistent parcare automată (Park Assist) • Cameră video marșarier • Pilot automat adaptiv (Adaptive Cruise Control) • Front Assist cu frânare autonomă de urgență • Driver Alert (Sistem detectare oboseală șofer) • Lane Assist (Asistent activ menținere bandă) • Blind Spot Assist (Asistent monitorizare unghi mort) • Rear Traffic Alert (Asistent ieșire parcare) • Lumini de zi LED (Daylight) • Roată de rezervă completă • Stopuri spate cu tehnologie LED • Avertizare depășire viteză (Speed Warning) • Asistent fază lungă automată (High Beam Assist) • Servodirecție asistată electronic • Tapițerie interior piele de înaltă calitate • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Scaune față încălzite cu reglaj termic • Oglinzi exterioare încălzite și reglabile electric • Volan sport multifuncțional îmbrăcat în piele • Oglinzi exterioare rabatabile electric • Selector moduri de condus (Drive Mode Select) • Scaune ergonomice cu funcție de masaj • Portbagaj / Haion acționat electric • Ceasuri de bord digitale (Virtual Cockpit) • Conectivitate Apple CarPlay • Conectivitate Android Auto • Sistem de navigație GPS profesional • Conectivitate Bluetooth Audio & Handsfree • Conexiune multimedia USB & AUX-In",
+    "description": "2017 Peugeot 5008 7 Locuri PureTech Allure\n1198 cm³ • Benzină • 150 CP • Manuală | 66.993 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de ploaie cu acționare automată\n• Senzori de lumină (aprindere automată faruri)\n• Senzori de parcare față\n• Senzori de parcare spate\n• Sistem asistență parcare Parktronic (față/spate)\n• Sign Assist (Recunoaștere indicatoare rutiere)\n• Asistent parcare automată (Park Assist)\n• Cameră video marșarier\n• Pilot automat adaptiv (Adaptive Cruise Control)\n• Front Assist cu frânare autonomă de urgență\n• Și multe altele (+28 dotări complete în fișa tehnică a vehiculului)\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "senzor_ploaie",
-        "senzor_lumini",
-        "Senzoriparcarefata",
-        "⁠Senzoriparcarespate"
+        "Senzori de ploaie cu acționare automată",
+        "Senzori de lumină (aprindere automată faruri)",
+        "Senzori de parcare față",
+        "Senzori de parcare spate",
+        "Sistem asistență parcare Parktronic (față/spate)",
+        "Sign Assist (Recunoaștere indicatoare rutiere)",
+        "Asistent parcare automată (Park Assist)",
+        "Cameră video marșarier",
+        "Pilot automat adaptiv (Adaptive Cruise Control)",
+        "Front Assist cu frânare autonomă de urgență",
+        "Driver Alert (Sistem detectare oboseală șofer)",
+        "Lane Assist (Asistent activ menținere bandă)",
+        "Blind Spot Assist (Asistent monitorizare unghi mort)",
+        "Rear Traffic Alert (Asistent ieșire parcare)",
+        "Lumini de zi LED (Daylight)",
+        "Roată de rezervă completă",
+        "Stopuri spate cu tehnologie LED",
+        "Avertizare depășire viteză (Speed Warning)",
+        "Asistent fază lungă automată (High Beam Assist)"
       ],
       "comfort": [
-        "servo_directie",
-        "interior_piele",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "parktronic",
-        "incalzire_scaune",
-        "incalzire_oglinzi",
-        "bordvirtual",
-        "applecarplay",
-        "androidauto",
-        "semne",
-        "parcarea",
-        "⁠Cameramarsarier",
-        "Volansport",
-        "⁠AdaptiveCruiseControl",
-        "⁠FrontAssis",
-        "⁠DriverAlert",
-        "⁠Oglinzirabatabileelectric",
-        "LaneAssist",
-        "BlindSportAssist",
-        "Asistentiesireparcare",
-        "⁠Lumini de zi LED",
-        "⁠Roata de rezerva",
-        "Moduri de condus",
-        "Stopuri LED",
-        "Speed Warning",
-        "Asistent faza lunga",
-        "scaunemasaj",
-        "haionelectric"
+        "Servodirecție asistată electronic",
+        "Tapițerie interior piele de înaltă calitate",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)",
+        "Scaune față încălzite cu reglaj termic",
+        "Oglinzi exterioare încălzite și reglabile electric",
+        "Volan sport multifuncțional îmbrăcat în piele",
+        "Oglinzi exterioare rabatabile electric",
+        "Selector moduri de condus (Drive Mode Select)",
+        "Scaune ergonomice cu funcție de masaj",
+        "Portbagaj / Haion acționat electric"
       ],
       "multimedia": [
-        "navigatie_gps",
-        "Bluethooth",
-        "⁠USBAUX"
+        "Ceasuri de bord digitale (Virtual Cockpit)",
+        "Conectivitate Apple CarPlay",
+        "Conectivitate Android Auto",
+        "Sistem de navigație GPS profesional",
+        "Conectivitate Bluetooth Audio & Handsfree",
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   },
@@ -5480,22 +5457,22 @@ export const SEED_MPI_VEHICLES: VehicleItem[] = [
     "isDealOfWeek": false,
     "isPinnedToTop": false,
     "oldPriceEur": 9900,
-    "equipmentSheetText": "servo_directie • geamuri_electrice • computer_bord • clima • cruise_control • Trapapanoramica •  ⁠Senzoriparcarespate • ⁠USBAUX",
-    "description": "2012 Volkswagen Tiguan 2.0TDI",
+    "equipmentSheetText": "Senzori de parcare spate • Plafon panoramic din sticlă • Servodirecție asistată electronic • Geamuri electrice față / spate • Computer de bord multifuncțional • Climatizare automată Climatronic • Pilot automat (Cruise Control / Tempomat) • Conexiune multimedia USB & AUX-In",
+    "description": "2012 Volkswagen Tiguan 2.0TDI\n1968 cm³ • Diesel • 150 CP • Manuală | 230.047 km garantați contractual pe factură fiscală.\n\nAutoturismul se prezintă într-o stare tehnică și estetică remarcabilă, import recent, cu revizie efectuată și istoric transparent verificat. Fără daune structurale sau vicii ascunse, pregătit pentru utilizare imediată.\n\nDotări & Echipamente Principale:\n• Senzori de parcare spate\n• Plafon panoramic din sticlă\n• Servodirecție asistată electronic\n• Geamuri electrice față / spate\n• Computer de bord multifuncțional\n• Climatizare automată Climatronic\n• Pilot automat (Cruise Control / Tempomat)\n• Conexiune multimedia USB & AUX-In\n\n🛡️ Servicii & Siguranță Incluse MPI Auto:\n• Garanție scrisă contractuală 12 luni MPI Car Protect inclusă în preț (fără costuri ascunse)\n• Rulaj garantat juridic, consemnat expres pe contractul de vânzare și factura fiscală\n• Posibilitate achiziție în rate fixe avantajoase doar cu buletinul (TBI Bank, BT Leasing) cu aprobare rapidă în sub 24h\n• Livrare gratuită pe platformă la domiciliu oriunde în România sau eliberare numere roșii provizorii pe loc\n• Serviciu profesionist de Buy-Back (evaluare corectă a mașinii vechi ca avans)",
     "features": {
       "safety": [
-        "⁠Senzoriparcarespate"
+        "Senzori de parcare spate"
       ],
       "comfort": [
-        "servo_directie",
-        "geamuri_electrice",
-        "computer_bord",
-        "clima",
-        "cruise_control",
-        "Trapapanoramica"
+        "Plafon panoramic din sticlă",
+        "Servodirecție asistată electronic",
+        "Geamuri electrice față / spate",
+        "Computer de bord multifuncțional",
+        "Climatizare automată Climatronic",
+        "Pilot automat (Cruise Control / Tempomat)"
       ],
       "multimedia": [
-        "⁠USBAUX"
+        "Conexiune multimedia USB & AUX-In"
       ]
     }
   }

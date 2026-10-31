@@ -3,15 +3,24 @@ import { VehicleItem } from '../../db/seed';
 import { DealerProfile, DealerLandingConfig } from '../../db/types';
 import { DEFAULT_LANDING_CONFIG } from '../../db/dealer';
 
+// MPI Auto Bespoke Components (§5)
 import { TrustBand } from './TrustBand';
-import { SpecialOffersCarousel } from './SpecialOffersCarousel';
-import { VehicleCatalog } from './VehicleCatalog';
-import { FinancingSection } from './FinancingSection';
+import { MpiSpecialOffersCarousel } from './MpiSpecialOffersCarousel';
+import { MpiVehicleCatalog } from './MpiVehicleCatalog';
+import { MpiFinancingSection } from './MpiFinancingSection';
 import { WarrantyDepositSection } from './WarrantyDepositSection';
 import { WarrantyPlansSection } from './WarrantyPlansSection';
 import { ServicesSection } from './ServicesSection';
-import { GoogleReviewsSection } from './GoogleReviewsSection';
+import { MpiGoogleReviewsSection } from './MpiGoogleReviewsSection';
 import { ContactMapSection } from './ContactMapSection';
+
+// RXM Automobile Bespoke Components (Exact Original Registry)
+import { VehicleCatalog } from './VehicleCatalog';
+import { WhyChooseUs } from './WhyChooseUs';
+import { FinancingSection } from './FinancingSection';
+import { BuyBackSection } from './BuyBackSection';
+import { CustomOrderSection } from './CustomOrderSection';
+import { GoogleReviewsSection } from './GoogleReviewsSection';
 
 const DealerHeroAdapter = React.lazy(() => import('./DealerHeroAdapter'));
 
@@ -20,7 +29,7 @@ export interface LandingSectionOrchestratorProps {
   landingConfig?: DealerLandingConfig;
   vehicles: VehicleItem[];
   publicVehicles: VehicleItem[];
-  onSelectCar: (car: VehicleItem, tab?: 'specs' | 'finance' | 'video' | 'testdrive', format?: 'tiktok' | 'youtube') => void;
+  onSelectCar: (car: VehicleItem, tab?: 'specs' | 'finance' | 'video' | 'testdrive' | 'expenses' | 'deadlines', format?: 'tiktok' | 'youtube') => void;
   showToast: (msg: string) => void;
   isRevealed?: boolean;
 }
@@ -37,7 +46,7 @@ export const LandingSectionOrchestrator: React.FC<LandingSectionOrchestratorProp
   const cfg = lc ?? DEFAULT_LANDING_CONFIG;
   const isMpi = dealer.slug === 'mpi_auto' || dealer.themePreset === 'mpi_signature';
 
-  // Pentru mpi_signature / MPI Auto: succesiune strictă conform specificației §5
+  // 🏁 1. Pentru mpi_signature / MPI Auto: succesiune strictă conform specificației §5
   if (isMpi) {
     return (
       <main className="no-print">
@@ -62,7 +71,7 @@ export const LandingSectionOrchestrator: React.FC<LandingSectionOrchestratorProp
         />
 
         {/* 5.4 Oferte Speciale (Un singur carusel + Notă Omnibus) */}
-        <SpecialOffersCarousel 
+        <MpiSpecialOffersCarousel 
           cars={publicVehicles}
           onSelectCar={onSelectCar}
           dealer={dealer}
@@ -71,7 +80,7 @@ export const LandingSectionOrchestrator: React.FC<LandingSectionOrchestratorProp
 
         {/* 5.5 Catalogul de stoc (#catalog) */}
         {cfg.visibleSections?.vehicleCatalog !== false && (
-          <VehicleCatalog
+          <MpiVehicleCatalog
             cars={publicVehicles}
             onSelectCar={onSelectCar}
             dealer={dealer}
@@ -81,7 +90,7 @@ export const LandingSectionOrchestrator: React.FC<LandingSectionOrchestratorProp
 
         {/* 5.6 Finanțare (#finantare - Simulator pe --surface) */}
         {cfg.visibleSections?.financingSection !== false && (
-          <FinancingSection
+          <MpiFinancingSection
             cars={publicVehicles}
             dealer={dealer}
           />
@@ -108,7 +117,7 @@ export const LandingSectionOrchestrator: React.FC<LandingSectionOrchestratorProp
 
         {/* 5.10 Recenzii Clienți (#recenzii) */}
         {cfg.visibleSections?.googleReviewsSection !== false && (
-          <GoogleReviewsSection
+          <MpiGoogleReviewsSection
             dealer={dealer}
           />
         )}
@@ -122,58 +131,76 @@ export const LandingSectionOrchestrator: React.FC<LandingSectionOrchestratorProp
     );
   }
 
-  // Fallback configurabil pentru ceilalți tenanți (RXM, Top Auto)
+  // 🏆 2. Pentru RXM Automobile & alți tenanți: LAYOUT ORIGINAL RXM INTEGRAL RESTAURAT
   const s = cfg.visibleSections;
-  return (
-    <main className="no-print">
-      {s.heroCinematic && (
-        <Suspense fallback={<div className="min-h-screen bg-[#09090b]" />}>
-          <DealerHeroAdapter
-            tenant={dealer}
-            landingConfig={cfg}
-            cars={publicVehicles}
-            onSelectCar={(car) => onSelectCar(car, 'specs')}
-            isRevealed={isRevealed}
-          />
-        </Suspense>
-      )}
 
-      <SpecialOffersCarousel 
+  const defaultOrder = [
+    'HERO_SPOTLIGHT',
+    'VEHICLE_CATALOG',
+    'FINANCING',
+    'BUY_BACK',
+    'GOOGLE_REVIEWS',
+    'WHY_CHOOSE_US',
+    'CUSTOM_ORDER',
+  ];
+  const activeOrder = (dealer.config as any)?.layout?.sectionsOrder || defaultOrder;
+
+  const registry: Record<string, React.ReactNode> = {
+    HERO_SPOTLIGHT: s.heroCinematic ? (
+      <Suspense key="HERO_SPOTLIGHT" fallback={<div className="min-h-screen bg-[#09090b]" />}>
+        <DealerHeroAdapter
+          tenant={dealer}
+          landingConfig={cfg}
+          cars={publicVehicles}
+          onSelectCar={(car) => onSelectCar(car, 'specs')}
+          isRevealed={isRevealed}
+        />
+      </Suspense>
+    ) : null,
+    VEHICLE_CATALOG: s.vehicleCatalog ? (
+      <VehicleCatalog 
+        key="VEHICLE_CATALOG"
         cars={publicVehicles}
         onSelectCar={onSelectCar}
         dealer={dealer}
-      />
-
-      {s.vehicleCatalog && (
-        <VehicleCatalog 
-          cars={publicVehicles}
-          onSelectCar={onSelectCar}
-          dealer={dealer}
-          landingConfig={cfg}
-        />
-      )}
-
-      {s.financingSection && (
-        <FinancingSection 
-          cars={publicVehicles}
-          dealer={dealer}
-        />
-      )}
-
-      <ServicesSection 
-        dealer={dealer}
         landingConfig={cfg}
+      />
+    ) : null,
+    FINANCING: s.financingSection ? (
+      <FinancingSection 
+        key="FINANCING"
+        cars={publicVehicles}
+        dealer={dealer}
+      />
+    ) : null,
+    BUY_BACK: s.buyBackSection ? (
+      <BuyBackSection 
+        key="BUY_BACK"
+        cars={publicVehicles}
+        dealer={dealer}
         showToast={showToast}
       />
-
-      {s.googleReviewsSection && (
-        <GoogleReviewsSection dealer={dealer} />
-      )}
-
-      <ContactMapSection 
+    ) : null,
+    GOOGLE_REVIEWS: s.googleReviewsSection ? (
+      <GoogleReviewsSection key="GOOGLE_REVIEWS" dealer={dealer} />
+    ) : null,
+    WHY_CHOOSE_US: s.whyChooseUs ? (
+      <WhyChooseUs key="WHY_CHOOSE_US" dealer={dealer} />
+    ) : null,
+    CUSTOM_ORDER: s.customOrderSection ? (
+      <CustomOrderSection 
+        key="CUSTOM_ORDER"
         dealer={dealer}
-        landingConfig={cfg}
+        showToast={showToast}
       />
+    ) : null,
+  };
+
+  return (
+    <main className="no-print">
+      {activeOrder.map((sectionKey: string) => registry[sectionKey] || null)}
     </main>
   );
 };
+
+export default LandingSectionOrchestrator;

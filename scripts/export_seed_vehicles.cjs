@@ -1,11 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
-// Extract vehicles from src/db/vehicles.ts
+// Extract vehicles from src/db/vehicles.ts and src/db/mpiVehicles.ts
 const vehiclesTsPath = path.join(__dirname, '..', 'src', 'db', 'vehicles.ts');
 const content = fs.readFileSync(vehiclesTsPath, 'utf8');
 
-// Use regex or eval to get the array
 const match = content.match(/export const SEED_VEHICLES: VehicleItem\[\] = (\[[\s\S]*?\]);\s*$/);
 if (!match) {
   console.error('Nu am putut extrage SEED_VEHICLES din vehicles.ts');
@@ -13,8 +12,19 @@ if (!match) {
 }
 
 const rawArrayStr = match[1];
-// Parse using safe Function constructor or eval
-const seedVehicles = new Function(`return ${rawArrayStr}`)();
+const rxmVehicles = new Function(`return ${rawArrayStr}`)();
+
+let mpiVehicles = [];
+const mpiTsPath = path.join(__dirname, '..', 'src', 'db', 'mpiVehicles.ts');
+if (fs.existsSync(mpiTsPath)) {
+  const mpiContent = fs.readFileSync(mpiTsPath, 'utf8');
+  const mpiMatch = mpiContent.match(/export const SEED_MPI_VEHICLES: VehicleItem\[\] = (\[[\s\S]*?\]);\s*$/);
+  if (mpiMatch) {
+    mpiVehicles = new Function(`return ${mpiMatch[1]}`)();
+  }
+}
+
+const seedVehicles = [...rxmVehicles, ...mpiVehicles];
 
 const outDir = path.join(__dirname, '..', 'server');
 if (!fs.existsSync(outDir)) {

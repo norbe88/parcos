@@ -3,7 +3,7 @@ import { CheckCircle2, ShieldCheck, MessageCircle, FileText, ChevronDown, Edit3,
 import { VehicleItem } from '../../../db/seed';
 import { DealerProfile } from '../../../db/types';
 import { getWhatsAppVinRequestUrl, formatMileage } from '../../../utils/helpers';
-import { isInvalidCorruptedFeature } from '../../../utils/featuresCatalogService';
+import { isInvalidCorruptedFeature, formatFeatureDisplay, formatEquipmentSheetText } from '../../../utils/featuresCatalogService';
 
 interface DetailSpecsTabProps {
   car: VehicleItem;
@@ -28,9 +28,9 @@ export const DetailSpecsTab: React.FC<DetailSpecsTabProps> = ({
     setIsEditingDesc(false);
   }, [car.id, car.description]);
 
-  const cleanSafety = (car.features?.safety || []).filter(f => !isInvalidCorruptedFeature(f));
-  const cleanComfort = (car.features?.comfort || []).filter(f => !isInvalidCorruptedFeature(f));
-  const cleanMultimedia = (car.features?.multimedia || []).filter(f => !isInvalidCorruptedFeature(f));
+  const cleanSafety = (car.features?.safety || []).filter(f => !isInvalidCorruptedFeature(f)).map(formatFeatureDisplay);
+  const cleanComfort = (car.features?.comfort || []).filter(f => !isInvalidCorruptedFeature(f)).map(formatFeatureDisplay);
+  const cleanMultimedia = (car.features?.multimedia || []).filter(f => !isInvalidCorruptedFeature(f)).map(formatFeatureDisplay);
   const totalFeatures = cleanSafety.length + cleanComfort.length + cleanMultimedia.length;
 
   return (
@@ -126,7 +126,7 @@ export const DetailSpecsTab: React.FC<DetailSpecsTabProps> = ({
           </button>
           {showFullSheet && (
             <div className="px-3.5 pb-3.5 pt-2 border-t border-white/06 text-[11px] font-mono text-zinc-300 whitespace-pre-line leading-relaxed max-h-72 overflow-y-auto">
-              {car.equipmentSheetText}
+              {formatEquipmentSheetText(car.equipmentSheetText)}
             </div>
           )}
         </div>
